@@ -1,0 +1,26 @@
+.container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.userCircle{
+  border-radius: 50%;
+  height: 150px;
+  width: 150px;
+  position: relative;;
+}
+
+.actions {
+  display: flex;
+  width: fit-content;
+  height: fit-content;
+  justify-self: end;
+  align-self: flex-end;
+}
+
+.editBtn {
+  position: absolute;
+  bottom: 5px;
+  right: -12px;
+}

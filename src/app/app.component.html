@@ -1,0 +1,27 @@
+<div class="w-full h-full dark:bg-gray-600 text-gray-400 dark:text-neutral-100">
+  @if(link !== '/login' && link!=='/'){
+    <app-navbar></app-navbar>
+  }
+    <div class="sidenav dark:bg-gray-900 bg-gray-50 shadow-2xl dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] pt-20 px-5" [ngClass]="notificationService.showNotificationSideBar? 'show':''">
+
+        <div class="side-header">
+          <div class="icon-left w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="hideSidebar();">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+
+          <div class="title">
+            <h5 class="mb-4">Notifications</h5>
+          </div>
+        </div>
+
+      @for (notification of notificationList; track notification) {
+        <app-notification-card [notification]="notification" class="w-full mb-6"> </app-notification-card>
+      }
+
+    </div>
+  <router-outlet></router-outlet>
+</div>
+
+

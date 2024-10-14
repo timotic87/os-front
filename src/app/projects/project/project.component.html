@@ -1,0 +1,76 @@
+<div class="container mx-auto p-6 pt-20 dark:bg-gray-600 h-full">
+  <div *ngIf="project">
+    <app-color-label color="green">Created by {{ project.creatorUser.fullName }}
+      {{ project.createdDate | date: 'MMM d, y' }} at {{ project.createdDate | date: 'h:mm a' }}
+    </app-color-label>
+    <div class="text-l mt-6">
+      This project is created on <span class="text-[#386097] dark:text-[#56BDED]">{{ project.legalEntity.name }}</span>
+    </div>
+    <div class="text-l mt-6">
+      <span class="inline-block">BD consultant:</span>
+      <span class="ml-1 text-[#386097] dark:text-[#56BDED]">{{ project.bdUser.fullName }}</span>
+    </div>
+    <div class="my-6 font-bold">
+      <span class="mr-9">Service: <span
+        class="text-[#386097] dark:text-[#56BDED]">{{ project.service.name }}</span></span>Subservice: <span
+      class="text-[#386097] dark:text-[#56BDED]">{{ project.subservice.name }}</span>
+    </div>
+    <div class="grid grid-cols-2 xl:grid-cols-3 gap-2 pr-2 py-2">
+      <div class="border-2 border-[#386097] dark:border-[#56BDED] p-3 rounded-lg col-span-2">
+        <h2 class="text-xl mb-3">Client: <span
+          class="text-[#386097] dark:text-[#56BDED] font-bold">{{ project.client.name }}</span></h2>
+        <p class="mb-3">Country: <span
+          class="text-[#386097] dark:text-[#56BDED] mr-6">{{ project.client.country.name }}</span> City: <span
+          class="text-[#386097] dark:text-[#56BDED] mr-6">{{ project.client.city }}</span>
+          Address: <span class="text-[#386097] dark:text-[#56BDED] mr-3">{{ project.client.address }}</span></p>
+        <p class="mb-3">Mail: <span
+          class="text-[#386097] dark:text-[#56BDED] mr-6">{{ project.client.mail ? project.client.mail : 'Email address missing' }}</span>
+          Number: <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ 'xxxxxxx' }}</span></p>
+        <p class="mb-3">Mail for finance: <span
+          class="text-[#386097] dark:text-[#56BDED] mr-6">{{ project.client.mail ? project.client.mail : 'Email address missing' }}</span>
+          Number for finance: <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ 'xxxxxxx' }}</span></p>
+      </div>
+      <div class="border-2 border-[#386097] dark:border-[#56BDED] p-3 rounded-lg col-span-2 xl:col-span-1">
+        <div class="flex items-start gap-2.5 mt-3" *ngIf="project.lastComment">
+          <img class="w-8 h-8 rounded-full" [src]=project.lastComment.picUrl alt="Jese image" style="object-fit: cover;">
+          <div
+            class="commentWraper flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <span
+                class="text-sm font-semibold text-gray-900 dark:text-white">{{ project.lastComment.userName }}</span>
+              <span
+                class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ project.lastComment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+            </div>
+            <p
+              class="commentText text-sm font-normal pt-2.5 text-gray-900 dark:text-white">{{ project.lastComment.comment }}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-column justify-end" *ngIf="project.lastComment">
+          <div class="w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block" (click)="openComment();">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="size-7">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75"/>
+            </svg>
+          </div>
+        </div>
+
+        <div *ngIf="!project.lastComment">
+          <p>No comment yet!</p>
+          <button (click)="openComment();"
+                  class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+                  data-ripple-light="true">Add new comment
+          </button>
+        </div>
+
+      </div>
+    </div>
+    <app-stuffing-flow [project]="project" [cdcmARR]="cdcm" *ngIf="project.subservice.typeID===2"></app-stuffing-flow>
+  </div>
+</div>

@@ -1,0 +1,66 @@
+
+@media (prefers-color-scheme: dark) {
+  ::ng-deep.mat-mdc-dialog-surface {
+    background-color: rgb(75 85 99)!important;
+  }
+  ::ng-deep .mat-mdc-menu-content{
+    background-color: rgb(75 85 99)!important;
+  }
+  ::ng-deep .mat-mdc-menu-item-text{
+    color: rgb(229 229 229) !important;
+  }
+}
+
+app-navbar {
+  width: 100%;
+  position: fixed;
+  z-index: 999;
+}
+app-notification-side-bar{
+  position: fixed;
+  z-index: 900;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  position: absolute;
+  top: 60px;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+}
+
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  right: -400px;
+  top: 0;
+  align-items: center;
+  justify-content: start;
+  width: 400px;
+  height: 100vh;
+  z-index: 950;
+  transition: right 0.3s ease;
+  overflow: hidden;
+}
+.sidenav.show {
+  right: 0;
+}
+
+.sidenav:hover {
+  overflow: auto; /* Omogućava skrolovanje kada je miš iznad */
+}
+
+.side-header{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.title{
+  margin: auto;
+}
+

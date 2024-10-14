@@ -1,0 +1,26 @@
+<div class="container p-6">
+  <h2 class="text-gray-600 dark:text-gray-300 mb-6">Edit service</h2>
+  <form [formGroup]="editServiceForm">
+    <div class="columns-2">
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Service Name:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editServiceForm.touched && !editServiceForm.get('serviceName').valid ? 'border-red-500':''" formControlName="serviceName" autocomplete="new-name">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editServiceForm.get('serviceName').touched && !editServiceForm.get('serviceName').valid">First name needs to be minimum 3 characters long.</label>
+      </div>
+      <div>
+        <button (click)="edit();"
+                class=" w-full my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+                data-ripple-light="true">Edit Service
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,74 @@
+<div class="contDialog w-full dark:bg-gray-600 py-9">
+  <div class="flex justify-center text-gray-400 dark:text-neutral-100">
+    <h2 class="text-center text-2xl mt-3">Client {{data.name}}</h2>
+  </div>
+  <div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
+    <h2 class="text-center text-2xl mt-3">buyerCode and costPositions</h2>
+  </div>
+
+<!--  <button (click)="addBCCP();"-->
+<!--          class="m-3 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED] focus-visible:outline-0 focus-visible:opacity-100"-->
+<!--          data-ripple-light="true">Add new-->
+<!--  </button>-->
+
+  <a href="javascript:void(0)" class="text-green-700 transition duration-150 ease-in-out hover:text-green-600 focus:text-green-600 active:text-green-700 focus-visible:outline-0 m-5" (click)="addBCCP();">Add new</a>
+
+
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg m-3">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="px-6 py-3">
+          Legal entity
+        </th>
+        <th scope="col" class="px-6 py-3">
+          buyerCode
+        </th>
+        <th scope="col" class="px-6 py-3">
+          costPosition
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Action
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (i of [1,2,3]; track i) {
+          <tr
+            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
+              {{ "Manpower" }}
+            </th>
+            <td class="px-6 py-4">
+              {{ "C12344" }}
+            </td>
+            <td class="px-6 py-4">
+              {{ "123456" }}
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex item-center">
+                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </div>
+                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

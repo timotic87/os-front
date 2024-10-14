@@ -1,0 +1,15 @@
+.documet-card{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.carAction{
+  height: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+.listContainer{
+  max-height: 450px;
+  overflow-y: auto;
+}

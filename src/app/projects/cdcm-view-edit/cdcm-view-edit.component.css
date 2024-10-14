@@ -1,0 +1,14 @@
+.customNumberInput::-webkit-inner-spin-button,
+.customNumberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.visible {
+  display: block;
+}
+
+.notvisible {
+  display: none;
+}
+

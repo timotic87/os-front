@@ -1,0 +1,15 @@
+.avatar-container {
+  height: 30px;
+  width: 30px;
+}
+.avatar-circle {
+  height: 90%;
+  width: 90%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+

@@ -1,0 +1,166 @@
+<section class="container mx-auto p-6 dark:bg-gray-600 h-full">
+  <h2 class="text-2xl text-gray-600 dark:text-gray-300">Users</h2>
+
+  <button (click)="addUser();"
+          class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+          data-ripple-light="true">Add User</button>
+
+
+  <div class="mb-3 w-full lg:w-2/6">
+    <div class="relative mb-4 flex w-full flex-wrap items-stretch">
+      <input [(ngModel)]="searchText"
+             type="search"
+             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l
+             border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]
+              text-base font-normal leading-[1.6] text-neutral-700 outline-none transition
+               duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400
+                focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none
+                dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
+             placeholder="Search"
+             aria-label="Search"
+             (keyup)="searchEvent($event)"/>
+
+      <!--Search button-->
+      <button
+        (click)="search();"
+        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"
+        type="submit"
+        id="button-addon3"
+        data-te-ripple-init>
+        Search
+      </button>
+    </div>
+  </div>
+
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="px-6 py-3">
+          ID
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Name
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Username
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Department
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Unit
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Position
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Active
+        </th>
+        <th scope="col" class="py-3 flex item-center justify-center">
+          Action
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (user of userList; track user) {
+          <tr
+            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
+              {{ user.id }}
+            </th>
+            <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
+              {{ user.fullName }}
+            </th>
+            <td class="px-6 py-4">
+              {{ user.userName }}
+            </td>
+            <td class="px-6 py-4">
+              {{ user.department.name }}
+            </td>
+            <td class="px-6 py-4">
+              {{ user.unit.name }}
+            </td>
+            <td class="px-6 py-4">
+              {{ user.position.name }}
+            </td>
+            <td class="px-6 py-4">
+              {{ user.status.name }}
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex item-center justify-center">
+                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="editUser(user);">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                  </svg>
+
+                </div>
+                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="changeStatus(user)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+                  </svg>
+                </div>
+
+                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="changePassword(user)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                  </svg>
+
+                </div>
+
+                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="userPermisions(user);">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
+
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+<!--  <div class="my-2 flex sm:flex-row flex-col pb-6">-->
+<!--    <div class="flex flex-row mb-1 sm:mb-0">-->
+<!--      <div class="relative">-->
+<!--        <select [(ngModel)]="clientsNumber" (change)="onClientsNumberChange()" type="number"-->
+<!--                class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border block appearance-none w-full bg-white border-gray-400 text-gray-400 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097] dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">-->
+<!--          <option type="number">30</option>-->
+<!--          <option type="number">50</option>-->
+<!--          <option type="number">100</option>-->
+<!--        </select>-->
+<!--        <div-->
+<!--          class=" pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">-->
+<!--          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">-->
+<!--            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>-->
+<!--          </svg>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    <div class="w-full flex justify-center pt-2 text-gray-400">-->
+<!--      <a (click)="leftArrow();" href=javascript:void(0) class="mr-2 dark:hover:text-[#56BDED]  hover:text-[#386097]">-->
+<!--        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"-->
+<!--             class="w-6 h-6">-->
+<!--          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>-->
+<!--        </svg>-->
+<!--      </a> <span class="mr-1">{{ offset + 1 }}</span>/<span class="ml-1 mr-1">{{ (offset * clientsNumber) + 1 }}</span>-<span-->
+<!--      class="ml-1">{{ lastItemNumber }}</span>-->
+<!--      <a (click)="rightArrow();" class="ml-2 dark:hover:text-[#56BDED] hover:text-[#386097]" href=javascript:void(0)>-->
+<!--        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"-->
+<!--             class="w-6 h-6">-->
+<!--          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>-->
+<!--        </svg>-->
+<!--      </a>-->
+<!--    </div>-->
+
+<!--  </div>-->
+</section>
+

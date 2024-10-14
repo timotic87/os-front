@@ -1,0 +1,8 @@
+@media (prefers-color-scheme: dark) {
+  ::ng-deep.mat-mdc-autocomplete-panel {
+    background-color: rgb(75 85 99) !important;
+  }
+  ::ng-deep.mdc-list-item__primary-text{
+    color: rgb(245 245 245) !important;
+  }
+}

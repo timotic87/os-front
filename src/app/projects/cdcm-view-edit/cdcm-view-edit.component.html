@@ -1,0 +1,308 @@
+<div class="h-fit w-full dark:bg-gray-600 py-6 text-gray-400 dark:text-neutral-100 text-xs xl:text-base">
+  <div class="pb-6 flex justify-center">
+    <h2 class="text-center mt-3 text-2xl">CDCM</h2>
+  </div>
+  <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
+  <div class="grid grid-cols-3 gap-2 px-2">
+    <!--    BasinInfo part start-->
+    <div
+      class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+
+      <form [formGroup]="basicInfoForm">
+        <h2 class="m-3 text-center text-xl font-semibold">Basic Info</h2>
+
+        <h3 class="m-3 font-semibold">Input from client:</h3>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">No. of employees</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="basicInfoForm.get('No_of_employees').touched && !basicInfoForm.get('No_of_employees').valid ? 'border-red-500':''"
+                 formControlName="No_of_employees" autocomplete="new-No_of_employees">
+        </div>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Grand Gross Salary per Employee</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="number"
+                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="basicInfoForm.get('Grand_Groos_Salaray_per_Employee').touched && !basicInfoForm.get('Grand_Groos_Salaray_per_Employee').valid ? 'border-red-500':''"
+                 formControlName="Grand_Groos_Salaray_per_Employee" autocomplete="Grand_Groos_Salaray_per_Employee">
+        </div>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Other cost</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="number"
+                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="basicInfoForm.get('other_cost').touched && !basicInfoForm.get('other_cost').valid ? 'border-red-500':''"
+                 formControlName="other_cost" autocomplete="other_cost">
+        </div>
+
+        <div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-30">Disabled people</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <input type="number"
+                   class="disabled:opacity-75 customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="basicInfoForm.get('disabled_people').touched && !basicInfoForm.get('disabled_people').valid ? 'border-red-500':''"
+                   formControlName="disabled_people" autocomplete="disabled_people">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">Charging DP</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <select formControlName="Charging_DP" class="disabled:opacity-75 disabled:hover:border-gray-400 dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
+    w-3/4 bg-white border-gray-400 text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+              @for (o of ChargingDPArr; track o) {
+                <option [ngValue]="o">{{ o.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <span class="m-3 font-semibold">Markup:</span>
+        <div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">Type of fee</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <select formControlName="feeTypes" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
+    w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+              @for (o of feeTypes; track o) {
+                <option [ngValue]="o">{{ o.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div [ngClass]="basicInfoForm.get('feeTypes').value.name==='Markup' ? 'visible':'notvisible'">
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on salary</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <input type="number"
+                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="basicInfoForm.get('MU_on_salary').touched && !basicInfoForm.get('MU_on_salary').valid ? 'border-red-500':''"
+                   formControlName="MU_on_salary" autocomplete="MU_on_salary">
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on costs</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <input type="number"
+                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="basicInfoForm.get('MU_on_costs').touched && !basicInfoForm.get('MU_on_costs').valid ? 'border-red-500':''"
+                   formControlName="MU_on_costs" autocomplete="MU_on_costs">
+          </div>
+
+          @if (basicInfoForm.get('Charging_DP').value.name === 'YES') {
+            <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on disabled people</div>
+            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+              <input type="number"
+                     class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                     [ngClass]="basicInfoForm.get('MU_on_disabled_people').touched && !basicInfoForm.get('MU_on_disabled_people').valid ? 'border-red-500':''"
+                     formControlName="MU_on_disabled_people" autocomplete="MU_on_disabled_people">
+            </div>
+          }
+        </div>
+        <div [ngClass]="basicInfoForm.get('feeTypes').value.name==='Flat' ? 'visible':'notvisible'">
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">Flat fee</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <input type="number"
+                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="basicInfoForm.get('Flat_fee').touched && !basicInfoForm.get('Flat_fee').valid ? 'border-red-500':''"
+                   formControlName="Flat_fee" autocomplete="Flat_fee">
+          </div>
+        </div>
+        <span class="m-3 font-semibold">Due days:</span>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">On cost</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="number"
+                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="basicInfoForm.get('due_days_on_cost').touched && !basicInfoForm.get('due_days_on_cost').valid ? 'border-red-500':''"
+                 formControlName="due_days_on_cost" autocomplete="due_days_on_cost">
+        </div>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">On fee</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="number"
+                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="basicInfoForm.get('due_days_on_fee').touched && !basicInfoForm.get('due_days_on_fee').valid ? 'border-red-500':''"
+                 formControlName="due_days_on_fee" autocomplete="due_days_on_fee">
+        </div>
+
+        <span class="m-3 mt-6 text-red-500 block" *ngIf="showBasicInfoMsgValidation">Fill all the blanks*</span>
+      </form>
+    </div>
+    <!--    BasicInfo part end-->
+
+    <!--    Operational cost stat-->
+    <div class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+      <form [formGroup]="operationalCostForm">
+        <p class="m-3 text-center text-xl font-semibold">Operational costs</p>
+        <div class="flex flex-row mb-3">
+          <div class="flex items-center basis-1/2">
+            <input formControlName='hra_checkbox' id="hra-checkbox" type="checkbox" value="" (click)="onHRACHClick()"
+                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <label for="hra-checkbox" class="ms-2 font-medium text-gray-900 dark:text-gray-300">HRA</label>
+          </div>
+
+          <div class="flex items-center basis-1/2">
+            <input formControlName='payroll_checkbox' id="payroll-checkbox" type="checkbox" value="" (click)="onPYCHClick()"
+                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <label for="payroll-checkbox"
+                   class="ms-2 font-medium text-gray-900 dark:text-gray-300">PAYROLL</label>
+          </div>
+        </div>
+
+        <div *ngIf="operationalCostForm.get('hra_checkbox').value">
+          <span class="m-3 font-semibold">HRA operational costs</span>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">HRA Consultant</div>
+          <div class="flex justify-center text-gray-400 dark:text-neutral-100">
+            <select formControlName="HRA_Consultant" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
+    w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+              @for (o of cdcmService.cdcmSeniorityList; track o) {
+                <option [ngValue]="o">{{ o.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">
+            <span class="mb-3">Cost:</span><span *ngIf="operationalCostForm.get('HRA_Consultant').value">
+            {{operationalCostForm.get('HRA_Consultant').value["hracost"] | currency: 'RSD '}}
+          </span>
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">% of time</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                   oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="operationalCostForm.get('HRA_percent_of_time').touched && !operationalCostForm.get('HRA_percent_of_time').valid ? 'border-red-500':''"
+                   formControlName="HRA_percent_of_time" autocomplete="new-percent_of_time">
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">
+            <span class="mb-3">HRA cost:</span><span *ngIf="operationalCostForm.get('HRA_Consultant').value && operationalCostForm.get('HRA_percent_of_time').value">
+            {{operationalCostForm.get('HRA_Consultant').value["hracost"] * (100/operationalCostForm.get('HRA_percent_of_time').value) | currency: 'RSD '}}
+          </span>
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">
+            <span class="mb-3">Collective insurance cost:</span><span>
+            {{collective_insurance | currency: 'RSD '}}
+          </span>
+          </div>
+        </div>
+
+        <div *ngIf="operationalCostForm.get('payroll_checkbox').value">
+          <span class="m-3 font-semibold">PY operational costs</span>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">PY Consultant</div>
+          <div class="flex justify-center text-gray-400 dark:text-neutral-100">
+            <select formControlName="PY_Consultant" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
+    w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+              @for (o of cdcmService.cdcmSeniorityList; track o) {
+                <option [ngValue]="o">{{ o.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">
+            <span class="mb-3">Cost:</span><span *ngIf="operationalCostForm.get('PY_Consultant').value">
+            {{operationalCostForm.get('PY_Consultant').value["pycost"] | currency: 'RSD '}}
+          </span>
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">% of time</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                   oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="operationalCostForm.get('PY_percent_of_time').touched && !operationalCostForm.get('PY_percent_of_time').valid ? 'border-red-500':''"
+                   formControlName="PY_percent_of_time" autocomplete="new-percent_of_time">
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">
+            <span class="mb-3">HRA cost:</span><span *ngIf="operationalCostForm.get('PY_Consultant').value && operationalCostForm.get('PY_percent_of_time').value">
+            {{operationalCostForm.get('PY_Consultant').value["pycost"] * (100/operationalCostForm.get('PY_percent_of_time').value) | currency: 'RSD '}}
+          </span>
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">Payslips</div>
+          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+            <select formControlName="payslips" class="disabled:opacity-75 disabled:hover:border-gray-400 dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
+    w-3/4 bg-white border-gray-400 text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+              @for (o of PayslipsArr; track o) {
+                <option [ngValue]="o">{{ o.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="flex justify-center text-gray-600 dark:text-gray-300" *ngIf="operationalCostForm.get('payslips').value['num']===1">
+            <span class="mb-3">Payslips cost:</span><span>
+            {{payslipsCost | currency: 'RSD '}}
+          </span>
+          </div>
+          <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
+
+        </div>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Additional costs</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="operationalCostForm.get('additional_costs').touched && !operationalCostForm.get('additional_costs').valid ? 'border-red-500':''"
+                 formControlName="additional_costs" autocomplete="new-Additional_costs">
+        </div>
+
+        <span class="m-3 mt-6 text-red-500 block" *ngIf="showOperationalCostMsgValidation">Fill all the blanks*</span>
+
+      </form>
+    </div>
+    <!--    OperationalCost end-->
+    <!--    Calculation start-->
+    <div class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+      <p class="m-3 text-center text-xl font-semibold">Calculation</p>
+      <span class="m-3 font-semibold block">Direct cost: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.directCost | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Fee: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.fee | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Revenue: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.revenue | currency: 'RSD '}}</span></span>
+      <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
+      <span class="m-3 font-semibold block">Franshise fee: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.franshiseFeeCost">{{cdcmService.calculationCDCM.franshiseFeeCost | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Financing cost: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.financingCost">{{cdcmService.calculationCDCM.financingCost | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Operational cost: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.operationalCost">{{cdcmService.calculationCDCM.operationalCost | currency: 'RSD '}}</span></span>
+      <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
+      <span class="m-3 font-semibold block">Gross profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.grossProfit | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">GP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.gpPercent.toFixed(2)+'%'}}</span></span>
+      <span class="m-3 font-semibold block">Net profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.netProfit | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">NP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.npPercent.toFixed(2)+'%'}}</span></span>
+
+    </div>
+  </div>
+  <div class="flex flex-row-reverse text-gray-400 m-3">
+    <button (click)="cancel();"
+            type="button"
+            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4
+       text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
+        hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:bg-red-600
+         focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:outline-none
+          focus:ring-0 active:bg-danger-700 active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)]
+           dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]
+            dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
+      Close
+    </button>
+    <button (click)="operationalCostoCreate();"
+            type="button"
+            class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Calculate/Save
+    </button>
+  </div>
+
+</div>

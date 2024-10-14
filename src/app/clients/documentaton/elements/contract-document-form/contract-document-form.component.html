@@ -1,0 +1,72 @@
+<form [formGroup]="addContractForm">
+  <div class="px-3 text-gray-400 mb-3 dark:text-neutral-100 flex flex-row">
+    <div class="w-3/5">
+      <div class="text-gray-600 dark:text-gray-300"><span class="text-red-500 dark:text-red-400">*</span>Dokument name/number:</div>
+      <div class="w-full text-gray-400 dark:text-neutral-100">
+        <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+               [ngClass]="addContractForm.get('fileName').touched && !addContractForm.get('fileName').valid ? 'border-red-500':''" formControlName="fileName" autocomplete="new-name">
+        <label class="text-xs text-red-500 block" *ngIf="addContractForm.get('fileName').touched && !addContractForm.get('fileName').valid">Name needs to be minimum 5 characters long.</label>
+      </div>
+
+    </div>
+    <div class="toggleCustom w-2/5 pl-3 flex flex-row">
+        <input
+          (change)="isExpiredChange();"
+          formControlName="isExpired"
+          class="me-2 mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-black/25 before:pointer-events-none
+         before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-['']
+         after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none
+         after:bg-gray-400 after:shadow-switch-2 after:transition-[background-color_0.2s,transform_0.2s] after:content-['']
+         checked:bg-[#386097] checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ms-[1.0625rem]
+         checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-[#386097]
+         checked:after:shadow-switch-1 checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-['']
+          hover:cursor-pointer focus:outline-none focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-switch-3
+           focus:before:shadow-black/60 focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1]
+            focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary
+             checked:focus:bg-primary checked:focus:before:ms-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-switch-3
+              checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-white/25 dark:after:bg-surface-dark dark:checked:bg-[#56BDED]
+               dark:checked:after:bg-[#56BDED]"
+          type="checkbox"
+          role="switch"
+          id="flexSwitchCheckDefault">
+        <label
+          class="inline-block ps-[0.15rem] hover:cursor-pointer"
+          for="flexSwitchCheckDefault">Document can expire</label>
+    </div>
+  </div>
+  <div class="text-gray-600 dark:text-gray-300 flex flex-row" *ngIf="addContractForm.get('isExpired').value">
+    <div class="w-1/3 ml-3">
+      <label for="startDate"><span class="text-red-500 dark:text-red-400">*</span>Start Date:</label>
+      <input formControlName="startDate" type="date" id="startDate" name="startDate" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+      <label class="text-xs text-red-500 block" *ngIf="!addContractForm.get('startDate').valid">Start date is mandatory!</label>
+    </div>
+    <div class="w-1/3 ml-3">
+      <label for="startDate"><span class="text-red-500 dark:text-red-400">*</span>End Date:</label>
+      <input formControlName="endDate" type="date" id="endDate" name="endDate" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+      <label class="text-xs text-red-500 block" *ngIf="!addContractForm.get('endDate').valid">End date is mandatory!</label>
+    </div>
+    <div class="toggleCustom w-1/3 pl-3 flex flex-row">
+      <input
+        formControlName="reciveNotification"
+        class="me-2 mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-black/25 before:pointer-events-none
+         before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-['']
+         after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none
+         after:bg-gray-400 after:shadow-switch-2 after:transition-[background-color_0.2s,transform_0.2s] after:content-['']
+         checked:bg-[#386097] checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ms-[1.0625rem]
+         checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-[#386097]
+         checked:after:shadow-switch-1 checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-['']
+          hover:cursor-pointer focus:outline-none focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-switch-3
+           focus:before:shadow-black/60 focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1]
+            focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary
+             checked:focus:bg-primary checked:focus:before:ms-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-switch-3
+              checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-white/25 dark:after:bg-surface-dark dark:checked:bg-[#56BDED]
+               dark:checked:after:bg-[#56BDED]"
+        type="checkbox"
+        role="switch"
+        id="flexSwitchIsNoti">
+      <label
+        class="inline-block ps-[0.15rem] hover:cursor-pointer"
+        for="flexSwitchIsNoti">Recive notificaton</label>
+    </div>
+  </div>
+</form>

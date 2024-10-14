@@ -1,0 +1,30 @@
+<section class="container mx-auto p-6 dark:bg-gray-600 text-gray-500 dark:text-gray-400">
+  <div class="mt-10 mb-5">
+    <div
+      class="flex-grow basis-[100%] items-center lg:!flex lg:basis-auto"
+      id="navbarSupportedContent12">
+      <!-- Navigation links -->
+      <ul
+        class="list-style-none mr-auto flex flex-col pl-0 lg:flex-row"
+        data-te-navbar-nav-ref>
+
+        <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
+          <!-- Clients link -->
+          <a #usersBtn class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
+             routerLinkActive="active" [routerLink]="[{ outlets: { admin: ['users'] } }]"
+             data-te-nav-link-ref>Users</a>
+        </li>
+        <!-- Profile link -->
+        <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
+          <a class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
+             routerLinkActive="active" [routerLink]="[{ outlets: { admin: ['services'] } }]"
+             data-te-nav-link-ref>Services and Subservices</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+  <router-outlet name="admin"></router-outlet>
+</section>
+
+

@@ -1,0 +1,39 @@
+<div class="container p-6">
+  <h2 class="text-gray-600 dark:text-gray-300 mb-6">Create new subservice</h2>
+  <form [formGroup]="editSubserviceForm">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Subservice Name:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editSubserviceForm.touched && !editSubserviceForm.get('subserviceName').valid ? 'border-red-500':''" formControlName="subserviceName" autocomplete="new-name">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editSubserviceForm.get('subserviceName').touched && !editSubserviceForm.get('subserviceName').valid">First name needs to be minimum 3 characters long.</label>
+      </div>
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Service</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="service" [matAutocomplete]="autoService" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editSubserviceForm.get('service').touched && !editSubserviceForm.get('service').valid ? 'border-red-500':''" autocomplete="new-country">
+          <mat-autocomplete #autoService="matAutocomplete" class="bg-white dark:bg-gray-600">
+            @for (service of SANDS.services; track service){
+              <mat-option [value]="service.name" (click)="serviceClick(service)">{{service.name}}</mat-option>
+            }
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editSubserviceForm.get('service').touched && !editSubserviceForm.get('service').valid">Must select service.</label>
+      </div>
+    </div>
+    <div>
+      <button (click)="edit();"
+              class=" w-full my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+              data-ripple-light="true">Edit Subservice
+      </button>
+    </div>
+  </form>
+</div>

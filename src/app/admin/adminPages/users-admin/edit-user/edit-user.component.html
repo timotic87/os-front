@@ -1,0 +1,106 @@
+<div class="h-full w-full dark:bg-gray-600 py-9">
+  <div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
+    <h2 class="text-center text-2xl mt-3">Edit user</h2>
+  </div>
+  <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
+  <form [formGroup]="editUserForm" autocomplete="off">
+    <div class="flex flex-row">
+
+      <div class="basis-2/4">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">First name:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editUserForm.touched && !editUserForm.get('firstName').valid ? 'border-red-500':''" formControlName="firstName" autocomplete="new-name">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('firstName').touched && !editUserForm.get('firstName').valid">First name needs to be minimum 3 characters long.</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Department</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="department" [matAutocomplete]="autoDepartment" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editUserForm.get('department').touched && !editUserForm.get('department').valid ? 'border-red-500':''" autocomplete="new-country">
+          <mat-autocomplete #autoDepartment="matAutocomplete" class="bg-white dark:bg-gray-600">
+            @for (department of departmentsList; track department){
+              <mat-option [value]="department.name" (click)="departmentClick(department)">{{department.name}}</mat-option>
+            }
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('department').touched && !editUserForm.get('department').valid">Must select department.</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Position</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="position" [matAutocomplete]="autoPosition" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editUserForm.get('position').touched && !editUserForm.get('position').valid ? 'border-red-500':''" autocomplete="new-country">
+          <mat-autocomplete #autoPosition="matAutocomplete" class="bg-white dark:bg-gray-600">
+            @for (position of positionList; track position){
+              <mat-option [value]="position.name" (click)="onPositionClick(position);">{{position.name}}</mat-option>
+            }
+          </mat-autocomplete>
+
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('position').touched && !editUserForm.get('position').valid">Must select position.</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Username:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editUserForm.get('username').touched && !editUserForm.get('username').valid ? 'border-red-500':''" formControlName="username" autocomplete="new-pib">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('username').touched && !editUserForm.get('username').valid">Username name needs to be minimum 6 characters long.</label>
+
+      </div>
+      <div class="basis-2/4">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Last name:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="lastName" autocomplete="new-city"
+                 [ngClass]="editUserForm.get('lastName').touched && !editUserForm.get('lastName').valid ? 'border-red-500':''">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('lastName').touched && !editUserForm.get('lastName').valid">Last name needs to be minimum 4 characters long.</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Unit</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="unit" [matAutocomplete]="autoUnit" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editUserForm.get('unit').touched && !editUserForm.get('unit').valid ? 'border-red-500':''" autocomplete="new-country">
+          <mat-autocomplete #autoUnit="matAutocomplete" class="bg-white dark:bg-gray-600">
+            @for (unit of unitList; track unit){
+              <mat-option [value]="unit.name" (click)="onUnitItemClick(unit)">{{unit.name}}</mat-option>
+            }
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('unit').touched && !editUserForm.get('unit').valid">Must select unit.</label>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Mail:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="email" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="editUserForm.get('mail').touched && !editUserForm.get('mail').valid ? 'border-red-500':''" formControlName="mail" autocomplete="new-mail">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="editUserForm.get('mail').touched && !editUserForm.get('mail').valid">Needs to have valid e-mail format.</label>
+
+      </div>
+    </div>
+    <hr class="my-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
+    <div class="w-full flex flex-row-reverse pr-6">
+      <button (click)="closeDialog();"
+              type="button"
+              class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4
+       text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
+        hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:bg-red-600
+         focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:outline-none
+          focus:ring-0 active:bg-danger-700 active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)]
+           dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]
+            dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
+        Close
+      </button>
+      <button (click)="editUser();"
+              type="button"
+              class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+        Edit User
+      </button>
+
+    </div>
+  </form>
+</div>

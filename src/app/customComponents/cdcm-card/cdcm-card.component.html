@@ -1,0 +1,52 @@
+<div
+  class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 my-6">
+  <div class="cdcmMenu">
+    <app-color-label color="green">Created by {{ cdcm.userName }}
+      {{ cdcm.createdDate | date: 'MMM d, y' }} at {{ cdcm.createdDate | date: 'h:mm a' }}
+    </app-color-label>
+    <div>
+      <button id="dropdownButton" [matMenuTriggerFor]="cdcmOptionMenu"
+              class="inline text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm"
+              type="button">
+        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+             viewBox="0 0 16 3">
+          <path
+            d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+        </svg>
+      </button>
+      <!-- Dropdown menu -->
+      <mat-menu #cdcmOptionMenu="matMenu"
+                class="cdcmChildeTwo mt-25 z-10 text-base list-none bg-white divide-y divide-gray-100 shadow w-44 dark:bg-gray-700 relative">
+        <ul>
+          <li>
+            <a href="javascript:void(0)"
+               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="openViewEditDialog();">View/Edit</a>
+          </li>
+          <li>
+            <a href="javascript:void(0)"
+               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Lock</a>
+          </li>
+          <li>
+            <a href="javascript:void(0)"
+               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+          </li>
+        </ul>
+      </mat-menu>
+    </div>
+  </div>
+
+
+  <p class="m-3 text-center text-xl font-semibold">Calculation</p>
+  <span class="m-3 font-semibold block">Direct cost: {{ cdcm['direct_cost'] | currency: 'RSD ' }}</span>
+  <span class="m-3 font-semibold block">Fee: {{ cdcm['fee'] | currency: 'RSD ' }}</span>
+  <span class="m-3 font-semibold block">Revenue: {{ cdcm['revenue'] | currency: 'RSD ' }}</span>
+  <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
+  <span class="m-3 font-semibold block">Franshise fee: {{ cdcm['franshise_fee'] | currency: 'RSD ' }}</span>
+  <span class="m-3 font-semibold block">Financing cost: {{ cdcm['financing_cost'] | currency: 'RSD ' }}</span>
+  <span class="m-3 font-semibold block">Operational cost: {{ cdcm['operational_cost'] | currency: 'RSD ' }}</span>
+  <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
+  <span class="m-3 font-semibold block">Gross profit: {{ cdcm['gross_profit'] | currency: 'RSD ' }}</span>
+  <span class="m-3 font-semibold block">GP%: {{ cdcm['gross_profit_percent'] }}</span>
+  <span class="m-3 font-semibold block">Net profit: {{ cdcm['net_profit'] | currency: 'RSD ' }}</span>
+  <span class="m-3 font-semibold block">NP%: {{ cdcm['net_profit_percent'] }}</span>
+</div>

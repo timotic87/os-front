@@ -1,0 +1,151 @@
+<div class="h-full w-full dark:bg-gray-600 py-9">
+<div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
+  <h2 class="text-center text-2xl mt-3">Client details</h2>
+</div>
+<hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
+  <form [formGroup]="editClientForm">
+<div class="flex flex-row">
+<div class="basis-2/4">
+  <div class="flex justify-center text-gray-600 dark:text-gray-300">ID#</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">{{ data.id }}</div>
+  <div class="flex justify-center text-gray-600 dark:text-gray-300">Name:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.name }}</div>
+    <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+      <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+             [ngClass]="editClientForm.get('name').touched && !editClientForm.get('name').valid ? 'border-red-500':''" formControlName="name" autocomplete="false">
+    </div>
+  <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('name').touched && !editClientForm.get('name').valid">Name needs to be minimum 3 characters long.</label>
+
+  <div class="flex justify-center text-gray-600 dark:text-gray-300">Company number:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.mb }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="editClientForm.get('mb').touched && !editClientForm.get('mb').valid ? 'border-red-500':''" formControlName="mb" autocomplete="false">
+  </div>
+  <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('mb').touched && !editClientForm.get('mb').valid">Must have 8 characters and only numbers</label>
+
+  <div class="flex justify-center text-gray-600 dark:text-gray-300">TIN:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.pib }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="editClientForm.get('pib').touched && !editClientForm.get('pib').valid ? 'border-red-500':''" formControlName="pib" autocomplete="false">
+  </div>
+  <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('pib').touched && !editClientForm.get('pib').valid">Must have 8 characters and only numbers</label>
+
+  <div class="flex justify-center text-gray-600 dark:text-gray-300">Mail:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.mail }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="!editClientForm.get('mail').valid ? 'border-red-500':''" formControlName="mail" autocomplete="false">
+  </div>
+  <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('mail').touched && !editClientForm.get('mail').valid">Needs to have valid e-mail format.</label>
+
+</div>
+  <div class="basis-2/4">
+  <div class="flex justify-center text-gray-600 dark:text-gray-300">Country</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.country.name }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" formControlName="country" [matAutocomplete]="autoCountry" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="editClientForm.get('country').touched && !editClientForm.get('country').valid ? 'border-red-500':''" autocomplete="new-country">
+    <mat-autocomplete #autoCountry="matAutocomplete">
+      @for (country of listOfCountry; track country){
+        <mat-option [value]="country.name" (click)="onCountryClick(country)">{{country.name}}</mat-option>
+      }
+    </mat-autocomplete>
+  </div>
+    <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('country').touched && !editClientForm.get('country').valid">Must select country.</label>
+
+    <div class="flex justify-center text-gray-600 dark:text-gray-300">City:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.city }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="editClientForm.get('city').touched && !editClientForm.get('city').valid ? 'border-red-500':''" formControlName="city" autocomplete="false">
+  </div>
+    <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('city').touched && !editClientForm.get('city').valid">City needs to be minimum 2 characters long.</label>
+    <div class="flex justify-center text-gray-600 dark:text-gray-300">Address:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.address }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="editClientForm.get('address').touched && !editClientForm.get('address').valid ? 'border-red-500':''" formControlName="address" autocomplete="false">
+  </div>
+    <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('address').touched && !editClientForm.get('address').valid">Address is mandatory field</label>
+
+    <div class="flex justify-center text-gray-600 dark:text-gray-300">zipCode:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.zipCode }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+           [ngClass]="editClientForm.get('zipCode').touched && !editClientForm.get('zipCode').valid ? 'border-red-500':''" formControlName="zipCode" autocomplete="false">
+  </div>
+    <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('zipCode').touched && !editClientForm.get('zipCode').valid">Must have 5 characters and only numbers</label>
+
+    <div class="flex justify-center text-gray-600 dark:text-gray-300">Invoice currency:</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="!isEditable">{{ data.currency.name }}</div>
+  <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100" *ngIf="isEditable">
+<!--    <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="username" autocomplete="false">-->
+    <select formControlName="currencyId" type="text" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
+    block appearance-none w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
+            [ngClass]="editClientForm.get('currencyId').touched && !editClientForm.get('currencyId').valid ? 'border-red-500':''">
+      @for(currency of currencyService.getCurrencyList(); track currency){
+        <option [value]="currency.id">{{ currency.name }}</option>
+      }
+    </select>
+  </div>
+    <label class="text-xs text-red-500 block text-center" *ngIf="editClientForm.get('currencyId').touched && !editClientForm.get('currencyId').valid">Must select currency.</label>
+
+  </div>
+</div>
+<hr class="my-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
+  <div class="w-full flex flex-row-reverse pr-6">
+    <button (click)="closeDialog();"
+      type="button"
+      class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4
+       text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
+        hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:bg-red-600
+         focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:outline-none
+          focus:ring-0 active:bg-danger-700 active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)]
+           dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]
+            dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
+      Close
+    </button>
+    @if(!isEditable){
+      <button (click)="editClient();"
+              type="button"
+              class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+        Edit
+      </button>
+    } @else {
+      <button (click)="sendEdit();"
+              type="button"
+              class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+        Send edit
+      </button>
+      <button (click)="closeEdit();"
+              type="button"
+              class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+        Close edit
+      </button>
+    }
+
+  </div>
+  </form>
+</div>
