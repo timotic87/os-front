@@ -14,11 +14,13 @@ import {MatToolbar} from "@angular/material/toolbar";
 import {MatSidenav, MatSidenavContainer} from "@angular/material/sidenav";
 import {NotificationCardComponent} from "./customComponents/notification-card/notification-card.component";
 import {RestService} from "./services/rest.service";
+import {CDCM} from "./models/cdcm";
+import {CDCMService} from "./services/cdcm.service";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, LoginComponent, ClientsComponent, NavbarComponent, MatToolbar, MatSidenavContainer, MatSidenav, NotificationCardComponent],
+  imports: [CommonModule, RouterOutlet,NavbarComponent, NotificationCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -29,7 +31,7 @@ export class AppComponent {
   notificationList = [];
   constructor(router: Router,
               notificationsService: NotificationsService, private rest: RestService, clientService: ClientsService,
-              private userService: UserService, public notificationService: NotificationsService) {
+              private userService: UserService, public notificationService: NotificationsService, private cdcmService: CDCMService) {
     notificationsService.sideBarShowSub.subscribe(show=>{
       this.notificationService.showNotificationSideBar = show
     });
@@ -47,16 +49,37 @@ export class AppComponent {
     this.socket = io(environment.SERVER_URL)
     // @ts-ignore
     this.socket.on("mpsocket", data=>{
-      console.log(this.userService.socketID)
-      if(data.socketData.userId!==userService.getUser().id){
-        console.log(data.listenerNum)
-        notificationsService.showNotification(data);
-        switch (data.listenerNum){
-          case socketEnum.DELETE_CLIENT:
-            this.updateNotificationList();
-            clientService.isListChange.next(true);
-            break;
+      switch (data.listenerNum){
+        case socketEnum.DELETE_CLIENT:
+          clientService.isListChange.next(true);
+          break;
+        case socketEnum.CREATE_CDCM:
+          const cdcm = CDCM.createCDCMModel(data.cdcmData);
+          if (cdcm.createdUserID!==userService.getUser().id) this.cdcmService.newCDCMSubject.next(cdcm);
+          break;
+        case socketEnum.NEW_APPROVAL:
+          this.rest.getLastNotification(3).subscribe(res=>{
+            if (res.status===200 && res.data.length!==0){
+              console.log(res)
+              notificationsService.showNotification({title: userService.getUser().fullName+' time to approval', body: res.data[0].msg});
+            }
+          })
+
+      }
+      try {
+        if(data.creatorID!==userService.getUser().id){
+          console.log(userService.getUser().id)
+          console.log(data.listenerNum)
+          this.rest.isNotificationShow(data.listenerNum).subscribe(res=>{
+            console.log(res)
+            if (res.data[0].isShow===1){
+              notificationsService.showNotification(data);
+            }
+          })
+          this.updateNotificationList();
         }
+      }catch (err){
+        console.log(err);
       }
 
     })

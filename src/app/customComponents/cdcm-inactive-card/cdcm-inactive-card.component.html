@@ -1,0 +1,6 @@
+<div
+  class="block w-full p-3 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800
+  dark:border-gray-700 dark:hover:bg-gray-700 my-3">
+  <span>Calculation created {{ cdcm.createdDate | date: 'MMM d, y' }} at {{ cdcm.createdDate | date: 'h:mm a' }}</span>
+  <app-color-label color="red" size="base" class="block my-2">Status: {{ cdcm.statusName }}</app-color-label>
+</div>

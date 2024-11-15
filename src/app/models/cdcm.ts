@@ -1,3 +1,5 @@
+import {data} from "autoprefixer";
+
 export class CDCM {
   private _ID: number;
   private _No_of_employees: number;
@@ -40,13 +42,15 @@ export class CDCM {
   private _updatedDate: Date
   private _updatedUserID: number
   private _userName: string
+  private _statusID: number
+  private _statusName: string
 
 
   constructor(ID: number, No_of_employees: number, Grand_Groos_Salaray_per_Employee: number, other_cost: number, disabled_people: number, Charging_DP: number, MU_on_salary: number, MU_on_costs: number,
               Flat_fee: number, MU_on_disabled_people: number, due_days_on_cost: number, due_days_on_fee: number, direct_cost: number, fee: number, revenue: number, projectID: number, isHra: number,
               isPy: number, hra_conultant_seniority: string, py_conultant_seniority: string, hra_consultant_cost: number, py_consultant_cost: number, hra_consultant_percent: number, py_consultant_percent: number,
               additional_costs: number, payslips_cost: number, collective_insurance: number, interest_rate: number, franchise_fee_percent: number, franshise_fee: number, financing_cost: number, operational_cost: number, gross_profit: number,
-              gross_profit_percent: number, net_profit: number, net_profit_percent: number, createdDate: Date, createdUserID: number, updatedDate: Date, updatedUserID: number, creatorFirstName: string, creatorLastName: string) {
+              gross_profit_percent: number, net_profit: number, net_profit_percent: number, createdDate: Date, createdUserID: number, updatedDate: Date, updatedUserID: number, creatorFirstName: string, creatorLastName: string, statusID: number, statusName: string) {
     this._ID = ID;
     this._No_of_employees = No_of_employees;
     this._Grand_Groos_Salaray_per_Employee = Grand_Groos_Salaray_per_Employee;
@@ -88,6 +92,8 @@ export class CDCM {
     this._updatedDate = updatedDate;
     this._updatedUserID = updatedUserID;
     this._userName = creatorFirstName + creatorLastName;
+    this._statusID = statusID;
+    this._statusName = statusName;
   }
 
 
@@ -255,6 +261,19 @@ export class CDCM {
     return this._userName;
   }
 
+  get statusID(): number {
+    return this._statusID;
+  }
+
+  get statusName(): string {
+    return this._statusName;
+  }
+
+  setStatus(statusID: number, name: string){
+    this._statusID = statusID;
+    this._statusName = name;
+  }
+
   public static createCDCMModel(data){
     let createDate: Date = new Date(data.createdDate);
     createDate.setHours(createDate.getHours()-2);
@@ -267,6 +286,6 @@ export class CDCM {
       data.Flat_fee, data.MU_on_disabled_people, data.due_days_on_cost, data.due_days_on_fee, data.direct_cost, data.fee, data.revenue, data.projectID, data.isHra,
       data.isPy, data.hra_conultant_seniority, data.py_conultant_seniority, data.hra_consultant_cost, data.py_consultant_cost, data.hra_consultant_percent, data.py_consultant_percent,
       data.additional_costs, data.payslips_cost, data.collective_insurance, data.interest_rate, data.franchise_fee_percent, data.franshise_fee, data.financing_cost, data.operational_cost,
-      data.gross_profit, data.gross_profit_percent, data.net_profit, data.net_profit_percent, createDate, data.createdUserID, updateDate, data.updatedUserID, data.creatorFirstName, data.creatorLastName);
+      data.gross_profit, data.gross_profit_percent, data.net_profit, data.net_profit_percent, createDate, data.createdUserID, updateDate, data.updatedUserID, data.creatorFirstName, data.creatorLastName, data.statusID, data.statusName);
   }
 }

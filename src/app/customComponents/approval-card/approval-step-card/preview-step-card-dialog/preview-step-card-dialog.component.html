@@ -1,0 +1,36 @@
+<div class="p-6">
+  <app-color-label color="green">{{approvalStep.firstName+' '+approvalStep.lastName+' '}}{{approvalStep.approvalStatus.name.toLowerCase()}}{{' this CDCM on '}}{{approvalStep.statusChangeDate | date: 'MMM d, y' }} at {{ approvalStep.statusChangeDate | date: 'h:mm a' }}</app-color-label>
+
+  <div class="flex items-start gap-2.5 mt-3">
+    @if (approvalStep.userPicUrl){
+      <img class="w-8 h-8 rounded-full" [src]=approvalStep.userPicUrl alt="user img" style="object-fit: cover;">
+    } @else {
+      <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
+    }
+    <div
+      class="commentWraper flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+      <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <span
+                class="text-sm font-semibold text-gray-900 dark:text-white">{{ approvalStep.firstName+' '+approvalStep.lastName }}</span>
+        <span
+          class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ approvalStep.statusChangeDate | date:'dd.MM.yyyy HH:mm' }}</span>
+      </div>
+      <p
+        class="commentText text-sm font-normal pt-2.5 text-gray-900 dark:text-white">{{ approvalStep.comment }}</p>
+    </div>
+  </div>
+
+  <div class="w-full flex flex-row-reverse mt-3">
+    <button (click)="closeDialog();"
+            type="button"
+            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal
+       text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
+        hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:bg-red-600
+         focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:outline-none
+          focus:ring-0 active:bg-danger-700 active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)]
+           dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]
+            dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
+      Close
+    </button>
+  </div>
+</div>

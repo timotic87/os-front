@@ -5,6 +5,7 @@ import {CreateProjectDialogComponent} from "./create-project-dialog/create-proje
 import {ProjectService} from "../services/project.service";
 import {DatePipe} from "@angular/common";
 import {MatMenuTrigger} from "@angular/material/menu";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-projects',
@@ -19,7 +20,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 })
 export class ProjectsComponent {
 
-  constructor(private matDialog: MatDialog, public projectService: ProjectService) {
+  constructor(private matDialog: MatDialog, public projectService: ProjectService, private router: Router) {
     projectService.updateProjectList();
   }
 
@@ -32,8 +33,10 @@ export class ProjectsComponent {
   }
 
   onProjectClick(project){
-    const url = window.location.origin + `/project/${project.ID}`; // Dodaj query parametar`
-    window.open(url, '_blank');
+    this.projectService.currentProject = project;
+    this.router.navigate([`/project/${project.ID}`])
+    // const url = window.location.origin + `/project/${project.ID}`; // Dodaj query parametar`
+    // window.open(url, '_blank');
   }
 
 }

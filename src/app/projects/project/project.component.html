@@ -32,7 +32,11 @@
       </div>
       <div class="border-2 border-[#386097] dark:border-[#56BDED] p-3 rounded-lg col-span-2 xl:col-span-1">
         <div class="flex items-start gap-2.5 mt-3" *ngIf="project.lastComment">
-          <img class="w-8 h-8 rounded-full" [src]=project.lastComment.picUrl alt="Jese image" style="object-fit: cover;">
+          @if (project.lastComment.picUrl){
+            <img class="w-8 h-8 rounded-full" [src]=project.lastComment.picUrl alt="user img" style="object-fit: cover;">
+          } @else {
+            <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
+          }
           <div
             class="commentWraper flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
             <div class="flex items-center space-x-2 rtl:space-x-reverse">
@@ -47,7 +51,7 @@
         </div>
 
         <div class="flex flex-column justify-end" *ngIf="project.lastComment">
-          <div class="w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block" (click)="openComment();">
+          <div class="hover:cursor-pointer w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block" (click)="openComment();">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                  stroke="currentColor" class="size-7">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -59,7 +63,7 @@
         <div *ngIf="!project.lastComment">
           <p>No comment yet!</p>
           <button (click)="openComment();"
-                  class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
+                  class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
     hover:shadow-blue-500/40 focus:opacity-[0.85]
@@ -71,6 +75,7 @@
 
       </div>
     </div>
-    <app-stuffing-flow [project]="project" [cdcmARR]="cdcm" *ngIf="project.subservice.typeID===2"></app-stuffing-flow>
+    <app-stuffing-flow [project]="project" *ngIf="project.subservice.typeID===2"></app-stuffing-flow>
+    <app-py-flow [project]="project" *ngIf="project.subservice.typeID===3"></app-py-flow>
   </div>
 </div>

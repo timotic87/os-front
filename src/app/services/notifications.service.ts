@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
 import {NotificationModel} from "../models/notificationModel";
+import {Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +18,17 @@ export class NotificationsService {
 
   notifications: NotificationModel[] = [];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   showNotification(data){
     Notification.requestPermission(status=>{
       if (status === "granted"){
-        new Notification(data.title,{body: data.body, icon: "../../assets/mp_icon32.png"});
+        let noti = new Notification(data.title,{body: data.body, icon: "../../assets/mp_icon32.png"});
+        if (data.link){
+          noti.onclick = ()=>{
+            window.open(data.link);
+          }
+        }
       }
     })
   }
@@ -40,15 +46,15 @@ export class NotificationsService {
 
   sortNotifications() {
     this.notifications.sort((a, b) => {
-      // Prvo sortiraj po flagged
+      // sortiranje po flagged
       if (a.flagged && !b.flagged) return -1;
       if (!a.flagged && b.flagged) return 1;
 
-      // Zatim sortiraj po isRead
+      // sortiranje po isRead
       if (!a.isRead && b.isRead) return -1;
       if (a.isRead && !b.isRead) return 1;
 
-      // Na kraju sortiraj po datumu
+      // sortiranje po datumu
       return a.dateTime.getDate() - b.dateTime.getDate();
     });
   }

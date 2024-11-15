@@ -40,7 +40,7 @@ export class NavbarComponent {
   }
 
   logout(){
-    this.cookieService.delete('jwt');
+    this.cookieService.delete('jwt', '/');
     this.userService.deleteUser();
     this.router.navigate(['login']);
   }

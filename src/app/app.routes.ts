@@ -12,6 +12,7 @@ import {
 } from "./admin/adminPages/services-and-subservices/services-and-subservices.component";
 import {ProjectsComponent} from "./projects/projects.component";
 import {ProjectComponent} from "./projects/project/project.component";
+import {ApprovalsComponent} from "./admin/adminPages/approvals/approvals.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -31,7 +32,9 @@ export const routes: Routes = [
       return false;
     }],
     children: [{path: 'users', component: UsersAdminComponent, outlet: 'admin'},
-      {path: 'services', component: ServicesAndSubservicesComponent, outlet: 'admin'}]
+      {path: 'services', component: ServicesAndSubservicesComponent, outlet: 'admin'},
+      {path: 'approvals', component: ApprovalsComponent, outlet: 'admin'},
+    ]
 
   },
   {path: 'projects', component: ProjectsComponent},

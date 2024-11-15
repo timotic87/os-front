@@ -278,10 +278,14 @@
       <span class="m-3 font-semibold block">Net profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.netProfit | currency: 'RSD '}}</span></span>
       <span class="m-3 font-semibold block">NP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.npPercent.toFixed(2)+'%'}}</span></span>
 
+      <div>
+        <app-approval-card [approval]="approval" *ngIf="approval"></app-approval-card>
+      </div>
+
     </div>
   </div>
   <div class="flex flex-row-reverse text-gray-400 m-3">
-    <button (click)="cancel();"
+    <button (click)="cancel();" tabindex="-1"
             type="button"
             class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4
        text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
@@ -292,7 +296,7 @@
             dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
       Close
     </button>
-    <button (click)="operationalCostoCreate();"
+    <button (click)="calcEditCDCM();" *ngIf="cdcm.statusID===1"
             type="button"
             class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
       leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
@@ -301,7 +305,7 @@
       active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
       dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
       dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
-      Calculate/Save
+      Calculate/Edit
     </button>
   </div>
 

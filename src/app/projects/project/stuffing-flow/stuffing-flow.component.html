@@ -1,6 +1,6 @@
-<div class="cdcmWrapper">
-  <button (click)="dialogCDCM();"
-          class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
+<div class="pb-3">
+  <button (click)="dialogCDCM();" [disabled]="createCDCMDisable"
+          class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
     hover:shadow-blue-500/40 focus:opacity-[0.85]
@@ -8,10 +8,25 @@
     disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
           data-ripple-light="true">Add CDCM
   </button>
+  <div class="grid grid-cols-3 gap-2 w-full">
+    @for (cdcm of cdcmService.cdcmList; track cdcm) {
+      <app-cdcm-card [cdcm]="cdcm" *ngIf="cdcm.statusID<=3"></app-cdcm-card>
+    }
+    @if (approval){
+      <app-approval-card [approval]="approval" *ngIf="approval.approvalStatus.ID<3"></app-approval-card>
+    }
+    <div>
+      @for (cdcm of cdcmService.cdcmList.slice().reverse(); track cdcm){
+        <app-cdcm-inactive-card [cdcm]="cdcm" *ngIf="cdcm.statusID>3" (click)="openCDCMView(cdcm)">{{cdcm.ID}}</app-cdcm-inactive-card>
+      }
+    </div>
+  </div>
+  <div *ngIf="project.statusID>3" class="block w-full p-3 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50
+  dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 my-6">
+    <h3 class="ms-3 my-3 text-[#386097] dark:text-[#56BDED] text-xl font-bold">Offer</h3>
+    <p class="ms-3 text-base">Upload the offer prepared for the client</p>
+    <app-contract-document-form (formGroupp)="getFormGroup($event)"></app-contract-document-form>
+    <app-pick-file (onFileSelected)="itemSelected($event)"></app-pick-file>
+  </div>
 </div>
 
-<div class="grid grid-cols-3 gap-2 w-full">
-  @for (cdcm of cdcmARR; track cdcm) {
-    <app-cdcm-card [cdcm]="cdcm"></app-cdcm-card>
-  }
-</div>

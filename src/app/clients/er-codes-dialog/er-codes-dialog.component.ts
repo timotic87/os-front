@@ -23,8 +23,6 @@ export class ErCodesDialogComponent {
   showInputs = false;
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, private legalEntityService: LegalEntityService) {
     this.legalEntityService.getLEList();
-    console.log(legalEntityService.getLEList())
-    console.log(data)
 
   }
 

@@ -39,13 +39,4 @@ export class UserService {
     this.user = null;
     localStorage.removeItem('user');
   }
-
-
-  get socketID(): string {
-    return this._socketID;
-  }
-
-  set socketID(value: string) {
-    this._socketID = value;
-  }
 }

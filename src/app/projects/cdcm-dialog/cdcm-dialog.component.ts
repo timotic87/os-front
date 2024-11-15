@@ -57,7 +57,6 @@ export class CdcmDialogComponent implements OnInit {
       due_days_on_fee: new FormControl(null, [Validators.required])
     });
     this.basicInfoForm.get('No_of_employees').valueChanges.subscribe(value => {
-      console.log(this.cdcmService.cdcmStaticsList)
       this.collective_insurance = value * this.cdcmService.cdcmStaticsList[0].valueDouble;
       this.payslipsCost = value * this.cdcmService.cdcmStaticsList[1].valueDouble;
 
@@ -144,13 +143,11 @@ export class CdcmDialogComponent implements OnInit {
 
     }else {
       this.operationalCostForm.get('PY_Consultant').setValidators(Validators.required);
-      this.operationalCostForm.get('PY_Technology_cost').setValidators(Validators.required);
       this.operationalCostForm.get('PY_percent_of_time').setValidators(Validators.required);
     }
   }
 
-  operationalCostoCreate(){
-    console.log(this.operationalCostForm)
+  calculateSave(){
 
     if (!this.basicInfoForm.valid){
       this.showBasicInfoMsgValidation = true;
@@ -160,7 +157,6 @@ export class CdcmDialogComponent implements OnInit {
     }
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
       this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Save', 'Calculate']}).afterClosed().subscribe(option=>{
-        console.log(option)
         switch (option){
           case 'Cancel':
             break;

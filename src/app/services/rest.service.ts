@@ -5,9 +5,9 @@ import {Observable} from "rxjs";
 import {authorizationEnum} from "./enum-sevice";
 import {CookieService} from "ngx-cookie-service";
 import { io, Socket } from 'socket.io-client';
-import {UserService} from "./user.service";
 import {Router} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
+import {data} from "autoprefixer";
 
 @Injectable({
   providedIn: 'root'
@@ -21,17 +21,15 @@ export class RestService {
   // baseUrl = 'http://10.48.100.232:3000';
   baseUrl  = environment.SERVER_URL
   constructor(private http: HttpClient, private cookieService: CookieService, private matDialog: MatDialog, router: Router) {
-    this.socket = io(this.baseUrl); // URL tvog socket.io servera
+    this.socket = io(this.baseUrl);
 
     this.socket.on('connect', () => {
-      this.socketId = this.socket.id; // Dobijanje socketId-a
-      console.log(this.socketId);
-      console.log('Connected with socketId:', this.socketId);
+      this.socketId = this.socket.id;
     });
 
     // Slušanje 'unauthorized' poruke
     this.socket.on('auth', (data: any) => {
-      alert(data.message);  // Prikaz poruke kada korisnik nije autorizovan
+      alert(data.message);  // todo Prikaz poruke kada korisnik nije autorizovan
       matDialog.closeAll();
       router.navigate(['/login'])
     });
@@ -40,7 +38,6 @@ export class RestService {
 
   headers(){
     let headers = new HttpHeaders();
-    console.log(this.socketId)
     return headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`).set('Content-Type', 'application/json').set('x-socket-id', this.socketId || '123');
   }
 
@@ -255,6 +252,50 @@ export class RestService {
 
   createCDCM(data){
     return this.http.post(`${this.baseUrl}/createCDCM`, data, {headers: this.headers()})
+  }
+
+  updateCDCM(data){
+    return this.http.put(`${this.baseUrl}/editCDCM`, data, {headers: this.headers()}) as Observable<any>;
+  }
+
+  deleteCDCM(ID: number){
+    return this.http.put(`${this.baseUrl}/deleteCDCM/${ID}`, null, {headers: this.headers()}) as Observable<any>;
+  }
+  lockCDCM(ID: number, approvalTemplateID: number, projectID:number){
+    return this.http.put(`${this.baseUrl}/lockCDCM`, {ID, approvalTemplateID, projectID}, {headers: this.headers()}) as Observable<any>;
+  }
+  getApprovalTemplates(){
+    return this.http.get(`${this.baseUrl}/getApprovalTemplates`, {headers: this.headers()}) as Observable<any>;
+  }
+  getApprovalTemplateByID(ID: number){
+    return this.http.get(`${this.baseUrl}/getApprovalTemplateByID/${ID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  deleteApprovalTemplateStep(data){
+    return this.http.put(`${this.baseUrl}/deleteApprovalTemplateStep`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  getUsersNamesBySearch(searchText){
+    return this.http.get(`${this.baseUrl}/getUsersNamesBySearch/${searchText}`, {headers: this.headers()}) as Observable<any>;
+  }
+  addApprovalStepTemplate(data){
+    return this.http.post(`${this.baseUrl}/addApprovalStepTemplate`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  editApprovalTemplate(data) {
+    return this.http.put(`${this.baseUrl}/editApprovalTemplate`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  getApprovalsByCdcmID(cdcmID) {
+    return this.http.get(`${this.baseUrl}/getApprovalsByCdcmID/${cdcmID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  changeStatusApprovalStep(data){
+    return this.http.put(`${this.baseUrl}/changeStatusAppruvalStep`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  getCdcmByProjectID(projectID: number){
+    return this.http.get(`${this.baseUrl}/getCdcmByProjectID/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  isNotificationShow(themeID:number){
+    return this.http.get(`${this.baseUrl}/isNotificationShow/${themeID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  getLastNotification(themeID:number){
+    return this.http.get(`${this.baseUrl}/getLastNotification/${themeID}`, {headers: this.headers()}) as Observable<any>;
   }
 
 }

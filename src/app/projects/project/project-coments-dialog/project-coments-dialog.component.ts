@@ -24,7 +24,7 @@ export class ProjectComentsDialogComponent implements OnInit{
 
   commentText = null;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public project, private projectService: ProjectService, private rest: RestService, private userService: UserService) {
+  constructor(@Inject(MAT_DIALOG_DATA) public project, private projectService: ProjectService, private userService: UserService) {
     projectService.setProjectComents(project)
 
   }

@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import {RestService} from "./rest.service";
-import {ServiceModel} from "../models/serviceModel";
 import {Subject} from "rxjs";
+import {DialogService} from "./dialog.service";
+import {MatDialog,} from "@angular/material/dialog";
+import {CDCM} from "../models/cdcm";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CDCMService {
+
+  cdcmList: CDCM[];
 
   listDPperNumberOfEmployee = null;
   cdcmSeniorityList = null;
@@ -15,10 +19,14 @@ export class CDCMService {
 
   calculationCDCM = null;
 
-  constructor(private rest: RestService) {
-    this.createlistDPperNumberOfEmployee();
-    this.createlistcdcmSeniorityList();
-    this.createlistcdcmStatics();
+  updateCDCMSubject = new Subject<CDCM>();
+  newCDCMSubject = new Subject<CDCM>();
+  deleteCDCMSubject = new Subject<number>();
+  updateStatusCDCMSubject = new Subject<object>();
+  getCDCMListSubject = new Subject<any>();
+
+  constructor(private rest: RestService, private dialogService: DialogService, private matDialog: MatDialog) {
+
   }
 
   createlistDPperNumberOfEmployee(){
@@ -49,7 +57,6 @@ export class CDCMService {
   }
 
   getSeniorityObjByName(name:string){
-    console.log(this.cdcmSeniorityList)
     return this.cdcmSeniorityList.find(item => item.name === name);
   }
 
@@ -74,37 +81,78 @@ export class CDCMService {
     }
   }
 
-  calculateBasicInfo(formData){
-    this.rest.calculateBasicInfo(formData).subscribe(res=>{
-      console.log(res)
-     // @ts-ignore
-      if (res.status===200){
-       // @ts-ignore
-        this.calculationCDCM = res.data;
-     }
-    });
-  }
-
   calculateAndCreateCDCM(formData,dialogRef){
     this.rest.createCDCM(formData).subscribe(res=>{
-      console.log(res)
       if (res['status']===201){
-
-        // this.calculationCDCM = res['data'].row.calculation;
+        this.newCDCMSubject.next(CDCM.createCDCMModel(res['data'].row.recordset[0]));
         dialogRef.close()
       }
     })
   }
 
-  calculateCDCM(data){
+  calculateCDCM(data: any){
     this.rest.calculateCDCM(data).subscribe(res=>{
-      console.log(res)
-      // @ts-ignore
-      if (res.status===200){
-        // @ts-ignore
-        this.calculationCDCM = res.data;
-        console.log(this.calculationCDCM)
+      if (res['status']===200){
+        this.calculationCDCM = res['data'];
       }
     });
+  }
+
+  updateCDCM(data: any){
+    this.dialogService.showLoader();
+      this.rest.updateCDCM(data).subscribe({
+        next: res => {
+          if (res.status!==200){
+            this.dialogService.errorDialog(res)
+          }else {
+            this.updateCDCMSubject.next(CDCM.createCDCMModel(res.data[0]));
+          }
+          this.dialogService.closseLoader()
+          this.matDialog.closeAll()
+        },
+        error: err => {
+          console.log(err);
+          this.dialogService.closseLoader()
+          this.matDialog.closeAll()
+        }
+      });
+  }
+
+  deleteCDCM(ID: number){
+    this.rest.deleteCDCM(ID).subscribe(res=>{
+      if (res.status===201){
+        this.deleteCDCMSubject.next(ID);
+      }
+    });
+  }
+  lockCDCM(ID:number, approvalTemplateID:number, projectID: number) {
+    this.rest.lockCDCM(ID, approvalTemplateID, projectID).subscribe(res=>{
+      if (res.status===201){
+        this.updateStatusCDCMSubject.next({ID, ...res.data.row.recordset[0]});
+      }
+    })
+  }
+
+  getCDCMLIstByProjectId(projectId: number){
+    this.cdcmList = [];
+    this.rest.getCdcmByProjectID(projectId).subscribe(res=>{
+      if (res.status===200){
+        for (let item of res.data) {
+          this.cdcmList.push(CDCM.createCDCMModel(item));
+        }
+        console.log(this.cdcmList.length)
+        this.getCDCMListSubject.next(this.cdcmList);
+      }
+    })
+  }
+
+  public getFields(){
+    this.createlistDPperNumberOfEmployee();
+    this.createlistcdcmSeniorityList();
+    this.createlistcdcmStatics();
+  }
+
+  getCDCMLength(){
+    return this.cdcmList.length;
   }
 }

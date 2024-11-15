@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit{
     this.rest.login({username: this.loginForm.value.username, password: this.loginForm.value.password}).subscribe(res=>{
       if(res.status === 200){
         const expiresDate: Date = new Date(Date.now()+24*60*60*1000);
-        this.cookieService.set('jwt', res.token, {expires: expiresDate});
+        this.cookieService.set('jwt', res.token, { expires: expiresDate, path: '/' });
         this.userService.setUser();
         this.userService.isUserLogedIn.next(true);
         this.router.navigate([this.userService.getUser().defpage])

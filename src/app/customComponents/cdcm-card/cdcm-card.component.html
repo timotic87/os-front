@@ -1,7 +1,7 @@
-<div
-  class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 my-6">
+<div class="block w-full p-3 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50
+  dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 my-3">
   <div class="cdcmMenu">
-    <app-color-label color="green">Created by {{ cdcm.userName }}
+    <app-color-label color="blue">Created by {{ cdcm.userName }}
       {{ cdcm.createdDate | date: 'MMM d, y' }} at {{ cdcm.createdDate | date: 'h:mm a' }}
     </app-color-label>
     <div>
@@ -18,17 +18,21 @@
       <mat-menu #cdcmOptionMenu="matMenu"
                 class="cdcmChildeTwo mt-25 z-10 text-base list-none bg-white divide-y divide-gray-100 shadow w-44 dark:bg-gray-700 relative">
         <ul>
-          <li>
+          <li *ngIf="cdcm.statusID===1">
             <a href="javascript:void(0)"
                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="openViewEditDialog();">View/Edit</a>
           </li>
-          <li>
+          <li *ngIf="cdcm.statusID!==1">
             <a href="javascript:void(0)"
-               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Lock</a>
+               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="openViewEditDialog();">View</a>
           </li>
-          <li>
+          <li  *ngIf="cdcm.statusID===1">
             <a href="javascript:void(0)"
-               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="lockCDCM(cdcm.ID)">Lock</a>
+          </li>
+          <li *ngIf="cdcm.statusID<3">
+            <a href="javascript:void(0)"
+               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="deleteCDCM(cdcm.ID)">Delete</a>
           </li>
         </ul>
       </mat-menu>
@@ -49,4 +53,8 @@
   <span class="m-3 font-semibold block">GP%: {{ cdcm['gross_profit_percent'] }}</span>
   <span class="m-3 font-semibold block">Net profit: {{ cdcm['net_profit'] | currency: 'RSD ' }}</span>
   <span class="m-3 font-semibold block">NP%: {{ cdcm['net_profit_percent'] }}</span>
+
+  <app-color-label [color]="statusColor" size="base" *ngIf="cdcm.statusID===1">Status: {{ cdcm.statusName }}</app-color-label>
+  <app-color-label [color]="statusColor" size="base" *ngIf="cdcm.statusID===2">Status: {{ cdcm.statusName }}</app-color-label>
+  <app-color-label [color]="statusColor" size="base" *ngIf="cdcm.statusID===3">Status: {{ cdcm.statusName }}</app-color-label>
 </div>

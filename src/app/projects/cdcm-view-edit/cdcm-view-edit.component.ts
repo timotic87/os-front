@@ -6,6 +6,11 @@ import {DialogService} from "../../services/dialog.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {UserService} from "../../services/user.service";
 import {CDCM} from "../../models/cdcm";
+import {ApprovalModel} from "../../models/approval/approvalModel";
+import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
+import {RestService} from "../../services/rest.service";
+import {ApprovalStepModel} from "../../models/approval/ApprovalStepModel";
+import {ApprovalStatus} from "../../models/approval/approvalStatus";
 
 @Component({
   selector: 'app-cdcm-view-edit',
@@ -14,7 +19,8 @@ import {CDCM} from "../../models/cdcm";
     CurrencyPipe,
     NgIf,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    ApprovalCardComponent
   ],
   templateUrl: './cdcm-view-edit.component.html',
   styleUrl: './cdcm-view-edit.component.css'
@@ -34,9 +40,12 @@ export class CdcmViewEditComponent implements OnInit {
   collective_insurance = 0
   payslipsCost = 0;
 
+  approval: ApprovalModel;
 
-  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public cdcm: CDCM, private dialogRef: MatDialogRef<CdcmViewEditComponent>, private userService: UserService) {
-    cdcmService.seniorityListListener.subscribe(()=>{
+
+  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public cdcm: CDCM,
+              private dialogRef: MatDialogRef<CdcmViewEditComponent>, private userService: UserService, private rest: RestService) {
+        cdcmService.seniorityListListener.subscribe(()=>{
       if (cdcm.isHra){
         this.operationalCostForm.get('HRA_Consultant').setValue(cdcmService.getSeniorityObjByName(cdcm.hra_conultant_seniority));
       }
@@ -46,17 +55,50 @@ export class CdcmViewEditComponent implements OnInit {
         this.payslipsCost=cdcm.payslips_cost;
       }
     });
-    console.log(cdcm)
-    cdcmService.calculationCDCM = null;
+
+    cdcmService.calculationCDCM = {
+      "directCost": cdcm.direct_cost,
+      "fee": cdcm.fee,
+      "revenue": cdcm.revenue,
+      "financingCost": cdcm.financing_cost,
+      "franshiseFeeCost": cdcm.franshise_fee,
+      "operationalCost": cdcm.operational_cost,
+      "gp": {
+        "grossProfit": cdcm.gross_profit,
+        "gpPercent": cdcm.gross_profit_percent
+      },
+      "np": {
+        "netProfit": cdcm.net_profit,
+        "npPercent": cdcm.net_profit_percent
+      }
+    };
   }
 
   ngOnInit(): void {
+    if (this.cdcm){
+      this.rest.getApprovalsByCdcmID(this.cdcm.ID).subscribe(res=>{
+        if (res.status === 200) {
+          let approvalSeps: ApprovalStepModel[] = [];
+
+          for (let item of res.data) {
+            approvalSeps.push(new ApprovalStepModel(item.ApprovalStepID, item.approvalID,
+              item.userID, item.firstName, item.lastName, item.stepOrder, new ApprovalStatus(item.approvalStepStatusID,
+                item.approvalStepStatusName), item.approvalStepStatusChangeDate, item.profilePicUrl, item.comment));
+          }
+
+          this.approval =  new ApprovalModel(res.data[0].approvalID, res.data[0].cdcmID, res.data[0].documentID, res.data[0].approvalCreatedDate, res.data[0].isSequential,
+            new ApprovalStatus(res.data[0].approvalStatusID, res.data[0].approvalStatusName), approvalSeps);
+
+        }
+      });
+    }
+
     this.basicInfoForm = new FormGroup({
       No_of_employees: new FormControl(this.cdcm.No_of_employees, [Validators.required]),
       Grand_Groos_Salaray_per_Employee: new FormControl(this.cdcm.Grand_Groos_Salaray_per_Employee, [Validators.required]),
       other_cost: new FormControl(this.cdcm.other_cost, [Validators.required]),
       disabled_people: new FormControl({value: this.cdcm.disabled_people, disabled: true}),
-      Charging_DP: new FormControl({value: this.cdcm.Charging_DP? this.ChargingDPArr[1]:this.ChargingDPArr[0], disabled: true}),
+      Charging_DP: new FormControl({ disabled: true}),
       feeTypes: new FormControl(this.cdcm.MU_on_costs? this.feeTypes[0]:this.feeTypes[1]),
       MU_on_salary: new FormControl(this.cdcm.MU_on_salary, [Validators.required]),
       MU_on_costs: new FormControl(this.cdcm.MU_on_costs, [Validators.required]),
@@ -65,8 +107,8 @@ export class CdcmViewEditComponent implements OnInit {
       due_days_on_cost: new FormControl(this.cdcm.due_days_on_cost, [Validators.required]),
       due_days_on_fee: new FormControl(this.cdcm.due_days_on_fee, [Validators.required])
     });
+    this.basicInfoForm.get('Charging_DP').setValue(this.cdcm.Charging_DP? this.ChargingDPArr[1]:this.ChargingDPArr[0])
     this.basicInfoForm.get('No_of_employees').valueChanges.subscribe(value=>{
-      console.log(this.cdcmService.cdcmStaticsList)
       this.collective_insurance = value*this.cdcmService.cdcmStaticsList[0].valueDouble;
       this.payslipsCost = value*this.cdcmService.cdcmStaticsList[1].valueDouble;
 
@@ -125,7 +167,6 @@ export class CdcmViewEditComponent implements OnInit {
         this.operationalCostForm.get('HRA_Consultant').setValue(this.cdcmService.getSeniorityObjByName(this.cdcm.hra_conultant_seniority));
       }
       if (this.cdcm.isPy){
-        console.log(this.cdcmService.getSeniorityObjByName(this.cdcm.py_conultant_seniority))
         this.operationalCostForm.get('PY_Consultant').setValue(this.cdcmService.getSeniorityObjByName(this.cdcm.py_conultant_seniority));
         this.payslipsCost=this.cdcm.payslips_cost;
       }
@@ -133,39 +174,50 @@ export class CdcmViewEditComponent implements OnInit {
     this.operationalCostForm.valueChanges.subscribe(()=>{
       if(this.basicInfoForm.valid) this.showOperationalCostMsgValidation=false;
     })
-    this.operationalCostForm.get('hra_checkbox').valueChanges.subscribe(value=>{
-      if (!value) {
-        this.operationalCostForm.get('HRA_Consultant').clearValidators();
-        this.operationalCostForm.get('HRA_Consultant').setValue(null);
-        this.operationalCostForm.get('HRA_percent_of_time').clearValidators();
-        this.operationalCostForm.get('HRA_percent_of_time').setValue(null)
+    this.operationalCostForm.get('hra_checkbox').valueChanges.subscribe(value => {
+      this.changeHraIputsByValue(value)
+    });
 
-      }else {
-        this.operationalCostForm.get('HRA_Consultant').setValidators(Validators.required);
-        this.operationalCostForm.get('HRA_percent_of_time').setValidators(Validators.required);
-      }
-    })
+    this.operationalCostForm.get('payroll_checkbox').valueChanges.subscribe(value => {
+      this.changePYIputsByValue(value);
+    });
+    this.changeHraIputsByValue(this.cdcm.isHra);
+    this.changePYIputsByValue(this.cdcm.isPy);
 
-    this.operationalCostForm.get('payroll_checkbox').valueChanges.subscribe(value=>{
-      if (!value) {
-        this.operationalCostForm.get('PY_Consultant').clearValidators();
-        this.operationalCostForm.get('PY_Consultant').setValue(null)
-        this.operationalCostForm.get('PY_percent_of_time').clearValidators();
-        this.operationalCostForm.get('PY_percent_of_time').setValue(null);
+    if (this.cdcm.statusID!==1){
+      this.operationalCostForm.disable();
+      this.basicInfoForm.disable();
+    }
+  }
 
-      }else {
-        this.operationalCostForm.get('PY_Consultant').setValidators(Validators.required);
-        this.operationalCostForm.get('PY_Technology_cost').setValidators(Validators.required);
-        this.operationalCostForm.get('PY_percent_of_time').setValidators(Validators.required);
-      }
-    })
+  changeHraIputsByValue(value){
+    if (!value) {
+      this.operationalCostForm.get('HRA_Consultant').clearValidators();
+      this.operationalCostForm.get('HRA_Consultant').setValue(null);
+      this.operationalCostForm.get('HRA_percent_of_time').clearValidators();
+      this.operationalCostForm.get('HRA_percent_of_time').setValue(null)
+
+    }else {
+      this.operationalCostForm.get('HRA_Consultant').setValidators(Validators.required);
+      this.operationalCostForm.get('HRA_percent_of_time').setValidators(Validators.required);
+    }
+  }
+  changePYIputsByValue(value){
+    if (!value) {
+      this.operationalCostForm.get('PY_Consultant').clearValidators();
+      this.operationalCostForm.get('PY_Consultant').setValue(null)
+      this.operationalCostForm.get('PY_percent_of_time').clearValidators();
+      this.operationalCostForm.get('PY_percent_of_time').setValue(null);
+
+    }else {
+      this.operationalCostForm.get('PY_Consultant').setValidators(Validators.required);
+      this.operationalCostForm.get('PY_percent_of_time').setValidators(Validators.required);
+    }
   }
 
 
 
-  operationalCostoCreate(){
-    console.log(this.operationalCostForm)
-
+  calcEditCDCM(){
     if (!this.basicInfoForm.valid){
       this.showBasicInfoMsgValidation = true;
     }
@@ -173,36 +225,32 @@ export class CdcmViewEditComponent implements OnInit {
       this.showOperationalCostMsgValidation = true;
     }
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
-      this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Save', 'Calculate']}).afterClosed().subscribe(option=>{
-        console.log(option)
+      this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Edit', 'Calculate']}).afterClosed().subscribe(option=>{
         switch (option){
           case 'Cancel':
             break;
-          case 'Calculate and Save':
+          case 'Calculate and Edit':
             this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-            // this.basicInfoForm.value.projectID= this.project.ID;
-            this.basicInfoForm.value.createdUserID= this.userService.getUser().id;
             this.operationalCostForm.value.collective_insurance = this.collective_insurance;
+            this.operationalCostForm.value.userID = this.userService.getUser().id;
             this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
+            this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
             this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-            // this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
-            this.cdcmService.calculateAndCreateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value}, this.dialogRef);
-
+            this.operationalCostForm.value.ID = this.cdcm.ID;
+            this.cdcmService.updateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
             break;
           case 'Calculate':
             this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-            // this.basicInfoForm.value.projectID= this.project.id;
             this.operationalCostForm.value.collective_insurance = this.collective_insurance;
             this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
+            this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
             this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-            // this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
-            console.log(this.basicInfoForm.value)
-            // this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
-
+             this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
             break;
         }
       })
     }
+
   }
 
 

@@ -1,0 +1,58 @@
+<div class="h-full w-full dark:bg-gray-600 py-6">
+  <div class="pb-6 flex justify-center text-gray-400 dark:text-neutral-100 mx-9">
+    <h2 class="text-center mt-3">Choose Approve or Decline option. Comment for the Decline is mandatory and for the Approve is optional</h2>
+  </div>
+  <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50 w-full" />
+  <div >
+  <form [formGroup]="approveFormGroup">
+    <div class="basis-1/1">
+      <div class="flex justify-center text-gray-600 dark:text-gray-300 mt-3">Comment:</div>
+      <div class="flex justify-center text-gray-400 p-6 dark:text-neutral-100">
+          <textarea type="text" id="commentID" class="w-full border border-gray-300 rounded-md py-2 px-3 mx-2 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                    [ngClass]="approveFormGroup.get('comment').touched && !approveFormGroup.get('comment').valid ? 'border-red-500':''" formControlName="comment" autocomplete="new-name"></textarea>
+      </div>
+      <div class="flex flex-row-reverse">
+        <span class="text-xs text-red-500 mr-6" *ngIf="showMandatoryText">*If you want to decline please put a comment</span>
+      </div>
+    </div>
+  </form>
+  <div class="w-full flex flex-row-reverse p-4">
+
+    <button (click)="cancel();"
+            type="button"
+            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Cancel
+    </button>
+
+    <button (click)="decline();"
+            type="button"
+            class="inline-block rounded bg-orange-500 text-white px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Decline
+    </button>
+
+    <button (click)="approve();"
+            type="button"
+            class="inline-block rounded bg-[#386097] dark:bg-[#56BDED] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Approve
+    </button>
+
+  </div>
+  </div>
+</div>

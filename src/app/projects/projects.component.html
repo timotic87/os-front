@@ -11,34 +11,6 @@
   </button>
 
 
-<!--  <div class="mb-3 w-full lg:w-2/6">-->
-<!--    <div class="relative mb-4 flex w-full flex-wrap items-stretch">-->
-<!--      <input [(ngModel)]="searchText"-->
-<!--             type="search"-->
-<!--             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l-->
-<!--             border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]-->
-<!--              text-base font-normal leading-[1.6] text-neutral-700 outline-none transition-->
-<!--               duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400-->
-<!--                focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none-->
-<!--                dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"-->
-<!--             placeholder="Search"-->
-<!--             aria-label="Search"-->
-<!--             (keyup)="searchEvent($event)"-->
-<!--      />-->
-
-<!--      &lt;!&ndash;Search button&ndash;&gt;-->
-<!--      <button-->
-<!--        (click)="search();"-->
-<!--        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"-->
-<!--        type="submit"-->
-<!--        id="button-addon3"-->
-<!--        data-te-ripple-init>-->
-<!--        Search-->
-<!--      </button>-->
-<!--    </div>-->
-<!--  </div>-->
-
-
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -72,7 +44,7 @@
       <tbody>
         @for (project of projectService.projectsList; track project) {
           <tr
-            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100" (click)="onProjectClick(project)">
+            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100" (click)="onProjectClick(project)">
             <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
               {{ project.ID }}
             </th>
@@ -101,74 +73,9 @@
             <td class="px-6 py-4">
               {{ project.statusName }}
             </td>
-<!--            <td class="px-6 py-4">-->
-<!--              <div class="flex item-center justify-center">-->
-<!--                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="onView(client);">-->
-<!--                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
-<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
-<!--                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>-->
-<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
-<!--                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>-->
-<!--                  </svg>-->
-<!--                </div>-->
-<!--                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="delete(client);">-->
-<!--                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
-<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
-<!--                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>-->
-<!--                  </svg>-->
-<!--                </div>-->
-
-<!--                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="openDocumentationDialog(client);">-->
-<!--                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
-<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />-->
-<!--                  </svg>-->
-<!--                </div>-->
-
-<!--                <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="BCandCPClick(client);">-->
-<!--                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
-<!--                    <path stroke-width="1.5" fill-rule="evenodd" clip-rule="evenodd" d="M14.9523 6.2635L10.4523 18.2635L9.04784 17.7368L13.5478 5.73682L14.9523 6.2635ZM19.1894 12.0001L15.9698 8.78042L17.0304 7.71976L21.3108 12.0001L17.0304 16.2804L15.9698 15.2198L19.1894 12.0001ZM8.03032 15.2198L4.81065 12.0002L8.03032 8.78049L6.96966 7.71983L2.68933 12.0002L6.96966 16.2805L8.03032 15.2198Z" fill="#080341"/>-->
-<!--                  </svg>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </td>-->
           </tr>
         }
       </tbody>
     </table>
   </div>
-
-<!--  <div class="my-2 flex sm:flex-row flex-col pb-6">-->
-<!--    <div class="flex flex-row mb-1 sm:mb-0">-->
-<!--      <div class="relative">-->
-<!--        <select [(ngModel)]="clientsNumber" (change)="onClientsNumberChange()" type="number"-->
-<!--                class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border block appearance-none w-full bg-white border-gray-400 text-gray-400 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097] dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">-->
-<!--          <option type="number">30</option>-->
-<!--          <option type="number">50</option>-->
-<!--          <option type="number">100</option>-->
-<!--        </select>-->
-<!--        <div-->
-<!--          class=" pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">-->
-<!--          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">-->
-<!--            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>-->
-<!--          </svg>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--    <div class="w-full flex justify-center pt-2 text-gray-400">-->
-<!--      <a (click)="leftArrow();" href=javascript:void(0) class="mr-2 dark:hover:text-[#56BDED]  hover:text-[#386097]">-->
-<!--        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"-->
-<!--             class="w-6 h-6">-->
-<!--          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>-->
-<!--        </svg>-->
-<!--      </a> <span class="mr-1">{{ offset + 1 }}</span>/<span class="ml-1 mr-1">{{ (offset * clientsNumber) + 1 }}</span>-<span-->
-<!--      class="ml-1">{{ lastItemNumber }}</span>-->
-<!--      <a (click)="rightArrow();" class="ml-2 dark:hover:text-[#56BDED] hover:text-[#386097]" href=javascript:void(0)>-->
-<!--        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"-->
-<!--             class="w-6 h-6">-->
-<!--          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>-->
-<!--        </svg>-->
-<!--      </a>-->
-<!--    </div>-->
-
-<!--  </div>-->
 </div>

@@ -10,6 +10,7 @@ import {CDCM} from "../models/cdcm";
 export class ProjectService {
 
   projectsList: ProjectModel[] = [];
+  currentProject: ProjectModel;
 
   constructor(private rest: RestService, private dialogService: DialogService) {
   }
@@ -36,7 +37,6 @@ export class ProjectService {
       this.dialogService.closseLoader();
       if (res.status === 200) {
         for (let item of res.data) {
-          console.log(ProjectModel.createProjectModel(item).bdUser.picUrl)
           this.projectsList.push(ProjectModel.createProjectModel(item));
         }
       }

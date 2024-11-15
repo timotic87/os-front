@@ -11,9 +11,9 @@ import {NgClass} from "@angular/common";
   styleUrl: './color-label.component.css'
 })
 export class ColorLabelComponent implements OnInit{
-  @Input() color = '';
+  @Input() color = 'green';
+  @Input() size: string = 'xs';
   styleCustom: string ='';
-  textColor: string = '';
 
   constructor() {
 
@@ -23,25 +23,19 @@ export class ColorLabelComponent implements OnInit{
     switch (this.color){
       case 'orange':
         this.styleCustom = 'bg-orange-400';
-        this.textColor = 'text-white';
         break;
       case 'red':
         this.styleCustom = 'bg-red-400';
-        this.textColor = 'text-red-950';
         break;
       case 'green':
         this.styleCustom = 'bg-green-400';
-        this.textColor = 'text-green-950';
         break;
       case 'blue':
         this.styleCustom = 'bg-blue-400';
-        this.textColor = 'text-blue-950';
-        break;
-      default:
-        this.styleCustom = 'bg-green-400';
-        this.textColor = 'text-green-950';
         break;
     }
+    this.styleCustom = this.styleCustom+' text-'+this.size
+
     }
 
 }
