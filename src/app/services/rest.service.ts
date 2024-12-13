@@ -99,12 +99,16 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getFilesById/${clientId}`, {headers: this.headers()}) as Observable<any>;
   }
 
+  getFilesByProjectId(projectID) {
+    return this.http.get(`${this.baseUrl}/getFilesByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
   getFile(id){
     return this.http.get(`${this.baseUrl}/getFile/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
   }
 
-  deleteDocumentById(id){
-    return this.http.delete(`${this.baseUrl}/deleteDocumet/${id}`, {headers: this.headers()}) as Observable<any>;
+  deleteDocumentById(id, filename){
+    return this.http.post(`${this.baseUrl}/deleteDocumet/${id}`, {filename}, {headers: this.headers()}) as Observable<any>;
   }
 
   getUsers(){
@@ -222,6 +226,10 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getFullProject/${ID}`, {headers: this.headers()}) as Observable<any>;
   }
 
+  getProjectHitory(ID: number){
+    return this.http.get(`${this.baseUrl}/getProjectHitory/${ID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
   getDPperNumberOfEmployee(){
     return this.http.get(`${this.baseUrl}/getDPperNumberOfEmployee`, {headers: this.headers()}) as Observable<any>;
   }
@@ -296,6 +304,9 @@ export class RestService {
   }
   getLastNotification(themeID:number){
     return this.http.get(`${this.baseUrl}/getLastNotification/${themeID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  getCDCMComments(cdcmID: number){
+    return this.http.get(`${this.baseUrl}/getCDCMcomments/${cdcmID}`, {headers: this.headers()}) as Observable<any>;
   }
 
 }

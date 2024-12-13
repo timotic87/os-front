@@ -1,15 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {RestService} from "../services/rest.service";
-import {CookieService} from "ngx-cookie-service";
 import {ClientsService} from "../services/clients.service";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {TokenService} from "../services/token.service";
-import {Router} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
 import {DialogService} from "../services/dialog.service";
 import {AddClientDialogComponent} from "./add-client-dialog/add-client-dialog.component";
 import {ClientViewDialogComponent} from "./client-view-dialog/client-view-dialog.component";
-import {NotificationsService} from "../services/notifications.service";
 import {UserService} from "../services/user.service";
 import {ErCodesDialogComponent} from "./er-codes-dialog/er-codes-dialog.component";
 import {DocumentatonComponent} from "./documentaton/documentaton.component";
@@ -35,9 +31,9 @@ export class ClientsComponent implements OnInit{
   maxPages = 1;
   lastItemNumber = 50;
   constructor(private rest: RestService,
-              public clientService: ClientsService, private tokenService: TokenService,
-              private router: Router, private dialog: MatDialog, private dialogService: DialogService,
+              public clientService: ClientsService,private dialog: MatDialog, private dialogService: DialogService,
               private userService: UserService) {
+    clientService.listOfClients = []
     this.reloadClients();
     clientService.isListChange.subscribe(isTrue=>{
       this.reloadClients()
@@ -147,7 +143,7 @@ export class ClientsComponent implements OnInit{
     this.dialog.open(DocumentatonComponent, {
       minWidth: '900px',
       maxHeight: '700px',
-      data: client
+      data: {client, project: null}
     });
   }
 

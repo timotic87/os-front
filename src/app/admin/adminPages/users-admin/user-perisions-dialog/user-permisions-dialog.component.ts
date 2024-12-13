@@ -13,15 +13,29 @@ import {NgIf} from "@angular/common";
     NgIf,
     ReactiveFormsModule
   ],
-  templateUrl: './user-perisions-dialog.component.html',
-  styleUrl: './user-perisions-dialog.component.css'
+  templateUrl: './user-permisions-dialog.component.html',
+  styleUrl: './user-permisions-dialog.component.css'
 })
-export class UserPerisionsDialogComponent implements OnInit{
+export class UserPermisionsDialogComponent implements OnInit{
 
   permisionForm: FormGroup;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPerisionsDialogComponent>, private dialogService: DialogService) {
+  arrayOfArrays = [];
+
+  constructor(@Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPermisionsDialogComponent>, private dialogService: DialogService) {
     console.log(user)
+
+    // @ts-ignore
+    const groupedBySection = this.user.permisions.reduce<Record<number, any[]>>((acc, item) => {
+      if (!acc[item.sectionID]) {
+        acc[item.sectionID] = [];
+      }
+      acc[item.sectionID].push(item);
+      return acc;
+    }, {});
+    this.arrayOfArrays = Object.values(groupedBySection);
+
+    console.log(this.arrayOfArrays);
   }
 
   ngOnInit(): void {
@@ -47,7 +61,6 @@ export class UserPerisionsDialogComponent implements OnInit{
 
 
   changePermision(){
-    //todo obraditi i staviti loader
     this.dialogService.showLoader();
     this.rest.changeUserPermisions(this.user.permisions).subscribe(res=>{
       this.dialogService.closseLoader();

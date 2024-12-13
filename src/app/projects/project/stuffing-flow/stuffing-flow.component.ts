@@ -17,6 +17,9 @@ import {
   ContractDocumentFormComponent
 } from "../../../clients/documentaton/elements/contract-document-form/contract-document-form.component";
 import {PickFileComponent} from "../../../clients/documentaton/elements/pick-file/pick-file.component";
+import {DocumentatonComponent} from "../../../clients/documentaton/documentaton.component";
+import {DocumentListComponent} from "../../../clients/documentaton/elements/document-list/document-list.component";
+import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -28,7 +31,8 @@ import {PickFileComponent} from "../../../clients/documentaton/elements/pick-fil
     CdcmInactiveCardComponent,
     ApprovalCardComponent,
     ContractDocumentFormComponent,
-    PickFileComponent
+    PickFileComponent,
+    DocumentListComponent
   ],
   templateUrl: './stuffing-flow.component.html',
   styleUrl: './stuffing-flow.component.css'
@@ -104,7 +108,7 @@ export class StuffingFlowComponent implements OnInit {
     this.matDialog.open(CdcmViewEditComponent, {
       maxHeight: '90vh',
       width: '150vh',
-      data: cdcm
+      data: {cdcm, project: this.project}
     })
   }
 
@@ -115,7 +119,6 @@ export class StuffingFlowComponent implements OnInit {
   }
 
   checkisButtonDisabled(){
-    console.log(this.cdcmService.cdcmList)
     if (!this.cdcmService.cdcmList) {
       this.createCDCMDisable = false;
     }else {
@@ -123,20 +126,28 @@ export class StuffingFlowComponent implements OnInit {
         this.createCDCMDisable = false;
         return;
       }
-      const trazeniStatusi = [1, 2];
+      const trazeniStatusi = [1, 2, 3];
 
       this.cdcmService.cdcmList.every(obj => !trazeniStatusi.includes(obj.statusID))? this.createCDCMDisable = false : this.createCDCMDisable = true;
 
     }
   }
 
-  getFormGroup(formGroup: FormGroup){
-    console.log(formGroup.value)
-    this.formGroup = formGroup;
+  documentDialogOpen(){
+    this.matDialog.open(DocumentatonComponent, {
+      maxHeight: '90vh',
+      width: '150vh',
+      data: {client: this.project.client, project: this.project}
+    })
   }
 
-  itemSelected(event: Event){
-    // @ts-ignore
-    this.file = event.target.files[0];
+
+  createDealDialog(){
+    this.matDialog.open(CreateDealDialogComponent, {
+      height: '90vh',
+      width: '90vw'
+      }
+    )
   }
+
 }

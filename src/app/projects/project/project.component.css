@@ -6,3 +6,11 @@
   line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.historySVG {
+  display: inline;
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 70px 12px 12px 12px;
+}

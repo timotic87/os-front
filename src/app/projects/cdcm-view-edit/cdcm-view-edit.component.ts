@@ -11,6 +11,7 @@ import {ApprovalCardComponent} from "../../customComponents/approval-card/approv
 import {RestService} from "../../services/rest.service";
 import {ApprovalStepModel} from "../../models/approval/ApprovalStepModel";
 import {ApprovalStatus} from "../../models/approval/approvalStatus";
+import {ProjectModel} from "../../models/projectModel";
 
 @Component({
   selector: 'app-cdcm-view-edit',
@@ -42,34 +43,39 @@ export class CdcmViewEditComponent implements OnInit {
 
   approval: ApprovalModel;
 
+  cdcm: CDCM;
+  project: ProjectModel;
 
-  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public cdcm: CDCM,
+
+  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public data: any,
               private dialogRef: MatDialogRef<CdcmViewEditComponent>, private userService: UserService, private rest: RestService) {
+        this.cdcm = this.data.cdcm
+        this.project = this.data.project;
         cdcmService.seniorityListListener.subscribe(()=>{
-      if (cdcm.isHra){
-        this.operationalCostForm.get('HRA_Consultant').setValue(cdcmService.getSeniorityObjByName(cdcm.hra_conultant_seniority));
+      if (this.cdcm.isHra){
+        this.operationalCostForm.get('HRA_Consultant').setValue(cdcmService.getSeniorityObjByName(this.cdcm.hra_conultant_seniority));
       }
-      if (cdcm.isPy){
-        console.log(cdcmService.getSeniorityObjByName(cdcm.py_conultant_seniority))
-        this.operationalCostForm.get('PY_Consultant').setValue(cdcmService.getSeniorityObjByName(cdcm.py_conultant_seniority));
-        this.payslipsCost=cdcm.payslips_cost;
+      if (this.cdcm.isPy){
+        console.log(cdcmService.getSeniorityObjByName(this.cdcm.py_conultant_seniority))
+        this.operationalCostForm.get('PY_Consultant').setValue(cdcmService.getSeniorityObjByName(this.cdcm.py_conultant_seniority));
+        this.payslipsCost=this.cdcm.payslips_cost;
       }
     });
 
     cdcmService.calculationCDCM = {
-      "directCost": cdcm.direct_cost,
-      "fee": cdcm.fee,
-      "revenue": cdcm.revenue,
-      "financingCost": cdcm.financing_cost,
-      "franshiseFeeCost": cdcm.franshise_fee,
-      "operationalCost": cdcm.operational_cost,
+      "directCost": this.cdcm.direct_cost,
+      "fee": this.cdcm.fee,
+      "revenue": this.cdcm.revenue,
+      "financingCost": this.cdcm.financing_cost,
+      "franshiseFeeCost": this.cdcm.franshise_fee,
+      "operationalCost": this.cdcm.operational_cost,
       "gp": {
-        "grossProfit": cdcm.gross_profit,
-        "gpPercent": cdcm.gross_profit_percent
+        "grossProfit": this.cdcm.gross_profit,
+        "gpPercent": this.cdcm.gross_profit_percent
       },
       "np": {
-        "netProfit": cdcm.net_profit,
-        "npPercent": cdcm.net_profit_percent
+        "netProfit": this.cdcm.net_profit,
+        "npPercent": this.cdcm.net_profit_percent
       }
     };
   }
@@ -160,8 +166,19 @@ export class CdcmViewEditComponent implements OnInit {
       PY_Consultant: new FormControl(null, Validators.required),
       PY_percent_of_time: new FormControl(this.cdcm.py_consultant_percent, Validators.required),
       additional_costs: new FormControl(this.cdcm.additional_costs, Validators.required),
-      payslips: new FormControl(this.cdcm.payslips_cost>0? this.PayslipsArr[1]:this.PayslipsArr[0])
+      payslips: new FormControl(this.cdcm.payslips_cost>0? this.PayslipsArr[1]:this.PayslipsArr[0]),
+      aditionalCostComment:  new FormControl(this.cdcm.aditionalCostComment, [Validators.required])
+
     });
+
+    this.operationalCostForm.get('additional_costs').valueChanges.subscribe(value => {
+      if (value > 0) {
+        this.operationalCostForm.get('aditionalCostComment').setValidators(Validators.required);
+      }else {
+        this.operationalCostForm.get('aditionalCostComment').clearValidators();
+      }
+    });
+
     if (this.cdcmService.cdcmSeniorityList){
       if (this.cdcm.isHra){
         this.operationalCostForm.get('HRA_Consultant').setValue(this.cdcmService.getSeniorityObjByName(this.cdcm.hra_conultant_seniority));
@@ -226,25 +243,23 @@ export class CdcmViewEditComponent implements OnInit {
     }
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
       this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Edit', 'Calculate']}).afterClosed().subscribe(option=>{
+        this.basicInfoForm.value.subservice = this.project.subservice
+        this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
+        this.basicInfoForm.value.projectID=this.cdcm.projectID;
+        this.operationalCostForm.value.collective_insurance = this.collective_insurance;
+        this.operationalCostForm.value.userID = this.userService.getUser().id;
+        this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
+        this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
+        this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
+        this.operationalCostForm.value.ID = this.cdcm.ID;
         switch (option){
           case 'Cancel':
+            this.dialogRef.close();
             break;
           case 'Calculate and Edit':
-            this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-            this.operationalCostForm.value.collective_insurance = this.collective_insurance;
-            this.operationalCostForm.value.userID = this.userService.getUser().id;
-            this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
-            this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
-            this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-            this.operationalCostForm.value.ID = this.cdcm.ID;
             this.cdcmService.updateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
             break;
           case 'Calculate':
-            this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-            this.operationalCostForm.value.collective_insurance = this.collective_insurance;
-            this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
-            this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
-            this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
              this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
             break;
         }

@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DatePipe, NgForOf} from "@angular/common";
+import {DatePipe, NgClass, NgForOf} from "@angular/common";
 import {ColorLabelComponent} from "../../../../customComponents/color-label/color-label.component";
 import {RestService} from "../../../../services/rest.service";
 import {ClientsService} from "../../../../services/clients.service";
@@ -11,7 +11,8 @@ import {DialogService} from "../../../../services/dialog.service";
   imports: [
     NgForOf,
     ColorLabelComponent,
-    DatePipe
+    DatePipe,
+    NgClass
   ],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.css'
@@ -19,10 +20,14 @@ import {DialogService} from "../../../../services/dialog.service";
 export class DocumentListComponent implements OnInit{
 
   @Input() clientId: any;
+  @Input() projectID: any;
 
   fileList;
 
   constructor(private rest: RestService, private clientService: ClientsService, private dialogService: DialogService) {
+    clientService.addDocumentSub.subscribe(()=>{
+      this.getList();
+    });
 
   }
 
@@ -39,28 +44,41 @@ export class DocumentListComponent implements OnInit{
     })
   }
 
-  delete(id){
-    this.dialogService.showChooseDialog('Are you sure you want to delete this document?').afterClosed().subscribe(isdelete=>{
-      if (isdelete){
-       this.rest.deleteDocumentById(id).subscribe(res=>{
-         if (res.status === 200){
-           this.dialogService.showSnackBar('Successfuly deleted document', '', 5000);
-           this.getList()
-         }else {
-           console.log(res)
-           this.dialogService.errorDialog(res);
-         }
-       })
-      }
-    });
+  delete(id, filename){
+    console.log(filename)
+      this.dialogService.showChooseDialog('Are you sure you want to delete this document?').afterClosed().subscribe(isdelete=>{
+        if (isdelete){
+          this.rest.deleteDocumentById(id, filename).subscribe(res=>{
+            if (res.status === 200){
+              this.dialogService.showSnackBar('Successfuly deleted document', '', 5000);
+              this.getList()
+            }else {
+              console.log(res)
+              this.dialogService.errorDialog(res);
+            }
+          })
+        }
+      });
+
+
   }
 
   getList(){
-    this.rest.getFilesByClientId(this.clientService.currentClient.id).subscribe(res=>{
-      if (res.status == 200) {
-        this.fileList = res.data;
-      }
-    });
+    if (this.clientId){
+      this.rest.getFilesByClientId(this.clientId).subscribe(res=>{
+        if (res.status == 200) {
+          this.fileList = res.data;
+        }
+      });
+    }
+    if (this.projectID){
+      this.rest.getFilesByProjectId(this.projectID).subscribe(res=>{
+        if (res.status == 200) {
+          console.log(res.data);
+          this.fileList = res.data;
+        }
+      });
+    }
   }
 
 }

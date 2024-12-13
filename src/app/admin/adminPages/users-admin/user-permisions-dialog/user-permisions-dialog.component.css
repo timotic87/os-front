@@ -1,0 +1,10 @@
+.checkBoxeWrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.checkBoxes{
+  flex-basis: calc(100% / 3.5);
+}

@@ -88,7 +88,7 @@ export class CreateProjectDialogComponent implements OnInit {
   createProject(){
     if (this.createProjectForm.valid) {
       const data = {legalEntityID: this.createProjectForm.value.legalEntity.id, clientID: this.currentClient.id, serviceID: this.createProjectForm.value.service.ID,
-        subserviceID: this.createProjectForm.value.subservice.ID, creatorID: this.userService.getUser().id, BDOwnerID: this.createProjectForm.value.bdUser.id, descriptionText: this.createProjectForm.value.comment}
+        subserviceID: this.createProjectForm.value.subservice.ID, subserviceType: this.createProjectForm.value.subservice.typeID, creatorID: this.userService.getUser().id, BDOwnerID: this.createProjectForm.value.bdUser.id, descriptionText: this.createProjectForm.value.comment}
       this.projectService.createNewProject(data, this.dialogRef)
 
     }

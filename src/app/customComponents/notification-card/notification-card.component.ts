@@ -45,7 +45,7 @@ export class NotificationCardComponent {
   }
 
   deleteNotification(notification: NotificationModel) {
-    this.dialogService.showChooseDialog("\"Are you sure you want to delete this notification?").afterClosed().subscribe(isYes=>{
+    this.dialogService.showChooseDialog("Are you sure you want to delete this notification?").afterClosed().subscribe(isYes=>{
       if (isYes){
         this.rest.deleteNotificationById(notification.id).subscribe(res=>{
           if (res.status === 201){

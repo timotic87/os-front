@@ -11,6 +11,8 @@ import {UserService} from "../../services/user.service";
 import {DocumentListComponent} from "./elements/document-list/document-list.component";
 import {ClientsService} from "../../services/clients.service";
 import {DialogService} from "../../services/dialog.service";
+import {ProjectModel} from "../../models/projectModel";
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-documentaton',
@@ -36,10 +38,14 @@ export class DocumentatonComponent {
   isTypeValid = false;
   types;
 
+  client: ClientModel;
+  project: ProjectModel;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public client: ClientModel, private dialog: MatDialog, private rest: RestService,
+  constructor(@Inject(MAT_DIALOG_DATA) private data: any, private dialog: MatDialog, private rest: RestService,
               private userService: UserService, private clientService: ClientsService, private dialogService: DialogService) {
-    clientService.setCurrentClient(client);
+    this.client = data.client;
+    this.project = data.project;
+    clientService.setCurrentClient(this.client);
   }
 
   typesValid(res){
@@ -74,10 +80,14 @@ export class DocumentatonComponent {
     formParams.set('notifyBeforeExpiration', (this.formGroup.get('reciveNotification').value? 1:0).toString())
     formParams.set('creatorID', (this.userService.getUser().id).toString());
     formParams.set('clientId', (this.client.id).toString());
+    formParams.set('projectID', this.project? (this.project.ID).toString():'null');
 
     this.rest.saveFile(formParams).subscribe(res => {
+      console.log(res)
       if (res.status === 201) {
         this.dialogService.showSnackBar('Successfully saved document', '',5000);
+        this.clientService.addDocumentSub.next(true);
+
         return;
       }
       this.dialogService.showSnackBar(res.data.name+' '+res.data.num, '', 5000)

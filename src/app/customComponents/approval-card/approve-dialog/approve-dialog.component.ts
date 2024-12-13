@@ -52,20 +52,23 @@ export class ApproveDialogComponent implements OnInit {
     this.changeStatus(3, 'Declined')
   }
 
+  correction() {
+    this.changeStatus(4, 'Correction');
+  }
+
   cancel(): void {
     this.dialogRef.close()
   }
 
   changeStatus(statusID: number, statusname: string){
-    if (statusID===3 && !this.approveFormGroup.value.comment){
+    if ((statusID===3 || statusID===4) && !this.approveFormGroup.value.comment){
       this.showMandatoryText = true;
       return;
     }
     this.rest.changeStatusApprovalStep({statusID: statusID, approvalStepID: this.approvalStep.ID, comment: this.approveFormGroup.value.comment, approvalId: this.approvalStep.approvalID, nextStep: this.nextStep}).subscribe(res =>{
-      console.log(res)
       if (res.status === 201) {
         this.dialogRef.close({status: res.status, statusID, statusname});
-        if (statusID===3 || res.data.row.recordset[0].IsEqual){
+        if (statusID===3 || statusID===4 || res.data.row.recordset[0].IsEqual){
           window.location.reload();
         }
 

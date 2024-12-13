@@ -1,0 +1,28 @@
+<div class="h-full w-full dark:bg-gray-600 py-9">
+  <div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
+    <h2 class="text-center text-2xl mt-3">Create Deal</h2>
+  </div>
+  <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
+  <form [formGroup]="createDealForm" autocomplete="off">
+    <div class="grid grid-cols-2 gap-4 p-3">
+
+      <div class="col-span-2">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Offer number:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" id="nameId" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('offer_number').touched && !createDealForm.get('offer_number').valid ? 'border-red-500':''" formControlName="offer_number" autocomplete="new-offer_number">
+        </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('offer_number').touched && !createDealForm.get('offer_number').valid">Name needs to be minimum 3 characters long.</label>
+      </div>
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Choose offer documet</div>
+        <app-pick-file (onFileSelected)="offerSelectDoc($event)"></app-pick-file>
+      </div>
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Choose contract documet</div>
+        <app-pick-file (onFileSelected)="contractSelectDoc($event)"></app-pick-file>
+      </div>
+
+    </div>
+  </form>
+</div>

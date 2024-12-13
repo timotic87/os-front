@@ -1,4 +1,4 @@
-<div class="h-full w-full dark:bg-gray-600 py-6" style="overflow: hidden">
+<div class="h-full w-full dark:bg-gray-600 p-6" style="overflow: hidden">
   <div class="text-gray-400 dark:text-neutral-100">
     <h2 class="text-md ms-3">{{ client.name+' - Documentations' }}</h2>
   </div>
@@ -14,7 +14,7 @@
     </nav>
   </div>
   @if (isListDocumentsPage){
-    <app-document-list></app-document-list>
+    <app-document-list [clientId]="client.id"></app-document-list>
   } @else {
     <app-choose-document-type (isValid)="typesValid($event)" (types)="getTypes($event)"></app-choose-document-type>
     <div *ngIf="isTypeValid">
@@ -22,9 +22,9 @@
       <app-pick-file (onFileSelected)="itemSelected($event)"></app-pick-file>
     </div>
   }
-  <div class="w-full flex flex-row">
-    <button (click)="send();" [disabled]="!formGroup || !formGroup.valid || !file || !isTypeValid" class="bg-[#386097] dark:bg-[#56BDED] hover:bg-[#4576ba] dark:hover:bg-[#75c9f0] text-white font-semibold rounded-md py-2 px-4 w-1/4 ml-3 disabled:bg-gray-400 disabled:hover:bg-gray-400 dark:disabled:hover:bg-gray-400" *ngIf="!isListDocumentsPage">Send</button>
-    <button (click)="close();" class="bg-red-500 hover:bg-red-400 text-white font-semibold rounded-md py-2 px-4 w-1/4 ml-3">Close</button>
+  <div class="w-full flex flex-row mt-3">
+    <button (click)="send();" [disabled]="!formGroup || !formGroup.valid || !file || !isTypeValid" class="mr-3 bg-[#386097] dark:bg-[#56BDED] hover:bg-[#4576ba] dark:hover:bg-[#75c9f0] text-white font-semibold rounded-md py-2 px-4 w-1/4 disabled:bg-gray-400 disabled:hover:bg-gray-400 dark:disabled:hover:bg-gray-400" *ngIf="!isListDocumentsPage">Send</button>
+    <button (click)="close();" class="bg-red-500 hover:bg-red-400 text-white font-semibold rounded-md py-2 px-4 w-1/4">Close</button>
   </div>
 </div>
 

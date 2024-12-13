@@ -105,7 +105,10 @@ export class CDCMService {
           if (res.status!==200){
             this.dialogService.errorDialog(res)
           }else {
-            this.updateCDCMSubject.next(CDCM.createCDCMModel(res.data[0]));
+            let updatedCDCM = CDCM.createCDCMModel(res.data[0])
+            console.log(updatedCDCM)
+            this.updateCDCMSubject.next(updatedCDCM);
+            this.cdcmList[0] = updatedCDCM;
           }
           this.dialogService.closseLoader()
           this.matDialog.closeAll()
@@ -140,7 +143,6 @@ export class CDCMService {
         for (let item of res.data) {
           this.cdcmList.push(CDCM.createCDCMModel(item));
         }
-        console.log(this.cdcmList.length)
         this.getCDCMListSubject.next(this.cdcmList);
       }
     })
@@ -152,7 +154,7 @@ export class CDCMService {
     this.createlistcdcmStatics();
   }
 
-  getCDCMLength(){
-    return this.cdcmList.length;
-  }
+
+
+
 }

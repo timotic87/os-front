@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  SERVER_URL: 'http://localhost:3000',
+  SERVER_URL: 'http://localhost:3100',
   firebaseConfig: {
     apiKey: "AIzaSyCKWT6-Fu8GE_wNkZjV9cG67P9e5y4scSQ",
     authDomain: "onespot-edaae.firebaseapp.com",

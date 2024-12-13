@@ -43,6 +43,7 @@ export class NavbarComponent {
     this.cookieService.delete('jwt', '/');
     this.userService.deleteUser();
     this.router.navigate(['login']);
+    this.notificationsService.showNotificationSideBar = false;
   }
 
   resetPass(){

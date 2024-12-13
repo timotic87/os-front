@@ -3,15 +3,12 @@ import {FormsModule} from "@angular/forms";
 import {UserModel} from "../../../models/userModel";
 import {RestService} from "../../../services/rest.service";
 import {UsersService} from "../../../services/users.service";
-import {AddClientDialogComponent} from "../../../clients/add-client-dialog/add-client-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {CreateUserDialogComponent} from "./create-user-dialog/create-user-dialog.component";
 import {DialogService} from "../../../services/dialog.service";
 import {EditUserComponent} from "./edit-user/edit-user.component";
 import {ChangePasswordDialogComponent} from "./change-password-dialog/change-password-dialog.component";
-import {UserPerisionsDialogComponent} from "./user-perisions-dialog/user-perisions-dialog.component";
-import {LoaderComponent} from "../../../dialogComponents/loader/loader.component";
-
+import {UserPermisionsDialogComponent} from "./user-permisions-dialog/user-permisions-dialog.component";
 @Component({
   selector: 'app-users-admin',
   standalone: true,
@@ -109,7 +106,7 @@ export class UsersAdminComponent {
       this.rest.getUserPermisions(user.id).subscribe(res=>{
         if (res.status===200){
           user.permisions = res.data;
-          this.dialog.open(UserPerisionsDialogComponent, {
+          this.dialog.open(UserPermisionsDialogComponent, {
             width: '800px',
             minHeight: '600px',
             data: user

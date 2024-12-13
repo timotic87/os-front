@@ -6,6 +6,11 @@ import {MatDialog} from "@angular/material/dialog";
 import {CdcmViewEditComponent} from "../../projects/cdcm-view-edit/cdcm-view-edit.component";
 import {CDCMService} from "../../services/cdcm.service";
 import {CDCM} from "../../models/cdcm";
+import {RestService} from "../../services/rest.service";
+import {CommentModel} from "../../models/commentModel";
+import {ShowCommentsDialogComponent} from "../show-comments-dialog/show-comments-dialog.component";
+import {ProjectModel} from "../../models/projectModel";
+import {CdcmPyHraViewEditComponent} from "../../projects/cdcm-py-hra-view-edit/cdcm-py-hra-view-edit.component";
 
 @Component({
   selector: 'app-cdcm-card',
@@ -24,10 +29,13 @@ import {CDCM} from "../../models/cdcm";
 export class CdcmCardComponent implements OnInit{
 
   @Input() cdcm: CDCM;
+  @Input() project: ProjectModel;
 
   statusColor: string
 
-  constructor(private matDialog: MatDialog, private cdcmService: CDCMService) {
+  comments: CommentModel[] = [];
+
+  constructor(private matDialog: MatDialog, private cdcmService: CDCMService, private rest: RestService) {
     cdcmService.updateStatusCDCMSubject.subscribe(cdcmObj => {
       if (cdcmObj['ID']===this.cdcm.ID){
         this.changeColorStatus(cdcmObj['statusID']);
@@ -39,14 +47,34 @@ export class CdcmCardComponent implements OnInit{
 
   ngOnInit(): void {
     this.changeColorStatus(this.cdcm.statusID);
+    this.rest.getCDCMComments(this.cdcm.ID).subscribe(res=>{
+      if (res.status===200 && res.data.length>0){
+        for (const c of res.data){
+          this.comments.push(new CommentModel(c.commentUserFirstname, c.commentUserLastname, c.commentTime, c.commentUserPicUrl, c.comment))
+        }
+      }
+    });
     }
 
   openViewEditDialog(){
-    this.matDialog.open(CdcmViewEditComponent, {
-      maxHeight: '90vh',
-      width: '150vh',
-      data: this.cdcm
-    })
+    console.log(this.project)
+    switch (this.project.subservice.typeID){
+      case 2:
+        this.matDialog.open(CdcmViewEditComponent, {
+          maxHeight: '90vh',
+          width: '70vw',
+          data: {cdcm: this.cdcm, project: this.project}
+        });
+        break;
+        case 3:
+          this.matDialog.open(CdcmPyHraViewEditComponent, {
+            maxHeight: '90vh',
+            width: '70vw',
+            data: {cdcm: this.cdcm, project: this.project}
+          });
+          break
+    }
+
   }
 
   deleteCDCM(id:number){
@@ -71,6 +99,13 @@ export class CdcmCardComponent implements OnInit{
       default:
         this.statusColor = 'red';
     }
+  }
+  openCommentDialog(){
+    this.matDialog.open(ShowCommentsDialogComponent, {
+      width: '30vw',
+      maxHeight: '70vh',
+      data: {title: 'Correction comments', comments: this.comments}
+    })
   }
 
 }

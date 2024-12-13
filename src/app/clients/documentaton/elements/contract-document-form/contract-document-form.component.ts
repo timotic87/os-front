@@ -1,24 +1,15 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
 import {NgClass, NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {PickFileComponent} from "../pick-file/pick-file.component";
-import {MatDialog} from "@angular/material/dialog";
-import {ClientModel} from "../../../../models/clientModel";
-import {RestService} from "../../../../services/rest.service";
-import {emit} from "@angular-devkit/build-angular/src/tools/esbuild/angular/compilation/parallel-worker";
+import {DialogService} from "../../../../services/dialog.service";
 
 @Component({
   selector: 'app-contract-document-form',
   standalone: true,
   imports: [
-    MatAutocomplete,
-    MatAutocompleteTrigger,
-    MatOption,
     NgIf,
     ReactiveFormsModule,
-    NgClass,
-    PickFileComponent
+    NgClass
   ],
   templateUrl: './contract-document-form.component.html',
   styleUrl: './contract-document-form.component.css'
@@ -30,7 +21,7 @@ export class ContractDocumentFormComponent implements OnInit {
   addContractForm: FormGroup;
   file: File = null;
 
-  constructor() {
+  constructor(private dialogService: DialogService) {
   }
 
   ngOnInit(): void {
@@ -41,7 +32,21 @@ export class ContractDocumentFormComponent implements OnInit {
       endDate: new FormControl(null),
       reciveNotification: new FormControl(false)
     });
-    this.addContractForm.get('fileName').valueChanges.subscribe(() => {
+    this.addContractForm.get('fileName').valueChanges.subscribe(value => {
+
+      const forbiddenChars = [".", "/", "\\", ":", "*", "?", "\"", "<", ">", "|"];
+
+      if (value.length > 0) {
+        const lastChar = value[value.length - 1];
+        if (forbiddenChars.includes(lastChar)) {
+          this.dialogService.showSnackBar(`Poslednji karakter '${lastChar}' je zabranjen.`, '', 3000);
+          this.addContractForm.get('fileName').setValue(value.slice(0, -1));
+        }
+      }
+
+
+
+
       this.emitFormGroup()
     })
     this.addContractForm.get('isExpired').valueChanges.subscribe(() => {

@@ -87,7 +87,7 @@ export class PyFlowComponent {
     this.matDialog.open(CdcmViewEditComponent, {
       maxHeight: '90vh',
       width: '150vh',
-      data: cdcm
+      data: {cdcm, project: this.project}
     })
   }
 
@@ -98,7 +98,6 @@ export class PyFlowComponent {
   }
 
   checkisButtonDisabled(){
-    console.log(this.cdcmService.cdcmList)
     if (!this.cdcmService.cdcmList) {
       this.createCDCMDisable = false;
     }else {

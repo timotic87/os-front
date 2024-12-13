@@ -12,18 +12,19 @@ import {Subject} from "rxjs";
 })
 export class ClientsService {
 
-  private _listOfClients: ClientModel[]=[];
+  public listOfClients: ClientModel[]=[];
   public  currentClient: ClientModel;
   isListChange = new Subject<boolean>;
+  addDocumentSub = new Subject<boolean>;
+
   constructor(private tokenService: TokenService, private cookieService: CookieService, private rest: RestService, private dialogService: DialogService,
               private router: Router) {
-
   }
 
   createListOfClients(data: any){
-    this._listOfClients = [];
+    this.listOfClients = [];
     for(let i of data){
-      this._listOfClients.push(ClientModel.createClientModel(i));
+      this.listOfClients.push(ClientModel.createClientModel(i));
     }
   }
 
@@ -31,7 +32,6 @@ export class ClientsService {
     let clients: ClientModel[] = [];
     // @ts-ignore
     this.rest.getClientsByName(name).subscribe(res=>{
-      console.log(res)
       if (res.status == 200){
         if (res.data.length === 0){
           return clients
@@ -46,8 +46,8 @@ export class ClientsService {
   }
 
 
-  get listOfClients(): ClientModel[] {
-    return this._listOfClients;
+  getListOfClients(): ClientModel[] {
+    return this.listOfClients;
   }
 
   editClientById(data){

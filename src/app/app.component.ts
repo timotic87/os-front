@@ -60,7 +60,6 @@ export class AppComponent {
         case socketEnum.NEW_APPROVAL:
           this.rest.getLastNotification(3).subscribe(res=>{
             if (res.status===200 && res.data.length!==0){
-              console.log(res)
               notificationsService.showNotification({title: userService.getUser().fullName+' time to approval', body: res.data[0].msg});
             }
           })
@@ -68,10 +67,7 @@ export class AppComponent {
       }
       try {
         if(data.creatorID!==userService.getUser().id){
-          console.log(userService.getUser().id)
-          console.log(data.listenerNum)
           this.rest.isNotificationShow(data.listenerNum).subscribe(res=>{
-            console.log(res)
             if (res.data[0].isShow===1){
               notificationsService.showNotification(data);
             }

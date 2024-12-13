@@ -6,6 +6,7 @@ import {CDCMService} from "../../services/cdcm.service";
 import {DialogService} from "../../services/dialog.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {UserService} from "../../services/user.service";
+import {RestService} from "../../services/rest.service";
 
 @Component({
   selector: 'app-cdcm-dialog',
@@ -37,7 +38,7 @@ export class CdcmDialogComponent implements OnInit {
   collective_insurance = 0
   payslipsCost = 0;
 
-  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public project, private dialogRef: MatDialogRef<CdcmDialogComponent>, private userService: UserService) {
+  constructor(public rest: RestService, public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public project, private dialogRef: MatDialogRef<CdcmDialogComponent>, private userService: UserService) {
     cdcmService.calculationCDCM = null;
   }
 
@@ -108,8 +109,17 @@ export class CdcmDialogComponent implements OnInit {
       PY_Consultant: new FormControl('', Validators.required),
       PY_percent_of_time: new FormControl('', Validators.required),
       additional_costs: new FormControl(0, Validators.required),
-      payslips: new FormControl(this.PayslipsArr[1])
+      payslips: new FormControl(this.PayslipsArr[1]),
+      aditionalCostComment:  new FormControl(null)
     });
+    this.operationalCostForm.get('additional_costs').valueChanges.subscribe(value => {
+      if (value > 0) {
+        this.operationalCostForm.get('aditionalCostComment').setValidators(Validators.required);
+      }else {
+        this.operationalCostForm.get('aditionalCostComment').clearValidators();
+      }
+    });
+
     this.operationalCostForm.valueChanges.subscribe(() => {
       if (this.basicInfoForm.valid) this.showOperationalCostMsgValidation = false;
     })
@@ -157,27 +167,23 @@ export class CdcmDialogComponent implements OnInit {
     }
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
       this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Save', 'Calculate']}).afterClosed().subscribe(option=>{
+        this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
+        this.basicInfoForm.value.projectID= this.project.ID;
+        this.basicInfoForm.value.subservice = this.project.subservice
+        this.basicInfoForm.value.createdUserID= this.userService.getUser().id;
+        this.operationalCostForm.value.collective_insurance = this.collective_insurance;
+        this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
+        this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
+        this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
+
         switch (option){
           case 'Cancel':
             break;
           case 'Calculate and Save':
-            this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-            this.basicInfoForm.value.projectID= this.project.ID;
-            this.basicInfoForm.value.createdUserID= this.userService.getUser().id;
-            this.operationalCostForm.value.collective_insurance = this.collective_insurance;
-            this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
-            this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-            this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
             this.cdcmService.calculateAndCreateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value}, this.dialogRef);
 
             break;
           case 'Calculate':
-            this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-            this.basicInfoForm.value.projectID= this.project.id;
-            this.operationalCostForm.value.collective_insurance = this.collective_insurance;
-            this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
-            this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-            this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
             this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
 
             break;
