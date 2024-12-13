@@ -1,10 +1,10 @@
-<div class="h-full w-full dark:bg-gray-600 py-9">
+<div class="h-full w-full dark:bg-gray-600 py-9 text-gray-600 dark:text-gray-300">
   <div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
     <h2 class="text-center text-2xl mt-3">Create Deal</h2>
   </div>
   <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
   <form [formGroup]="createDealForm" autocomplete="off">
-    <div class="grid grid-cols-2 gap-4 p-3">
+    <div class="grid grid-cols-4 gap-4 p-3">
 
       <div class="col-span-2">
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Offer number:</div>
@@ -14,13 +14,131 @@
         </div>
         <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('offer_number').touched && !createDealForm.get('offer_number').valid">Name needs to be minimum 3 characters long.</label>
       </div>
-      <div>
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Choose offer documet</div>
-        <app-pick-file (onFileSelected)="offerSelectDoc($event)"></app-pick-file>
+      <div class="col-span-2">
+        <div class="toggleCustom w-full pl-3 flex flex-row">
+<!--          (change)="isExpiredChange();"-->
+          <input
+
+            formControlName="isExpired"
+            class="me-2 mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-black/25 before:pointer-events-none
+         before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-['']
+         after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none
+         after:bg-gray-400 after:shadow-switch-2 after:transition-[background-color_0.2s,transform_0.2s] after:content-['']
+         checked:bg-[#386097] checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ms-[1.0625rem]
+         checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-[#386097]
+         checked:after:shadow-switch-1 checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-['']
+          hover:cursor-pointer focus:outline-none focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-switch-3
+           focus:before:shadow-black/60 focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1]
+            focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary
+             checked:focus:bg-primary checked:focus:before:ms-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-switch-3
+              checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-white/25 dark:after:bg-surface-dark dark:checked:bg-[#56BDED]
+               dark:checked:after:bg-[#56BDED]"
+            type="checkbox"
+            role="switch"
+            id="flexSwitchCheckDefault">
+          <label
+            class="inline-block ps-[0.5rem] hover:cursor-pointer text-gray-600 dark:text-gray-300"
+            for="flexSwitchCheckDefault">Deal can expire</label>
+        </div>
       </div>
-      <div>
+      <div class="col-span-2">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Choose offer documet</div>
+        <app-pick-file (onFileSelected)="offerSelectDoc($event)" [mandatory]="false"></app-pick-file>
+      </div>
+      <div class="col-span-2">
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Choose contract documet</div>
         <app-pick-file (onFileSelected)="contractSelectDoc($event)"></app-pick-file>
+      </div>
+      <div class="col-span-2">
+        <label for="startDate"><span class="text-red-500 dark:text-red-400">*</span>Start Date:</label>
+        <input formControlName="startDate" type="date" id="startDate" name="startDate" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+        <label class="text-xs text-red-500 block" *ngIf="!createDealForm.get('startDate').valid">Start date is mandatory!</label>
+      </div>
+      <div class="col-span-2" *ngIf="createDealForm.get('isExpired').value">
+        <label for="startDate"><span class="text-red-500 dark:text-red-400">*</span>End Date:</label>
+        <input formControlName="endDate" type="date" id="endDate" name="endDate" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+        <label class="text-xs text-red-500 block" *ngIf="!createDealForm.get('endDate').valid">End date is mandatory!</label>
+      </div>
+      <hr class="col-span-4 mb-3 mt-4 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
+      <div class="col-span-2">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Fee type</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="feetype" [matAutocomplete]="autoFeeType" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('feetype').touched && !createDealForm.get('feetype').valid ? 'border-red-500':''" autocomplete="new-feetype">
+          <mat-autocomplete #autoFeeType="matAutocomplete" class="bg-white dark:bg-gray-600">
+              <mat-option [value]="1">FIX</mat-option>
+              <mat-option [value]="1">multuplier</mat-option>
+              <mat-option [value]="1">Percent</mat-option>
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('feetype').touched && !createDealForm.get('feetype').valid">Must select Fee type.</label>
+      </div>
+      <div class="col-span-2"></div>
+      <div class="col-span-1">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary percent</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                 class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid ? 'border-red-500':''"
+                 formControlName="salaryValue" autocomplete="new-salaryValue">
+        </div>
+      </div>
+      <div class="col-span-2">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary type</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="salaryType" [matAutocomplete]="autoSalaryType" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid ? 'border-red-500':''" autocomplete="new-salaryType">
+          <mat-autocomplete #autoSalaryType="matAutocomplete" class="bg-white dark:bg-gray-600">
+            <mat-option [value]="1">bruto 1</mat-option>
+            <mat-option [value]="2">bruto 2</mat-option>
+            <mat-option [value]="3">neto</mat-option>
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>
+      </div>
+
+      <div class="col-span-1">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary days due</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                 class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid ? 'border-red-500':''"
+                 formControlName="salarydaysdue" autocomplete="new-salarydaysdue">
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost percent</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                 class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
+                 formControlName="costValue" autocomplete="new-costValue">
+        </div>
+      </div>
+      <div class="col-span-2">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost type</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" [disabled]="true" formControlName="costType" [matAutocomplete]="autoCostType" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('costType').touched && !createDealForm.get('costType').valid ? 'border-red-500':''" autocomplete="new-costType">
+          <mat-autocomplete #autoCostType="matAutocomplete" class="bg-white dark:bg-gray-600">
+            <mat-option [value]="1">Cost</mat-option>
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costType').touched && !createDealForm.get('costType').valid">Must select Salary type.</label>
+      </div>
+      <div class="col-span-1">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost days due</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
+                 class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
+                 formControlName="costdaysdue" autocomplete="new-costdaysdue">
+        </div>
       </div>
 
     </div>

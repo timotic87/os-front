@@ -145,7 +145,7 @@ export class StuffingFlowComponent implements OnInit {
   createDealDialog(){
     this.matDialog.open(CreateDealDialogComponent, {
       height: '90vh',
-      width: '90vw'
+      width: '50vw'
       }
     )
   }
