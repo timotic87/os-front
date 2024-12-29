@@ -61,17 +61,17 @@
       </div>
       <hr class="col-span-4 mb-3 mt-4 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
       <div class="col-span-2">
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Fee type</div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary fee type</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="text" formControlName="feetype" [matAutocomplete]="autoFeeType" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="createDealForm.get('feetype').touched && !createDealForm.get('feetype').valid ? 'border-red-500':''" autocomplete="new-feetype">
-          <mat-autocomplete #autoFeeType="matAutocomplete" class="bg-white dark:bg-gray-600">
+          <input type="text" formControlName="salaryFeetype" [matAutocomplete]="autosalaryFeetype" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('salaryFeetype').touched && !createDealForm.get('salaryFeetype').valid ? 'border-red-500':''" autocomplete="new-salaryFeetype">
+          <mat-autocomplete #autosalaryFeetype="matAutocomplete" class="bg-white dark:bg-gray-600">
               <mat-option [value]="1">FIX</mat-option>
               <mat-option [value]="1">multuplier</mat-option>
               <mat-option [value]="1">Percent</mat-option>
           </mat-autocomplete>
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('feetype').touched && !createDealForm.get('feetype').valid">Must select Fee type.</label>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryFeetype').touched && !createDealForm.get('salaryFeetype').valid">Must select Fee type.</label>
       </div>
       <div class="col-span-2"></div>
       <div class="col-span-1">
@@ -108,6 +108,20 @@
                  formControlName="salarydaysdue" autocomplete="new-salarydaysdue">
         </div>
       </div>
+      <div class="col-span-2">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost fee type</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" formControlName="costFeetype" [matAutocomplete]="autocostFeetype" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="createDealForm.get('costFeetype').touched && !createDealForm.get('costFeetype').valid ? 'border-red-500':''" autocomplete="new-costFeetype">
+          <mat-autocomplete #autocostFeetype="matAutocomplete" class="bg-white dark:bg-gray-600">
+            <mat-option [value]="1">FIX</mat-option>
+            <mat-option [value]="1">multuplier</mat-option>
+            <mat-option [value]="1">Percent</mat-option>
+          </mat-autocomplete>
+        </div>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costFeetype').touched && !createDealForm.get('costFeetype').valid">Must select Fee type.</label>
+      </div>
+      <div class="col-span-2"></div>
 
       <div class="col-span-1">
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost percent</div>
@@ -140,6 +154,17 @@
                  formControlName="costdaysdue" autocomplete="new-costdaysdue">
         </div>
       </div>
+      <hr class="col-span-4 mb-3 mt-4 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
+
+      <button (click)="addInHouseEmploye"
+              class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+              data-ripple-light="true">Add InHouse Employee
+      </button>
 
     </div>
   </form>

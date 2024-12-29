@@ -32,7 +32,8 @@ export class CreateDealDialogComponent implements OnInit{
   ngOnInit(): void {
         this.createDealForm = new FormGroup({
           offer_number: new FormControl(null, [Validators.required]),
-          feetype: new FormControl(null, [Validators.required]),
+          salaryFeetype: new FormControl(null, [Validators.required]),
+          costFeetype: new FormControl(null, [Validators.required]),
           isExpired: new FormControl(null),
           startDate: new FormControl(null, [Validators.required]),
           endDate: new FormControl(null),
@@ -53,6 +54,10 @@ export class CreateDealDialogComponent implements OnInit{
   contractSelectDoc(event: Event){
     // @ts-ignore
     this.contractFile = event.target.files[0];
+  }
+
+  addInHouseEmploye(){
+
   }
 
 }
