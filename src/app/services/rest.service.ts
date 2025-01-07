@@ -54,7 +54,7 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getClients/${name}`,{headers: this.headers()}) as Observable<any>;
   }
 
-  getCurrencyList(data){
+  getCurrencyList(){
     return this.http.get(`${this.baseUrl}/currencyList`, {headers: this.headers()}) as Observable<any>;
   }
 
@@ -238,10 +238,6 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getCDCMSeniority`, {headers: this.headers()}) as Observable<any>;
   }
 
-  calculateBasicInfo(data){
-    return this.http.post(`${this.baseUrl}/calculateBasicInfo`, data, {headers: this.headers()})
-  }
-
   getComentsByProjectID(projectID){
     return this.http.get(`${this.baseUrl}/getComentsByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
   }
@@ -307,6 +303,23 @@ export class RestService {
   }
   getCDCMComments(cdcmID: number){
     return this.http.get(`${this.baseUrl}/getCDCMcomments/${cdcmID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getFeeTypes(){
+    return this.http.get(`${this.baseUrl}/feeTypes`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getSalaryTypes(){
+    return this.http.get(`${this.baseUrl}/salaryTypes`, {headers: this.headers()}) as Observable<any>;
+  }
+  createDeal(data) {
+      let headers = new HttpHeaders();
+      headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
+      return this.http.post(`${this.baseUrl}/createDeal`, data, {headers: headers}) as Observable<any>;
+  }
+
+  getDealByProjectId(projectID){
+    return this.http.get(`${this.baseUrl}/getDealByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
   }
 
 }

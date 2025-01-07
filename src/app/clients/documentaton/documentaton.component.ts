@@ -34,7 +34,6 @@ export class DocumentatonComponent {
 
   file: File = null;
   formGroup: FormGroup;
-  isContract = false;
   isTypeValid = false;
   types;
 

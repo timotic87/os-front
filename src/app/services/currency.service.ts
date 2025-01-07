@@ -24,7 +24,7 @@ export class CurrencyService {
   private factoryCurencyFromRest(){
     this._currencyList = [];
     if (this.tokenService.isTokenOk()){
-      this.rest.getCurrencyList({token: this.cookieService.get('jwt')}).subscribe(res=>{
+      this.rest.getCurrencyList().subscribe(res=>{
 
         if (res.status===200){
           for(let i of res.data){

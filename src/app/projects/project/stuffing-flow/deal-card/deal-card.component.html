@@ -1,0 +1,77 @@
+<div class="mt-6 border-2 border-[#386097] dark:border-[#56BDED] p-3 rounded-lg col-span-2">
+  <div class="flex justify-between">
+    <h2 class="text-xl mb-3">Deal number: <span
+      class="text-[#386097] dark:text-[#56BDED] font-bold">{{ deal.deal_number }}</span></h2>
+    <app-color-label [color]="'green'">{{deal.createDate | date: 'MM/dd/yyy HH:mm'}}</app-color-label>
+  </div>
+  <div class="flex justify-between">
+<div class="w-auto">
+  <p class="mb-3">Start date: <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ deal.startDate | date: "MM/dd/yyyy"  }}</span> <span *ngIf="deal.endDate">End date <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ deal.endDate | date: "MM/dd/yyyy" }}</span></span></p>
+  <p class="mb-3 font-bold">Fee type:</p>
+  <p class="m-3">Salary:
+    @switch (deal.salaryFeeTypeID){
+      @case (1){
+        <span class="text-[#386097] dark:text-[#56BDED] mr-3">{{ deal.fee_type_salary_value+'% of '+ deal.salaryTypeName }}</span>
+      }
+      @case (2){
+        <span class="text-[#386097] dark:text-[#56BDED] mr-3">{{ deal.fee_type_salary_value+' x '+deal.salaryTypeName }}</span>
+      }
+      @case (3){
+        <span class="text-[#386097] dark:text-[#56BDED] mr-3">Fix fee: {{deal.fee_type_salary_value | currency: deal.salaryCurrencyName}}</span>
+      }
+    }
+    <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ 'Due '+deal.payment_due_on_salary+' days' }}</span>
+  </p>
+  <p class="m-3">Cost:
+    @switch (deal.costFeeTypeID){
+      @case (1){
+        <span class="text-[#386097] dark:text-[#56BDED] mr-3">{{ deal.fee_type_cost_value+'% of COST' }}</span>
+      }
+      @case (2){
+        <span class="text-[#386097] dark:text-[#56BDED] mr-3">{{ deal.fee_type_cost_value+' x COST' }}</span>
+      }
+      @case (3){
+        <span class="text-[#386097] dark:text-[#56BDED] mr-3">Fix fee: {{deal.fee_type_cost_value | currency: deal.costCurrencyName}}</span>
+      }
+    }
+    <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ 'Due '+deal.payment_due_on_cost+' days' }}</span>
+  </p>
+</div>
+
+  <div class="w-auto">
+    <button
+            type="button"
+            class="block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mb-4 w-full
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Edit
+    </button>
+    <button
+            type="button"
+            class="block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mb-4 w-full
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Add annex
+    </button>
+    <button
+            type="button"
+            class="block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase w-full
+      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
+      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
+      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
+      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
+      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
+      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
+      Cancel the deal
+    </button>
+  </div>
+  </div>
+</div>

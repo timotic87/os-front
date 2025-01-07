@@ -88,17 +88,4 @@ export class ProjectComponent implements OnInit{
     })
   }
 
-  getFormGroup(formGroup: FormGroup){
-    this.formGroup = formGroup;
-  }
-
-  itemSelected(event: Event){
-    // @ts-ignore
-    this.file = event.target.files[0];
-  }
-
-  saveDocument(){
-
-  }
-
 }

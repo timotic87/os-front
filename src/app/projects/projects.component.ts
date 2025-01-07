@@ -3,7 +3,7 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {CreateProjectDialogComponent} from "./create-project-dialog/create-project-dialog.component";
 import {ProjectService} from "../services/project.service";
-import {DatePipe} from "@angular/common";
+import {DatePipe, NgIf} from "@angular/common";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {Router} from "@angular/router";
 
@@ -13,7 +13,8 @@ import {Router} from "@angular/router";
   imports: [
     ReactiveFormsModule,
     DatePipe,
-    MatMenuTrigger
+    MatMenuTrigger,
+    NgIf
   ],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.css'

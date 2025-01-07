@@ -20,6 +20,8 @@ import {PickFileComponent} from "../../../clients/documentaton/elements/pick-fil
 import {DocumentatonComponent} from "../../../clients/documentaton/documentaton.component";
 import {DocumentListComponent} from "../../../clients/documentaton/elements/document-list/document-list.component";
 import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog.component";
+import {RestService} from "../../../services/rest.service";
+import {DealCardComponent} from "./deal-card/deal-card.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -32,7 +34,8 @@ import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog
     ApprovalCardComponent,
     ContractDocumentFormComponent,
     PickFileComponent,
-    DocumentListComponent
+    DocumentListComponent,
+    DealCardComponent
   ],
   templateUrl: './stuffing-flow.component.html',
   styleUrl: './stuffing-flow.component.css'
@@ -49,7 +52,9 @@ export class StuffingFlowComponent implements OnInit {
 
   formGroup: FormGroup;
 
-  constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private approvalService: ApprovalService, private route: ActivatedRoute) {
+  deal;
+
+  constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private approvalService: ApprovalService, private route: ActivatedRoute, private rest: RestService) {
     let projectId: number = +this.route.snapshot.paramMap.get('id');
     cdcmService.getCDCMLIstByProjectId(projectId);
 
@@ -82,6 +87,13 @@ export class StuffingFlowComponent implements OnInit {
       this.getApprovals(cdcmObj.ID);
       this.checkisButtonDisabled();
     });
+
+    rest.getDealByProjectId(projectId).subscribe(res => {
+      if (res.status===200 && res.data.length>0){
+        this.deal = res.data[0];
+      }
+    })
+
   }
 
   ngOnInit(): void {
@@ -145,7 +157,8 @@ export class StuffingFlowComponent implements OnInit {
   createDealDialog(){
     this.matDialog.open(CreateDealDialogComponent, {
       height: '90vh',
-      width: '50vw'
+      width: '50vw',
+      data: {client: this.project.client, project: this.project}
       }
     )
   }
