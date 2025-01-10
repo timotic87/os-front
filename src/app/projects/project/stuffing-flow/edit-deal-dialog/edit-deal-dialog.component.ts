@@ -1,83 +1,74 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgIf} from "@angular/common";
 import {PickFileComponent} from "../../../../clients/documentaton/elements/pick-file/pick-file.component";
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {RestService} from "../../../../services/rest.service";
 import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DialogService} from "../../../../services/dialog.service";
 
 @Component({
-  selector: 'app-create-deal-dialog',
+  selector: 'app-edit-deal-dialog',
   standalone: true,
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        NgIf,
-        NgClass,
-        PickFileComponent
-    ],
-  templateUrl: './create-deal-dialog.component.html',
-  styleUrl: './create-deal-dialog.component.css'
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    NgClass
+  ],
+  templateUrl: './edit-deal-dialog.component.html',
+  styleUrl: './edit-deal-dialog.component.css'
 })
-export class CreateDealDialogComponent implements OnInit{
+export class EditDealDialogComponent implements OnInit{
 
   createDealForm: FormGroup;
-  contractFile: File = null;
 
   feeTypes;
   salaryTypes;
   currencyList;
 
   constructor(private rest: RestService,  @Inject(MAT_DIALOG_DATA) public data: any, private dialogService: DialogService) {
+    console.log(data)
     this.getStatics();
   }
 
   ngOnInit(): void {
-        this.createDealForm = new FormGroup({
-          deal_number: new FormControl(null, [Validators.required]),
-          contract_file_name: new FormControl(null, [Validators.required]),
-          salaryFeetype: new FormControl(null, [Validators.required]),
-          costFeetype: new FormControl(null, [Validators.required]),
-          isExpired: new FormControl(false),
-          startDate: new FormControl(null, [Validators.required]),
-          endDate: new FormControl(null),
-          salaryValue: new FormControl(null, [Validators.required]),
-          salaryType: new FormControl(null, [Validators.required]),
-          costValue: new FormControl(null, [Validators.required]),
-          costType: new FormControl({value: 'COST', disabled:true}, [Validators.required]),
-          salarydaysdue: new FormControl(null, [Validators.required]),
-          costdaysdue: new FormControl(null, [Validators.required]),
-          salaryCurrency: new FormControl(null, [Validators.required]),
-          costCurrency: new FormControl(null, [Validators.required])
-        })
-    }
-
-  // offerSelectDoc(event: Event){
-  //   // @ts-ignore
-  //   this.offerFIle = event.target.files[0];
-  // }
-
-  contractSelectDoc(event: Event){
-    // @ts-ignore
-    this.contractFile = event.target.files[0];
+    this.createDealForm = new FormGroup({
+      deal_number: new FormControl(this.data.deal_number, [Validators.required]),
+      salaryFeetype: new FormControl(null, [Validators.required]),
+      costFeetype: new FormControl(null, [Validators.required]),
+      isExpired: new FormControl(this.data.isExpired),
+      startDate: new FormControl(this.formatDate(this.data.startDate), [Validators.required]),
+      endDate: new FormControl(this.data.isExpired ? this.formatDate(this.data.endDate):null),
+      salaryValue: new FormControl(this.data.fee_type_salary_value, [Validators.required]),
+      salaryType: new FormControl(null, [Validators.required]),
+      costValue: new FormControl(this.data.fee_type_cost_value, [Validators.required]),
+      costType: new FormControl({value: 'COST', disabled:true}, [Validators.required]),
+      salarydaysdue: new FormControl(this.data.payment_due_on_salary, [Validators.required]),
+      costdaysdue: new FormControl(this.data.payment_due_on_cost, [Validators.required]),
+      salaryCurrency: new FormControl(null, [Validators.required]),
+      costCurrency: new FormControl(null, [Validators.required])
+    })
   }
 
   getStatics(){
     this.rest.getFeeTypes().subscribe(res=>{
       if (res.status===200){
         this.feeTypes = res.data;
-        this.createDealForm.get('salaryFeetype').setValue(this.feeTypes[0]);
-        this.createDealForm.get('costFeetype').setValue(this.feeTypes[0]);
+
+        this.createDealForm.get('salaryFeetype').setValue(this.getObjByID(this.data.salaryFeeTypeID, this.feeTypes));
+        this.createDealForm.get('costFeetype').setValue(this.getObjByID(this.data.costFeeTypeID, this.feeTypes));
       }
     });
     this.rest.getSalaryTypes().subscribe(res=>{
       if (res.status===200){
         this.salaryTypes = res.data;
+        this.createDealForm.get('salaryType').setValue(this.getObjByID(this.data.salary_typeID, this.salaryTypes));
       }
     });
     this.rest.getCurrencyList().subscribe(res=>{
       if (res.status===200){
         this.currencyList = res.data;
+        this.createDealForm.get('salaryCurrency').setValue(this.getObjByID(this.data.salaryCurrencyID, this.currencyList));
+        this.createDealForm.get('costCurrency').setValue(this.getObjByID(this.data.costCurrencyID, this.currencyList));
       }
     })
   }
@@ -85,11 +76,6 @@ export class CreateDealDialogComponent implements OnInit{
   createDeal(){
     console.log(this.data)
     let formParams = new FormData();
-    formParams.append('file', this.contractFile as File);
-    formParams.set('filePath', this.data.client.name);
-    formParams.set('fileName', this.createDealForm.get('contract_file_name').value);
-    formParams.set('typeName', 'Contract');
-    formParams.set('subTypeName', 'Staffing and payroll');
 
     formParams.set('deal_number', this.createDealForm.value.deal_number);
     formParams.set('isExpired', this.createDealForm.value.isExpired);
@@ -116,6 +102,15 @@ export class CreateDealDialogComponent implements OnInit{
       this.dialogService.showSnackBar(res.data.name+' '+res.data.num, '', 5000)
     })
 
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+  }
+
+  getObjByID(id, list){
+    return list.find(item => item.ID === id || item.id === id);
   }
 
 }
