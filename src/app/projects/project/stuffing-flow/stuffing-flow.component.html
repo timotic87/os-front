@@ -22,7 +22,7 @@
       }
     </div>
   </div>
-    <button (click)="documentDialogOpen();"
+    <button [disabled]="!canViewDocumentation" (click)="documentDialogOpen();"
             class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg

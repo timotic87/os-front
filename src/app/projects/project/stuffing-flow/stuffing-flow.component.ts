@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {CdcmDialogComponent} from "../../cdcm-dialog/cdcm-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ProjectModel} from "../../../models/projectModel";
@@ -13,15 +13,12 @@ import {ApprovalModel} from "../../../models/approval/approvalModel";
 import {ApprovalService} from "../../../services/approval.service";
 import {ApprovalCardComponent} from "../../../customComponents/approval-card/approval-card.component";
 import {ActivatedRoute} from "@angular/router";
-import {
-  ContractDocumentFormComponent
-} from "../../../clients/documentaton/elements/contract-document-form/contract-document-form.component";
-import {PickFileComponent} from "../../../clients/documentaton/elements/pick-file/pick-file.component";
 import {DocumentatonComponent} from "../../../clients/documentaton/documentaton.component";
 import {DocumentListComponent} from "../../../clients/documentaton/elements/document-list/document-list.component";
 import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog.component";
 import {RestService} from "../../../services/rest.service";
 import {DealCardComponent} from "./deal-card/deal-card.component";
+import {UserService} from "../../../services/user.service";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -32,8 +29,6 @@ import {DealCardComponent} from "./deal-card/deal-card.component";
     ReactiveFormsModule,
     CdcmInactiveCardComponent,
     ApprovalCardComponent,
-    ContractDocumentFormComponent,
-    PickFileComponent,
     DocumentListComponent,
     DealCardComponent
   ],
@@ -41,6 +36,8 @@ import {DealCardComponent} from "./deal-card/deal-card.component";
   styleUrl: './stuffing-flow.component.css'
 })
 export class StuffingFlowComponent implements OnInit {
+
+  canViewDocumentation = false;
 
   @Input() project: ProjectModel;
 
@@ -54,7 +51,9 @@ export class StuffingFlowComponent implements OnInit {
 
   deal;
 
-  constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private approvalService: ApprovalService, private route: ActivatedRoute, private rest: RestService) {
+  constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private approvalService: ApprovalService,
+              private route: ActivatedRoute, private rest: RestService, private userService: UserService) {
+    this.checkPermissions();
     let projectId: number = +this.route.snapshot.paramMap.get('id');
     cdcmService.getCDCMLIstByProjectId(projectId);
 
@@ -161,6 +160,15 @@ export class StuffingFlowComponent implements OnInit {
       data: {client: this.project.client, project: this.project}
       }
     )
+  }
+
+  checkPermissions(){
+    this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
+      if(res.status===200){
+        let permDocView = res.data.find(permision => permision.id === 12);
+        this.canViewDocumentation = permDocView.userId;
+      }
+    })
   }
 
 }

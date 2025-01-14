@@ -24,10 +24,12 @@ export class ProjectsComponent {
 
   constructor(private matDialog: MatDialog, public projectService: ProjectService, private router: Router, private userService: UserService, private rest: RestService) {
     projectService.updateProjectList();
-    this.rest.getUserPermisions(userService.getUser().id).subscribe(permisions => {
-      console.log(permisions)
-      let perm = permisions.find(permision => permision.id === 17);
-      this.createProjectDisable = perm.userId ? false : true;
+    this.rest.getUserPermisions(userService.getUser().id).subscribe(res => {
+      if (res.status === 200) {
+        let perm = res.data.find(permision => permision.id === 17);
+        this.createProjectDisable = perm.userId ? false : true;
+      }
+
     })
   }
 

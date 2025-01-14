@@ -1,5 +1,5 @@
 import {Component, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ClientModel} from "../../models/clientModel";
 import {PickFileComponent} from "./elements/pick-file/pick-file.component";
 import {ChooseDocumentTypeComponent} from "./elements/choose-document-type/choose-document-type.component";
@@ -30,6 +30,8 @@ import {Subject} from "rxjs";
 })
 export class DocumentatonComponent {
 
+  disableAddDocPage = true;
+
   isListDocumentsPage = true;
 
   file: File = null;
@@ -41,7 +43,8 @@ export class DocumentatonComponent {
   project: ProjectModel;
 
   constructor(@Inject(MAT_DIALOG_DATA) private data: any, private dialog: MatDialog, private rest: RestService,
-              private userService: UserService, private clientService: ClientsService, private dialogService: DialogService) {
+              private userService: UserService, private clientService: ClientsService, private dialogService: DialogService, private dialogRef: MatDialogRef<DocumentatonComponent>) {
+    this.checkPermissions();
     this.client = data.client;
     this.project = data.project;
     clientService.setCurrentClient(this.client);
@@ -82,13 +85,16 @@ export class DocumentatonComponent {
     formParams.set('projectID', this.project? (this.project.ID).toString():'null');
 
     this.rest.saveFile(formParams).subscribe(res => {
-      console.log(res)
       if (res.status === 201) {
         this.dialogService.showSnackBar('Successfully saved document', '',5000);
         this.clientService.addDocumentSub.next(true);
 
         return;
+      }else{
+        this.dialogService.errorDialog(res);
+        this.dialogRef.close();
       }
+
       this.dialogService.showSnackBar(res.data.name+' '+res.data.num, '', 5000)
     })
   }
@@ -99,6 +105,15 @@ export class DocumentatonComponent {
 
   togglePage(){
     this.isListDocumentsPage = !this.isListDocumentsPage;
+  }
+
+  checkPermissions(){
+    this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
+      if(res.status===200){
+        let permDocAdd = res.data.find(permision => permision.id === 13);
+        this.disableAddDocPage = !permDocAdd.userId;
+      }
+    })
   }
 
 }

@@ -22,6 +22,8 @@ import {DocumentatonComponent} from "./documentaton/documentaton.component";
 })
 export class ClientsComponent implements OnInit{
 
+  canViewDocumentation: boolean = false;
+
 
   searchText: string = null;
 
@@ -33,6 +35,7 @@ export class ClientsComponent implements OnInit{
   constructor(private rest: RestService,
               public clientService: ClientsService,private dialog: MatDialog, private dialogService: DialogService,
               private userService: UserService) {
+    this.checkPermissions()
     clientService.listOfClients = []
     this.reloadClients();
     clientService.isListChange.subscribe(isTrue=>{
@@ -72,8 +75,6 @@ export class ClientsComponent implements OnInit{
           }
           //lastItemNumber END
           this.clientService.createListOfClients(res.data);
-        }else {
-          this.dialogService.errorDialog(res);
         }
       })
 
@@ -140,11 +141,25 @@ export class ClientsComponent implements OnInit{
   }
 
   openDocumentationDialog(client){
+    if (!this.canViewDocumentation){
+      this.dialogService.showMsgDialog("You don't have permission");
+      return;
+    }
     this.dialog.open(DocumentatonComponent, {
       minWidth: '900px',
       maxHeight: '700px',
       data: {client, project: null}
     });
+  }
+
+
+  checkPermissions(){
+    this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
+      if(res.status===200){
+        let permDocView = res.data.find(permision => permision.id === 12);
+        this.canViewDocumentation = permDocView.userId;
+      }
+    })
   }
 
 }

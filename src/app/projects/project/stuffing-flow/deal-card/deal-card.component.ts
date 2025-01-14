@@ -21,6 +21,7 @@ export class DealCardComponent {
   @Input() deal: any;
 
   constructor(private matDialog: MatDialog) {
+    console.log(this.deal)
   }
 
 
