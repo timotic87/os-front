@@ -104,7 +104,9 @@ export class UsersAdminComponent {
 
   userPermisions(user){
       this.rest.getUserPermisions(user.id).subscribe(res=>{
+        console.log(res)
         if (res.status===200){
+          console.log(123124)
           user.permisions = res.data;
           this.dialog.open(UserPermisionsDialogComponent, {
             width: '800px',

@@ -79,7 +79,7 @@
       </div>
       <div class="col-span-2"></div>
 
-      @switch (createDealForm.get('salaryFeetype').value.ID){
+      @switch (createDealForm.get('salaryFeetype').value['ID']){
         @case (1){
           <div class="grid grid-cols-4 gap-4 col-span-4">
             <div class="col-span-1">
@@ -199,7 +199,7 @@
         </select>
       </div>
       <div class="col-span-2"></div>
-      @switch (createDealForm.get('costFeetype').value.ID){
+      @switch (createDealForm.get('costFeetype').value['ID']){
         @case (1){
           <div class="col-span-1">
             <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost percent</div>

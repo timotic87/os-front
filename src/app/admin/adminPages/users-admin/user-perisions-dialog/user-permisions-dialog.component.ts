@@ -61,6 +61,7 @@ export class UserPermisionsDialogComponent implements OnInit{
 
 
   changePermision(){
+    console.log(1)
     this.dialogService.showLoader();
     this.rest.changeUserPermisions(this.user.permisions).subscribe(res=>{
       this.dialogService.closseLoader();

@@ -4,25 +4,31 @@ import {MatDialog} from "@angular/material/dialog";
 import {CreateProjectDialogComponent} from "./create-project-dialog/create-project-dialog.component";
 import {ProjectService} from "../services/project.service";
 import {DatePipe, NgIf} from "@angular/common";
-import {MatMenuTrigger} from "@angular/material/menu";
 import {Router} from "@angular/router";
+import {UserService} from "../services/user.service";
+import {RestService} from "../services/rest.service";
 
 @Component({
   selector: 'app-projects',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    DatePipe,
-    MatMenuTrigger,
-    NgIf
+    DatePipe
   ],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.css'
 })
 export class ProjectsComponent {
 
-  constructor(private matDialog: MatDialog, public projectService: ProjectService, private router: Router) {
+  createProjectDisable = true;
+
+  constructor(private matDialog: MatDialog, public projectService: ProjectService, private router: Router, private userService: UserService, private rest: RestService) {
     projectService.updateProjectList();
+    this.rest.getUserPermisions(userService.getUser().id).subscribe(permisions => {
+      console.log(permisions)
+      let perm = permisions.find(permision => permision.id === 17);
+      this.createProjectDisable = perm.userId ? false : true;
+    })
   }
 
   createProject(){

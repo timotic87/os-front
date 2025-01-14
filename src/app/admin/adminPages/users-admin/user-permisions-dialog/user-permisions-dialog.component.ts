@@ -23,7 +23,7 @@ export class UserPermisionsDialogComponent implements OnInit {
   form: FormGroup;
 
   constructor(private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPermisionsDialogComponent>, private dialogService: DialogService) {
-    console.log(this.user.permisions)
+    // console.log(this.user.permisions)
     // @ts-ignore
     const groupedBySection = this.user.permisions.reduce<Record<number, any[]>>((acc, item) => {
       if (!acc[item.sectionID]) {
@@ -50,6 +50,7 @@ export class UserPermisionsDialogComponent implements OnInit {
 
   onSubmit(): void {
     this.dialogService.showLoader();
+    console.log(this.user.permisions)
     this.rest.changeUserPermisions(this.user.permisions).subscribe(res=>{
       this.dialogService.closseLoader();
       console.log(res)

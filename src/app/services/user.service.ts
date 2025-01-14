@@ -3,6 +3,7 @@ import {UserModel} from "../models/userModel";
 import {CookieService} from "ngx-cookie-service";
 import {JwtDecoderService} from "./jwt-decoder.service";
 import {Subject} from "rxjs";
+import {RestService} from "./rest.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class UserService {
   user: UserModel;
   private _socketID = '';
 
-  constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService) { }
+  constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService, private rest: RestService) { }
 
   public getUser(){
     const objStr = localStorage.getItem('user');
