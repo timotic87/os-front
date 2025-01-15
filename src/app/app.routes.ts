@@ -15,6 +15,7 @@ import {ProjectComponent} from "./projects/project/project.component";
 import {ApprovalsComponent} from "./admin/adminPages/approvals/approvals.component";
 import {RestService} from "./services/rest.service";
 import {firstValueFrom} from "rxjs";
+import {DealsComponent} from "./deals/deals.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -58,6 +59,24 @@ export const routes: Routes = [
   },
   {path: 'projects', component: ProjectsComponent},
   {path: 'project/:id', component: ProjectComponent},
+  {path: 'deals', component: DealsComponent, canActivate: [async ()=>{
+      const userService = inject(UserService);
+      const rest: RestService = inject(RestService);
+      const dialogService = inject(DialogService);
+
+      try {
+        const res = await firstValueFrom(rest.getUserPermisions(userService.getUser().id));
+        const perm = res.data.find(permision => permision.id === 21);
+        if (!perm.userId) {
+          dialogService.showMsgDialog('You dont have permission');
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Router error - clients:', error);
+        return false;
+      }
+    }]},
 
 ];
 

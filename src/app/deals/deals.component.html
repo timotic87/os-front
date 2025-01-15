@@ -1,0 +1,155 @@
+<div class="container mx-auto p-6 pt-20 dark:bg-gray-600 h-full">
+
+<!--  <div class="mb-6">-->
+<!--    <button [matMenuTriggerFor]="employeeMenu"-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Employees-->
+<!--    </button>-->
+<!--    <mat-menu #employeeMenu="matMenu">-->
+<!--      <button mat-menu-item>Create employee</button>-->
+<!--      <button mat-menu-item>Import xlsx</button>-->
+<!--    </mat-menu>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Salary-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Costs-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Calculate-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Create invoice-->
+<!--    </button>-->
+<!--  </div>-->
+
+  <div class="mb-3 w-full lg:w-2/6">
+    <div class="relative mb-4 flex w-full flex-wrap items-stretch">
+      <input [(ngModel)]="searchText"
+             type="search"
+             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l
+             border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]
+              text-base font-normal leading-[1.6] text-neutral-700 outline-none transition
+               duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400
+                focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none
+                dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
+             placeholder="Search"
+             aria-label="Search"
+             (keyup)="searchEvent($event)"
+      />
+
+      <!--Search button-->
+      <button
+        (click)="search();"
+        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"
+        type="submit"
+        id="button-addon3"
+        data-te-ripple-init>
+        Search
+      </button>
+    </div>
+  </div>
+
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="px-6 py-3">
+          ID
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Date
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Service
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Subservice
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Client
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Legal Entity
+        </th>
+        <th scope="col" class="px-6 py-3">
+          BD Consultant
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Status
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (project of [1,2,3,4,5]; track project) {
+          <tr
+            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
+              {{ 'project.ID' }}
+            </th>
+            <td class="px-6 py-4">
+              {{ 'dd.MM.yyyy'}}
+            </td>
+            <td class="px-6 py-4">
+              {{ "project.service.name" }}
+            </td>
+            <td class="px-6 py-4">
+              {{ "project.subservice.name" }}
+            </td>
+            <td class="px-6 py-4">
+              {{ "project.client.name" }}
+            </td>
+            <td class="px-6 py-4">
+              {{ "project.legalEntity.shortName" }}
+            </td>
+            <td class="px-6 py-4">
+<!--              @if(project.bdUser.picUrl){-->
+<!--                <img class="w-6 h-6 rounded-full inline-block" [src]='project.bdUser.picUrl' alt="Rounded avatar" style="object-fit: cover;">-->
+<!--              }-->
+
+              {{ "project.bdUser.fullName" }}
+            </td>
+            <td class="px-6 py-4">
+              {{"testdawd adwd"}}
+
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
