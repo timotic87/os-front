@@ -92,22 +92,19 @@
           ID
         </th>
         <th scope="col" class="px-6 py-3">
-          Date
+          Client name
         </th>
         <th scope="col" class="px-6 py-3">
-          Service
+          Start date
         </th>
         <th scope="col" class="px-6 py-3">
-          Subservice
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Client
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Legal Entity
+          End date
         </th>
         <th scope="col" class="px-6 py-3">
           BD Consultant
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Administrator
         </th>
         <th scope="col" class="px-6 py-3">
           Status
@@ -115,37 +112,33 @@
       </tr>
       </thead>
       <tbody>
-        @for (project of [1,2,3,4,5]; track project) {
+        @for (deal of deals; track deal) {
           <tr
             class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
             <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
-              {{ 'project.ID' }}
+              {{ deal.ID }}
             </th>
             <td class="px-6 py-4">
-              {{ 'dd.MM.yyyy'}}
+              {{ deal.clientName }}
             </td>
             <td class="px-6 py-4">
-              {{ "project.service.name" }}
+              {{ deal.startDate | date: "dd.MM.yyyy"}}
             </td>
             <td class="px-6 py-4">
-              {{ "project.subservice.name" }}
+              @if (deal.isExpired) {
+                {{ deal.endDate | date: "dd.MM.yyyy"}}
+              } @else {
+                <span class="text-green-500">Not expired</span>
+              }
             </td>
             <td class="px-6 py-4">
-              {{ "project.client.name" }}
+              {{ "Pera Zdera" }}
             </td>
             <td class="px-6 py-4">
-              {{ "project.legalEntity.shortName" }}
+              {{ "Perica Zderica" }}
             </td>
             <td class="px-6 py-4">
-<!--              @if(project.bdUser.picUrl){-->
-<!--                <img class="w-6 h-6 rounded-full inline-block" [src]='project.bdUser.picUrl' alt="Rounded avatar" style="object-fit: cover;">-->
-<!--              }-->
-
-              {{ "project.bdUser.fullName" }}
-            </td>
-            <td class="px-6 py-4">
-              {{"testdawd adwd"}}
-
+              {{"Active"}}
             </td>
           </tr>
         }
