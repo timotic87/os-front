@@ -132,10 +132,14 @@
               }
             </td>
             <td class="px-6 py-4">
-              {{ "Pera Zdera" }}
+              {{ deal.bdFirstName+' '+deal.bdLastName }}
             </td>
             <td class="px-6 py-4">
-              {{ "Perica Zderica" }}
+              @if (deal.hraID) {
+                {{ deal.hraFirstName+' '+deal.hraLastName }}
+              } @else {
+                <span class="text-red-300 dark:text-red-400">Not assigned</span>
+              }
             </td>
             <td class="px-6 py-4">
               {{"Active"}}
