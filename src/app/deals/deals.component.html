@@ -56,31 +56,101 @@
 <!--    </button>-->
 <!--  </div>-->
 
-  <div class="mb-3 w-full lg:w-2/6">
-    <div class="relative mb-4 flex w-full flex-wrap items-stretch">
-      <input [(ngModel)]="searchText"
-             type="search"
-             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l
-             border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]
-              text-base font-normal leading-[1.6] text-neutral-700 outline-none transition
-               duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400
-                focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none
-                dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
-             placeholder="Search"
-             aria-label="Search"
-             (keyup)="searchEvent($event)"
-      />
+<!--  <div class="mb-3 w-full lg:w-2/6">-->
+<!--    <div class="relative mb-4 flex w-full flex-wrap items-stretch">-->
+<!--      <input [(ngModel)]="searchText"-->
+<!--             type="search"-->
+<!--             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l-->
+<!--             border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]-->
+<!--              text-base font-normal leading-[1.6] text-neutral-700 outline-none transition-->
+<!--               duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400-->
+<!--                focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none-->
+<!--                dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"-->
+<!--             placeholder="Search"-->
+<!--             aria-label="Search"-->
+<!--             (keyup)="searchEvent($event)"-->
+<!--      />-->
 
-      <!--Search button-->
-      <button
-        (click)="search();"
-        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"
-        type="submit"
-        id="button-addon3"
-        data-te-ripple-init>
-        Search
-      </button>
-    </div>
+
+
+<!--      &lt;!&ndash;Search button&ndash;&gt;-->
+<!--      <button-->
+<!--        (click)="search();"-->
+<!--        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"-->
+<!--        type="submit"-->
+<!--        id="button-addon3"-->
+<!--        data-te-ripple-init>-->
+<!--        Search-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
+
+  <div class="filters">
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="grid 2xl:grid-cols-9 xl:grid-cols-6 grid-cols-4 gap-4">
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Client name:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="clientName" autocomplete="new-clientName">
+        </div>
+      </div>
+
+      <div>
+        <label for="startDate">Start Date:</label>
+        <input formControlName="startDate" type="date" id="startDate" name="startDate" class="w-full border border-gray-300
+        rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+      </div>
+
+      <div>
+        <label for="endDate">End Date:</label>
+        <input formControlName="endDate" type="date" id="endDate" name="endDate" class="w-full border border-gray-300
+        rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+      </div>
+
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">BD Consultant:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="bdConsultant" autocomplete="new-bdConsultant">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Administrator:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="hrAdmin" autocomplete="new-hrAdmin">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Status:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="status" autocomplete="new-status">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center space-x-2">
+        <label for="isExpired">Is Expired:</label>
+        <select id="isExpired" formControlName="isExpired" class="text-gray-400 dark:text-neutral-100 dark:bg-[#4b5563]">
+          <option value="">All</option>
+          <option [value]="true">Yes</option>
+          <option [value]="false">No</option>
+        </select>
+      </div>
+
+      <div class="flex items-center justify-center space-x-2">
+        <label for="isAssigned">Is Assigned:</label>
+        <select id="isAssigned" formControlName="isAssigned" class="text-gray-400 dark:text-neutral-100 dark:bg-[#4b5563]">
+          <option value="">All</option>
+          <option [value]="true">Yes</option>
+          <option [value]="false">No</option>
+        </select>
+      </div>
+
+      <button type="submit">Apply Filters</button>
+    </form>
   </div>
 
 
@@ -112,7 +182,7 @@
       </tr>
       </thead>
       <tbody>
-        @for (deal of deals; track deal) {
+        @for (deal of filteredData; track deal) {
           <tr
             class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
             <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
