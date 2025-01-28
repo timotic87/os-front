@@ -325,5 +325,8 @@ export class RestService {
   getDeals(){
     return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
   }
+  getDealHRA(dealID){
+    return this.http.get(`${this.baseUrl}/getDealHRA/${dealID}`, {headers: this.headers()}) as Observable<any>;
+  }
 
 }

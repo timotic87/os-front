@@ -14,7 +14,7 @@
 app-navbar {
   width: 100%;
   position: fixed;
-  z-index: 999;
+  z-index: 998;
 }
 app-notification-side-bar{
   position: fixed;

@@ -149,12 +149,28 @@
         </select>
       </div>
 
-      <button type="submit">Apply Filters</button>
+      <div class="flex justify-around items-center px-6">
+
+        <button class="h-6 w-6 hover:text-red-500 dark:hover:text-red-400 hover:scale-110 focus:outline-none" type="submit">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+          <span class="tooltiptext text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 p-2">Clear inputs</span>
+        </button>
+
+        <button class="h-6 w-6 hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 focus:outline-none" type="submit">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <span class="tooltiptext text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 p-2">Search</span>
+        </button>
+      </div>
+
     </form>
   </div>
 
 
-  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-3">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <tr>
@@ -176,6 +192,9 @@
         <th scope="col" class="px-6 py-3">
           Administrator
         </th>
+        <th scope="col" class="px-6 py-3" *ngIf="true">
+          Action
+        </th>
         <th scope="col" class="px-6 py-3">
           Status
         </th>
@@ -183,8 +202,9 @@
       </thead>
       <tbody>
         @for (deal of filteredData; track deal) {
-          <tr
-            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
+          <tr (click)="dealClick(deal);"
+            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b
+             dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
             <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
               {{ deal.ID }}
             </th>
@@ -210,6 +230,13 @@
               } @else {
                 <span class="text-red-300 dark:text-red-400">Not assigned</span>
               }
+            </td>
+            <td class="px-6 py-4" *ngIf="true">
+              <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="addAdmin(deal, $event);">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </div>
             </td>
             <td class="px-6 py-4">
               {{"Active"}}

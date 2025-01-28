@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {DatePipe, NgClass, NgIf} from "@angular/common";
-import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { RestService } from '../services/rest.service';
+import {MatDialog} from "@angular/material/dialog";
+import {AssignAdminComponent} from "./assign-admin/assign-admin.component";
 
 @Component({
   selector: 'app-deals',
@@ -11,7 +12,6 @@ import { RestService } from '../services/rest.service';
     FormsModule,
     DatePipe,
     ReactiveFormsModule,
-    NgClass,
     NgIf
   ],
   templateUrl: './deals.component.html',
@@ -19,15 +19,13 @@ import { RestService } from '../services/rest.service';
 })
 export class DealsComponent implements OnInit {
 
-  searchText
-
   deals;
 
   filterForm: FormGroup;
 
   filteredData;
 
-  constructor(private rest: RestService) {
+  constructor(private rest: RestService, private matDialog: MatDialog) {
     this.updateDealsList()
   }
 
@@ -45,14 +43,6 @@ export class DealsComponent implements OnInit {
 
     this.filteredData = [...this.deals];
     }
-
-  search(){
-
-  }
-
-  searchEvent(event){
-
-  }
 
   updateDealsList(){
     this.rest.getDeals().subscribe(res=>{
@@ -84,6 +74,19 @@ export class DealsComponent implements OnInit {
         (!filters.bdConsultant || bdFullName.includes(filters.bdConsultant.toLowerCase())) &&
         (!filters.hrAdmin || hraFullName.includes(filters.hrAdmin.toLowerCase()))
       );
-    });  }
+    });
+  }
+  addAdmin(deal, event: Event){
+    event.stopPropagation()
+    this.matDialog.open(AssignAdminComponent, {
+      width: '60vw',
+      height: '60vh',
+      data: deal
+    })
+  }
+
+  dealClick(deal){
+    console.log("click deal")
+  }
 
 }

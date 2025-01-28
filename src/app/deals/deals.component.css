@@ -24,3 +24,23 @@
   -webkit-appearance: none;
   margin: 0;
 }
+
+button .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 999;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+button:hover .tooltiptext {
+  visibility: visible;
+}
