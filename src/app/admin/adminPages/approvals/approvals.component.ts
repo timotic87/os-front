@@ -38,7 +38,7 @@ export class ApprovalsComponent {
   }
 
   onTemplateCliclk(approval){
-    this.approvalService.getApprovalTemplateByID(1).subscribe(res=>{
+    this.approvalService.getApprovalTemplateByID(approval.ID).subscribe(res=>{
       this.matDialog.open(ApprovalViewEditDialogComponent, {
         width: '900px',
         height: '800px',
