@@ -21,13 +21,6 @@ export class ClientsService {
               private router: Router) {
   }
 
-  createListOfClients(data: any){
-    this.listOfClients = [];
-    for(let i of data){
-      this.listOfClients.push(ClientModel.createClientModel(i));
-    }
-  }
-
   getListOfClientsByName(name: string): ClientModel[]{
     let clients: ClientModel[] = [];
     // @ts-ignore
@@ -45,15 +38,10 @@ export class ClientsService {
     return clients;
   }
 
-
-  getListOfClients(): ClientModel[] {
-    return this.listOfClients;
-  }
-
   editClientById(data){
     if (this.tokenService.isTokenOk()){
       this.dialogService.showLoader()
-      this.rest.editClient({obj: data, token: this.cookieService.get('jwt')}).subscribe(res=>{
+      this.rest.editClient(data).subscribe(res=>{
         this.dialogService.closseLoader()
         if (res.status===200){
           this.isListChange.next(true);
@@ -85,9 +73,9 @@ export class ClientsService {
   }
 
   createClient(data){
-    if (this.tokenService.isTokenOk()){
       this.dialogService.showLoader()
-      this.rest.createClient({token: this.cookieService.get('jwt'), obj: data}).subscribe(res=>{
+      this.rest.createClient(data).subscribe(res=>{
+        console.log(res)
         this.dialogService.closseLoader()
         if (res.status===201){
           this.isListChange.next(true);
@@ -96,9 +84,6 @@ export class ClientsService {
           this.dialogService.showMsgDialog(`code: ${res.status} msg: ${res.msg}`);
         }
       })
-    }else {
-      this.router.navigate(["/login"])
-    }
   }
 
   setCurrentClient(client){

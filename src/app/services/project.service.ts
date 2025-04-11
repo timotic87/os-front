@@ -16,31 +16,31 @@ export class ProjectService {
   }
 
 
-  createNewProject(data: any, dialogRef) {
-    this.dialogService.showLoader()
-    this.rest.createProject(data).subscribe(res => {
-      this.dialogService.closseLoader()
-      if (res.status === 201) {
-        this.projectsList.unshift(ProjectModel.createProjectModel(res.data.row.recordset[0]))
-        dialogRef.close(res.status);
-      } else {
-        this.dialogService.errorDialog(res)
-      }
-      dialogRef.close(res.status);
-    });
-  }
+  // createNewProject(data: any, dialogRef) {
+  //   this.dialogService.showLoader()
+  //   this.rest.createProject(data).subscribe(res => {
+  //     this.dialogService.closseLoader()
+  //     if (res.status === 201) {
+  //       this.projectsList.unshift(ProjectModel.createProjectModel(res.data.row.recordset[0]))
+  //       dialogRef.close(res.status);
+  //     } else {
+  //       this.dialogService.errorDialog(res)
+  //     }
+  //     dialogRef.close(res.status);
+  //   });
+  // }
 
   updateProjectList() {
     this.projectsList = [];
     this.dialogService.showLoader()
-    this.rest.getProjects().subscribe(res => {
-      this.dialogService.closseLoader();
-      if (res.status === 200) {
-        for (let item of res.data) {
-          this.projectsList.push(ProjectModel.createProjectModel(item));
-        }
-      }
-    })
+    // this.rest.getProjects().subscribe(res => {
+    //   this.dialogService.closseLoader();
+    //   if (res.status === 200) {
+    //     for (let item of res.data) {
+    //       this.projectsList.push(ProjectModel.createProjectModel(item));
+    //     }
+    //   }
+    // })
   }
 
   async getFullPageProject(ID): Promise<any> {
@@ -69,20 +69,20 @@ export class ProjectService {
     }
     return data;
   }
-
-  async setProjectComents(project: ProjectModel) {
-    this.dialogService.showLoader();
-    try {
-      const res = await this.rest.getComentsByProjectID(project.ID).toPromise();
-      if (res.status === 200) {
-        project.comments = Comment.createCommnetArr(res.data);
-      }
-      this.dialogService.closseLoader();
-    } catch (error) {
-      console.error(error);
-      this.dialogService.closseLoader();
-    }
-  }
+//todo promena na deal
+  // async setProjectComents(project: ProjectModel) {
+  //   this.dialogService.showLoader();
+  //   try {
+  //     const res = await this.rest.getComentsByProjectID(project.ID).toPromise();
+  //     if (res.status === 200) {
+  //       project.comments = Comment.createCommnetArr(res.data);
+  //     }
+  //     this.dialogService.closseLoader();
+  //   } catch (error) {
+  //     console.error(error);
+  //     this.dialogService.closseLoader();
+  //   }
+  // }
 
   async saveComment(data, project: ProjectModel) {
     this.dialogService.showLoader();

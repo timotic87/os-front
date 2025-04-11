@@ -68,15 +68,14 @@ export class RestService {
   }
 
   createClient(data){
-    data.obj.aut = authorizationEnum.CREATE_CLIENT;
-    return this.http.post(`${this.baseUrl}/createClient`, data.obj, {headers: this.headers()}) as Observable<any>;
+    return this.http.post(`${this.baseUrl}/createClient`, data, {headers: this.headers()}) as Observable<any>;
   }
 
-  getCountryList(data){
+  getCountryList(){
     return this.http.get(`${this.baseUrl}/countryList`, {headers: this.headers()}) as Observable<any>;
   }
 
-  getLEList(data){
+  getLEList(){
     return this.http.get(`${this.baseUrl}/getLegalEntities`, {headers: this.headers()}) as Observable<any>;
   }
 
@@ -99,9 +98,9 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getFilesById/${clientId}`, {headers: this.headers()}) as Observable<any>;
   }
 
-  getFilesByProjectId(projectID) {
-    return this.http.get(`${this.baseUrl}/getFilesByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  }
+  // getFilesByProjectId(projectID) {
+  //   return this.http.get(`${this.baseUrl}/getFilesByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  // }
 
   getFile(id){
     return this.http.get(`${this.baseUrl}/getFile/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
@@ -216,16 +215,17 @@ export class RestService {
   editSubserviceLe(data){
     return this.http.put(`${this.baseUrl}/subserviceLE`, data, {headers: this.headers()}) as Observable<any>;
   }
-  createProject(data){
-    return this.http.post(`${this.baseUrl}/createProject`, data, {headers: this.headers()}) as Observable<any>;
+  createDeal(data){
+    return this.http.post(`${this.baseUrl}/createDeal`, data, {headers: this.headers()}) as Observable<any>;
   }
-  getProjects(){
-    return this.http.get(`${this.baseUrl}/getProjects`, {headers: this.headers()}) as Observable<any>;
+  getDeals(){
+    return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
   }
+  //todo get full Deal ispravka
   getFullProject(ID: number){
     return this.http.get(`${this.baseUrl}/getFullProject/${ID}`, {headers: this.headers()}) as Observable<any>;
   }
-
+//todo ispravka na deal history
   getProjectHitory(ID: number){
     return this.http.get(`${this.baseUrl}/getProjectHitory/${ID}`, {headers: this.headers()}) as Observable<any>;
   }
@@ -238,9 +238,9 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getCDCMSeniority`, {headers: this.headers()}) as Observable<any>;
   }
 
-  getComentsByProjectID(projectID){
-    return this.http.get(`${this.baseUrl}/getComentsByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  }
+  // getComentsByProjectID(projectID){
+  //   return this.http.get(`${this.baseUrl}/getComentsByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  // }
 
   saveProjectComment(data){
     return this.http.post(`${this.baseUrl}/saveProjectComment`, data, {headers: this.headers()});
@@ -292,9 +292,9 @@ export class RestService {
   changeStatusApprovalStep(data){
     return this.http.put(`${this.baseUrl}/changeStatusAppruvalStep`, data, {headers: this.headers()}) as Observable<any>;
   }
-  getCdcmByProjectID(projectID: number){
-    return this.http.get(`${this.baseUrl}/getCdcmByProjectID/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  }
+  // getCdcmByProjectID(projectID: number){
+  //   return this.http.get(`${this.baseUrl}/getCdcmByProjectID/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  // }
   isNotificationShow(themeID:number){
     return this.http.get(`${this.baseUrl}/isNotificationShow/${themeID}`, {headers: this.headers()}) as Observable<any>;
   }
@@ -312,21 +312,21 @@ export class RestService {
   getSalaryTypes(){
     return this.http.get(`${this.baseUrl}/salaryTypes`, {headers: this.headers()}) as Observable<any>;
   }
-  createDeal(data) {
-      let headers = new HttpHeaders();
-      headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
-      return this.http.post(`${this.baseUrl}/createDeal`, data, {headers: headers}) as Observable<any>;
-  }
+  // createDeal(data) {
+  //     let headers = new HttpHeaders();
+  //     headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
+  //     return this.http.post(`${this.baseUrl}/createDeal`, data, {headers: headers}) as Observable<any>;
+  // }
+  //
+  // getDealByProjectId(projectID){
+  //   return this.http.get(`${this.baseUrl}/getDealByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  // }
 
-  getDealByProjectId(projectID){
-    return this.http.get(`${this.baseUrl}/getDealByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  }
-
-  getDeals(){
-    return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
-  }
-  getDealHRA(dealID){
-    return this.http.get(`${this.baseUrl}/getDealHRA/${dealID}`, {headers: this.headers()}) as Observable<any>;
-  }
+  // getDeals(){
+  //   return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
+  // }
+  // getDealHRA(dealID){
+  //   return this.http.get(`${this.baseUrl}/getDealHRA/${dealID}`, {headers: this.headers()}) as Observable<any>;
+  // }
 
 }

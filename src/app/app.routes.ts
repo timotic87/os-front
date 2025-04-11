@@ -57,9 +57,9 @@ export const routes: Routes = [
     ]
 
   },
-  {path: 'projects', component: ProjectsComponent},
-  {path: 'project/:id', component: ProjectComponent},
-  {path: 'deals', component: DealsComponent, canActivate: [async ()=>{
+  {path: 'deals', component: DealsComponent},
+  {path: 'deal/:id', component: ProjectComponent},//todo reformat name
+  {path: 'projects', component: DealsComponent, canActivate: [async ()=>{
       const userService = inject(UserService);
       const rest: RestService = inject(RestService);
       const dialogService = inject(DialogService);

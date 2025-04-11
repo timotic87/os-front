@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {UserModel} from "../models/userModel";
 import {CookieService} from "ngx-cookie-service";
 import {JwtDecoderService} from "./jwt-decoder.service";
-import {Subject} from "rxjs";
+import {firstValueFrom, Subject} from "rxjs";
 import {RestService} from "./rest.service";
 
 @Injectable({
@@ -39,5 +39,42 @@ export class UserService {
   public deleteUser(){
     this.user = null;
     localStorage.removeItem('user');
+  }
+
+  // public checkPermision(permisionID:number):boolean{
+  //   this.rest.getUserPermisions(this.getUser().id).subscribe(res => {
+  //     if (res.status === 200) {
+  //       let perm = res.data.find(permision => permision.id === permisionID);
+  //       return perm.userId ? false : true;
+  //     }
+  //     return false;
+  //   });
+  // }
+
+  // public async checkPermission(permisionID: number): Promise<boolean> {
+  //   try {
+  //     const res = await firstValueFrom(this.rest.getUserPermisions(this.getUser().id));
+  //     if (res.status === 200) {
+  //       const perm = res.data.find(p => p.id === permisionID);
+  //       return !(perm?.userId); // ako ima userId → false
+  //     }
+  //     return false;
+  //   } catch (error) {
+  //     console.error("Greška u checkPermission:", error);
+  //     return false;
+  //   }
+  // }
+
+  public checkPermission(permisionID: number, callback: (ok: boolean) => void): void {
+    this.rest.getUserPermisions(this.getUser().id).subscribe(res => {
+      if (res.status === 200) {
+        const perm = res.data.find(p => p.id === permisionID);
+        callback(!(perm?.userId));
+      } else {
+        callback(false);
+      }
+    }, error => {
+      callback(false);
+    });
   }
 }

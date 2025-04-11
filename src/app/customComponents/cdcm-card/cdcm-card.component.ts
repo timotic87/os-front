@@ -3,14 +3,14 @@ import {ColorLabelComponent} from "../color-label/color-label.component";
 import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {MatDialog} from "@angular/material/dialog";
-import {CdcmViewEditComponent} from "../../projects/cdcm-view-edit/cdcm-view-edit.component";
 import {CDCMService} from "../../services/cdcm.service";
 import {CDCM} from "../../models/cdcm";
 import {RestService} from "../../services/rest.service";
 import {CommentModel} from "../../models/commentModel";
 import {ShowCommentsDialogComponent} from "../show-comments-dialog/show-comments-dialog.component";
 import {ProjectModel} from "../../models/projectModel";
-import {CdcmPyHraViewEditComponent} from "../../projects/cdcm-py-hra-view-edit/cdcm-py-hra-view-edit.component";
+import {CdcmViewEditComponent} from "../../deals/cdcm-view-edit/cdcm-view-edit.component";
+import {CdcmPyHraViewEditComponent} from "../../deals/cdcm-py-hra-view-edit/cdcm-py-hra-view-edit.component";
 
 @Component({
   selector: 'app-cdcm-card',

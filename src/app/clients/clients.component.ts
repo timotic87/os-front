@@ -58,6 +58,7 @@ export class ClientsComponent implements OnInit{
   reloadClients(){
       this.clientsNumber = parseInt(String(this.clientsNumber));
       this.rest.getClients({offset: this.offset*this.clientsNumber, rowsNum: this.clientsNumber, searchName: this.searchText}).subscribe(res=>{
+        console.log(res)
         if(res.status===200) {
           this.fullNumber = res.data[0].full_count;
           //maxpageNumber
@@ -74,7 +75,7 @@ export class ClientsComponent implements OnInit{
             this.lastItemNumber = (this.offset+1)*this.clientsNumber
           }
           //lastItemNumber END
-          this.clientService.createListOfClients(res.data);
+           this.clientService.listOfClients = res.data
         }
       })
 

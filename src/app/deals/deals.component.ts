@@ -1,92 +1,74 @@
-import {Component, OnInit} from '@angular/core';
-import {DatePipe, NgClass, NgIf} from "@angular/common";
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { RestService } from '../services/rest.service';
+import { Component } from '@angular/core';
+import {ReactiveFormsModule} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {AssignAdminComponent} from "./assign-admin/assign-admin.component";
+import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog.component";
+import {ProjectService} from "../services/project.service";
+import {DatePipe, NgIf} from "@angular/common";
+import {Router} from "@angular/router";
+import {UserService} from "../services/user.service";
+import {RestService} from "../services/rest.service";
 
 @Component({
-  selector: 'app-deals',
+  selector: 'app-projects',
   standalone: true,
   imports: [
-    FormsModule,
-    DatePipe,
     ReactiveFormsModule,
-    NgIf
+    DatePipe
   ],
   templateUrl: './deals.component.html',
   styleUrl: './deals.component.css'
 })
-export class DealsComponent implements OnInit {
+export class DealsComponent {
 
-  deals;
+  createDealDisable = true;
 
-  filterForm: FormGroup;
+  dealsArr: any = [];
 
-  filteredData;
+  constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService) {
 
-  constructor(private rest: RestService, private matDialog: MatDialog) {
-    this.updateDealsList()
-  }
+    this.getNewDealArr();
+    // this.rest.getUserPermisions(userService.getUser().id).subscribe(res => {
+    //   if (res.status === 200) {
+    //     let perm = res.data.find(permision => permision.id === 22);
+    //     this.createDealDisable = perm.userId ? false : true;
+    //   }
+    //
+    // });
 
-  ngOnInit(): void {
-    this.filterForm = new FormGroup({
-      isExpired: new FormControl(''),
-      isAssigned: new FormControl(''),
-      startDate: new FormControl(''),
-      endDate: new FormControl(''),
-      clientName: new FormControl(''),
-      bdConsultant: new FormControl(''),
-      hrAdmin: new FormControl(''),
-      status: new FormControl({value:'', disabled: true}, )
+    userService.checkPermission(22, (hasPerm)=>{
+      this.createDealDisable = hasPerm;
     });
 
-    this.filteredData = [...this.deals];
-    }
+  }
 
-  updateDealsList(){
-    this.rest.getDeals().subscribe(res=>{
-      if (res.status === 200) {
-        this.deals=res.data;
-        this.applyFilters()
+  createDeal(){
+    const refDialog = this.matDialog.open(CreateDealDialogComponent, {
+      minWidth: '900px',
+      maxWidth: '1200px',
+      maxHeight: '90vh'
+    });
+    refDialog.afterClosed().subscribe(status => {
+      if (status == 200) {
+        this.getNewDealArr();
       }
-    });
-  }
-
-  applyFilters(): void {
-    const filters = this.filterForm.value;
-    this.filteredData = this.deals.filter(item => {
-      const bdFullName = `${item.bdFirstName} ${item.bdLastName}`.toLowerCase();
-      const hraFullName = `${item.hraFirstName} ${item.hraLastName}`.toLowerCase();
-      const isSameDate = (date1: Date, date2: Date): boolean => {
-        return (
-          date1.getFullYear() === date2.getFullYear() &&
-          date1.getMonth() === date2.getMonth() &&
-          date1.getDate() === date2.getDate()
-        );
-      };
-      return (
-        (filters.isExpired === '' || item.isExpired === JSON.parse(filters.isExpired)) &&
-        (filters.isAssigned === '' || JSON.parse(filters.isAssigned) === (!!item.hraID)) &&
-        (!filters.startDate || isSameDate(new Date(item.startDate), new Date(filters.startDate))) &&
-        (!filters.endDate || isSameDate(new Date(item.endDate), new Date(filters.endDate))) &&
-        (!filters.clientName || item.clientName.toLowerCase().includes(filters.clientName.toLowerCase())) &&
-        (!filters.bdConsultant || bdFullName.includes(filters.bdConsultant.toLowerCase())) &&
-        (!filters.hrAdmin || hraFullName.includes(filters.hrAdmin.toLowerCase()))
-      );
-    });
-  }
-  addAdmin(deal, event: Event){
-    event.stopPropagation()
-    this.matDialog.open(AssignAdminComponent, {
-      width: '60vw',
-      height: '60vh',
-      data: deal
     })
   }
 
-  dealClick(deal){
-    console.log("click deal")
+  onProjectClick(deal){
+    this.router.navigate([`/deal/${deal.ID}`])
+    // const url = window.location.origin + `/project/${project.ID}`; // Dodaj query parametar`
+    // window.open(url, '_blank');
   }
+
+  getNewDealArr(){
+    this.rest.getDeals().subscribe(res => {
+      if(res.status == 200){
+        console.log(res.data)
+        this.dealsArr = res.data;
+      }
+    })
+  }
+
+
 
 }

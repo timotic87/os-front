@@ -24,7 +24,7 @@ export class LegalEntityService {
   private factoryLEFromRest(){
     this._legalEntitiyList = [];
     if (this.tokenService.isTokenOk()){
-      this.rest.getLEList({token: this.cookieService.get('jwt')}).subscribe(res=>{
+      this.rest.getLEList().subscribe(res=>{
         if (res.status===200){
           for(let i of res.data){
             this._legalEntitiyList.push(LegalEntityModel.createLegalEntity(i));

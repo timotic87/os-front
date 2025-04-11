@@ -18,8 +18,7 @@ import {DialogService} from "../../services/dialog.service";
     NgClass,
     MatAutocompleteTrigger,
     MatAutocomplete,
-    MatOption,
-    AsyncPipe
+    MatOption
   ],
   templateUrl: './add-client-dialog.component.html',
   styleUrl: './add-client-dialog.component.css'
@@ -57,7 +56,6 @@ export class AddClientDialogComponent implements OnInit{
     if (this.addClientForm.valid){
       let data = this.addClientForm.value;
       data.countryId = this.currentCountry.id;
-      // data.socketData = {userId: UserService.getUser().id, userName: UserService.getUser().fullName ,clientName: this.currentCountry.name}
       this.clientService.createClient(data);
       this.dialogRef.close();
     }

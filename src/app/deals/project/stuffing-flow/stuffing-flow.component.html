@@ -1,0 +1,55 @@
+<div class="pb-3">
+  <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
+  <button (click)="dialogCDCM();" [disabled]="createCDCMDisable"
+          class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+          data-ripple-light="true">Add CDCM
+  </button>
+  <div class="grid grid-cols-3 gap-2 w-full" *ngIf="cdcmService.cdcmList.length!==0">
+    @for (cdcm of cdcmService.cdcmList; track cdcm) {
+      <app-cdcm-card [cdcm]="cdcm" [project]="project" *ngIf="cdcm.statusID<=3"></app-cdcm-card>
+    }
+    @if (approval){
+      <app-approval-card [approval]="approval" *ngIf="approval.approvalStatus.ID<3"></app-approval-card>
+    }
+    <div>
+      @for (cdcm of cdcmService.cdcmList.slice().reverse(); track cdcm){
+        <app-cdcm-inactive-card [cdcm]="cdcm" *ngIf="cdcm.statusID>3" (click)="openCDCMView(cdcm)">{{cdcm.ID}}</app-cdcm-inactive-card>
+      }
+    </div>
+  </div>
+    <button [disabled]="!canViewDocumentation" (click)="documentDialogOpen();"
+            class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+            data-ripple-light="true">Add Document
+    </button>
+
+    <app-document-list [projectID]="project.ID"></app-document-list>
+
+  <div *ngIf="project.statusID>3">
+  <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
+    @if (project.statusID!==5) {
+      <button (click)="createDealDialog();"
+              class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+              data-ripple-light="true">Create Deal
+      </button>
+    } @else {
+      <app-deal-card [deal]="deal"></app-deal-card>
+    }
+
+  </div>
+</div>
+

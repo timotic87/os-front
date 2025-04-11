@@ -24,7 +24,7 @@ export class CountryService {
   private factoryCountryFromRest(){
     this._countryList = [];
     if (this.tokenService.isTokenOk()){
-      this.rest.getCountryList({token: this.cookieService.get('jwt')}).subscribe(res=>{
+      this.rest.getCountryList().subscribe(res=>{
         if (res.status===200){
           for(let i of res.data){
             this._countryList.push(CountryModel.createCountryModel(i));

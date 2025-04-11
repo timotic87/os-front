@@ -11,9 +11,10 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {UserService} from "../../services/user.service";
 import {UsersService} from "../../services/users.service";
 import {ProjectService} from "../../services/project.service";
+import {RestService} from "../../services/rest.service";
 
 @Component({
-  selector: 'app-create-project-dialog',
+  selector: 'app-create-deal-dialog',
   standalone: true,
   imports: [
     MatAutocomplete,
@@ -23,12 +24,12 @@ import {ProjectService} from "../../services/project.service";
     ReactiveFormsModule,
     NgClass
   ],
-  templateUrl: './create-project-dialog.component.html',
-  styleUrl: './create-project-dialog.component.css'
+  templateUrl: './create-deal-dialog.component.html',
+  styleUrl: './create-deal-dialog.component.css'
 })
-export class CreateProjectDialogComponent implements OnInit {
+export class CreateDealDialogComponent implements OnInit {
 
-  createProjectForm: FormGroup
+  createDealForm: FormGroup
   listLe: LegalEntityModel[] = [];
 
   currentLe = null;
@@ -37,14 +38,14 @@ export class CreateProjectDialogComponent implements OnInit {
 
   currentClientList: ClientModel[] = [];
 
-  constructor(public leService: LegalEntityService, private clientService: ClientsService, public SANDS: ServicesAndSubservicesService, private dialogRef: MatDialogRef<CreateProjectDialogComponent>,
-              private userService: UserService, public allUsersService: UsersService, private projectService: ProjectService) {
+  constructor(public leService: LegalEntityService, private clientService: ClientsService, public SANDS: ServicesAndSubservicesService, private dialogRef: MatDialogRef<CreateDealDialogComponent>,
+              private userService: UserService, public allUsersService: UsersService, private rest: RestService) {
     allUsersService.getUsersByPermision(17);
     this.listLe = leService.getLEList();
   }
 
   ngOnInit(): void {
-        this.createProjectForm = new FormGroup({
+        this.createDealForm = new FormGroup({
           legalEntity: new FormControl(null, [Validators.required]),
           client: new FormControl(null, [Validators.required]),
           service: new FormControl(null, [Validators.required]),
@@ -54,23 +55,23 @@ export class CreateProjectDialogComponent implements OnInit {
         });
 
 
-    this.createProjectForm.controls['legalEntity'].valueChanges.subscribe(value=>{
+    this.createDealForm.controls['legalEntity'].valueChanges.subscribe(value=>{
       this.currentLe = value;
       this.SANDS.createListOfServicesForLe(this.currentLe.id).then(()=>{
         if (this.SANDS.servicesForLe.length > 0) {
-          this.createProjectForm.controls['service'].setValue(this.SANDS.servicesForLe[0]);
+          this.createDealForm.controls['service'].setValue(this.SANDS.servicesForLe[0]);
         }
       });
     });
 
-    this.createProjectForm.controls['client'].valueChanges.subscribe(value=>{
+    this.createDealForm.controls['client'].valueChanges.subscribe(value=>{
       this.currentClientList = this.clientService.getListOfClientsByName(value);
     });
-    this.createProjectForm.controls['service'].valueChanges.subscribe(value=>{
+    this.createDealForm.controls['service'].valueChanges.subscribe(value=>{
       this.currentService = value;
       this.SANDS.createListOfSubervicesForLE(this.currentLe.id, this.currentService.ID).then(()=>{
         if (this.SANDS.subservicesForLe.length > 0) {
-          this.createProjectForm.controls['subservice'].setValue(this.SANDS.subservicesForLe[0]);
+          this.createDealForm.controls['subservice'].setValue(this.SANDS.subservicesForLe[0]);
         }
       });
     });
@@ -85,13 +86,18 @@ export class CreateProjectDialogComponent implements OnInit {
     this.currentClient = client;
   }
 
-  createProject(){
-    if (this.createProjectForm.valid) {
-      const data = {legalEntityID: this.createProjectForm.value.legalEntity.id, clientID: this.currentClient.id, serviceID: this.createProjectForm.value.service.ID,
-        subserviceID: this.createProjectForm.value.subservice.ID, subserviceType: this.createProjectForm.value.subservice.typeID, creatorID: this.userService.getUser().id, BDOwnerID: this.createProjectForm.value.bdUser.id, descriptionText: this.createProjectForm.value.comment}
-      this.projectService.createNewProject(data, this.dialogRef)
+  createDeal(){
+    if (this.createDealForm.valid) {
+      const data = {legalEntityID: this.createDealForm.value.legalEntity.id, clientID: this.currentClient.id, serviceID: this.createDealForm.value.service.ID,
+        subserviceID: this.createDealForm.value.subservice.ID, subserviceType: this.createDealForm.value.subservice.typeID, creatorID: this.userService.getUser().id, BDOwnerID: this.createDealForm.value.bdUser.id, descriptionText: this.createDealForm.value.comment}
+      this.rest.createDeal(data).subscribe(res=>{
+        if (res.status == 200) {
+          this.dialogRef.close(res.status);
+        }
+      });
 
-    }
+
+      }
 
   }
 

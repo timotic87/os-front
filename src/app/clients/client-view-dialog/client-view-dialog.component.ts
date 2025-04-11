@@ -26,6 +26,7 @@ export class ClientViewDialogComponent implements OnInit {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<ClientViewDialogComponent>,
               public currencyService: CurrencyService, private clientService: ClientsService, public countryService: CountryService,
               private dialogService: DialogService) {
+    console.log(data)
     currencyService.getCurrencyList()
     this.listOfCountry = countryService.getCountryList();
 

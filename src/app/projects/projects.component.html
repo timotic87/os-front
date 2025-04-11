@@ -1,17 +1,180 @@
+
+
+
+
 <div class="container mx-auto p-6 pt-20 dark:bg-gray-600 h-full">
 
-  <button (click)="createProject();" [disabled]="createProjectDisable"
-          class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
-    py-3 px-6 font-sans text-xs font-bold uppercase text-white
-    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
-    hover:shadow-blue-500/40 focus:opacity-[0.85]
-    focus:shadow-none active:opacity-[0.85] active:shadow-none
-    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
-          data-ripple-light="true">Create new project
-  </button>
+<!--  <div class="mb-6">-->
+<!--    <button [matMenuTriggerFor]="employeeMenu"-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Employees-->
+<!--    </button>-->
+<!--    <mat-menu #employeeMenu="matMenu">-->
+<!--      <button mat-menu-item>Create employee</button>-->
+<!--      <button mat-menu-item>Import xlsx</button>-->
+<!--    </mat-menu>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Salary-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Costs-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Calculate-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      class="my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
+<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
+<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
+<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
+<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
+<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
+<!--      data-ripple-light="true">Create invoice-->
+<!--    </button>-->
+<!--  </div>-->
+
+<!--  <div class="mb-3 w-full lg:w-2/6">-->
+<!--    <div class="relative mb-4 flex w-full flex-wrap items-stretch">-->
+<!--      <input [(ngModel)]="searchText"-->
+<!--             type="search"-->
+<!--             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l-->
+<!--             border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]-->
+<!--              text-base font-normal leading-[1.6] text-neutral-700 outline-none transition-->
+<!--               duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400-->
+<!--                focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none-->
+<!--                dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"-->
+<!--             placeholder="Search"-->
+<!--             aria-label="Search"-->
+<!--             (keyup)="searchEvent($event)"-->
+<!--      />-->
 
 
-  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+
+<!--      &lt;!&ndash;Search button&ndash;&gt;-->
+<!--      <button-->
+<!--        (click)="search();"-->
+<!--        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"-->
+<!--        type="submit"-->
+<!--        id="button-addon3"-->
+<!--        data-te-ripple-init>-->
+<!--        Search-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
+
+  <div class="filters">
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="grid 2xl:grid-cols-9 xl:grid-cols-6 grid-cols-4 gap-4">
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Client name:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="clientName" autocomplete="new-clientName">
+        </div>
+      </div>
+
+      <div>
+        <label for="startDate">Start Date:</label>
+        <input formControlName="startDate" type="date" id="startDate" name="startDate" class="w-full border border-gray-300
+        rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+      </div>
+
+      <div>
+        <label for="endDate">End Date:</label>
+        <input formControlName="endDate" type="date" id="endDate" name="endDate" class="w-full border border-gray-300
+        rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"/>
+      </div>
+
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">BD Consultant:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="bdConsultant" autocomplete="new-bdConsultant">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Administrator:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="hrAdmin" autocomplete="new-hrAdmin">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Status:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none
+           focus:border-blue-500 dark:bg-gray-600" formControlName="status" autocomplete="new-status">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center space-x-2">
+        <label for="isExpired">Is Expired:</label>
+        <select id="isExpired" formControlName="isExpired" class="text-gray-400 dark:text-neutral-100 dark:bg-[#4b5563]">
+          <option value="">All</option>
+          <option [value]="true">Yes</option>
+          <option [value]="false">No</option>
+        </select>
+      </div>
+
+      <div class="flex items-center justify-center space-x-2">
+        <label for="isAssigned">Is Assigned:</label>
+        <select id="isAssigned" formControlName="isAssigned" class="text-gray-400 dark:text-neutral-100 dark:bg-[#4b5563]">
+          <option value="">All</option>
+          <option [value]="true">Yes</option>
+          <option [value]="false">No</option>
+        </select>
+      </div>
+
+      <div class="flex justify-around items-center px-6">
+
+        <button class="h-6 w-6 hover:text-red-500 dark:hover:text-red-400 hover:scale-110 focus:outline-none" type="submit">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+          <span class="tooltiptext text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 p-2">Clear inputs</span>
+        </button>
+
+        <button class="h-6 w-6 hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 focus:outline-none" type="submit">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <span class="tooltiptext text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 p-2">Search</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-3">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <tr>
@@ -19,22 +182,22 @@
           ID
         </th>
         <th scope="col" class="px-6 py-3">
-          Date
+          Client name
         </th>
         <th scope="col" class="px-6 py-3">
-          Service
+          Start date
         </th>
         <th scope="col" class="px-6 py-3">
-          Subservice
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Client
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Legal Entity
+          End date
         </th>
         <th scope="col" class="px-6 py-3">
           BD Consultant
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Administrator
+        </th>
+        <th scope="col" class="px-6 py-3" *ngIf="true">
+          Action
         </th>
         <th scope="col" class="px-6 py-3">
           Status
@@ -42,41 +205,45 @@
       </tr>
       </thead>
       <tbody>
-        @for (project of projectService.projectsList; track project) {
-          <tr
-            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100" (click)="onProjectClick(project)">
+        @for (deal of filteredData; track deal) {
+          <tr (click)="dealClick(deal);"
+            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b
+             dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100">
             <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
-              {{ project.ID }}
+              {{ deal.ID }}
             </th>
             <td class="px-6 py-4">
-              {{ project.createdDate | date:'dd.MM.yyyy'}}
+              {{ deal.clientName }}
             </td>
             <td class="px-6 py-4">
-              {{ project.service.name }}
+              {{ deal.startDate | date: "dd.MM.yyyy"}}
             </td>
             <td class="px-6 py-4">
-              {{ project.subservice.name }}
-            </td>
-            <td class="px-6 py-4">
-              {{ project.client.name }}
-            </td>
-            <td class="px-6 py-4">
-              {{ project.legalEntity.shortName }}
-            </td>
-            <td class="px-6 py-4">
-              @if(project.bdUser.picUrl){
-                <img class="w-6 h-6 rounded-full inline-block" [src]='project.bdUser.picUrl' alt="Rounded avatar" style="object-fit: cover;">
+              @if (deal.isExpired) {
+                {{ deal.endDate | date: "dd.MM.yyyy"}}
+              } @else {
+                <span class="text-green-500">Not expired</span>
               }
-
-              {{ project.bdUser.fullName }}
             </td>
             <td class="px-6 py-4">
-              @if (project.statusID===5){
-                <span class="text-green-500 dark:text-green-400">{{ project.statusName }}</span>
-              }@else{
-                {{ project.statusName }}
+              {{ deal.bdFirstName+' '+deal.bdLastName }}
+            </td>
+            <td class="px-6 py-4">
+              @if (deal.hraID) {
+                {{ deal.hraFirstName+' '+deal.hraLastName }}
+              } @else {
+                <span class="text-red-300 dark:text-red-400">Not assigned</span>
               }
-
+            </td>
+            <td class="px-6 py-4" *ngIf="true">
+              <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="addAdmin(deal, $event);">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              {{"Active"}}
             </td>
           </tr>
         }

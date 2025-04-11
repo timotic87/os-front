@@ -23,7 +23,7 @@ export class CDCMService {
   newCDCMSubject = new Subject<CDCM>();
   deleteCDCMSubject = new Subject<number>();
   updateStatusCDCMSubject = new Subject<object>();
-  getCDCMListSubject = new Subject<any>();
+  // getCDCMListSubject = new Subject<any>();
 
   constructor(private rest: RestService, private dialogService: DialogService, private matDialog: MatDialog) {
 
@@ -135,18 +135,18 @@ export class CDCMService {
       }
     })
   }
-
-  getCDCMLIstByProjectId(projectId: number){
-    this.cdcmList = [];
-    this.rest.getCdcmByProjectID(projectId).subscribe(res=>{
-      if (res.status===200){
-        for (let item of res.data) {
-          this.cdcmList.push(CDCM.createCDCMModel(item));
-        }
-        this.getCDCMListSubject.next(this.cdcmList);
-      }
-    })
-  }
+//todo promena na deal
+  // getCDCMLIstByProjectId(projectId: number){
+  //   this.cdcmList = [];
+  //   this.rest.getCdcmByProjectID(projectId).subscribe(res=>{
+  //     if (res.status===200){
+  //       for (let item of res.data) {
+  //         this.cdcmList.push(CDCM.createCDCMModel(item));
+  //       }
+  //       this.getCDCMListSubject.next(this.cdcmList);
+  //     }
+  //   })
+  // }
 
   public getFields(){
     this.createlistDPperNumberOfEmployee();

@@ -72,12 +72,12 @@ export class DocumentListComponent implements OnInit{
       });
     }
     if (this.projectID){
-      this.rest.getFilesByProjectId(this.projectID).subscribe(res=>{
-        if (res.status == 200) {
-          console.log(res.data);
-          this.fileList = res.data;
-        }
-      });
+      // this.rest.getFilesByProjectId(this.projectID).subscribe(res=>{
+      //   if (res.status == 200) {
+      //     console.log(res.data);
+      //     this.fileList = res.data;
+      //   }
+      // });
     }
   }
 

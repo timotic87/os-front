@@ -3,7 +3,7 @@
     <h2 class="text-center text-2xl mt-3">Create Project</h2>
   </div>
   <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
-  <form [formGroup]="createProjectForm" autocomplete="off">
+  <form [formGroup]="createDealForm" autocomplete="off">
     <div class="flex flex-row">
 
       <div class="basis-2/4">
@@ -13,13 +13,13 @@
      w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
     leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
     dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
-                [ngClass]="createProjectForm.get('legalEntity').touched && !createProjectForm.get('legalEntity').valid ? 'border-red-500':''">
+                [ngClass]="createDealForm.get('legalEntity').touched && !createDealForm.get('legalEntity').valid ? 'border-red-500':''">
           @for(le of listLe; track le){
             <option style="font-size: 0.9rem" [ngValue]="le">{{ le.name }}</option>
           }
         </select>
         </div>
-        <label class="text-xs text-red-500 block text-center" *ngIf="createProjectForm.get('legalEntity').touched && !createProjectForm.get('legalEntity').valid">Must select Legal Entity.</label>
+        <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('legalEntity').touched && !createDealForm.get('legalEntity').valid">Must select Legal Entity.</label>
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Service</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -27,27 +27,27 @@
     w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
     leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
     dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
-                  [ngClass]="createProjectForm.get('service').touched && !createProjectForm.get('service').valid ? 'border-red-500':''">
+                  [ngClass]="createDealForm.get('service').touched && !createDealForm.get('service').valid ? 'border-red-500':''">
             @for(service of SANDS.servicesForLe; track service){
               <option [ngValue]="service">{{ service.name }}</option>
             }
           </select>
         </div>
-        <label class="text-xs text-red-500 block text-center" *ngIf="createProjectForm.get('service').touched && !createProjectForm.get('service').valid">Must select Service.</label>
+        <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('service').touched && !createDealForm.get('service').valid">Must select Service.</label>
       </div>
 
         <div class="basis-2/4">
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Client</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
           <input type="text" formControlName="client" [matAutocomplete]="autoClient" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 mb-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="createProjectForm.get('client').touched && !createProjectForm.get('client').valid ? 'border-red-500':''" autocomplete="new-country" placeholder="Type for search...">
+                 [ngClass]="createDealForm.get('client').touched && !createDealForm.get('client').valid ? 'border-red-500':''" autocomplete="new-country" placeholder="Type for search...">
           <mat-autocomplete #autoClient="matAutocomplete">
             @for (client of currentClientList; track client){
               <mat-option [value]="client.name" (click)="onClientClick(client)">{{client.name}}</mat-option>
             }
           </mat-autocomplete>
         </div>
-        <label class="text-xs text-red-500 block text-center" *ngIf="createProjectForm.get('client').touched && !createProjectForm.get('client').valid">Must select client.</label>
+        <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('client').touched && !createDealForm.get('client').valid">Must select client.</label>
 
           <div class="flex justify-center text-gray-600 dark:text-gray-300">Subservice</div>
           <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -55,13 +55,13 @@
              w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
             leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
             dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
-                    [ngClass]="createProjectForm.get('subservice').touched && !createProjectForm.get('subservice').valid ? 'border-red-500':''">
+                    [ngClass]="createDealForm.get('subservice').touched && !createDealForm.get('subservice').valid ? 'border-red-500':''">
               @for(subservice of SANDS.subservicesForLe; track subservice){
                 <option [ngValue]="subservice">{{ subservice.name }}</option>
               }
             </select>
           </div>
-          <label class="text-xs text-red-500 block text-center" *ngIf="createProjectForm.get('subservice').touched && !createProjectForm.get('subservice').valid">Must select Subservice.</label>
+          <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('subservice').touched && !createDealForm.get('subservice').valid">Must select Subservice.</label>
 
       </div>
 
@@ -73,13 +73,13 @@
              w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
             leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
             dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
-                [ngClass]="createProjectForm.get('bdUser').touched && !createProjectForm.get('bdUser').valid ? 'border-red-500':''">
+                [ngClass]="createDealForm.get('bdUser').touched && !createDealForm.get('bdUser').valid ? 'border-red-500':''">
           @for(user of allUsersService.usersListByPermision; track user){
             <option [ngValue]="user">{{ user.fullName }}</option>
           }
         </select>
       </div>
-      <label class="text-xs text-red-500 block text-center" *ngIf="createProjectForm.get('bdUser').touched && !createProjectForm.get('bdUser').valid">Must select BD Consultant.</label>
+      <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('bdUser').touched && !createDealForm.get('bdUser').valid">Must select BD Consultant.</label>
     </div>
 
 
@@ -87,7 +87,7 @@
       <div class="flex justify-center text-gray-600 dark:text-gray-300 mt-3">Comment:</div>
       <div class="flex justify-center text-gray-400 px-16 pb-6 dark:text-neutral-100">
           <textarea type="text" id="commentID" class="w-full border border-gray-300 rounded-md py-2 px-3 mx-2 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                    [ngClass]="createProjectForm.get('comment').touched && !createProjectForm.get('comment').valid ? 'border-red-500':''" formControlName="comment" autocomplete="new-name"></textarea>
+                    [ngClass]="createDealForm.get('comment').touched && !createDealForm.get('comment').valid ? 'border-red-500':''" formControlName="comment" autocomplete="new-name"></textarea>
       </div>
     </div>
     <hr class="my-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
@@ -103,7 +103,7 @@
             dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
         Close
       </button>
-      <button (click)="createProject();"
+      <button (click)="createDeal();"
               type="button"
               class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
       leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
