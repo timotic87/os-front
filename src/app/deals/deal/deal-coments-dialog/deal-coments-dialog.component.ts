@@ -7,7 +7,7 @@ import {UserService} from "../../../services/user.service";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 
 @Component({
-  selector: 'app-project-coments-dialog',
+  selector: 'app-deal-coments-dialog',
   standalone: true,
   imports: [
     DatePipe,
@@ -15,10 +15,10 @@ import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
     NgForOf,
     ReactiveFormsModule
   ],
-  templateUrl: './project-coments-dialog.component.html',
-  styleUrl: './project-coments-dialog.component.css'
+  templateUrl: './deal-coments-dialog.component.html',
+  styleUrl: './deal-coments-dialog.component.css'
 })
-export class ProjectComentsDialogComponent implements OnInit{
+export class DealComentsDialogComponent implements OnInit{
 
   commentForm: FormGroup;
 

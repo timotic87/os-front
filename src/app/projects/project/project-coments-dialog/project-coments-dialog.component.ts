@@ -7,7 +7,7 @@ import {UserService} from "../../../services/user.service";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 
 @Component({
-  selector: 'app-project-coments-dialog',
+  selector: 'app-deal-coments-dialog',
   standalone: true,
   imports: [
     DatePipe,

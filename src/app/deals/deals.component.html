@@ -43,7 +43,7 @@
       </thead>
       <tbody>
         @for (deal of dealsArr; track deal) {
-          <tr (click)="onProjectClick(deal)"
+          <tr (click)="onDealClick(deal)"
             class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100" >
             <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
               {{ deal.ID }}

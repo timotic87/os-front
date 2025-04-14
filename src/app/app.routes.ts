@@ -16,6 +16,7 @@ import {ApprovalsComponent} from "./admin/adminPages/approvals/approvals.compone
 import {RestService} from "./services/rest.service";
 import {firstValueFrom} from "rxjs";
 import {DealsComponent} from "./deals/deals.component";
+import {DealComponent} from "./deals/deal/deal.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -58,7 +59,7 @@ export const routes: Routes = [
 
   },
   {path: 'deals', component: DealsComponent},
-  {path: 'deal/:id', component: ProjectComponent},//todo reformat name
+  {path: 'deal/:id', component: DealComponent},//todo reformat name
   {path: 'projects', component: DealsComponent, canActivate: [async ()=>{
       const userService = inject(UserService);
       const rest: RestService = inject(RestService);

@@ -29,9 +29,7 @@ import {FormGroup} from "@angular/forms";
     ColorLabelComponent,
     DatePipe,
     StuffingFlowComponent,
-    PyFlowComponent,
-    ContractDocumentFormComponent,
-    PickFileComponent
+    PyFlowComponent
   ],
   templateUrl: './project.component.html',
   styleUrl: './project.component.css'
@@ -53,9 +51,9 @@ export class ProjectComponent implements OnInit{
               cdcmService: CDCMService, private rest: RestService, private dialogService: DialogService) {
     cdcmService.getFields();
     this.projectId = +this.route.snapshot.paramMap.get('id');
-    this.projectService.getFullPageProject(this.projectId).then(data => {
-      this.project = data[0];
-    });
+    // this.projectService.getFullPageProject(this.projectId).then(data => {
+    //   this.project = data[0];
+    // });
 
   }
 

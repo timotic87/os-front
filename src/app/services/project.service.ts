@@ -43,32 +43,32 @@ export class ProjectService {
     // })
   }
 
-  async getFullPageProject(ID): Promise<any> {
-    let data: any = [];
-    this.dialogService.showLoader();
-    try {
-      const res = await this.rest.getFullProject(ID).toPromise();
-      this.dialogService.closseLoader();
-      let cdcmArr: CDCM[] = [];
-      if (res.status === 200) {
-        data[0] = ProjectModel.createProjectModel(res.data[0]);
-        if (Array.isArray(res.data[1])){
-          for (let item of res.data[1]) {
-            const cdcm = CDCM.createCDCMModel(item)
-            cdcmArr.push(cdcm)
-          }
-
-        }
-        else{
-          cdcmArr.push(CDCM.createCDCMModel(res.data[1]));
-        }
-        data[1]=cdcmArr
-      }
-    } catch (error) {
-      this.dialogService.closseLoader();
-    }
-    return data;
-  }
+  // async getFullPageProject(ID): Promise<any> {
+  //   let data: any = [];
+  //   this.dialogService.showLoader();
+  //   try {
+  //     const res = await this.rest.getFullProject(ID).toPromise();
+  //     this.dialogService.closseLoader();
+  //     let cdcmArr: CDCM[] = [];
+  //     if (res.status === 200) {
+  //       data[0] = ProjectModel.createProjectModel(res.data[0]);
+  //       if (Array.isArray(res.data[1])){
+  //         for (let item of res.data[1]) {
+  //           const cdcm = CDCM.createCDCMModel(item)
+  //           cdcmArr.push(cdcm)
+  //         }
+  //
+  //       }
+  //       else{
+  //         cdcmArr.push(CDCM.createCDCMModel(res.data[1]));
+  //       }
+  //       data[1]=cdcmArr
+  //     }
+  //   } catch (error) {
+  //     this.dialogService.closseLoader();
+  //   }
+  //   return data;
+  // }
 //todo promena na deal
   // async setProjectComents(project: ProjectModel) {
   //   this.dialogService.showLoader();

@@ -221,9 +221,8 @@ export class RestService {
   getDeals(){
     return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
   }
-  //todo get full Deal ispravka
-  getFullProject(ID: number){
-    return this.http.get(`${this.baseUrl}/getFullProject/${ID}`, {headers: this.headers()}) as Observable<any>;
+  getDealByID(ID: number){
+    return this.http.get(`${this.baseUrl}/getDealByID/${ID}`, {headers: this.headers()}) as Observable<any>;
   }
 //todo ispravka na deal history
   getProjectHitory(ID: number){

@@ -54,7 +54,7 @@ export class DealsComponent {
     })
   }
 
-  onProjectClick(deal){
+  onDealClick(deal){
     this.router.navigate([`/deal/${deal.ID}`])
     // const url = window.location.origin + `/project/${project.ID}`; // Dodaj query parametar`
     // window.open(url, '_blank');
