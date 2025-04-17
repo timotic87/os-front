@@ -17,8 +17,8 @@ import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog
 import {RestService} from "../../../services/rest.service";
 import {DealCardComponent} from "./deal-card/deal-card.component";
 import {UserService} from "../../../services/user.service";
-import {CdcmDialogComponent} from "../../../deals/cdcm-dialog/cdcm-dialog.component";
-import {CdcmViewEditComponent} from "../../../deals/cdcm-view-edit/cdcm-view-edit.component";
+import {CdcmDialogComponent} from "../../cdcm-dialog/cdcm-dialog.component";
+import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -39,7 +39,7 @@ export class StuffingFlowComponent implements OnInit {
 
   canViewDocumentation = false;
 
-  @Input() project: ProjectModel;
+  @Input() deal: any;
 
   createCDCMDisable = true;
 
@@ -49,12 +49,12 @@ export class StuffingFlowComponent implements OnInit {
 
   formGroup: FormGroup;
 
-  deal;
+  activeCDCM;
 
   constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private approvalService: ApprovalService,
               private route: ActivatedRoute, private rest: RestService, private userService: UserService) {
     this.checkPermissions();
-    let projectId: number = +this.route.snapshot.paramMap.get('id');
+    // let projectId: number = +this.route.snapshot.paramMap.get('id');
     // cdcmService.getCDCMLIstByProjectId(projectId);
     //
     // cdcmService.getCDCMListSubject.subscribe(()=>{
@@ -62,30 +62,30 @@ export class StuffingFlowComponent implements OnInit {
     //   this.getApprovals(this.cdcmService.cdcmList[0].ID);
     // })
 
-    cdcmService.updateCDCMSubject.subscribe(cdcm => {
-      this.updateCDCMarr(cdcm);
-      this.checkisButtonDisabled();
-    });
-    cdcmService.newCDCMSubject.subscribe(cdcm => {
-      if (cdcm.projectID===this.project.ID){
-        if (!this.cdcmService.cdcmList) {
-          this.cdcmService.cdcmList = [];
-        }
-        this.cdcmService.cdcmList.push(cdcm);
-        this.checkisButtonDisabled();
-      }
-    })
-    cdcmService.deleteCDCMSubject.subscribe(ID => {
-      this.cdcmService.cdcmList = this.cdcmService.cdcmList.filter(item => item.ID !== ID);
-      if (this.cdcmService.cdcmList.length === 0) this.createCDCMDisable = false;
-      this.checkisButtonDisabled();
-    });
-    cdcmService.updateStatusCDCMSubject.subscribe(data=>{
-      const cdcmObj: CDCM = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
-      cdcmObj.setStatus(data['statusID'], data['statusName']);
-      this.getApprovals(cdcmObj.ID);
-      this.checkisButtonDisabled();
-    });
+    // cdcmService.updateCDCMSubject.subscribe(cdcm => {
+    //   this.updateCDCMarr(cdcm);
+    //   this.checkisButtonDisabled();
+    // });
+    // cdcmService.newCDCMSubject.subscribe(cdcm => {
+    //   if (cdcm.projectID===this.project.ID){
+    //     if (!this.cdcmService.cdcmList) {
+    //       this.cdcmService.cdcmList = [];
+    //     }
+    //     this.cdcmService.cdcmList.push(cdcm);
+    //     this.checkisButtonDisabled();
+    //   }
+    // })
+    // cdcmService.deleteCDCMSubject.subscribe(ID => {
+    //   this.cdcmService.cdcmList = this.cdcmService.cdcmList.filter(item => item.ID !== ID);
+    //   if (this.cdcmService.cdcmList.length === 0) this.createCDCMDisable = false;
+    //   this.checkisButtonDisabled();
+    // });
+    // cdcmService.updateStatusCDCMSubject.subscribe(data=>{
+    //   const cdcmObj: CDCM = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
+    //   cdcmObj.setStatus(data['statusID'], data['statusName']);
+    //   this.getApprovals(cdcmObj.ID);
+    //   this.checkisButtonDisabled();
+    // });
 //todo promen na deal
     // rest.getDealByProjectId(projectId).subscribe(res => {
     //   if (res.status===200 && res.data.length>0){
@@ -97,14 +97,14 @@ export class StuffingFlowComponent implements OnInit {
 
   ngOnInit(): void {
 
-
+    this.getActiveCDCM();
   }
 
   dialogCDCM() {
     this.matDialog.open(CdcmDialogComponent, {
       maxHeight: '90vh',
       width: '150vh',
-      data: this.project
+      data: this.deal
     });
   }
 
@@ -115,13 +115,13 @@ export class StuffingFlowComponent implements OnInit {
 
   }
 
-  openCDCMView(cdcm){
-    this.matDialog.open(CdcmViewEditComponent, {
-      maxHeight: '90vh',
-      width: '150vh',
-      data: {cdcm, project: this.project}
-    })
-  }
+  // openCDCMView(cdcm){
+  //   this.matDialog.open(CdcmViewEditComponent, {
+  //     maxHeight: '90vh',
+  //     width: '150vh',
+  //     data: {cdcm, project: this.project}
+  //   })
+  // }
 
   getApprovals(cdcmId: number){
     this.approvalService.getApprovalsByCdcmID(cdcmId).then(approval=>{
@@ -143,30 +143,39 @@ export class StuffingFlowComponent implements OnInit {
 
     }
   }
+  //
+  // documentDialogOpen(){
+  //   this.matDialog.open(DocumentatonComponent, {
+  //     maxHeight: '90vh',
+  //     width: '150vh',
+  //     data: {client: this.project.client, project: this.project}
+  //   })
+  // }
 
-  documentDialogOpen(){
-    this.matDialog.open(DocumentatonComponent, {
-      maxHeight: '90vh',
-      width: '150vh',
-      data: {client: this.project.client, project: this.project}
-    })
-  }
 
-
-  createDealDialog(){
-    this.matDialog.open(CreateDealDialogComponent, {
-      height: '90vh',
-      width: '50vw',
-      data: {client: this.project.client, project: this.project}
-      }
-    )
-  }
+  // createDealDialog(){
+  //   this.matDialog.open(CreateDealDialogComponent, {
+  //     height: '90vh',
+  //     width: '50vw',
+  //     data: {client: this.project.client, project: this.project}
+  //     }
+  //   )
+  // }
 
   checkPermissions(){
     this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
       if(res.status===200){
         let permDocView = res.data.find(permision => permision.id === 12);
         this.canViewDocumentation = permDocView.userId;
+      }
+    });
+  }
+
+  getActiveCDCM(){
+    console.log(this.deal)
+    this.rest.getActiveCdcm(this.deal.ID).subscribe(res=>{
+      if(res.status===200){
+        this.activeCDCM = res.data;
       }
     })
   }

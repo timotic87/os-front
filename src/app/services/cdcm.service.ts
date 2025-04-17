@@ -110,12 +110,12 @@ export class CDCMService {
             this.updateCDCMSubject.next(updatedCDCM);
             this.cdcmList[0] = updatedCDCM;
           }
-          this.dialogService.closseLoader()
+          this.dialogService.closeLoader()
           this.matDialog.closeAll()
         },
         error: err => {
           console.log(err);
-          this.dialogService.closseLoader()
+          this.dialogService.closeLoader()
           this.matDialog.closeAll()
         }
       });

@@ -36,8 +36,8 @@ export class ProjectComentsDialogComponent implements OnInit{
     }
 
   sendComment(){
-    const data = {projectID: this.project.ID, comment: this.commentForm.value.commentText, statusID: 1, creatorID: this.userService.getUser().id };
-    this.projectService.saveComment(data, this.project);
-    this.commentForm.get("commentText").setValue(null);
+    // const data = {projectID: this.project.ID, comment: this.commentForm.value.commentText, statusID: 1, creatorID: this.userService.getUser().id };
+    // this.projectService.saveComment(data, this.project);
+    // this.commentForm.get("commentText").setValue(null);
   }
 }

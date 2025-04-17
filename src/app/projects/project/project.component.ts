@@ -20,6 +20,7 @@ import {
 } from "../../clients/documentaton/elements/contract-document-form/contract-document-form.component";
 import {PickFileComponent} from "../../clients/documentaton/elements/pick-file/pick-file.component";
 import {FormGroup} from "@angular/forms";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-project',
@@ -46,8 +47,11 @@ export class ProjectComponent implements OnInit{
 
   formGroup: FormGroup;
 
+  showCommentsPerm: boolean = false;
+  createCommentsPerm: boolean = false;
 
-  constructor(private route: ActivatedRoute, public projectService: ProjectService, private matDialog: MatDialog,
+
+  constructor(private route: ActivatedRoute, private matDialog: MatDialog, private userService: UserService,
               cdcmService: CDCMService, private rest: RestService, private dialogService: DialogService) {
     cdcmService.getFields();
     this.projectId = +this.route.snapshot.paramMap.get('id');
@@ -71,7 +75,7 @@ export class ProjectComponent implements OnInit{
   viewHistory(){
     this.dialogService.showLoader();
     this.rest.getProjectHitory(this.projectId).subscribe(res => {
-      this.dialogService.closseLoader();
+      this.dialogService.closeLoader();
       let histories: HistoryModel[] = [];
       if (res.status == 200) {
         for (let ho of res.data){

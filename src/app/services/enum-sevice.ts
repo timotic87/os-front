@@ -11,6 +11,7 @@ export enum socketEnum {
   CREATE_CLIENT = 2,
   DELETE_CLIENT = 4,
   CREATE_CDCM = 5,
-  NEW_APPROVAL = 8
+  NEW_APPROVAL = 8,
+  CREATE_DEAL_COMMENT = 9
 
 }

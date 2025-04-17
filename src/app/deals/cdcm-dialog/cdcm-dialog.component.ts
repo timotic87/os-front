@@ -1,5 +1,4 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
 import {CurrencyPipe, NgClass, NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {CDCMService} from "../../services/cdcm.service";
@@ -12,9 +11,6 @@ import {RestService} from "../../services/rest.service";
   selector: 'app-cdcm-dialog',
   standalone: true,
   imports: [
-    MatAutocomplete,
-    MatAutocompleteTrigger,
-    MatOption,
     NgIf,
     ReactiveFormsModule,
     NgClass,
@@ -38,7 +34,10 @@ export class CdcmDialogComponent implements OnInit {
   collective_insurance = 0
   payslipsCost = 0;
 
-  constructor(public rest: RestService, public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public project, private dialogRef: MatDialogRef<CdcmDialogComponent>, private userService: UserService) {
+  constructor(public rest: RestService, public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public deal,
+              private dialogRef: MatDialogRef<CdcmDialogComponent>, private userService: UserService) {
+    console.log(deal)
+    this.cdcmService.getFields();
     cdcmService.calculationCDCM = null;
   }
 
@@ -168,13 +167,13 @@ export class CdcmDialogComponent implements OnInit {
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
       this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Save', 'Calculate']}).afterClosed().subscribe(option=>{
         this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-        this.basicInfoForm.value.projectID= this.project.ID;
-        this.basicInfoForm.value.subservice = this.project.subservice
+        this.basicInfoForm.value.dealID= this.deal.ID;
+        this.basicInfoForm.value.subservice = this.deal.subservice
         this.basicInfoForm.value.createdUserID= this.userService.getUser().id;
         this.operationalCostForm.value.collective_insurance = this.collective_insurance;
         this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
         this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-        this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
+        this.operationalCostForm.value.franchise_fee = this.deal.legalEntity.franchise_fee;
 
         switch (option){
           case 'Cancel':

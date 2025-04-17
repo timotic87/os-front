@@ -53,7 +53,7 @@ export class ApprovalViewEditDialogComponent implements OnInit {
   deleteStep(step){
     this.dialogService.showLoader()
     this.rest.deleteApprovalTemplateStep(step).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res['status']===201){
         console.log(this.approval.approvalStep)
         this.approval.approvalStep = this.approval.approvalStep.filter(item=>item.ID!==step.ID)
@@ -64,7 +64,7 @@ export class ApprovalViewEditDialogComponent implements OnInit {
   editApprovalTemplate(){
     this.dialogService.showLoader();
     this.rest.editApprovalTemplate({...this.approvalEditInfo.value, ID: this.approval.ID}).subscribe(res=>{
-      this.dialogService.closseLoader();
+      this.dialogService.closeLoader();
       if (res.status===201){
         this.approval.name = this.approvalEditInfo.get('approvalName').value
         this.dialogService.showSnackBar('Successfuly updated Approval Template!', '', 2500);
@@ -77,7 +77,7 @@ export class ApprovalViewEditDialogComponent implements OnInit {
     this.dialogService.showLoader();
      let stepNumber = (!this.approval.approvalStep || this.approval.approvalStep.length===0)? 1:this.approval.approvalStep.length+1;
      this.rest.addApprovalStepTemplate({...this.currentUserChoosen, stepNumber, approvalTemplateID: this.approval.ID}).subscribe(res=>{
-       this.dialogService.closseLoader();
+       this.dialogService.closeLoader();
        if (res['status']===201){
          if (!this.approval.approvalStep) this.approval.approvalStep = [];
          this.approval.approvalStep.push(res.data.row.recordset[0]);

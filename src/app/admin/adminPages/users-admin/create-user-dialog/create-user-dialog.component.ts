@@ -126,7 +126,7 @@ export class CreateUserDialogComponent implements OnInit{
     userData.unit = this.currentUnit.id;
     userData.position = this.currentPosition.id;
     this.rest.createUser(userData).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if(res.status===200){
         this.matDialogRef.close(res.status)
       }

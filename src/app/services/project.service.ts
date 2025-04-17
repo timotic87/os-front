@@ -84,21 +84,21 @@ export class ProjectService {
   //   }
   // }
 
-  async saveComment(data, project: ProjectModel) {
-    this.dialogService.showLoader();
-    try {
-      const res = await this.rest.saveProjectComment(data).toPromise() as any;
-      if (res.status === 201) {
-        let item = res.data.row.recordset[0]
-        let commentTime = new Date(item.createdDate);
-        commentTime.setHours(commentTime.getHours()-2);
-        let comment = new Comment(item.comment, commentTime, item.commentUserFirstname, item.commentUserLastname, item.commentUserPicUrl, item.statusID)
-        project.comments.unshift(comment);
-      }
-      this.dialogService.closseLoader();
-
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  // async saveComment(data, project: ProjectModel) {
+  //   this.dialogService.showLoader();
+  //   try {
+  //     const res = await this.rest.saveProjectComment(data).toPromise() as any;
+  //     if (res.status === 201) {
+  //       let item = res.data.row.recordset[0]
+  //       let commentTime = new Date(item.createdDate);
+  //       commentTime.setHours(commentTime.getHours()-2);
+  //       let comment = new Comment(item.comment, commentTime, item.commentUserFirstname, item.commentUserLastname, item.commentUserPicUrl, item.statusID)
+  //       project.comments.unshift(comment);
+  //     }
+  //     this.dialogService.closseLoader();
+  //
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
 }

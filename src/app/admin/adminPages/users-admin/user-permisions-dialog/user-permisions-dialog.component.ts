@@ -52,7 +52,7 @@ export class UserPermisionsDialogComponent implements OnInit {
     this.dialogService.showLoader();
     console.log(this.user.permisions)
     this.rest.changeUserPermisions(this.user.permisions).subscribe(res=>{
-      this.dialogService.closseLoader();
+      this.dialogService.closeLoader();
       console.log(res)
     })
   }

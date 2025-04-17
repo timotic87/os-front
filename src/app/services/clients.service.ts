@@ -42,7 +42,7 @@ export class ClientsService {
     if (this.tokenService.isTokenOk()){
       this.dialogService.showLoader()
       this.rest.editClient(data).subscribe(res=>{
-        this.dialogService.closseLoader()
+        this.dialogService.closeLoader()
         if (res.status===200){
           this.isListChange.next(true);
         }
@@ -57,7 +57,7 @@ export class ClientsService {
       this.dialogService.showLoader()
       this.rest.deleteClient({id: clientId, token: this.cookieService.get('jwt'), socketData}).subscribe(res=>{
         console.log(res)
-        this.dialogService.closseLoader();
+        this.dialogService.closeLoader();
         if (res.status===200){
 
           this.isListChange.next(true);
@@ -76,7 +76,7 @@ export class ClientsService {
       this.dialogService.showLoader()
       this.rest.createClient(data).subscribe(res=>{
         console.log(res)
-        this.dialogService.closseLoader()
+        this.dialogService.closeLoader()
         if (res.status===201){
           this.isListChange.next(true);
           this.dialogService.showSnackBar("You are succesfuly create Client", 'Close', 2500)

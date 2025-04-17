@@ -64,13 +64,13 @@ onChangePassClick(){
                 } else {
                   this.userService.updatePicUrl(url);
                   this.urlPic = this.userService.getUser().picUrl;
-                  this.dialogService.closseLoader()
+                  this.dialogService.closeLoader()
                   window.location.reload();
                 }
               });
             }).catch(error => {
               observer.error(error);
-              this.dialogService.closseLoader()
+              this.dialogService.closeLoader()
               this.dialogService.errorDialog(error);
             });
           }

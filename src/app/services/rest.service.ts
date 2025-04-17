@@ -241,8 +241,14 @@ export class RestService {
   //   return this.http.get(`${this.baseUrl}/getComentsByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
   // }
 
-  saveProjectComment(data){
-    return this.http.post(`${this.baseUrl}/saveProjectComment`, data, {headers: this.headers()});
+  createDealComment(data: any){
+    return this.http.post(`${this.baseUrl}/createDealComment`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  getLatComment(dealID){
+    return this.http.get(`${this.baseUrl}/getDealComment/${dealID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  getDealComments(dealID){
+    return this.http.post(`${this.baseUrl}/getDealComment/${dealID}`, {},{headers: this.headers()}) as Observable<any>;
   }
 
   getCDCMStatics(){
@@ -291,9 +297,9 @@ export class RestService {
   changeStatusApprovalStep(data){
     return this.http.put(`${this.baseUrl}/changeStatusAppruvalStep`, data, {headers: this.headers()}) as Observable<any>;
   }
-  // getCdcmByProjectID(projectID: number){
-  //   return this.http.get(`${this.baseUrl}/getCdcmByProjectID/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  // }
+  getActiveCdcm(dealID: number){
+    return this.http.get(`${this.baseUrl}/getActiveCdcm/${dealID}`, {headers: this.headers()}) as Observable<any>;
+  }
   isNotificationShow(themeID:number){
     return this.http.get(`${this.baseUrl}/isNotificationShow/${themeID}`, {headers: this.headers()}) as Observable<any>;
   }

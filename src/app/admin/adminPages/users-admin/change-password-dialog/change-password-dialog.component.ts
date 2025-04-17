@@ -47,14 +47,14 @@ export class ChangePasswordDialogComponent implements OnInit{
       let data = this.changePassForm.value;
       data.userID = this.user.id;
       this.rest.resetUserPass(data).subscribe(res=>{
-        this.dialogService.closseLoader()
+        this.dialogService.closeLoader()
         if(res.status===201){
           console.log(res)
           this.dialogRef.close(res.status);
         }
       })
     }else {
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       this.dialogService.showMsgDialog("Please fill in all the blanks!");
     }
   }

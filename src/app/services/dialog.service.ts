@@ -53,7 +53,7 @@ export class DialogService {
       height: '100%'
     });
   }
-  closseLoader(){
+  closeLoader(){
     setTimeout(()=>{
       if (this.loaderRef){
         this.loaderRef.close();

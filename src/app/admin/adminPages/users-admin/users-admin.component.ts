@@ -63,7 +63,7 @@ export class UsersAdminComponent {
       if(isYes){
         this.dialogService.showLoader()
         this.rest.changeUserStatus({active: user.status.id, userId: user.id}).subscribe(res=>{
-          this.dialogService.closseLoader()
+          this.dialogService.closeLoader()
           if (res.status===201){
             this.updateUsers();
             //todo prevod

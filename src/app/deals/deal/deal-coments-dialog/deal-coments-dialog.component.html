@@ -17,9 +17,9 @@
 
     <hr class="my-6 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
 
-    <div class="flex items-start gap-2.5 mt-3" *ngFor="let comment of project.comments">
-      @if (comment.picUrl){
-        <img class="w-8 h-8 rounded-full" [src]=comment.picUrl alt="user img" style="object-fit: cover;">
+    <div class="flex items-start gap-2.5 mt-3" *ngFor="let comment of commentArr">
+      @if (comment.creator.profilePicUrl){
+        <img class="w-8 h-8 rounded-full" [src]=comment.creator.profilePicUrl alt="user img" style="object-fit: cover;">
       } @else {
         <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
       }
@@ -27,7 +27,7 @@
         class="commentWraper flex flex-col max-w-[520px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
               <span
-                class="text-sm font-semibold text-gray-900 dark:text-white">{{ comment.userName }}</span>
+                class="text-sm font-semibold text-gray-900 dark:text-white">{{ comment.creator.firstName+' '+comment.creator.lastName }}</span>
           <span
             class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ comment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
         </div>

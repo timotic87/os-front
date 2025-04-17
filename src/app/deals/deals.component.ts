@@ -27,13 +27,6 @@ export class DealsComponent {
   constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService) {
 
     this.getNewDealArr();
-    // this.rest.getUserPermisions(userService.getUser().id).subscribe(res => {
-    //   if (res.status === 200) {
-    //     let perm = res.data.find(permision => permision.id === 22);
-    //     this.createDealDisable = perm.userId ? false : true;
-    //   }
-    //
-    // });
 
     userService.checkPermission(22, (hasPerm)=>{
       this.createDealDisable = hasPerm;
@@ -49,15 +42,14 @@ export class DealsComponent {
     });
     refDialog.afterClosed().subscribe(status => {
       if (status == 200) {
+        //todo bolja obrada novog deal... treba odradioti socket da se svima update i da se pokrene notifikacija ovde
         this.getNewDealArr();
       }
     })
   }
 
   onDealClick(deal){
-    this.router.navigate([`/deal/${deal.ID}`])
-    // const url = window.location.origin + `/project/${project.ID}`; // Dodaj query parametar`
-    // window.open(url, '_blank');
+    this.router.navigate([`/deal/${deal.ID}`]);
   }
 
   getNewDealArr(){

@@ -20,7 +20,7 @@ export class ApprovalService {
     this.dialogService.showLoader();
     return this.rest.getApprovalTemplateByID(id).pipe(
       map(res => {
-        this.dialogService.closseLoader();
+        this.dialogService.closeLoader();
         if (res['status'] === 200) {
           let obj = res['data'][0];
           obj.approvalStep = !Array.isArray(res['data'][1]) ? [res['data'][1]]:res['data'][1];
@@ -30,7 +30,7 @@ export class ApprovalService {
         return null;
       }),
       catchError(err => {
-        this.dialogService.closseLoader();
+        this.dialogService.closeLoader();
         this.dialogService.errorDialog(err);
         console.log(err);
         return of(null); // `of` se koristi da bi se vratila vrednost unutar Observable-a

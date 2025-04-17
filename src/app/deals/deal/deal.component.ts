@@ -12,6 +12,11 @@ import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";
 import {FormGroup} from "@angular/forms";
 import {ColorLabelComponent} from "../../customComponents/color-label/color-label.component";
+import {DealComentsDialogComponent} from "./deal-coments-dialog/deal-coments-dialog.component";
+import {UserService} from "../../services/user.service";
+import {io, Socket} from "socket.io-client";
+import {environment} from "../../../environments/environment";
+import {socketEnum} from "../../services/enum-sevice";
 
 @Component({
   selector: 'app-project',
@@ -19,9 +24,8 @@ import {ColorLabelComponent} from "../../customComponents/color-label/color-labe
   imports: [
     NgIf,
     DatePipe,
-    StuffingFlowComponent,
-    PyFlowComponent,
-    ColorLabelComponent
+    ColorLabelComponent,
+    StuffingFlowComponent
   ],
   templateUrl: './deal.component.html',
   styleUrl: './deal.component.css'
@@ -33,28 +37,35 @@ export class DealComponent implements OnInit{
   dealID: number;
   deal: any;
   cdcm:CDCM[];
+  lastComment;
 
   approval: ApprovalModel;
 
   formGroup: FormGroup;
 
+  getCommentPerm: boolean = false;
 
-  constructor(private route: ActivatedRoute, public projectService: ProjectService, private matDialog: MatDialog,
+  socket: Socket;
+
+
+  constructor(private route: ActivatedRoute, private matDialog: MatDialog, private userService: UserService,
               cdcmService: CDCMService, private rest: RestService, private dialogService: DialogService) {
     this.dealID = +this.route.snapshot.paramMap.get('id');
+    this.sockets();
     this.getDealFunc(this.dealID);
+    this.getLastComment(this.dealID);
   }
 
   ngOnInit(): void {
     }
 
-  // openComment(){
-  //   this.matDialog.open(DealComentsDialogComponent, {
-  //     width: '70vh',
-  //     maxHeight: '90vh',
-  //     data: this.project
-  //   });
-  // }
+  openComment(){
+    this.matDialog.open(DealComentsDialogComponent, {
+      width: '70vh',
+      maxHeight: '90vh',
+      data: this.dealID
+    });
+  }
 
   // viewHistory(){
   //   this.dialogService.showLoader();
@@ -76,10 +87,35 @@ export class DealComponent implements OnInit{
 
   getDealFunc(id: number){
     this.rest.getDealByID(id).subscribe(res=>{
-      console.log(res)
       if (res.status === 200){
         this.deal = res.data;
-        console.log(this.deal)
+        console.log(this.deal.subservice.typeID)
+      }
+    });
+  }
+
+  getLastComment(dealID){
+    this.rest.getLatComment(dealID).subscribe(res=>{
+      if (res.status === 200){
+        this.lastComment = res.data.dealComment;
+        console.log(this.lastComment)
+      }
+    })
+
+  }
+
+  permisions(){
+    this.userService.checkPermission(25, (hasPerm)=>{
+      this.getCommentPerm = hasPerm;
+    });
+  }
+
+  sockets(){
+    this.socket = io(environment.SERVER_URL);
+    // @ts-ignore
+    this.socket.on(socketEnum.CREATE_DEAL_COMMENT, data=>{
+      if(data.success && data.dealComment.dealID===this.dealID){
+        this.getLastComment(this.dealID);
       }
     });
   }

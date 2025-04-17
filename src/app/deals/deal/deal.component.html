@@ -39,9 +39,9 @@
           Number for finance: <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ 'xxxxxxx' }}</span></p>
       </div>
       <div class="border-2 border-[#386097] dark:border-[#56BDED] p-3 rounded-lg col-span-2 xl:col-span-1">
-        <div class="flex items-start gap-2.5 mt-3" *ngIf="deal.lastComment">
-          @if (deal.lastComment.picUrl){
-            <img class="w-8 h-8 rounded-full" [src]=deal.lastComment.picUrl alt="user img" style="object-fit: cover;">
+        <div class="flex items-start gap-2.5 mt-3" *ngIf="lastComment">
+          @if (lastComment.creator.profilePicUrl){
+            <img class="w-8 h-8 rounded-full" [src]=lastComment.creator.profilePicUrl alt="user img" style="object-fit: cover;">
           } @else {
             <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
           }
@@ -49,17 +49,17 @@
             class="commentWraper flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
             <div class="flex items-center space-x-2 rtl:space-x-reverse">
               <span
-                class="text-sm font-semibold text-gray-900 dark:text-white">{{ deal.lastComment.userName }}</span>
+                class="text-sm font-semibold text-gray-900 dark:text-white">{{ lastComment.creator.firstName+' '+lastComment.creator.lastName }}</span>
               <span
-                class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ deal.lastComment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+                class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ lastComment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
             </div>
             <p
-              class="commentText text-sm font-normal pt-2.5 text-gray-900 dark:text-white">{{ deal.lastComment.comment }}</p>
+              class="commentText text-sm font-normal pt-2.5 text-gray-900 dark:text-white">{{ lastComment.comment }}</p>
           </div>
         </div>
 
-        <div class="flex flex-column justify-end" *ngIf="deal.lastComment">
-          <div class="hover:cursor-pointer w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block">
+        <div class="flex flex-column justify-end" *ngIf="lastComment">
+          <div class="hover:cursor-pointer w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block" (click)="openComment()" >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                  stroke="currentColor" class="size-7">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -68,9 +68,14 @@
           </div>
         </div>
 
-        <div *ngIf="!deal.lastComment">
-          <p>No comment yet!</p>
-          <button
+        <div *ngIf="!lastComment">
+          @if (getCommentPerm){
+            <p>No comment yet!</p>
+          } @else {
+            <p>You don't have permission to see comments!</p>
+          }
+
+          <button (click)="openComment();" [disabled]="!getCommentPerm"
                   class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
@@ -84,18 +89,9 @@
       </div>
     </div>
   </div>
+  <app-stuffing-flow *ngIf="!!deal && deal.subservice.typeID===2" [deal]="deal"></app-stuffing-flow>
 </div>
-<!--    <app-stuffing-flow [project]="deal" *ngIf="deal.subservice.typeID===2"></app-stuffing-flow>-->
+
 <!--    <app-py-flow [project]="deal" *ngIf="deal.subservice.typeID===3"></app-py-flow>-->
-<!--&lt;!&ndash;    <div *ngIf="project.statusID>3" class="block mb-3 w-full p-3 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50&ndash;&gt;-->
-<!--&lt;!&ndash;  dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 my-6">&ndash;&gt;-->
-<!--&lt;!&ndash;      <h3 class="ms-3 my-3 text-[#386097] dark:text-[#56BDED] text-xl font-bold">Offer</h3>&ndash;&gt;-->
-<!--&lt;!&ndash;      <p class="ms-3 text-base">Upload the offer prepared for the client</p>&ndash;&gt;-->
-<!--&lt;!&ndash;      <app-contract-document-form (formGroupp)="getFormGroup($event)"></app-contract-document-form>&ndash;&gt;-->
-<!--&lt;!&ndash;      <app-pick-file (onFileSelected)="itemSelected($event)"></app-pick-file>&ndash;&gt;-->
-<!--&lt;!&ndash;      <div class="w-full flex flex-row">&ndash;&gt;-->
-<!--&lt;!&ndash;        <button (click)="saveDocument();" [disabled]="!formGroup || !formGroup.valid || !file" class="bg-[#386097] dark:bg-[#56BDED] hover:bg-[#4576ba] dark:hover:bg-[#75c9f0] text-white font-semibold rounded-md py-2 px-4 w-1/4 ml-3 disabled:bg-gray-400 disabled:hover:bg-gray-400 dark:disabled:hover:bg-gray-400">Send</button>&ndash;&gt;-->
-<!--&lt;!&ndash;      </div>&ndash;&gt;-->
-<!--&lt;!&ndash;    </div>&ndash;&gt;-->
-<!--  </div>-->
+
 

@@ -1,17 +1,19 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {ProjectService} from "../../../services/project.service";
-import {DatePipe, NgForOf, NgIf} from "@angular/common";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {DatePipe, NgForOf} from "@angular/common";
 import {RestService} from "../../../services/rest.service";
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {DialogService} from "../../../services/dialog.service";
 import {UserService} from "../../../services/user.service";
-import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {io, Socket} from "socket.io-client";
+import {environment} from "../../../../environments/environment";
+import {socketEnum} from "../../../services/enum-sevice";
 
 @Component({
   selector: 'app-deal-coments-dialog',
   standalone: true,
   imports: [
     DatePipe,
-    NgIf,
     NgForOf,
     ReactiveFormsModule
   ],
@@ -24,20 +26,59 @@ export class DealComentsDialogComponent implements OnInit{
 
   commentText = null;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public project, private projectService: ProjectService, private userService: UserService) {
-    // projectService.setProjectComents(project)
+  commentArr=[]
+
+  createCommentPerm: boolean = false;
+
+  socket: Socket;
+
+  constructor(@Inject(MAT_DIALOG_DATA) public dealID, private rest: RestService, private dialogService: DialogService,
+              private userService: UserService, private dialogRef: MatDialogRef<DealComentsDialogComponent>,) {
+
+    this.socket = io(environment.SERVER_URL);
+    // @ts-ignore
+    this.socket.on(socketEnum.CREATE_DEAL_COMMENT, data=>{
+      if(data.success && data.dealComment.dealID===this.dealID){
+        this.getAllComments();
+      }
+    });
+    this.getAllComments();
+
+
+    this.userService.checkPermission(24, hasPerm=>{
+      this.createCommentPerm = hasPerm;
+    });
 
   }
 
   ngOnInit(): void {
         this.commentForm = new FormGroup({
-          commentText: new FormControl(null)
+          commentText: new FormControl(null, [Validators.required]),
         });
     }
 
   sendComment(){
-    const data = {projectID: this.project.ID, comment: this.commentForm.value.commentText, statusID: 1, creatorID: this.userService.getUser().id };
-    this.projectService.saveComment(data, this.project);
-    this.commentForm.get("commentText").setValue(null);
+    if(this.createCommentPerm){
+
+      this.dialogService.showMsgDialog("You don't have permission to send comment");
+      return;
+    }
+    if(this.commentForm.valid){
+      this.dialogService.showLoader();
+      const data = { dealID: this.dealID, comment: this.commentForm.value.commentText };
+      this.rest.createDealComment(data).subscribe(res=>{
+        this.dialogService.closeLoader();
+      });
+    }else {
+
+    }
+  }
+  getAllComments(){
+    this.rest.getDealComments(this.dealID).subscribe(res=>{
+      console.log(res)
+      if (res.status === 200){
+        this.commentArr = res.data.dealComments
+      }
+    })
   }
 }

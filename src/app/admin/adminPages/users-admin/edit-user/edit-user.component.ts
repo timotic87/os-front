@@ -90,7 +90,7 @@ export class EditUserComponent implements OnInit{
       userData.unit = this.currentUnit;
       userData.position = this.currentPosition;
       this.rest.editUser(userData).subscribe(res=>{
-        this.dialogService.closseLoader()
+        this.dialogService.closeLoader()
         if(res.status===201){
           this.dialogRef.close(res.status);
           return;

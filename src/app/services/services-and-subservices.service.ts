@@ -103,7 +103,7 @@ export class ServicesAndSubservicesService {
   deleteService(id: number) {
     this.dialogService.showLoader()
     this.rest.deleteService(id).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res.status === 201){
         this.services = this.services.filter(obj => obj.ID !== id);
         this.subservices = this.subservices.filter(obj => obj.serviceID !==id);
@@ -116,7 +116,7 @@ export class ServicesAndSubservicesService {
   deleteSubservice(id: number) {
     this.dialogService.showLoader()
     this.rest.deleteSubservice(id).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res.status === 201){
         this.subservices = this.subservices.filter(obj => obj.ID !== id);
       }else {
@@ -128,7 +128,7 @@ export class ServicesAndSubservicesService {
   createService(data: any, dialogRef) {
     this.dialogService.showLoader()
     this.rest.createService(data).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res.status === 201){
         this.services.push(ServiceModel.createServiceModel(res.data.row.recordset[0]));
         dialogRef.close(res.status);
@@ -142,7 +142,7 @@ export class ServicesAndSubservicesService {
   createSubservice(data: any, dialogRef) {
     this.dialogService.showLoader()
     this.rest.createSubservice(data).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res.status === 201){
         this.subservices.push(SubserviceModel.createSubserviceModel(res.data.row.recordset[0]));
         dialogRef.close(res.status);
@@ -156,7 +156,7 @@ export class ServicesAndSubservicesService {
   editService(serviceObj, dialogRef) {
     this.dialogService.showLoader();
     this.rest.editService(serviceObj).subscribe(res=>{
-      this.dialogService.closseLoader();
+      this.dialogService.closeLoader();
       if (res.status === 201){
         this.services[this.services.findIndex(service => service.ID === serviceObj.ID)] = serviceObj;
       }else {
@@ -169,7 +169,7 @@ export class ServicesAndSubservicesService {
   editSubservice(subserviceObj, dialogRef) {
     this.dialogService.showLoader();
     this.rest.editSubservice(subserviceObj).subscribe(res=>{
-      this.dialogService.closseLoader();
+      this.dialogService.closeLoader();
       if (res.status === 201){
         this.subservices[this.subservices.findIndex(subservice => subservice.ID === subserviceObj.ID)] = subserviceObj;
       }else {
@@ -182,7 +182,7 @@ export class ServicesAndSubservicesService {
   editSubserviceLE(subserviceLeObj, dialogRef) {
     this.dialogService.showLoader();
     this.rest.editSubserviceLe(subserviceLeObj).subscribe(res=>{
-      this.dialogService.closseLoader();
+      this.dialogService.closeLoader();
       if (res.status === 201){
         this.subservicelegalEntity[this.subservicelegalEntity.findIndex(obj => obj.ID === subserviceLeObj.ID)] = SubserviceLegalentityModel.createSubserviceLegalentityModel(res.data.row.recordset[0]);
       }else {
@@ -195,7 +195,7 @@ export class ServicesAndSubservicesService {
   deleteSubserviceLE(id: number) {
     this.dialogService.showLoader()
     this.rest.deleteSubserviceLE(id).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res.status === 201){
         this.subservicelegalEntity = this.subservicelegalEntity.filter(obj => obj.ID !== id);
       }else {
@@ -207,7 +207,7 @@ export class ServicesAndSubservicesService {
   createSubserviceLe(data: any, dialogRef) {
     this.dialogService.showLoader()
     this.rest.createSubserviceLe(data).subscribe(res=>{
-      this.dialogService.closseLoader()
+      this.dialogService.closeLoader()
       if (res.status === 201){
         this.subservicelegalEntity.push(SubserviceLegalentityModel.createSubserviceLegalentityModel(res.data.row.recordset[0]));
         this.createListOfSubserviceLE();

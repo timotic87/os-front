@@ -28,8 +28,8 @@ import {CdcmPyHraViewEditComponent} from "../../deals/cdcm-py-hra-view-edit/cdcm
 })
 export class CdcmCardComponent implements OnInit{
 
-  @Input() cdcm: CDCM;
-  @Input() project: ProjectModel;
+  @Input() cdcm: any;
+  // @Input() project: ProjectModel;
 
   statusColor: string
 
@@ -57,23 +57,23 @@ export class CdcmCardComponent implements OnInit{
     }
 
   openViewEditDialog(){
-    console.log(this.project)
-    switch (this.project.subservice.typeID){
-      case 2:
-        this.matDialog.open(CdcmViewEditComponent, {
-          maxHeight: '90vh',
-          width: '70vw',
-          data: {cdcm: this.cdcm, project: this.project}
-        });
-        break;
-        case 3:
-          this.matDialog.open(CdcmPyHraViewEditComponent, {
-            maxHeight: '90vh',
-            width: '70vw',
-            data: {cdcm: this.cdcm, project: this.project}
-          });
-          break
-    }
+    // console.log(this.project)
+    // switch (this.project.subservice.typeID){
+    //   case 2:
+    //     this.matDialog.open(CdcmViewEditComponent, {
+    //       maxHeight: '90vh',
+    //       width: '70vw',
+    //       data: {cdcm: this.cdcm, project: this.project}
+    //     });
+    //     break;
+    //     case 3:
+    //       this.matDialog.open(CdcmPyHraViewEditComponent, {
+    //         maxHeight: '90vh',
+    //         width: '70vw',
+    //         data: {cdcm: this.cdcm, project: this.project}
+    //       });
+    //       break
+    // }
 
   }
 
