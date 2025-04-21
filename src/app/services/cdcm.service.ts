@@ -123,7 +123,7 @@ export class CDCMService {
 
   deleteCDCM(ID: number){
     this.rest.deleteCDCM(ID).subscribe(res=>{
-      if (res.status===201){
+      if (res.status===200){
         this.deleteCDCMSubject.next(ID);
       }
     });

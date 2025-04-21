@@ -284,9 +284,9 @@
       <span class="m-3 font-semibold block">Net profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.netProfit | currency: 'RSD '}}</span></span>
       <span class="m-3 font-semibold block">NP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.npPercent.toFixed(2)+'%'}}</span></span>
 
-      <div>
-        <app-approval-card [approval]="approval" *ngIf="approval"></app-approval-card>
-      </div>
+<!--      <div>-->
+<!--        <app-approval-card [approval]="approval" *ngIf="approval"></app-approval-card>-->
+<!--      </div>-->
 
     </div>
   </div>

@@ -6,11 +6,6 @@ import {DialogService} from "../../services/dialog.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {UserService} from "../../services/user.service";
 import {CDCM} from "../../models/cdcm";
-import {ApprovalModel} from "../../models/approval/approvalModel";
-import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
-import {RestService} from "../../services/rest.service";
-import {ApprovalStepModel} from "../../models/approval/ApprovalStepModel";
-import {ApprovalStatus} from "../../models/approval/approvalStatus";
 import {ProjectModel} from "../../models/projectModel";
 
 @Component({
@@ -20,8 +15,7 @@ import {ProjectModel} from "../../models/projectModel";
     CurrencyPipe,
     NgIf,
     ReactiveFormsModule,
-    NgClass,
-    ApprovalCardComponent
+    NgClass
   ],
   templateUrl: './cdcm-view-edit.component.html',
   styleUrl: './cdcm-view-edit.component.css'
@@ -41,16 +35,13 @@ export class CdcmViewEditComponent implements OnInit {
   collective_insurance = 0
   payslipsCost = 0;
 
-  approval: ApprovalModel;
-
   cdcm: CDCM;
   project: ProjectModel;
 
 
   constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public data: any,
-              private dialogRef: MatDialogRef<CdcmViewEditComponent>, private userService: UserService, private rest: RestService) {
+              private dialogRef: MatDialogRef<CdcmViewEditComponent>, private userService: UserService) {
         this.cdcm = this.data.cdcm
-        this.project = this.data.project;
         cdcmService.seniorityListListener.subscribe(()=>{
       if (this.cdcm.isHra){
         this.operationalCostForm.get('HRA_Consultant').setValue(cdcmService.getSeniorityObjByName(this.cdcm.hra_conultant_seniority));
@@ -81,25 +72,8 @@ export class CdcmViewEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.cdcm){
-      this.rest.getApprovalsByCdcmID(this.cdcm.ID).subscribe(res=>{
-        if (res.status === 200) {
-          let approvalSeps: ApprovalStepModel[] = [];
-
-          for (let item of res.data) {
-            approvalSeps.push(new ApprovalStepModel(item.ApprovalStepID, item.approvalID,
-              item.userID, item.firstName, item.lastName, item.stepOrder, new ApprovalStatus(item.approvalStepStatusID,
-                item.approvalStepStatusName), item.approvalStepStatusChangeDate, item.profilePicUrl, item.comment));
-          }
-
-          this.approval =  new ApprovalModel(res.data[0].approvalID, res.data[0].cdcmID, res.data[0].documentID, res.data[0].approvalCreatedDate, res.data[0].isSequential,
-            new ApprovalStatus(res.data[0].approvalStatusID, res.data[0].approvalStatusName), approvalSeps);
-
-        }
-      });
-    }
-
-    this.basicInfoForm = new FormGroup({
+    console.log(this.cdcm)
+     this.basicInfoForm = new FormGroup({
       No_of_employees: new FormControl(this.cdcm.No_of_employees, [Validators.required]),
       Grand_Groos_Salaray_per_Employee: new FormControl(this.cdcm.Grand_Groos_Salaray_per_Employee, [Validators.required]),
       other_cost: new FormControl(this.cdcm.other_cost, [Validators.required]),

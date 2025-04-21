@@ -15,6 +15,7 @@ import {RestService} from "../../../services/rest.service";
 import {DealCardComponent} from "./deal-card/deal-card.component";
 import {UserService} from "../../../services/user.service";
 import {CdcmDialogComponent} from "../../cdcm-dialog/cdcm-dialog.component";
+import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -59,16 +60,15 @@ export class StuffingFlowComponent implements OnInit {
     //   this.checkisButtonDisabled();
     // });
     cdcmService.newCDCMSubject.subscribe(cdcm => {
-      console.log(cdcm)
-      if (cdcm.dealID===this.deal.ID){
-        this.activeCDCM = cdcm;
+      if (cdcm.data.dealID===this.deal.ID){
+        this.activeCDCM = cdcm.data;
       }
     })
-    // cdcmService.deleteCDCMSubject.subscribe(ID => {
-    //   this.cdcmService.cdcmList = this.cdcmService.cdcmList.filter(item => item.ID !== ID);
-    //   if (this.cdcmService.cdcmList.length === 0) this.createCDCMDisable = false;
-    //   this.checkisButtonDisabled();
-    // });
+    cdcmService.deleteCDCMSubject.subscribe(ID => {
+      if (this.activeCDCM.ID === ID){
+        this.activeCDCM = null;
+      }
+    });
     // cdcmService.updateStatusCDCMSubject.subscribe(data=>{
     //   const cdcmObj: CDCM = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
     //   cdcmObj.setStatus(data['statusID'], data['statusName']);
@@ -108,7 +108,7 @@ export class StuffingFlowComponent implements OnInit {
   //   this.matDialog.open(CdcmViewEditComponent, {
   //     maxHeight: '90vh',
   //     width: '150vh',
-  //     data: {cdcm, project: this.project}
+  //     data: {cdcm}
   //   })
   // }
 

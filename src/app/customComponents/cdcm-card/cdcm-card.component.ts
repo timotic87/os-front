@@ -4,11 +4,9 @@ import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {MatDialog} from "@angular/material/dialog";
 import {CDCMService} from "../../services/cdcm.service";
-import {CDCM} from "../../models/cdcm";
 import {RestService} from "../../services/rest.service";
 import {CommentModel} from "../../models/commentModel";
 import {ShowCommentsDialogComponent} from "../show-comments-dialog/show-comments-dialog.component";
-import {ProjectModel} from "../../models/projectModel";
 import {CdcmViewEditComponent} from "../../deals/cdcm-view-edit/cdcm-view-edit.component";
 import {CdcmPyHraViewEditComponent} from "../../deals/cdcm-py-hra-view-edit/cdcm-py-hra-view-edit.component";
 
@@ -57,23 +55,22 @@ export class CdcmCardComponent implements OnInit{
     }
 
   openViewEditDialog(){
-    // console.log(this.project)
-    // switch (this.project.subservice.typeID){
-    //   case 2:
-    //     this.matDialog.open(CdcmViewEditComponent, {
-    //       maxHeight: '90vh',
-    //       width: '70vw',
-    //       data: {cdcm: this.cdcm, project: this.project}
-    //     });
-    //     break;
-    //     case 3:
-    //       this.matDialog.open(CdcmPyHraViewEditComponent, {
-    //         maxHeight: '90vh',
-    //         width: '70vw',
-    //         data: {cdcm: this.cdcm, project: this.project}
-    //       });
-    //       break
-    // }
+    switch (this.cdcm.typeID){
+      case 1:
+        this.matDialog.open(CdcmViewEditComponent, {
+          maxHeight: '90vh',
+          width: '70vw',
+          data: {cdcm: this.cdcm}
+        });
+        break;
+        case 2:
+          this.matDialog.open(CdcmPyHraViewEditComponent, {
+            maxHeight: '90vh',
+            width: '70vw',
+            data: {cdcm: this.cdcm}
+          });
+          break
+    }
 
   }
 
