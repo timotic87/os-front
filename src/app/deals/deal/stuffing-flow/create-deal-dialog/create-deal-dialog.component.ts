@@ -83,7 +83,6 @@ export class CreateDealDialogComponent implements OnInit{
   }
 
   createDeal(){
-    console.log(this.data)
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
     formParams.set('filePath', this.data.client.name);

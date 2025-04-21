@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MatDialog} from "@angular/material/dialog";
-import {ProjectModel} from "../../../models/projectModel";
 import { NgIf } from "@angular/common";
 import {CDCM} from "../../../models/cdcm";
 import {CdcmCardComponent} from "../../../customComponents/cdcm-card/cdcm-card.component";
@@ -11,14 +10,11 @@ import {ApprovalModel} from "../../../models/approval/approvalModel";
 import {ApprovalService} from "../../../services/approval.service";
 import {ApprovalCardComponent} from "../../../customComponents/approval-card/approval-card.component";
 import {ActivatedRoute} from "@angular/router";
-import {DocumentatonComponent} from "../../../clients/documentaton/documentaton.component";
 import {DocumentListComponent} from "../../../clients/documentaton/elements/document-list/document-list.component";
-import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog.component";
 import {RestService} from "../../../services/rest.service";
 import {DealCardComponent} from "./deal-card/deal-card.component";
 import {UserService} from "../../../services/user.service";
 import {CdcmDialogComponent} from "../../cdcm-dialog/cdcm-dialog.component";
-import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -26,11 +22,7 @@ import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.compone
   imports: [
     NgIf,
     CdcmCardComponent,
-    ReactiveFormsModule,
-    CdcmInactiveCardComponent,
-    ApprovalCardComponent,
-    DocumentListComponent,
-    DealCardComponent
+    ReactiveFormsModule
   ],
   templateUrl: './stuffing-flow.component.html',
   styleUrl: './stuffing-flow.component.css'
@@ -66,15 +58,12 @@ export class StuffingFlowComponent implements OnInit {
     //   this.updateCDCMarr(cdcm);
     //   this.checkisButtonDisabled();
     // });
-    // cdcmService.newCDCMSubject.subscribe(cdcm => {
-    //   if (cdcm.projectID===this.project.ID){
-    //     if (!this.cdcmService.cdcmList) {
-    //       this.cdcmService.cdcmList = [];
-    //     }
-    //     this.cdcmService.cdcmList.push(cdcm);
-    //     this.checkisButtonDisabled();
-    //   }
-    // })
+    cdcmService.newCDCMSubject.subscribe(cdcm => {
+      console.log(cdcm)
+      if (cdcm.dealID===this.deal.ID){
+        this.activeCDCM = cdcm;
+      }
+    })
     // cdcmService.deleteCDCMSubject.subscribe(ID => {
     //   this.cdcmService.cdcmList = this.cdcmService.cdcmList.filter(item => item.ID !== ID);
     //   if (this.cdcmService.cdcmList.length === 0) this.createCDCMDisable = false;
@@ -172,10 +161,10 @@ export class StuffingFlowComponent implements OnInit {
   }
 
   getActiveCDCM(){
-    console.log(this.deal)
     this.rest.getActiveCdcm(this.deal.ID).subscribe(res=>{
       if(res.status===200){
         this.activeCDCM = res.data;
+        console.log(this.activeCDCM);
       }
     })
   }

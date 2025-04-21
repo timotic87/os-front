@@ -256,11 +256,11 @@ export class RestService {
   }
 
   calculateCDCM(data){
-    return this.http.post(`${this.baseUrl}/calculateCDCM`, data, {headers: this.headers()})
+    return this.http.post(`${this.baseUrl}/calculateCDCM`, data, {headers: this.headers()}) as Observable<any>;
   }
 
   createCDCM(data){
-    return this.http.post(`${this.baseUrl}/createCDCM`, data, {headers: this.headers()})
+    return this.http.post(`${this.baseUrl}/createCDCM`, data, {headers: this.headers()}) as Observable<any>;
   }
 
   updateCDCM(data){

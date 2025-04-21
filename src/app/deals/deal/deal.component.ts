@@ -86,10 +86,11 @@ export class DealComponent implements OnInit{
   // }
 
   getDealFunc(id: number){
+    this.dialogService.showLoader();
     this.rest.getDealByID(id).subscribe(res=>{
+      this.dialogService.closeLoader()
       if (res.status === 200){
         this.deal = res.data;
-        console.log(this.deal.subservice.typeID)
       }
     });
   }
@@ -98,7 +99,6 @@ export class DealComponent implements OnInit{
     this.rest.getLatComment(dealID).subscribe(res=>{
       if (res.status === 200){
         this.lastComment = res.data.dealComment;
-        console.log(this.lastComment)
       }
     })
 

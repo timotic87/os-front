@@ -11,7 +11,7 @@
   </button>
   <div class="grid grid-cols-3 gap-2 w-full" *ngIf="cdcmService.cdcmList.length!==0">
     @for (cdcm of cdcmService.cdcmList; track cdcm) {
-      <app-cdcm-card [cdcm]="cdcm" [project]="project" *ngIf="cdcm.statusID<=3"></app-cdcm-card>
+      <app-cdcm-card [cdcm]="cdcm"  *ngIf="cdcm.statusID<=3"></app-cdcm-card>
     }
     @if (approval){
       <app-approval-card [approval]="approval" *ngIf="approval.approvalStatus.ID<3"></app-approval-card>

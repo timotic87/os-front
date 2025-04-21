@@ -20,7 +20,7 @@ export class CDCMService {
   calculationCDCM = null;
 
   updateCDCMSubject = new Subject<CDCM>();
-  newCDCMSubject = new Subject<CDCM>();
+  newCDCMSubject = new Subject<any>();
   deleteCDCMSubject = new Subject<number>();
   updateStatusCDCMSubject = new Subject<object>();
   // getCDCMListSubject = new Subject<any>();
@@ -83,8 +83,8 @@ export class CDCMService {
 
   calculateAndCreateCDCM(formData,dialogRef){
     this.rest.createCDCM(formData).subscribe(res=>{
-      if (res['status']===201){
-        this.newCDCMSubject.next(CDCM.createCDCMModel(res['data'].row.recordset[0]));
+      if (res.status===200){
+        this.newCDCMSubject.next(res.data);
         dialogRef.close()
       }
     })
