@@ -37,7 +37,7 @@
             <a href="javascript:void(0)"
                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="lockCDCM(cdcm.ID)">Lock/Start Approval</a>
           </li>
-          <li *ngIf="cdcm.statusID<3">
+          <li *ngIf="cdcm.statusID>3">
             <a href="javascript:void(0)"
                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" (click)="deleteCDCM(cdcm.ID)">Delete</a>
           </li>

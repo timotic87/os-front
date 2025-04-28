@@ -2,7 +2,6 @@ import {Component, Input, OnInit} from '@angular/core';
 import {MatDialog} from "@angular/material/dialog";
 import {ProjectModel} from "../../../models/projectModel";
 import { NgIf } from "@angular/common";
-import {CDCM} from "../../../models/cdcm";
 import {CdcmCardComponent} from "../../../customComponents/cdcm-card/cdcm-card.component";
 import {CDCMService} from "../../../services/cdcm.service";
 import {FormGroup, ReactiveFormsModule} from "@angular/forms";
@@ -80,12 +79,12 @@ export class StuffingFlowComponent implements OnInit {
       if (this.cdcmService.cdcmList.length === 0) this.createCDCMDisable = false;
       this.checkisButtonDisabled();
     });
-    cdcmService.updateStatusCDCMSubject.subscribe(data=>{
-      const cdcmObj: CDCM = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
-      cdcmObj.setStatus(data['statusID'], data['statusName']);
-      this.getApprovals(cdcmObj.ID);
-      this.checkisButtonDisabled();
-    });
+    // cdcmService.updateStatusCDCMSubject.subscribe(data=>{
+    //   const cdcmObj = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
+    //   cdcmObj.setStatus(data['statusID'], data['statusName']);
+    //   this.getApprovals(cdcmObj.ID);
+    //   this.checkisButtonDisabled();
+    // });
 //todo promen na deal
     // rest.getDealByProjectId(projectId).subscribe(res => {
     //   if (res.status===200 && res.data.length>0){
@@ -108,7 +107,7 @@ export class StuffingFlowComponent implements OnInit {
     });
   }
 
-  updateCDCMarr(cdcm: CDCM) {
+  updateCDCMarr(cdcm) {
     this.cdcmService.cdcmList = this.cdcmService.cdcmList.map(item =>
       item.ID === cdcm.ID ? cdcm : item
     );

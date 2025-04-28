@@ -1,13 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {ProjectService} from "../../services/project.service";
 import {DatePipe, NgIf} from "@angular/common";
 import {MatDialog} from "@angular/material/dialog";
 import {StuffingFlowComponent} from "./stuffing-flow/stuffing-flow.component";
-import {CDCM} from "../../models/cdcm";
 import {ApprovalModel} from "../../models/approval/approvalModel";
 import {CDCMService} from "../../services/cdcm.service";
-import {PyFlowComponent} from "./py-flow/py-flow.component";
 import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";
 import {FormGroup} from "@angular/forms";
@@ -36,7 +33,7 @@ export class DealComponent implements OnInit{
 
   dealID: number;
   deal: any;
-  cdcm:CDCM[];
+  cdcm:any[];
   lastComment;
 
   approval: ApprovalModel;
@@ -49,7 +46,7 @@ export class DealComponent implements OnInit{
 
 
   constructor(private route: ActivatedRoute, private matDialog: MatDialog, private userService: UserService,
-              cdcmService: CDCMService, private rest: RestService, private dialogService: DialogService) {
+              private rest: RestService, private dialogService: DialogService) {
     this.dealID = +this.route.snapshot.paramMap.get('id');
     this.sockets();
     this.getDealFunc(this.dealID);
@@ -66,24 +63,6 @@ export class DealComponent implements OnInit{
       data: this.dealID
     });
   }
-
-  // viewHistory(){
-  //   this.dialogService.showLoader();
-  //   this.rest.getProjectHitory(this.projectId).subscribe(res => {
-  //     this.dialogService.closseLoader();
-  //     let histories: HistoryModel[] = [];
-  //     if (res.status == 200) {
-  //       for (let ho of res.data){
-  //         histories.push(new HistoryModel(ho.ID, ho.description, ho.actionTime, ho.projectID, ho.userID, ho.firstName, ho.lastName, ho.profilePicUrl));
-  //       }
-  //       this.matDialog.open(HistoryDialogComponent,  {
-  //         width: '40vw',
-  //         height: '50vh',
-  //         data: histories
-  //       })
-  //     }
-  //   })
-  // }
 
   getDealFunc(id: number){
     this.dialogService.showLoader();

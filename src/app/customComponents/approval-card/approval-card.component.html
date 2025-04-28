@@ -4,7 +4,7 @@
 
   <p class="m-3 text-center text-xl font-semibold">Approval</p>
 
-  @for (step of approval.approvalSeps; track step; let idx = $index) {
+  @for (step of approval.steps; track step; let idx = $index) {
     <div class="mb-2"><app-approval-step-card [approval]="approval" [stepIndex]="idx"></app-approval-step-card></div>
   }
 

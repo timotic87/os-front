@@ -27,7 +27,6 @@ import {CdcmPyHraViewEditComponent} from "../../deals/cdcm-py-hra-view-edit/cdcm
 export class CdcmCardComponent implements OnInit{
 
   @Input() cdcm: any;
-  // @Input() project: ProjectModel;
 
   statusColor: string
 
@@ -79,7 +78,7 @@ export class CdcmCardComponent implements OnInit{
   }
 
   lockCDCM(ID:number){
-    this.cdcmService.lockCDCM(ID,1, this.cdcm.projectID);
+    this.cdcmService.lockCDCM(ID,1, this.cdcm.dealID);
   }
 
   changeColorStatus(id:number){
@@ -102,7 +101,6 @@ export class CdcmCardComponent implements OnInit{
       width: '30vw',
       maxHeight: '70vh',
       data: {title: 'Correction comments', comments: this.comments}
-    })
+    });
   }
-
 }

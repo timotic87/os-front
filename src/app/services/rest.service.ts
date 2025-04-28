@@ -85,11 +85,6 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/saveFile`, data, {headers: headers}) as Observable<any>;
   }
 
-  getDocumentTypes() {
-    //todo treba da se doda model za contractType
-    return this.http.get(`${this.baseUrl}/getDocumentTypes`, {headers: this.headers()}) as Observable<any>;
-  }
-
   getDocumentSubTypesByTypeID(typeID) {
     return this.http.post(`${this.baseUrl}/getDocumentSubTypesByTypeID`, {typeID}, {headers: this.headers()}) as Observable<any>;
   }
@@ -224,10 +219,6 @@ export class RestService {
   getDealByID(ID: number){
     return this.http.get(`${this.baseUrl}/getDealByID/${ID}`, {headers: this.headers()}) as Observable<any>;
   }
-//todo ispravka na deal history
-  getProjectHitory(ID: number){
-    return this.http.get(`${this.baseUrl}/getProjectHitory/${ID}`, {headers: this.headers()}) as Observable<any>;
-  }
 
   getDPperNumberOfEmployee(){
     return this.http.get(`${this.baseUrl}/getDPperNumberOfEmployee`, {headers: this.headers()}) as Observable<any>;
@@ -236,10 +227,6 @@ export class RestService {
   getCDCMSeniority(){
     return this.http.get(`${this.baseUrl}/getCDCMSeniority`, {headers: this.headers()}) as Observable<any>;
   }
-
-  // getComentsByProjectID(projectID){
-  //   return this.http.get(`${this.baseUrl}/getComentsByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  // }
 
   createDealComment(data: any){
     return this.http.post(`${this.baseUrl}/createDealComment`, data, {headers: this.headers()}) as Observable<any>;
@@ -270,8 +257,8 @@ export class RestService {
   deleteCDCM(ID: number){
     return this.http.put(`${this.baseUrl}/deleteCDCM/${ID}`, null, {headers: this.headers()}) as Observable<any>;
   }
-  lockCDCM(ID: number, approvalTemplateID: number, projectID:number){
-    return this.http.put(`${this.baseUrl}/lockCDCM`, {ID, approvalTemplateID, projectID}, {headers: this.headers()}) as Observable<any>;
+  lockCDCM(ID: number, approvalTemplateID: number, dealID:number){
+    return this.http.put(`${this.baseUrl}/lockCDCM`, {ID, approvalTemplateID, dealID}, {headers: this.headers()}) as Observable<any>;
   }
   getApprovalTemplates(){
     return this.http.get(`${this.baseUrl}/getApprovalTemplates`, {headers: this.headers()}) as Observable<any>;
@@ -300,6 +287,9 @@ export class RestService {
   getActiveCdcm(dealID: number){
     return this.http.get(`${this.baseUrl}/getActiveCdcm/${dealID}`, {headers: this.headers()}) as Observable<any>;
   }
+  getInactiveCdcms(dealID: number){
+    return this.http.get(`${this.baseUrl}/getInactiveCdcms/${dealID}`, {headers: this.headers()}) as Observable<any>;
+  }
   isNotificationShow(themeID:number){
     return this.http.get(`${this.baseUrl}/isNotificationShow/${themeID}`, {headers: this.headers()}) as Observable<any>;
   }
@@ -317,21 +307,37 @@ export class RestService {
   getSalaryTypes(){
     return this.http.get(`${this.baseUrl}/salaryTypes`, {headers: this.headers()}) as Observable<any>;
   }
-  // createDeal(data) {
-  //     let headers = new HttpHeaders();
-  //     headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
-  //     return this.http.post(`${this.baseUrl}/createDeal`, data, {headers: headers}) as Observable<any>;
-  // }
-  //
-  // getDealByProjectId(projectID){
-  //   return this.http.get(`${this.baseUrl}/getDealByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  // }
 
-  // getDeals(){
-  //   return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
-  // }
-  // getDealHRA(dealID){
-  //   return this.http.get(`${this.baseUrl}/getDealHRA/${dealID}`, {headers: this.headers()}) as Observable<any>;
-  // }
+  getDocumentTypes(){
+    return this.http.get(`${this.baseUrl}/getDocumentTypes`, {headers: this.headers()}) as Observable<any>;
+  }
+  getDocumentSubTypes(){
+    return this.http.get(`${this.baseUrl}/getDocumentSubTypes`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  createDocumentType(data: any){
+    return this.http.post(`${this.baseUrl}/createDocumentType`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  updateDocumentType(data: any){
+    return this.http.put(`${this.baseUrl}/updateDocumentType`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  updateDocumentSubtype(data: any){
+    return this.http.put(`${this.baseUrl}/updateDocumentSubtype`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  deleteDocumentType(ID: number){
+    return this.http.put(`${this.baseUrl}/deleteDocumentType`, {ID}, {headers: this.headers()}) as Observable<any>;
+  }
+  deleteDocumentSubtype(ID: number){
+    return this.http.put(`${this.baseUrl}/deleteDocumentSubtype`, {ID}, {headers: this.headers()}) as Observable<any>;
+  }
+  createDocumentSubType(data: any){
+    return this.http.post(`${this.baseUrl}/createDocumentSubType`, data, {headers: this.headers()}) as Observable<any>;
+  }
+
+  saveFileSys(data){
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
+    return this.http.post(`${this.baseUrl}/saveFileSys`, data, {headers: headers}) as Observable<any>;
+  }
 
 }

@@ -3,14 +3,13 @@ import {RestService} from "./rest.service";
 import {Subject} from "rxjs";
 import {DialogService} from "./dialog.service";
 import {MatDialog,} from "@angular/material/dialog";
-import {CDCM} from "../models/cdcm";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CDCMService {
 
-  cdcmList: CDCM[];
+  cdcmList: any[];
 
   listDPperNumberOfEmployee = null;
   cdcmSeniorityList = null;
@@ -19,14 +18,13 @@ export class CDCMService {
 
   calculationCDCM = null;
 
-  updateCDCMSubject = new Subject<CDCM>();
+  updateCDCMSubject = new Subject<any>();
   newCDCMSubject = new Subject<any>();
   deleteCDCMSubject = new Subject<number>();
   updateStatusCDCMSubject = new Subject<object>();
-  // getCDCMListSubject = new Subject<any>();
 
-  constructor(private rest: RestService, private dialogService: DialogService, private matDialog: MatDialog) {
-
+  constructor(private rest: RestService, private dialogService: DialogService) {
+    this.getFields();
   }
 
   createlistDPperNumberOfEmployee(){
@@ -51,7 +49,7 @@ export class CDCMService {
         }
         this.seniorityListListener.next(true);
       }else {
-        console.log(res)
+        this.dialogService.errorDialog(res);
       }
     });
   }
@@ -92,33 +90,10 @@ export class CDCMService {
 
   calculateCDCM(data: any){
     this.rest.calculateCDCM(data).subscribe(res=>{
-      if (res['status']===200){
-        this.calculationCDCM = res['data'];
+      if (res.status===200){
+        this.calculationCDCM = res.data;
       }
     });
-  }
-
-  updateCDCM(data: any){
-    this.dialogService.showLoader();
-      this.rest.updateCDCM(data).subscribe({
-        next: res => {
-          if (res.status!==200){
-            this.dialogService.errorDialog(res)
-          }else {
-            let updatedCDCM = CDCM.createCDCMModel(res.data[0])
-            console.log(updatedCDCM)
-            this.updateCDCMSubject.next(updatedCDCM);
-            this.cdcmList[0] = updatedCDCM;
-          }
-          this.dialogService.closeLoader()
-          this.matDialog.closeAll()
-        },
-        error: err => {
-          console.log(err);
-          this.dialogService.closeLoader()
-          this.matDialog.closeAll()
-        }
-      });
   }
 
   deleteCDCM(ID: number){
@@ -128,25 +103,21 @@ export class CDCMService {
       }
     });
   }
-  lockCDCM(ID:number, approvalTemplateID:number, projectID: number) {
-    this.rest.lockCDCM(ID, approvalTemplateID, projectID).subscribe(res=>{
-      if (res.status===201){
-        this.updateStatusCDCMSubject.next({ID, ...res.data.row.recordset[0]});
+  lockCDCM(ID:number, approvalTemplateID:number, dealID: number) {
+    this.rest.lockCDCM(ID, approvalTemplateID, dealID).subscribe(res=>{
+      if (res.status===200){
+        this.updateStatusCDCMSubject.next({ID});
       }
     })
   }
-//todo promena na deal
-  // getCDCMLIstByProjectId(projectId: number){
-  //   this.cdcmList = [];
-  //   this.rest.getCdcmByProjectID(projectId).subscribe(res=>{
-  //     if (res.status===200){
-  //       for (let item of res.data) {
-  //         this.cdcmList.push(CDCM.createCDCMModel(item));
-  //       }
-  //       this.getCDCMListSubject.next(this.cdcmList);
-  //     }
-  //   })
-  // }
+
+  updateCDCM(data){
+    this.rest.updateCDCM(data).subscribe(res=>{
+      if (res.status===200){
+        this.updateCDCMSubject.next(res.data);
+      }
+    })
+  }
 
   public getFields(){
     this.createlistDPperNumberOfEmployee();

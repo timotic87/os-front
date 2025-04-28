@@ -1,3 +1,4 @@
+<!--CDCM part-->
 <div class="pb-3">
   <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
   <button (click)="dialogCDCM();" [disabled]="activeCDCM"
@@ -9,21 +10,38 @@
     disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
           data-ripple-light="true">Add CDCM
   </button>
-<!--  *ngIf="cdcmService.cdcmList.length!==0"-->
   <div class="grid grid-cols-3 gap-2 w-full">
     <app-cdcm-card [cdcm]="activeCDCM" *ngIf="activeCDCM"></app-cdcm-card>
-<!--    @for (cdcm of cdcmService.cdcmList; track cdcm) {-->
-<!--&lt;!&ndash;      <app-cdcm-card [cdcm]="cdcm" [project]="project" *ngIf="cdcm.statusID<=3"></app-cdcm-card>&ndash;&gt;-->
-<!--    }-->
-<!--    @if (approval){-->
-<!--      <app-approval-card [approval]="approval" *ngIf="approval.approvalStatus.ID<3"></app-approval-card>-->
-<!--    }-->
-<!--    <div>-->
-<!--      @for (cdcm of cdcmService.cdcmList.slice().reverse(); track cdcm){-->
-<!--&lt;!&ndash;        <app-cdcm-inactive-card [cdcm]="cdcm" *ngIf="cdcm.statusID>3" (click)="openCDCMView(cdcm)">{{cdcm.ID}}</app-cdcm-inactive-card>&ndash;&gt;-->
-<!--      }-->
-<!--    </div>-->
+    @if (cdcmApproval){
+
+      <app-approval-card [approval]="cdcmApproval"></app-approval-card>
+    }
+    <div>
+      @for (inCdcm of inactiveCDCM; track inCdcm){
+        <app-cdcm-inactive-card [cdcm]="inCdcm" *ngIf="inCdcm.statusID>3" (click)="openCDCMView(inCdcm)">{{inCdcm.ID}}</app-cdcm-inactive-card>
+      }
+    </div>
   </div>
+<!--  CDCM part end-->
+<!--  Offer pat-->
+  <div class="pb-3">
+    <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
+    <button (click)="openFileExplorer(fileInput)"
+            class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
+    py-3 px-6 font-sans text-xs font-bold uppercase text-white
+    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
+    hover:shadow-blue-500/40 focus:opacity-[0.85]
+    focus:shadow-none active:opacity-[0.85] active:shadow-none
+    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
+            data-ripple-light="true">Add Offer document
+    </button>
+    <input type="file" #fileInput accept="application/pdf" style="display: none;" (change)="onFileSelected($event)">
+  </div>
+<!--  Offer part end-->
+
+
+
+
 <!--    <button [disabled]="!canViewDocumentation" (click)="documentDialogOpen();"-->
 <!--            class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]-->
 <!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->

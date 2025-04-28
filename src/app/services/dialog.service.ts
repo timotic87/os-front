@@ -39,12 +39,23 @@ export class DialogService {
     });
   }
 
+  showERRMsgDialog(data){
+    return this.matDialog.open(MsgDialogComponent, {
+      minWidth: '400px',
+      maxHeight: '700px',
+      data: data
+    });
+  }
+
   showSnackBar(msg: string, action: string, durration:number){
     this.snackBar.open(msg,  action, {duration: durration})
   }
 
   errorDialog(res: any){
     this.showMsgDialog(`code: ${res.status} msg: ${res.msg}`)
+  }
+  errorServDialog(err: any){
+    this.showERRMsgDialog({msg: `status: ${err.status} msg: ${err.error.message}`, errorMsg: err.message})
   }
 
   showLoader(){

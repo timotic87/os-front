@@ -55,7 +55,6 @@ export class DealsComponent {
   getNewDealArr(){
     this.rest.getDeals().subscribe(res => {
       if(res.status == 200){
-        console.log(res.data)
         this.dealsArr = res.data;
       }
     })

@@ -1,5 +1,4 @@
 import {Component, Input} from '@angular/core';
-import {CDCM} from "../../models/cdcm";
 import {ColorLabelComponent} from "../color-label/color-label.component";
 import {DatePipe, NgIf} from "@angular/common";
 
@@ -16,7 +15,7 @@ import {DatePipe, NgIf} from "@angular/common";
 })
 export class CdcmInactiveCardComponent {
 
-  @Input() cdcm: CDCM;
+  @Input() cdcm;
 
   constructor() {
   }

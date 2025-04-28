@@ -23,8 +23,8 @@ export class ApproveDialogComponent implements OnInit {
 
   showMandatoryText = false;
 
-  approvalStep:ApprovalStepModel;
-  nextStep: ApprovalStepModel;
+  approvalStep:any;
+  nextStep: any;
 
   constructor(private dialogService: DialogService,  private dialogRef: MatDialogRef<ApproveDialogComponent>, private rest: RestService,
               @Inject(MAT_DIALOG_DATA) public approvalSteps: any) {
@@ -45,36 +45,32 @@ export class ApproveDialogComponent implements OnInit {
     }
 
   approve(): void {
-    this.changeStatus(2, 'Approved');
+    this.changeStatus(2);
   }
 
   decline(){
-    this.changeStatus(3, 'Declined')
-  }
-
-  correction() {
-    this.changeStatus(4, 'Correction');
+    this.changeStatus(3);
   }
 
   cancel(): void {
     this.dialogRef.close()
   }
 
-  changeStatus(statusID: number, statusname: string){
+  changeStatus(statusID: number){
     if ((statusID===3 || statusID===4) && !this.approveFormGroup.value.comment){
       this.showMandatoryText = true;
       return;
     }
     this.rest.changeStatusApprovalStep({statusID: statusID, approvalStepID: this.approvalStep.ID, comment: this.approveFormGroup.value.comment, approvalId: this.approvalStep.approvalID, nextStep: this.nextStep}).subscribe(res =>{
-      if (res.status === 201) {
-        this.dialogRef.close({status: res.status, statusID, statusname});
-        if (statusID===3 || statusID===4 || res.data.row.recordset[0].IsEqual){
+      if (res.status === 200) {
+        this.dialogRef.close({status: res.status, approvalStep: res.data.approvalStep});
+        if (statusID===3 || statusID===4 || res.data.allApproved){
           window.location.reload();
         }
 
       }else {
         this.dialogRef.close();
-        alert("something went wrong");
+        alert("Something went wrong");
       }
     })
   }

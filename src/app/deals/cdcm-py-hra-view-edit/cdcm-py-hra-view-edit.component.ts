@@ -1,9 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
 import {CurrencyPipe, NgClass, NgIf} from "@angular/common";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ApprovalModel} from "../../models/approval/approvalModel";
-import {CDCM} from "../../models/cdcm";
 import {ProjectModel} from "../../models/projectModel";
 import {CDCMService} from "../../services/cdcm.service";
 import {DialogService} from "../../services/dialog.service";
@@ -17,7 +15,6 @@ import {ApprovalStatus} from "../../models/approval/approvalStatus";
   selector: 'app-cdcm-py-hra-view-edit',
   standalone: true,
   imports: [
-    ApprovalCardComponent,
     CurrencyPipe,
     FormsModule,
     NgIf,
@@ -44,7 +41,7 @@ export class CdcmPyHraViewEditComponent implements OnInit {
 
   approval: ApprovalModel;
 
-  cdcm: CDCM;
+  cdcm: any;
   project: ProjectModel;
 
 
@@ -215,7 +212,7 @@ export class CdcmPyHraViewEditComponent implements OnInit {
             this.dialogRef.close();
             break;
           case 'Calculate and Edit':
-            this.cdcmService.updateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
+            // this.cdcmService.updateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
             break;
           case 'Calculate':
             this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});

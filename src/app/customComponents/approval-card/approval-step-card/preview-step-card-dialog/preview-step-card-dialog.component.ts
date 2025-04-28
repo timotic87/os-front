@@ -1,7 +1,6 @@
 import {Component, Inject} from '@angular/core';
 import {ColorLabelComponent} from "../../../color-label/color-label.component";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {CDCM} from "../../../../models/cdcm";
 import {ApprovalStepModel} from "../../../../models/approval/ApprovalStepModel";
 import {DatePipe, NgIf} from "@angular/common";
 
@@ -10,15 +9,14 @@ import {DatePipe, NgIf} from "@angular/common";
   standalone: true,
   imports: [
     ColorLabelComponent,
-    DatePipe,
-    NgIf
+    DatePipe
   ],
   templateUrl: './preview-step-card-dialog.component.html',
   styleUrl: './preview-step-card-dialog.component.css'
 })
 export class PreviewStepCardDialogComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public approvalStep: ApprovalStepModel, private dialogRef: MatDialogRef<PreviewStepCardDialogComponent>) {
+  constructor(@Inject(MAT_DIALOG_DATA) public approvalStep: any, private dialogRef: MatDialogRef<PreviewStepCardDialogComponent>) {
   }
 
   closeDialog(){

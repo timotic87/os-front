@@ -3,10 +3,11 @@
     <h2 class="text-center mt-3">{{data.msg}}</h2>
   </div>
   <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50 w-full" />
-  <div class="w-full flex flex-row-reverse pr-6">
+  <p class="text-gray-400 dark:text-neutral-100 text-xs" *ngIf="data.errorMsg">{{ data.errorMsg }}</p>
+  <div class="w-full flex flex-row-reverse">
     <button (click)="cancel();"
             type="button"
-            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4
+            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4 mt-6
        text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
         hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:bg-red-600
          focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:outline-none

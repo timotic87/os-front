@@ -17,6 +17,7 @@ import {RestService} from "./services/rest.service";
 import {firstValueFrom} from "rxjs";
 import {DealsComponent} from "./deals/deals.component";
 import {DealComponent} from "./deals/deal/deal.component";
+import {DocumentsComponent} from "./admin/adminPages/documents/documents.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -55,6 +56,7 @@ export const routes: Routes = [
     children: [{path: 'users', component: UsersAdminComponent, outlet: 'admin'},
       {path: 'services', component: ServicesAndSubservicesComponent, outlet: 'admin'},
       {path: 'approvals', component: ApprovalsComponent, outlet: 'admin'},
+      {path: 'documents', component: DocumentsComponent, outlet: 'admin'},
     ]
 
   },

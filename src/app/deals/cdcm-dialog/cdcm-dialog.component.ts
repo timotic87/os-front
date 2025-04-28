@@ -36,8 +36,6 @@ export class CdcmDialogComponent implements OnInit {
 
   constructor(public rest: RestService, public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public deal,
               private dialogRef: MatDialogRef<CdcmDialogComponent>, private userService: UserService) {
-    console.log(deal)
-    this.cdcmService.getFields();
     cdcmService.calculationCDCM = null;
   }
 
@@ -183,7 +181,7 @@ export class CdcmDialogComponent implements OnInit {
 
             break;
           case 'Calculate':
-            this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
+            this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value, cdcmTypeID: 1});
 
             break;
         }

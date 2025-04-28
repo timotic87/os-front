@@ -2,8 +2,6 @@ import {Injectable} from '@angular/core';
 import {RestService} from "./rest.service";
 import {DialogService} from "./dialog.service";
 import {ProjectModel, Comment} from "../models/projectModel";
-import {CDCM} from "../models/cdcm";
-
 @Injectable({
   providedIn: 'root'
 })

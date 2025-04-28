@@ -21,13 +21,12 @@ import {ApprovalStepCardComponent} from "./approval-step-card/approval-step-card
 })
 export class ApprovalCardComponent implements OnInit{
 
-  @Input() approval: ApprovalModel;
+  @Input() approval: any;
 
   constructor() {
   }
 
   ngOnInit(): void {
-
     }
 
 }

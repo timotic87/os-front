@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {NavigationStart, Router, RouterOutlet} from '@angular/router';
-import { LoginComponent } from "./login/login.component";
-import {ClientsComponent} from "./clients/clients.component";
 import {NavbarComponent} from "./navbar/navbar.component";
 import { io, Socket } from 'socket.io-client'
 import {environment} from "../environments/environment.development";
@@ -10,11 +8,8 @@ import {NotificationsService} from "./services/notifications.service";
 import { socketEnum } from "./services/enum-sevice";
 import {ClientsService} from "./services/clients.service";
 import {UserService} from "./services/user.service";
-import {MatToolbar} from "@angular/material/toolbar";
-import {MatSidenav, MatSidenavContainer} from "@angular/material/sidenav";
 import {NotificationCardComponent} from "./customComponents/notification-card/notification-card.component";
 import {RestService} from "./services/rest.service";
-import {CDCM} from "./models/cdcm";
 import {CDCMService} from "./services/cdcm.service";
 
 @Component({
@@ -54,8 +49,8 @@ export class AppComponent {
           clientService.isListChange.next(true);
           break;
         case socketEnum.CREATE_CDCM:
-          const cdcm = CDCM.createCDCMModel(data.cdcmData);
-          if (cdcm.createdUserID!==userService.getUser().id) this.cdcmService.newCDCMSubject.next(cdcm);
+          // const cdcm = CDCM.createCDCMModel(data.cdcmData);
+          // if (cdcm.createdUserID!==userService.getUser().id) this.cdcmService.newCDCMSubject.next(cdcm);
           break;
         case socketEnum.NEW_APPROVAL:
           this.rest.getLastNotification(3).subscribe(res=>{

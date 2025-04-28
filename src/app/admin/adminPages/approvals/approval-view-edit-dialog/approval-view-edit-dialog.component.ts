@@ -1,10 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CDCM} from "../../../../models/cdcm";
 import {RestService} from "../../../../services/rest.service";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {filter, Subject} from "rxjs";
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
 import {DialogService} from "../../../../services/dialog.service";
 import {ApprovalService} from "../../../../services/approval.service";
@@ -15,11 +13,9 @@ import {ApprovalService} from "../../../../services/approval.service";
   imports: [
     NgIf,
     ReactiveFormsModule,
-    NgClass,
     MatAutocomplete,
     MatAutocompleteTrigger,
     MatOption,
-    NgForOf
   ],
   templateUrl: './approval-view-edit-dialog.component.html',
   styleUrl: './approval-view-edit-dialog.component.css'

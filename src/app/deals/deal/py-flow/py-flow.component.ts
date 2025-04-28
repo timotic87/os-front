@@ -9,7 +9,6 @@ import {CDCMService} from "../../../services/cdcm.service";
 import {ApprovalService} from "../../../services/approval.service";
 import {ActivatedRoute} from "@angular/router";
 import {ApprovalModel} from "../../../models/approval/approvalModel";
-import {CDCM} from "../../../models/cdcm";
 import {CdcmPyDialogComponent} from "../../../deals/cdcm-py-dialog/cdcm-py-dialog.component";
 import {CdcmViewEditComponent} from "../../../deals/cdcm-view-edit/cdcm-view-edit.component";
 
@@ -60,7 +59,7 @@ export class PyFlowComponent {
       this.checkisButtonDisabled();
     });
     cdcmService.updateStatusCDCMSubject.subscribe(data=>{
-      const cdcmObj: CDCM = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
+      const cdcmObj = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
       cdcmObj.setStatus(data['statusID'], data['statusName']);
       this.getApprovals(cdcmObj.ID);
       this.checkisButtonDisabled();
@@ -75,7 +74,7 @@ export class PyFlowComponent {
     });
   }
 
-  updateCDCMarr(cdcm: CDCM) {
+  updateCDCMarr(cdcm) {
     this.cdcmService.cdcmList = this.cdcmService.cdcmList.map(item =>
       item.ID === cdcm.ID ? cdcm : item
     );

@@ -1,10 +1,13 @@
 import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-msg-dialog',
   standalone: true,
-  imports: [],
+  imports: [
+    NgIf
+  ],
   templateUrl: './msg-dialog.component.html',
   styleUrl: './msg-dialog.component.css'
 })

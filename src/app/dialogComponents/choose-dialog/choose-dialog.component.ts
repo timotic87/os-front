@@ -17,7 +17,7 @@ import {DialogRef} from "@angular/cdk/dialog";
 })
 export class ChooseDialogComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data, private dialogRef: MatDialogRef<ChooseDialogComponent>) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<ChooseDialogComponent>) {
   }
 
   sayNo(){
