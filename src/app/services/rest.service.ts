@@ -281,6 +281,9 @@ export class RestService {
   getApprovalsByCdcmID(cdcmID) {
     return this.http.get(`${this.baseUrl}/getApprovalsByCdcmID/${cdcmID}`, {headers: this.headers()}) as Observable<any>;
   }
+  getApprovalByDocumetID(docID) {
+    return this.http.get(`${this.baseUrl}/getApprovalByDocumetID/${docID}`, {headers: this.headers()}) as Observable<any>;
+  }
   changeStatusApprovalStep(data){
     return this.http.put(`${this.baseUrl}/changeStatusAppruvalStep`, data, {headers: this.headers()}) as Observable<any>;
   }
@@ -338,6 +341,14 @@ export class RestService {
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
     return this.http.post(`${this.baseUrl}/saveFileSys`, data, {headers: headers}) as Observable<any>;
+  }
+
+  getActiveFileListByDealIdAndTypeId(data){
+    return this.http.post(`${this.baseUrl}/getActiveFileListByDealIdAndTypeId`, data, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getInactiveFileListByDealIdAndTypeId(data){
+    return this.http.post(`${this.baseUrl}/getInactiveFileListByDealIdAndTypeId`, data, {headers: this.headers()}) as Observable<any>;
   }
 
 }

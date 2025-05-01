@@ -15,6 +15,7 @@ import {CdcmInactiveCardComponent} from "../../../customComponents/cdcm-inactive
 import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.component";
 import {DialogService} from "../../../services/dialog.service";
 import {SaveDocumetDialogComponent} from "../save-documet-dialog/save-documet-dialog.component";
+import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/dokument-approval.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -24,7 +25,8 @@ import {SaveDocumetDialogComponent} from "../save-documet-dialog/save-documet-di
     CdcmCardComponent,
     ReactiveFormsModule,
     ApprovalCardComponent,
-    CdcmInactiveCardComponent
+    CdcmInactiveCardComponent,
+    DokumentApprovalComponent
   ],
   templateUrl: './stuffing-flow.component.html',
   styleUrl: './stuffing-flow.component.css'
@@ -63,6 +65,7 @@ export class StuffingFlowComponent implements OnInit {
       }
     });
     cdcmService.updateStatusCDCMSubject.subscribe(data => {
+      this.getActiveCDCM();
       this.getApprovalsByCdcmID(this.activeCDCM.ID);
     })
 
@@ -124,31 +127,6 @@ export class StuffingFlowComponent implements OnInit {
     });
   }
 
-  openFileExplorer(fileInput: HTMLInputElement) {
-    fileInput.click();
-  }
 
-
-
-  onFileSelected(event: Event){
-    const input = event.target as HTMLInputElement;
-
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-
-      console.log('Izabrani fajl:', file);
-
-      // Ovde možeš proveriti da li je zaista PDF
-      if (file.type !== 'application/pdf') {
-        alert('Please select a PDF file.');
-        return;
-      }
-
-      this.matDialog.open(SaveDocumetDialogComponent, {
-        width: '600px',
-        data: {file: file, deal: this.deal}
-      });
-    }
-  }
 
 }

@@ -26,7 +26,7 @@ export class ApproveDialogComponent implements OnInit {
   approvalStep:any;
   nextStep: any;
 
-  constructor(private dialogService: DialogService,  private dialogRef: MatDialogRef<ApproveDialogComponent>, private rest: RestService,
+  constructor(private dialogRef: MatDialogRef<ApproveDialogComponent>, private rest: RestService,
               @Inject(MAT_DIALOG_DATA) public approvalSteps: any) {
     this.approvalStep = approvalSteps.approvalStep
     this.nextStep = approvalSteps.nextApprovalStep

@@ -15,7 +15,7 @@ export class DialogService {
 
   constructor(private matDialog: MatDialog, private snackBar: MatSnackBar) { }
 
-  showChooseDialog(msg){
+  showChooseDialog(msg: any){
     return this.matDialog.open(ChooseDialogComponent, {
       minWidth: '400px',
       maxHeight: '700px',
@@ -23,7 +23,7 @@ export class DialogService {
     });
   }
 
-  showMultiOptionDialog(data){
+  showMultiOptionDialog(data: any){
     return this.matDialog.open(MultiOptionDialogComponent, {
       minWidth: '400px',
       maxHeight: '700px',
@@ -31,7 +31,7 @@ export class DialogService {
     });
   }
 
-  showMsgDialog(msg){
+  showMsgDialog(msg: any){
     return this.matDialog.open(MsgDialogComponent, {
       minWidth: '400px',
       maxHeight: '700px',
@@ -39,7 +39,7 @@ export class DialogService {
     });
   }
 
-  showERRMsgDialog(data){
+  showERRMsgDialog(data: any){
     return this.matDialog.open(MsgDialogComponent, {
       minWidth: '400px',
       maxHeight: '700px',
