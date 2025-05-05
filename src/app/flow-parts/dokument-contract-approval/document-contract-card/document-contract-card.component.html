@@ -8,17 +8,17 @@
     </div>
   </div>
   <div class="flex justify-center my-3 text-xs">
-    <p>{{ documentService.activeDocument.fileName }}</p>
+    <p>{{ document.fileName }}</p>
   </div>
   <div class="flex justify-center my-3 text-xs">
-    <p>Attached by {{ documentService.activeDocument.creator.firstName+' '+documentService.activeDocument.creator.lastName }}</p>
+    <p>Attached by {{ document.creator.firstName+' '+document.creator.lastName }}</p>
   </div>
   <div class="flex justify-center my-3 text-xs">
-    <p>{{ documentService.activeDocument.cretedDate | date: 'MMM d, y' }}</p>
+    <p>{{ document.cretedDate | date: 'MMM d, y' }}</p>
   </div>
 
   <div class="flex justify-center">
-    <app-color-label>Status: {{ documentService.activeDocument.status.name }}</app-color-label>
+    <app-color-label>Status: {{ document.status.name }}</app-color-label>
   </div>
 
   <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
@@ -53,7 +53,7 @@
       </div>
     </button>
 
-    <button id="dropdownButton" (click)="delete();" [disabled]="documentService.activeDocument.statusID>1"
+    <button id="dropdownButton" (click)="delete();" [disabled]="document.statusID>1"
             class="inline text-[#FF2E2E] dark:text-[#FF5C5C] hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 disabled:text-gray-300
           focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm"
             type="button">
@@ -67,7 +67,7 @@
       </div>
     </button>
 
-    <button id="dropdownButton" (click)="submitDocument();" [disabled]="documentService.activeDocument.statusID>1"
+    <button id="dropdownButton" (click)="submitDocument();" [disabled]="document.statusID>1"
             class="inline text-[#50C878] dark:text-[#73D393] hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 disabled:text-gray-300
           focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm"
             type="button">

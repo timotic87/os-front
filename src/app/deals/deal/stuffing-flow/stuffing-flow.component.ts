@@ -3,7 +3,7 @@ import {MatDialog} from "@angular/material/dialog";
 import { NgIf } from "@angular/common";
 import {CdcmCardComponent} from "../../../customComponents/cdcm-card/cdcm-card.component";
 import {CDCMService} from "../../../services/cdcm.service";
-import {FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ApprovalModel} from "../../../models/approval/approvalModel";
 import {ApprovalService} from "../../../services/approval.service";
 import {ActivatedRoute} from "@angular/router";
@@ -16,6 +16,11 @@ import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.compone
 import {DialogService} from "../../../services/dialog.service";
 import {SaveDocumetDialogComponent} from "../save-documet-dialog/save-documet-dialog.component";
 import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/dokument-approval.component";
+import {
+  ClientDocumentStatusComponent
+} from "../../../flow-parts/client-document-status/client-document-status.component";
+import {DokumentContractApproval} from "../../../flow-parts/dokument-contract-approval/dokument-contract-approval";
+import {DocumentService} from "../../../services/document.service";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -26,7 +31,10 @@ import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/d
     ReactiveFormsModule,
     ApprovalCardComponent,
     CdcmInactiveCardComponent,
-    DokumentApprovalComponent
+    DokumentApprovalComponent,
+    FormsModule,
+    ClientDocumentStatusComponent,
+    DokumentContractApproval
   ],
   templateUrl: './stuffing-flow.component.html',
   styleUrl: './stuffing-flow.component.css'
@@ -48,8 +56,13 @@ export class StuffingFlowComponent implements OnInit {
   cdcmApproval;
 
   constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private rest: RestService,
-              private userService: UserService) {
+              private userService: UserService, private documentService: DocumentService) {
     this.checkPermissions();
+
+    documentService.approvalStart.subscribe(data=>{
+      window.location.reload();
+      window.scrollTo(0, document.body.scrollHeight);
+    })
 
     cdcmService.updateCDCMSubject.subscribe(cdcm => {
       this.activeCDCM=cdcm.data;
@@ -127,6 +140,19 @@ export class StuffingFlowComponent implements OnInit {
     });
   }
 
-
+  updateDealStatus(event: Event){
+    if (event['clientAccepted'] === true){
+      this.rest.changeDealStatus({dealID: this.deal.ID, statusID: 9}).subscribe(res=>{
+        window.location.reload();
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    }else {
+      this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe(res=>{
+        window.location.reload();
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    }
+    console.log(event);
+  }
 
 }

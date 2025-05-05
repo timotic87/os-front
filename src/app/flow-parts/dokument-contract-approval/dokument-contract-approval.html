@@ -1,6 +1,6 @@
 <div class="pb-3">
   <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
-  <button (click)="openFileExplorer(fileInput)" [disabled]="documentService.activeDocument"
+  <button (click)="openFileExplorer(fileInput)" [disabled]="activeContractDocument"
           *ngIf="deal.status.ID >= statusIDShow"
           class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
@@ -13,13 +13,13 @@
   <input type="file" #fileInput accept="application/pdf" style="display: none;" (change)="onFileSelected($event)">
 
   <div class="grid grid-cols-3 gap-2 w-full">
-      <app-document-card *ngIf="documentService.activeDocument"></app-document-card>
+      <app-document-contract-card *ngIf="activeContractDocument" [document]="activeContractDocument"></app-document-contract-card>
     @if (docApproval){
 
       <app-approval-card [approval]="docApproval"></app-approval-card>
     }
         <ul class="flex flex-col mt-3">
-        @for (offerDoc of documentService.inactiveDocuments; track offerDoc) {
+        @for (doc of inactiveContractDocuments; track doc) {
           <li class="inline-flex items-center gap-x-2 py-3 px-4 text-sm font-medium odd:bg-gray-100
           bg-white border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg
           dark:odd:bg-neutral-800 dark:bg-neutral-900 dark:border-neutral-700">
@@ -31,10 +31,10 @@
                 </div>
               </div>
             <div class="text-xs text-gray-500 dark:text-gray-400">
-              {{ offerDoc.fileName }}
+              {{ doc.fileName }}
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-400">
-              Status: {{ offerDoc.status.name }}
+              Status: {{ doc.status.name }}
             </div>
 
 
@@ -51,15 +51,15 @@
                         class="cdcmChildeTwo mt-25 z-10 text-base list-none bg-white divide-y divide-gray-100 shadow w-44 dark:bg-gray-700 relative">
                 <ul>
                   <li>
-                    <a href="javascript:void(0)" (click)="showInactiveDoc(offerDoc);"
+                    <a href="javascript:void(0)" (click)="showInactiveDoc(doc);"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">View</a>
                   </li>
                   <li>
-                    <a href="javascript:void(0)" (click)="downloadInactiveFile(offerDoc);"
+                    <a href="javascript:void(0)" (click)="downloadInactiveFile(doc);"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Download</a>
                   </li>
                   <li>
-                    <a href="javascript:void(0)" (click)="openApprovalDialog(offerDoc);"
+                    <a href="javascript:void(0)" (click)="openApprovalDialog(doc);"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Approval</a>
                   </li>
                 </ul>

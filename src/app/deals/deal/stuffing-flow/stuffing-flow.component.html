@@ -23,13 +23,41 @@
     </div>
   </div>
 <!--  CDCM part end-->
-<!--  Offer part-->
 
-  <app-dokument-approval *ngIf="deal.statusID>3"
+<!--  Offer part-->
+  <app-dokument-approval
     [deal]="deal"
     [docTypeID]="1"
-    [docSubTypeID]="9"></app-dokument-approval>
+    [docSubTypeID]="9"
+    [statusIDShow]="4"></app-dokument-approval>
+  <!--  Offer part end-->
 
-  </div>
-<!--  Offer part end-->
+  <!--  Offer client approval part-->
+  <app-client-document-status *ngIf="deal.statusID>6"
+      [deal]="deal"
+      [documentType]="'offer'"
+      (statusChange)="updateDealStatus($event)">
+  </app-client-document-status>
+  <!--  Offer client approval part end-->
+
+  <!--  Contract part-->
+  <app-dokument-contract-approval
+    [deal]="deal"
+    [docTypeID]="2"
+    [docSubTypeID]="3"
+    [statusIDShow]="9"
+    [type]="'contract'"></app-dokument-contract-approval>
+  <!--  Contract part end-->
+
+  <!--  Contract client approval part-->
+  <app-client-document-status *ngIf="deal.statusID>=11"
+                              [deal]="deal"
+                              [documentType]="'contract'"
+                              (statusChange)="updateDealStatus($event)">
+  </app-client-document-status>
+  <!--  Contract client approval part end-->
+
+
+</div>
+
 

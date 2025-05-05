@@ -64,9 +64,12 @@ export class ApproveDialogComponent implements OnInit {
     this.rest.changeStatusApprovalStep({statusID: statusID, approvalStepID: this.approvalStep.ID, comment: this.approveFormGroup.value.comment, approvalId: this.approvalStep.approvalID, nextStep: this.nextStep}).subscribe(res =>{
       if (res.status === 200) {
         this.dialogRef.close({status: res.status, approvalStep: res.data.approvalStep});
-        if (statusID===3 || statusID===4 || res.data.allApproved){
-          window.location.reload();
-        }
+        window.location.reload();
+        window.scrollTo(0, document.body.scrollHeight);
+        // if (statusID===3 || statusID===4 || res.data.allApproved){
+        //   window.location.reload();
+        //   window.scrollTo(0, document.body.scrollHeight);
+        // }
 
       }else {
         this.dialogRef.close();

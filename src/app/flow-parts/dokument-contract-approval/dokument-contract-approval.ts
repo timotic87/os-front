@@ -4,25 +4,24 @@ import {MatDialog} from "@angular/material/dialog";
 import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";
 import {NgIf} from "@angular/common";
-import {DocumentService} from "../../services/document.service";
 import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
-import {DocumentCardComponent} from "./document-card/document-card.component";
+import {DocumentContractCardComponent} from "./document-contract-card/document-contract-card.component";
 
 @Component({
-  selector: 'app-dokument-approval',
+  selector: 'app-dokument-contract-approval',
   standalone: true,
   imports: [
     NgIf,
     ApprovalCardComponent,
     MatMenu,
     MatMenuTrigger,
-    DocumentCardComponent
+    DocumentContractCardComponent
   ],
-  templateUrl: './dokument-approval.component.html',
-  styleUrl: './dokument-approval.component.css'
+  templateUrl: './dokument-contract-approval.html',
+  styleUrl: './dokument-contract-approval.css'
 })
-export class DokumentApprovalComponent implements OnInit {
+export class DokumentContractApproval implements OnInit {
 
   @Input() deal: any;
   @Input() docTypeID: any;
@@ -31,16 +30,15 @@ export class DokumentApprovalComponent implements OnInit {
   @Input() type: 'offer' | 'contract' = 'offer';
 
   docApproval: any;
+  activeContractDocument: any;
+  inactiveContractDocuments: any = [];
 
-  constructor(public matDialog: MatDialog, public rest: RestService, public dialogService: DialogService, public documentService: DocumentService ) {
-    documentService.approvalStart.subscribe(approval => {
-      this.getApprovalByDocID();
-    });
+  constructor(public matDialog: MatDialog, public rest: RestService, public dialogService: DialogService) {
 
   }
 
   ngOnInit(): void {
-    this.getActiveOffer();
+    this.getActiveContract();
     this.getInaciveOfferDocs();
 
     }
@@ -71,11 +69,11 @@ export class DokumentApprovalComponent implements OnInit {
     }
   }
 
-  getActiveOffer(){
+  getActiveContract(){
     this.rest.getActiveFileListByDealIdAndTypeId({dealID: this.deal.ID, typeID: this.docTypeID}).subscribe({
       next: res => {
         if(res.status===200){
-          this.documentService.activeDocumentChange.next(res.data);
+          this.activeContractDocument=res.data;
           this.getApprovalByDocID();
         }
       },
@@ -89,7 +87,7 @@ export class DokumentApprovalComponent implements OnInit {
     this.rest.getInactiveFileListByDealIdAndTypeId({dealID: this.deal.ID, typeID: this.docTypeID}).subscribe({
       next: res => {
         if(res.status===200){
-          this.documentService.inactiveDocumentChange.next(res.data);
+          this.inactiveContractDocuments = res.data;
         }
       },
       error: err => {
@@ -99,7 +97,7 @@ export class DokumentApprovalComponent implements OnInit {
     })
   }
   getApprovalByDocID(){
-    this.rest.getApprovalByDocumetID(this.documentService.activeDocument.ID).subscribe({
+    this.rest.getApprovalByDocumetID(this.activeContractDocument.ID).subscribe({
       next: res => {
         if (res.status===200){
           this.docApproval=res.data;

@@ -7,23 +7,25 @@ import {DialogService} from "../../../services/dialog.service";
 import {DocumentService} from "../../../services/document.service";
 
 @Component({
-  selector: 'app-document-card',
+  selector: 'app-document-contract-card',
   standalone: true,
   imports: [
     DatePipe,
     ColorLabelComponent
   ],
-  templateUrl: './document-card.component.html',
-  styleUrl: './document-card.component.css'
+  templateUrl: './document-contract-card.component.html',
+  styleUrl: './document-contract-card.component.css'
 })
-export class DocumentCardComponent {
+export class DocumentContractCardComponent {
 
-  constructor(private rest: RestService, private dialogService: DialogService, public documentService: DocumentService) {
+  @Input() document: any;
+
+  constructor(private rest: RestService, private dialogService: DialogService, private documentService: DocumentService) {
   }
 
 
   showFile(){
-    this.rest.getFile(this.documentService.activeDocument.ID).subscribe(res=>{
+    this.rest.getFile(this.document.ID).subscribe(res=>{
       let blob:Blob=res as Blob;
       let myBlob= new Blob([blob], {type: 'application/pdf'})
       const newWindow = window.open();
@@ -34,9 +36,9 @@ export class DocumentCardComponent {
   delete(){
     this.dialogService.showChooseDialog('Are you sure you want to delete this document?').afterClosed().subscribe(isdelete=>{
       if (isdelete){
-        this.rest.deleteDocumentById(this.documentService.activeDocument.ID, this.documentService.activeDocument.fileName).subscribe(res=>{
+        this.rest.deleteDocumentById(this.document.ID, this.document.fileName).subscribe(res=>{
           if (res.status === 200){
-            this.documentService.activeDocumentChange.next(null);
+            //todo update front
             this.dialogService.showSnackBar('Successfuly deleted document', '', 4000);
           }else {
             this.dialogService.errorDialog(res);
@@ -47,17 +49,17 @@ export class DocumentCardComponent {
   }
 
   submitDocument(){
-    this.documentService.startApproval(this.documentService.activeDocument.ID, 2, this.documentService.activeDocument.dealID);
+    this.documentService.startApproval(this.document.ID, 2, this.document.dealID);
   }
 
   download(){
-    this.rest.getFile(this.documentService.activeDocument.ID).subscribe(res => {
+    this.rest.getFile(this.document.ID).subscribe(res => {
       const blob = new Blob([res], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = this.documentService.activeDocument.fileName; // Ovde zadaješ ime
+      a.download = this.document.fileName; // Ovde zadaješ ime
       a.click();
 
       // Opciono: oslobodi memoriju

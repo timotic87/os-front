@@ -219,6 +219,12 @@ export class RestService {
   getDealByID(ID: number){
     return this.http.get(`${this.baseUrl}/getDealByID/${ID}`, {headers: this.headers()}) as Observable<any>;
   }
+  changeDealStatus(data: any){
+    return this.http.put(`${this.baseUrl}/changeDealStatus`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  clientOfferReject(data: any){
+    return this.http.put(`${this.baseUrl}/clientOfferReject`, data, {headers: this.headers()}) as Observable<any>;
+  }
 
   getDPperNumberOfEmployee(){
     return this.http.get(`${this.baseUrl}/getDPperNumberOfEmployee`, {headers: this.headers()}) as Observable<any>;
@@ -336,13 +342,11 @@ export class RestService {
   createDocumentSubType(data: any){
     return this.http.post(`${this.baseUrl}/createDocumentSubType`, data, {headers: this.headers()}) as Observable<any>;
   }
-
   saveFileSys(data){
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
     return this.http.post(`${this.baseUrl}/saveFileSys`, data, {headers: headers}) as Observable<any>;
   }
-
   getActiveFileListByDealIdAndTypeId(data){
     return this.http.post(`${this.baseUrl}/getActiveFileListByDealIdAndTypeId`, data, {headers: this.headers()}) as Observable<any>;
   }
