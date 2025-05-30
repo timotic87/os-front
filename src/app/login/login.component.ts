@@ -24,7 +24,8 @@ export class LoginComponent implements OnInit{
   loginForm: FormGroup;
   constructor(private rest: RestService, private router: Router, tokenService: TokenService, private cookieService: CookieService, private userService: UserService,) {
     if (tokenService.isTokenExist() && !tokenService.isTokenExp()){
-        router.navigate(['/clients']);
+
+        router.navigate([`/${userService.getUser().defpage}`]);
     }
   }
 

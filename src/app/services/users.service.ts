@@ -20,9 +20,9 @@ export class UsersService {
     return users;
   }
 
-  getUsersByPermision(permisionId): any {
+  getUsersByPermission(permissionID): any {
     this.usersListByPermision = [];
-    this.rest.getUsersByPermisionID(permisionId).subscribe(res=>{
+    this.rest.getUsersByPermissionID(permissionID).subscribe(res=>{
       if (res.status === 200) {
         for (let item of res.data) {
           this.usersListByPermision.push(UserModel.createUserModel(item));

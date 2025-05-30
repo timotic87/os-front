@@ -108,7 +108,7 @@ export class DocumentatonComponent {
   }
 
   checkPermissions(){
-    this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
+    this.rest.getUserPermissions(this.userService.getUser().id).subscribe(res=>{
       if(res.status===200){
         let permDocAdd = res.data.find(permision => permision.id === 13);
         this.disableAddDocPage = !permDocAdd.userId;

@@ -6,10 +6,11 @@
   -webkit-box-orient: vertical;
 }
 
-.historySVG {
+.absMenu {
   display: inline;
   position: fixed;
   top: 0;
   right: 0;
   margin: 70px 12px 12px 12px;
+  z-index: 99;
 }

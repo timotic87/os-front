@@ -8,7 +8,7 @@ import {CreateUserDialogComponent} from "./create-user-dialog/create-user-dialog
 import {DialogService} from "../../../services/dialog.service";
 import {EditUserComponent} from "./edit-user/edit-user.component";
 import {ChangePasswordDialogComponent} from "./change-password-dialog/change-password-dialog.component";
-import {UserPermisionsDialogComponent} from "./user-permisions-dialog/user-permisions-dialog.component";
+import {UserPermissionsDialogComponent} from "./user-permissions-dialog/user-permissions-dialog.component";
 @Component({
   selector: 'app-users-admin',
   standalone: true,
@@ -103,11 +103,11 @@ export class UsersAdminComponent {
   }
 
   userPermisions(user){
-      this.rest.getUserPermisions(user.id).subscribe(res=>{
+      this.rest.getUserPermissions(user.id).subscribe(res=>{
         console.log(res)
         if (res.status===200){
-          user.permisions = res.data;
-          this.dialog.open(UserPermisionsDialogComponent, {
+          user.permissions = res.data;
+          this.dialog.open(UserPermissionsDialogComponent, {
             width: '800px',
             minHeight: '600px',
             data: user

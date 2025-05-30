@@ -45,9 +45,9 @@ export class SaveDocumetDialogComponent implements OnInit {
 
     this.rest.saveFileSys(formParams).subscribe({
       next: (result) => {
-        console.log(result)
         if (result.status===200) {
           this.documentService.activeDocumentChange.next(result.data);
+          this.documentService.addNewDocument.next(result.data);
           this.dialogRef.close(true);
         }
       },

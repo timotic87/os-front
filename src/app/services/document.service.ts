@@ -13,6 +13,7 @@ export class DocumentService {
   activeDocumentChange = new Subject<any>();
   inactiveDocumentChange = new Subject<any>();
   approvalStart = new Subject<any>();
+  addNewDocument = new Subject<any>();
 
   constructor(private rest: RestService) {
     this.activeDocumentChange.subscribe(activeDoc =>{

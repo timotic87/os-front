@@ -7,6 +7,7 @@ import {NgIf} from "@angular/common";
 import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {DocumentContractCardComponent} from "./document-contract-card/document-contract-card.component";
+import {DocumentCardComponent} from "../dokument-approval/document-card/document-card.component";
 
 @Component({
   selector: 'app-dokument-contract-approval',
@@ -16,7 +17,8 @@ import {DocumentContractCardComponent} from "./document-contract-card/document-c
     ApprovalCardComponent,
     MatMenu,
     MatMenuTrigger,
-    DocumentContractCardComponent
+    DocumentContractCardComponent,
+    DocumentCardComponent
   ],
   templateUrl: './dokument-contract-approval.html',
   styleUrl: './dokument-contract-approval.css'

@@ -1,20 +1,36 @@
 <div class="h-full w-full dark:bg-gray-600 py-9  text-gray-600 dark:text-gray-300">
   <div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
-    <h2 class="text-center text-2xl mt-3">Project history</h2>
+    <h2 class="text-center text-2xl mt-3">Deal log history</h2>
   </div>
 
   <div class="p-3">
-    <div class="historyCard rounded border shadow-sm p-2 border-gray-200 dark:border-gray-700 my-2 grid grid-flow-col justify-stretch" *ngFor="let history of histories">
-      <span class="flex">@if (history.getProfilePicUrl()){
-        <img class="w-8 h-8 rounded-full" [src]=history.getProfilePicUrl() alt="user img" style="object-fit: cover;">
-        <p class="ml-2 mt-1">{{history.getFirstName()+' '+history.getLastName()}}</p>
-      } @else {
-        <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
-        <p class="ml-2 mt-1">{{history.getFirstName()+' '+history.getLastName()}}</p>
-      }
+    <div class="historyCard rounded border shadow-sm p-2 border-gray-200 dark:border-gray-700 my-2 grid grid-cols-5 gap-4" *ngFor="let history of histories">
+      <div>
+        <span class="flex">@if (history.user.profilePicUrl){
+          <img class="w-8 h-8 rounded-full" [src]=history.user.profilePicUrl alt="user img" style="object-fit: cover;">
+          <p class="ml-2 mt-1">{{history.user.firstName+' '+history.user.lastName}}</p>
+        } @else {
+          <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
+          <p class="ml-2 mt-1">{{history.user.firstName+' '+history.user.lastName}}</p>
+        }
       </span>
-      <p class="mt-1">{{history.getDescription()}}</p>
-      <p class="mt-1">{{history.getActionTime() | date: 'dd.MM.yyyy HH:mm'}}</p>
+      </div>
+
+      <div class="col-span-3 mt-1">
+        <div>
+          <span class="font-semibold mr-2">Log ID:</span><span class="mr-3">{{history.ID}}</span>
+          <span class="font-semibold mr-2">Action:</span><span class="mr-3">{{history.action}}</span>
+          <span class="font-semibold mr-2">Entity:</span> <span class="mr-3">{{history.entity}}</span>
+        </div>
+         <div *ngIf="history.description">
+           <span class="mr-3">{{history.description}}</span>
+         </div>
+      </div>
+
+      <div>
+        <p class="mt-1">{{history.created | date: "dd.MMM.yyyy HH:ss"}}</p>
+      </div>
+
     </div>
   </div>
 

@@ -49,7 +49,7 @@ export class DocumentContractCardComponent {
   }
 
   submitDocument(){
-    this.documentService.startApproval(this.document.ID, 2, this.document.dealID);
+    this.documentService.startApproval(this.document.ID, 3, this.document.dealID);
   }
 
   download(){

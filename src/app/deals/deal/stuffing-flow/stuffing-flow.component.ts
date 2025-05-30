@@ -5,22 +5,23 @@ import {CdcmCardComponent} from "../../../customComponents/cdcm-card/cdcm-card.c
 import {CDCMService} from "../../../services/cdcm.service";
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ApprovalModel} from "../../../models/approval/approvalModel";
-import {ApprovalService} from "../../../services/approval.service";
-import {ActivatedRoute} from "@angular/router";
 import {RestService} from "../../../services/rest.service";
 import {UserService} from "../../../services/user.service";
 import {CdcmDialogComponent} from "../../cdcm-dialog/cdcm-dialog.component";
 import {ApprovalCardComponent} from "../../../customComponents/approval-card/approval-card.component";
 import {CdcmInactiveCardComponent} from "../../../customComponents/cdcm-inactive-card/cdcm-inactive-card.component";
 import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.component";
-import {DialogService} from "../../../services/dialog.service";
-import {SaveDocumetDialogComponent} from "../save-documet-dialog/save-documet-dialog.component";
 import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/dokument-approval.component";
 import {
   ClientDocumentStatusComponent
 } from "../../../flow-parts/client-document-status/client-document-status.component";
 import {DokumentContractApproval} from "../../../flow-parts/dokument-contract-approval/dokument-contract-approval";
 import {DocumentService} from "../../../services/document.service";
+import {
+  ClientContractDocumentStatusComponent
+} from "../../../flow-parts/client-contract-document-status/client-contract-document-status.component";
+import {PromotingProjectComponent} from "./promoting-project/promoting-project.component";
+import {ProjectCardComponent} from "./project-card/project-card.component";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -34,7 +35,10 @@ import {DocumentService} from "../../../services/document.service";
     DokumentApprovalComponent,
     FormsModule,
     ClientDocumentStatusComponent,
-    DokumentContractApproval
+    DokumentContractApproval,
+    ClientContractDocumentStatusComponent,
+    PromotingProjectComponent,
+    ProjectCardComponent
   ],
   templateUrl: './stuffing-flow.component.html',
   styleUrl: './stuffing-flow.component.css'
@@ -60,6 +64,11 @@ export class StuffingFlowComponent implements OnInit {
     this.checkPermissions();
 
     documentService.approvalStart.subscribe(data=>{
+      window.location.reload();
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    documentService.addNewDocument.subscribe(data=>{
       window.location.reload();
       window.scrollTo(0, document.body.scrollHeight);
     })
@@ -99,7 +108,7 @@ export class StuffingFlowComponent implements OnInit {
   }
 
   checkPermissions(){
-    this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
+    this.rest.getUserPermissions(this.userService.getUser().id).subscribe(res=>{
       if(res.status===200){
         let permDocView = res.data.find(permision => permision.id === 12);
         this.canViewDocumentation = permDocView.userId;
@@ -142,17 +151,28 @@ export class StuffingFlowComponent implements OnInit {
 
   updateDealStatus(event: Event){
     if (event['clientAccepted'] === true){
-      this.rest.changeDealStatus({dealID: this.deal.ID, statusID: 9}).subscribe(res=>{
+      let statusID = 9
+      if (event['status']==='contractAccepted_by_client') statusID=13
+      this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe(res=>{
         window.location.reload();
         window.scrollTo(0, document.body.scrollHeight);
       });
-    }else {
+    } else {
       this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe(res=>{
         window.location.reload();
         window.scrollTo(0, document.body.scrollHeight);
       });
     }
-    console.log(event);
   }
+
+  contractSinged(){
+    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 14}).subscribe(res=>{
+      if (res.status===200){
+        window.location.reload();
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+    });
+  }
+
 
 }

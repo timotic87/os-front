@@ -59,8 +59,7 @@ export class RestService {
   }
 
   editClient(data){
-    data.obj.aut = authorizationEnum.EDIT_CLIENTS;
-    return this.http.put(`${this.baseUrl}/editClient`,data.obj , {headers: this.headers()}) as Observable<any>;
+    return this.http.put(`${this.baseUrl}/editClient`,data , {headers: this.headers()}) as Observable<any>;
   }
   deleteClient(data){
     data.aut = authorizationEnum.DELETE_CLIENTS
@@ -93,10 +92,6 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getFilesById/${clientId}`, {headers: this.headers()}) as Observable<any>;
   }
 
-  // getFilesByProjectId(projectID) {
-  //   return this.http.get(`${this.baseUrl}/getFilesByProjectId/${projectID}`, {headers: this.headers()}) as Observable<any>;
-  // }
-
   getFile(id){
     return this.http.get(`${this.baseUrl}/getFile/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
   }
@@ -108,8 +103,8 @@ export class RestService {
   getUsers(){
     return this.http.get(`${this.baseUrl}/userList`, {headers: this.headers()}) as Observable<any>;
   }
-  getUsersByPermisionID(permisionID){
-    return this.http.get(`${this.baseUrl}/getUSerByPermisionId/${permisionID}`, {headers: this.headers()}) as Observable<any>;
+  getUsersByPermissionID(permissionID){
+    return this.http.get(`${this.baseUrl}/getUSerByPermissionId/${permissionID}`, {headers: this.headers()}) as Observable<any>;
   }
 
   getDepartments(){
@@ -139,12 +134,12 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/resetPass`,data , {headers: this.headers()}) as Observable<any>;
   }
 
-  getUserPermisions(id){
-    return this.http.get(`${this.baseUrl}/getUserPermisions/${id}`, {headers: this.headers()}) as Observable<any>;
+  getUserPermissions(id){
+    return this.http.get(`${this.baseUrl}/getUserPermissions/${id}`, {headers: this.headers()}) as Observable<any>;
   }
 
-  changeUserPermisions(data){
-    return this.http.put(`${this.baseUrl}/changeUserPermisions`,data , {headers: this.headers()}) as Observable<any>;
+  changeUserPermissions(data){
+    return this.http.put(`${this.baseUrl}/changeUserPermissions`,data , {headers: this.headers()}) as Observable<any>;
   }
 
   getNotifications(id){
@@ -218,6 +213,9 @@ export class RestService {
   }
   getDealByID(ID: number){
     return this.http.get(`${this.baseUrl}/getDealByID/${ID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  changeDealFlowStatus(data: any){
+    return this.http.put(`${this.baseUrl}/changeDealFlowStatus`, data, {headers: this.headers()}) as Observable<any>;
   }
   changeDealStatus(data: any){
     return this.http.put(`${this.baseUrl}/changeDealStatus`, data, {headers: this.headers()}) as Observable<any>;
@@ -353,6 +351,20 @@ export class RestService {
 
   getInactiveFileListByDealIdAndTypeId(data){
     return this.http.post(`${this.baseUrl}/getInactiveFileListByDealIdAndTypeId`, data, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getAuditLogsByEntityAndEntityID(data){
+    return this.http.get(`${this.baseUrl}/getAuditLogsByEntityAndEntityID/${data.entity}/${data.entityID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  promotingToProject(data: any){
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
+    return this.http.post(`${this.baseUrl}/promotingToProject`, data, {headers: headers}) as Observable<any>;
+  }
+
+  getProjectByDealID(dealID: any){
+    return this.http.get(`${this.baseUrl}/getProjectByDealID/${dealID}`, {headers: this.headers()}) as Observable<any>;
   }
 
 }

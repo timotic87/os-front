@@ -28,7 +28,7 @@ export class ClientDocumentStatusComponent {
   }
 
   markAsSent() {
-    this.rest.changeDealStatus({dealID: this.deal.ID, statusID: 8}).subscribe(res=>{
+    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 8}).subscribe(res=>{
       if (res.status === 200) {
         window.location.reload();
         window.scrollTo(0, document.body.scrollHeight);

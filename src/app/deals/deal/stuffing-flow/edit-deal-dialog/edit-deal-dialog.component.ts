@@ -86,7 +86,7 @@ export class EditDealDialogComponent implements OnInit{
     formParams.set('salaryFeeTypeID', this.createDealForm.value.salaryFeetype.ID);
     formParams.set('fee_type_salary_value', this.createDealForm.value.salaryValue);
     formParams.set('fee_type_cost_value', this.createDealForm.value.costValue);
-    formParams.set('salary_typeID', this.createDealForm.value.salaryType.ID);
+    formParams.set("salary_typeID", this.createDealForm.value.salaryType.ID);
     formParams.set('payment_due_on_salary', this.createDealForm.value.salarydaysdue);
     formParams.set('payment_due_on_cost', this.createDealForm.value.costdaysdue);
     formParams.set('costFeeTypeID', this.createDealForm.value.costFeetype.ID);

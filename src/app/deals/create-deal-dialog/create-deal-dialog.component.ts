@@ -14,7 +14,7 @@ import {ProjectService} from "../../services/project.service";
 import {RestService} from "../../services/rest.service";
 
 @Component({
-  selector: 'app-create-deal-dialog',
+  selector: 'app-promoting-project',
   standalone: true,
   imports: [
     MatAutocomplete,
@@ -40,7 +40,7 @@ export class CreateDealDialogComponent implements OnInit {
 
   constructor(public leService: LegalEntityService, private clientService: ClientsService, public SANDS: ServicesAndSubservicesService, private dialogRef: MatDialogRef<CreateDealDialogComponent>,
               private userService: UserService, public allUsersService: UsersService, private rest: RestService) {
-    allUsersService.getUsersByPermision(17);
+    allUsersService.getUsersByPermission(4);
     this.listLe = leService.getLEList();
   }
 

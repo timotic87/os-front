@@ -91,6 +91,7 @@ export class CDCMService {
   calculateCDCM(data: any){
     this.rest.calculateCDCM(data).subscribe(res=>{
       if (res.status===200){
+        console.log(res.data)
         this.calculationCDCM = res.data;
       }
     });

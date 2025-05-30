@@ -10,7 +10,6 @@ import {ClientsService} from "./services/clients.service";
 import {UserService} from "./services/user.service";
 import {NotificationCardComponent} from "./customComponents/notification-card/notification-card.component";
 import {RestService} from "./services/rest.service";
-import {CDCMService} from "./services/cdcm.service";
 
 @Component({
   selector: 'app-root',
@@ -26,7 +25,7 @@ export class AppComponent {
   notificationList = [];
   constructor(router: Router,
               notificationsService: NotificationsService, private rest: RestService, clientService: ClientsService,
-              private userService: UserService, public notificationService: NotificationsService, private cdcmService: CDCMService) {
+              private userService: UserService, public notificationService: NotificationsService) {
     notificationsService.sideBarShowSub.subscribe(show=>{
       this.notificationService.showNotificationSideBar = show
     });

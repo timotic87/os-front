@@ -10,8 +10,6 @@ import {UsersAdminComponent} from "./admin/adminPages/users-admin/users-admin.co
 import {
   ServicesAndSubservicesComponent
 } from "./admin/adminPages/services-and-subservices/services-and-subservices.component";
-import {ProjectsComponent} from "./projects/projects.component";
-import {ProjectComponent} from "./projects/project/project.component";
 import {ApprovalsComponent} from "./admin/adminPages/approvals/approvals.component";
 import {RestService} from "./services/rest.service";
 import {firstValueFrom} from "rxjs";
@@ -28,8 +26,8 @@ export const routes: Routes = [
       const dialogService = inject(DialogService);
 
       try {
-        const res = await firstValueFrom(rest.getUserPermisions(userService.getUser().id));
-        const perm = res.data.find(permision => permision.id === 2);
+        const res = await firstValueFrom(rest.getUserPermissions(userService.getUser().id));
+        const perm = res.data.find(permission => permission.name === 'view_all_clients');
         if (!perm.userId) {
           dialogService.showMsgDialog('You dont have permission');
           return false;
@@ -60,7 +58,24 @@ export const routes: Routes = [
     ]
 
   },
-  {path: 'deals', component: DealsComponent},
+  {path: 'deals', component: DealsComponent, canActivate: [async ()=>{
+      const userService = inject(UserService);
+      const rest: RestService = inject(RestService);
+      const dialogService = inject(DialogService);
+
+      try {
+        const res = await firstValueFrom(rest.getUserPermissions(userService.getUser().id));
+        const perm = res.data.find(permission => permission.name === 'view_list_deals');
+        if (!perm.userId) {
+          dialogService.showMsgDialog('You dont have permission');
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Router error - deals:', error);
+        return false;
+      }
+    }]},
   {path: 'deal/:id', component: DealComponent},//todo reformat name
   {path: 'projects', component: DealsComponent, canActivate: [async ()=>{
       const userService = inject(UserService);
@@ -68,8 +83,8 @@ export const routes: Routes = [
       const dialogService = inject(DialogService);
 
       try {
-        const res = await firstValueFrom(rest.getUserPermisions(userService.getUser().id));
-        const perm = res.data.find(permision => permision.id === 21);
+        const res = await firstValueFrom(rest.getUserPermissions(userService.getUser().id));
+        const perm = res.data.find(permission => permission.id === 21);
         if (!perm.userId) {
           dialogService.showMsgDialog('You dont have permission');
           return false;

@@ -4,8 +4,6 @@ import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {CDCMService} from "../../services/cdcm.service";
 import {DialogService} from "../../services/dialog.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {ProjectModel} from "../../models/projectModel";
-
 @Component({
   selector: 'app-cdcm-py-dialog',
   standalone: true,
@@ -31,8 +29,9 @@ export class CdcmPyDialogComponent implements OnInit {
   showBasicInfoMsgValidation = false;
   showOperationalCostMsgValidation = false;
 
-  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public project: ProjectModel,
-              private dialogRef: MatDialogRef<CdcmPyDialogComponent>,) {
+  constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public deal: any,
+              private dialogRef: MatDialogRef<CdcmPyDialogComponent>) {
+    cdcmService.calculationCDCM = null;
   }
 
   ngOnInit(): void {
@@ -103,7 +102,6 @@ export class CdcmPyDialogComponent implements OnInit {
   }
 
   calculateSave(){
-
     if (!this.basicInfoForm.valid){
       this.showBasicInfoMsgValidation = true;
     }
@@ -113,21 +111,22 @@ export class CdcmPyDialogComponent implements OnInit {
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
       this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Save', 'Calculate']}).afterClosed().subscribe(option=>{
 
-        this.basicInfoForm.value.projectID = this.project.ID;
-        this.basicInfoForm.value.subservice = this.project.subservice
+        this.basicInfoForm.value.dealID = this.deal.ID;
+        this.basicInfoForm.value.subservice = this.deal.subservice
         this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
         this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
-        this.operationalCostForm.value.franchise_fee = this.project.legalEntity.franchise_fee;
+        this.operationalCostForm.value.franchise_fee = this.deal.legalEntity.franchise_fee;
 
+        console.log(option)
         switch (option){
           case 'Cancel':
             break;
           case 'Calculate and Save':
-            this.cdcmService.calculateAndCreateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value}, this.dialogRef);
+            this.cdcmService.calculateAndCreateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value, cdcmTypeID: 2}, this.dialogRef);
 
             break;
           case 'Calculate':
-            this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
+            this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value, cdcmTypeID: 2});
 
             break;
         }

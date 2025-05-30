@@ -155,7 +155,7 @@ export class ClientsComponent implements OnInit{
 
 
   checkPermissions(){
-    this.rest.getUserPermisions(this.userService.getUser().id).subscribe(res=>{
+    this.rest.getUserPermissions(this.userService.getUser().id).subscribe(res=>{
       if(res.status===200){
         let permDocView = res.data.find(permision => permision.id === 12);
         this.canViewDocumentation = permDocView.userId;

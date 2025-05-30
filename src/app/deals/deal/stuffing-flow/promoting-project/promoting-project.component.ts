@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgIf} from "@angular/common";
 import {PickFileComponent} from "../../../../clients/documentaton/elements/pick-file/pick-file.component";
@@ -7,7 +7,7 @@ import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DialogService} from "../../../../services/dialog.service";
 
 @Component({
-  selector: 'app-create-deal-dialog',
+  selector: 'app-promoting-project',
   standalone: true,
     imports: [
         FormsModule,
@@ -16,10 +16,10 @@ import {DialogService} from "../../../../services/dialog.service";
         NgClass,
         PickFileComponent
     ],
-  templateUrl: './create-deal-dialog.component.html',
-  styleUrl: './create-deal-dialog.component.css'
+  templateUrl: './promoting-project.component.html',
+  styleUrl: './promoting-project.component.css'
 })
-export class CreateDealDialogComponent implements OnInit{
+export class PromotingProjectComponent implements OnInit{
 
   createDealForm: FormGroup;
   contractFile: File = null;
@@ -28,7 +28,9 @@ export class CreateDealDialogComponent implements OnInit{
   salaryTypes;
   currencyList;
 
-  constructor(private rest: RestService,  @Inject(MAT_DIALOG_DATA) public data: any, private dialogService: DialogService) {
+  @Input() deal: any
+
+  constructor(private rest: RestService, private dialogService: DialogService) {
     this.getStatics();
   }
 
@@ -38,9 +40,9 @@ export class CreateDealDialogComponent implements OnInit{
           contract_file_name: new FormControl(null, [Validators.required]),
           salaryFeetype: new FormControl(null, [Validators.required]),
           costFeetype: new FormControl(null, [Validators.required]),
-          isExpired: new FormControl(false),
+          isExpired: new FormControl(true ),
           startDate: new FormControl(null, [Validators.required]),
-          endDate: new FormControl(null),
+          endDate: new FormControl(null,[Validators.required]),
           salaryValue: new FormControl(null, [Validators.required]),
           salaryType: new FormControl(null, [Validators.required]),
           costValue: new FormControl(null, [Validators.required]),
@@ -49,13 +51,19 @@ export class CreateDealDialogComponent implements OnInit{
           costdaysdue: new FormControl(null, [Validators.required]),
           salaryCurrency: new FormControl(null, [Validators.required]),
           costCurrency: new FormControl(null, [Validators.required])
+        });
+
+        this.createDealForm.get('isExpired').valueChanges.subscribe(value => {
+          if (value) {
+            this.createDealForm.get('endDate').setValue(null);
+            this.createDealForm.get('endDate').clearValidators();
+            this.createDealForm.get('endDate').addValidators(Validators.required);
+          }else {
+            this.createDealForm.get('endDate').setValue(null);
+            this.createDealForm.get('endDate').clearValidators();
+          }
         })
     }
-
-  // offerSelectDoc(event: Event){
-  //   // @ts-ignore
-  //   this.offerFIle = event.target.files[0];
-  // }
 
   contractSelectDoc(event: Event){
     // @ts-ignore
@@ -82,39 +90,34 @@ export class CreateDealDialogComponent implements OnInit{
     })
   }
 
-  createDeal(){
-    console.log(this.data)
+  promoteProjectClick(){
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
-    formParams.set('filePath', this.data.client.name);
+    formParams.set('dealID', this.deal.ID);
+    formParams.set('filePath', this.deal.client.name);
     formParams.set('fileName', this.createDealForm.get('contract_file_name').value);
     formParams.set('typeName', 'Contract');
     formParams.set('subTypeName', 'Staffing and payroll');
-
-    formParams.set('deal_number', this.createDealForm.value.deal_number);
     formParams.set('isExpired', this.createDealForm.value.isExpired);
     formParams.set('startDate', this.createDealForm.value.startDate);
     formParams.set('endDate', this.createDealForm.value.endDate);
-    formParams.set('projectID', this.data.project.ID);
-    formParams.set('clientID', this.data.client.id);
-    formParams.set('salaryFeeTypeID', this.createDealForm.value.salaryFeetype.ID);
+    formParams.set('clientID', this.deal.client.id);
+    formParams.set('salaryFeeTypeID', this.createDealForm.value.salaryFeetype? this.createDealForm.value.salaryFeetype.ID:null);
     formParams.set('fee_type_salary_value', this.createDealForm.value.salaryValue);
     formParams.set('fee_type_cost_value', this.createDealForm.value.costValue);
-    formParams.set('salary_typeID', this.createDealForm.value.salaryType.ID);
+    formParams.set('salary_typeID', this.createDealForm.value.salaryType? this.createDealForm.value.salaryType.ID:null);
     formParams.set('payment_due_on_salary', this.createDealForm.value.salarydaysdue);
     formParams.set('payment_due_on_cost', this.createDealForm.value.costdaysdue);
-    formParams.set('costFeeTypeID', this.createDealForm.value.costFeetype.ID);
+    formParams.set('costFeeTypeID', this.createDealForm.value.costFeetype? this.createDealForm.value.costFeetype.ID:null);
     formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
     formParams.set('costCurrency', this.createDealForm.value.costCurrency ? this.createDealForm.value.costCurrency.id:null);
 
-    // this.rest.createDeal(formParams).subscribe(res => {
-    //   console.log(res)
-    //   if (res.status === 201) {
-    //     this.dialogService.showSnackBar('Successfully saved document', '',5000);
-    //     return;
-    //   }
-    //   this.dialogService.showSnackBar(res.data.name+' '+res.data.num, '', 5000)
-    // })
+    this.rest.promotingToProject(formParams).subscribe(res=>{
+      if (res.status===200){
+        window.location.reload();
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+    })
 
   }
 

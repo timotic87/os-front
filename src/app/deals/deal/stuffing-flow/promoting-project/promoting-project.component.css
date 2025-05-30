@@ -16,7 +16,8 @@
   height: 82px;
   display: flex;
   justify-content: start;
-  align-items: center;
+  align-items: end;
+  padding-bottom: 10px;
 }
 
 .customNumberInput::-webkit-inner-spin-button,

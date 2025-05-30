@@ -8,6 +8,7 @@ import {UserService} from "../../../services/user.service";
 import {io, Socket} from "socket.io-client";
 import {environment} from "../../../../environments/environment";
 import {socketEnum} from "../../../services/enum-sevice";
+import {firstValueFrom} from "rxjs";
 
 @Component({
   selector: 'app-deal-coments-dialog',
@@ -44,11 +45,6 @@ export class DealComentsDialogComponent implements OnInit{
     });
     this.getAllComments();
 
-
-    this.userService.checkPermission(24, hasPerm=>{
-      this.createCommentPerm = hasPerm;
-    });
-
   }
 
   ngOnInit(): void {
@@ -75,10 +71,27 @@ export class DealComentsDialogComponent implements OnInit{
   }
   getAllComments(){
     this.rest.getDealComments(this.dealID).subscribe(res=>{
-      console.log(res)
       if (res.status === 200){
         this.commentArr = res.data.dealComments
       }
     })
+  }
+
+
+  async checkPermission() {
+
+    try {
+      const res = await firstValueFrom(this.rest.getUserPermissions(this.userService.getUser().id));
+
+      const permCreateComment = res.data.find(permission => permission.name === 'create_all_comments');
+
+      if (permCreateComment.userId) {
+        this.createCommentPerm = true;
+      }
+
+    } catch (error) {
+      console.error('❌ Error while checking permissions:', error);
+      this.dialogService.showMsgDialog('Error while checking permissions');
+    }
   }
 }

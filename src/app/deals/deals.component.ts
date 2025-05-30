@@ -7,6 +7,8 @@ import {DatePipe, NgIf} from "@angular/common";
 import {Router} from "@angular/router";
 import {UserService} from "../services/user.service";
 import {RestService} from "../services/rest.service";
+import {firstValueFrom} from "rxjs";
+import {DialogService} from "../services/dialog.service";
 
 @Component({
   selector: 'app-projects',
@@ -21,16 +23,15 @@ import {RestService} from "../services/rest.service";
 export class DealsComponent {
 
   createDealDisable = true;
+  openDealPage = false;
+  editDeal = false;
 
   dealsArr: any = [];
 
-  constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService) {
+  constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService, private dialogService: DialogService) {
 
     this.getNewDealArr();
-
-    userService.checkPermission(22, (hasPerm)=>{
-      this.createDealDisable = hasPerm;
-    });
+    this.checkPermission();
 
   }
 
@@ -49,7 +50,12 @@ export class DealsComponent {
   }
 
   onDealClick(deal){
-    this.router.navigate([`/deal/${deal.ID}`]);
+    if (this.openDealPage) {
+      this.router.navigate([`/deal/${deal.ID}`]);
+    }else {
+      this.dialogService.showMsgDialog('You dont have permission for deal view')
+    }
+
   }
 
   getNewDealArr(){
@@ -59,6 +65,35 @@ export class DealsComponent {
       }
     })
   }
+
+
+  async checkPermission() {
+    // 🚩 Odmah blokiraj dok traje proveravanje
+    this.createDealDisable = true;
+
+    try {
+      const res = await firstValueFrom(this.rest.getUserPermissions(this.userService.getUser().id));
+      const perm = res.data.find(permission => permission.name === 'create_deal');
+
+      if (!perm.userId) {
+        // createDealDisable ostaje true
+      } else {
+        this.createDealDisable = false;
+      }
+
+      const permOpenDealPage = res.data.find(permission => permission.name === 'view_deal');
+
+      if (!permOpenDealPage.userId) {
+      } else {
+        this.openDealPage = true;
+      }
+    } catch (error) {
+      console.error('❌ Error while checking permissions:', error);
+      this.dialogService.showMsgDialog('Error while checking permissions');
+      // createDealDisable ostaje true
+    }
+  }
+
 
 
 

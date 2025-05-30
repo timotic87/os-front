@@ -3,110 +3,67 @@ import {ApprovalCardComponent} from "../../../customComponents/approval-card/app
 import {CdcmCardComponent} from "../../../customComponents/cdcm-card/cdcm-card.component";
 import {CdcmInactiveCardComponent} from "../../../customComponents/cdcm-inactive-card/cdcm-inactive-card.component";
 import {NgIf} from "@angular/common";
-import {ProjectModel} from "../../../models/projectModel";
+import {CdcmPyDialogComponent} from "../../cdcm-py-dialog/cdcm-py-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
+import {RestService} from "../../../services/rest.service";
 import {CDCMService} from "../../../services/cdcm.service";
-import {ApprovalService} from "../../../services/approval.service";
-import {ActivatedRoute} from "@angular/router";
-import {ApprovalModel} from "../../../models/approval/approvalModel";
-import {CdcmPyDialogComponent} from "../../../deals/cdcm-py-dialog/cdcm-py-dialog.component";
-import {CdcmViewEditComponent} from "../../../deals/cdcm-view-edit/cdcm-view-edit.component";
 
 @Component({
   selector: 'app-py-flow',
   standalone: true,
-    imports: [
-        ApprovalCardComponent,
-        CdcmCardComponent,
-        CdcmInactiveCardComponent,
-        NgIf
-    ],
+  imports: [
+    ApprovalCardComponent,
+    CdcmCardComponent,
+    NgIf
+  ],
   templateUrl: './py-flow.component.html',
   styleUrl: './py-flow.component.css'
 })
-export class PyFlowComponent {
-  @Input() project: ProjectModel;
 
-  createCDCMDisable = true;
+export class PyFlowComponent implements OnInit {
+  @Input() deal: any;
 
-  approval: ApprovalModel;
+  activeCDCM;
+  inactiveCDCM: any[];
+  cdcmApproval;
 
-  constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private approvalService: ApprovalService, private route: ActivatedRoute) {
-    let projectId: number = +this.route.snapshot.paramMap.get('id');
-    // cdcmService.getCDCMLIstByProjectId(projectId);
-    //
-    // cdcmService.getCDCMListSubject.subscribe(()=>{
-    //   this.checkisButtonDisabled();
-    //   this.getApprovals(this.cdcmService.cdcmList[0].ID);
-    // })
+  constructor(private matDialog: MatDialog, private rest: RestService, private cdcmService: CDCMService) {
 
-    cdcmService.updateCDCMSubject.subscribe(cdcm => {
-      this.updateCDCMarr(cdcm);
-      this.checkisButtonDisabled();
-    });
     cdcmService.newCDCMSubject.subscribe(cdcm => {
-      if (cdcm.projectID===this.project.ID){
-        if (!this.cdcmService.cdcmList) {
-          this.cdcmService.cdcmList = [];
-        }
-        this.cdcmService.cdcmList.push(cdcm);
-        this.checkisButtonDisabled();
+      if (cdcm.data.dealID===this.deal.ID){
+        this.activeCDCM = cdcm.data;
       }
-    })
-    cdcmService.deleteCDCMSubject.subscribe(ID => {
-      this.cdcmService.cdcmList = this.cdcmService.cdcmList.filter(item => item.ID !== ID);
-      if (this.cdcmService.cdcmList.length === 0) this.createCDCMDisable = false;
-      this.checkisButtonDisabled();
     });
-    cdcmService.updateStatusCDCMSubject.subscribe(data=>{
-      const cdcmObj = this.cdcmService.cdcmList.find(o => o.ID === data['ID']);
-      cdcmObj.setStatus(data['statusID'], data['statusName']);
-      this.getApprovals(cdcmObj.ID);
-      this.checkisButtonDisabled();
-    });
+
   }
 
-  dialogCDCM() {
+  ngOnInit(): void {
+    this.getActiveCDCM();
+    }
+
+
+  dialogCDCM(){
     this.matDialog.open(CdcmPyDialogComponent, {
       maxHeight: '90vh',
       width: '150vh',
-      data: this.project
+      data: this.deal
     });
   }
-
-  updateCDCMarr(cdcm) {
-    this.cdcmService.cdcmList = this.cdcmService.cdcmList.map(item =>
-      item.ID === cdcm.ID ? cdcm : item
-    );
-
+  getActiveCDCM(){
+    this.rest.getActiveCdcm(this.deal.ID).subscribe(res=>{
+      if(res.status===200){
+        this.activeCDCM = res.data;
+        this.getApprovalsByCdcmID(this.activeCDCM.ID);
+      }
+    });
   }
-
-  openCDCMView(cdcm){
-    this.matDialog.open(CdcmViewEditComponent, {
-      maxHeight: '90vh',
-      width: '150vh',
-      data: {cdcm, project: this.project}
+  getApprovalsByCdcmID(cdcmID) {
+    this.rest.getApprovalsByCdcmID(cdcmID).subscribe(res=>{
+      console.log(res)
+      if(res.status===200){
+        this.cdcmApproval = res.data;
+      }
     })
   }
 
-  getApprovals(cdcmId: number){
-    this.approvalService.getApprovalsByCdcmID(cdcmId).then(approval=>{
-      this.approval=approval;
-    });
-  }
-
-  checkisButtonDisabled(){
-    if (!this.cdcmService.cdcmList) {
-      this.createCDCMDisable = false;
-    }else {
-      if (this.cdcmService.cdcmList.length === 0){
-        this.createCDCMDisable = false;
-        return;
-      }
-      const trazeniStatusi = [1, 2];
-
-      this.cdcmService.cdcmList.every(obj => !trazeniStatusi.includes(obj.statusID))? this.createCDCMDisable = false : this.createCDCMDisable = true;
-
-    }
-  }
 }

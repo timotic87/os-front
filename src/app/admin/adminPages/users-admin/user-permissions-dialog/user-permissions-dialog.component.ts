@@ -7,25 +7,25 @@ import {NgForOf} from "@angular/common";
 import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 
 @Component({
-  selector: 'app-user-permisions-dialog',
+  selector: 'app-user-permissions-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule,
     NgForOf
   ],
-  templateUrl: './user-permisions-dialog.component.html',
-  styleUrl: './user-permisions-dialog.component.css'
+  templateUrl: './user-permissions-dialog.component.html',
+  styleUrl: './user-permissions-dialog.component.css'
 })
-export class UserPermisionsDialogComponent implements OnInit {
+export class UserPermissionsDialogComponent implements OnInit {
 
   arrayOfArrays = [];
 
   form: FormGroup;
 
-  constructor(private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPermisionsDialogComponent>, private dialogService: DialogService) {
-    // console.log(this.user.permisions)
+  constructor(private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPermissionsDialogComponent>, private dialogService: DialogService) {
+    console.log(this.user.permissions)
     // @ts-ignore
-    const groupedBySection = this.user.permisions.reduce<Record<number, any[]>>((acc, item) => {
+    const groupedBySection = this.user.permissions.reduce<Record<number, any[]>>((acc, item) => {
       if (!acc[item.sectionID]) {
         acc[item.sectionID] = [];
       }
@@ -34,10 +34,10 @@ export class UserPermisionsDialogComponent implements OnInit {
     }, {});
     this.arrayOfArrays = Object.values(groupedBySection);
 
-
     this.form = this.fb.group({
-      checkboxes: this.fb.array(this.user.permisions.map(item => this.fb.control(item.userId !== null))) // Inicijalizacija za svaki checkbox
+      checkboxes: this.fb.array(this.user.permissions.map(item => this.fb.control(item.userId !== null))) // Inicijalizacija za svaki checkbox
     });
+
   }
 
   get checkboxes() {
@@ -45,13 +45,12 @@ export class UserPermisionsDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.checkboxes)
+
     }
 
   onSubmit(): void {
     this.dialogService.showLoader();
-    console.log(this.user.permisions)
-    this.rest.changeUserPermisions(this.user.permisions).subscribe(res=>{
+    this.rest.changeUserPermissions(this.user.permissions).subscribe(res=>{
       this.dialogService.closeLoader();
       console.log(res)
     })

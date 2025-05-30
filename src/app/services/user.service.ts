@@ -12,7 +12,6 @@ export class UserService {
 
   isUserLogedIn = new Subject<boolean>();
   user: UserModel;
-  private _socketID = '';
 
   constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService, private rest: RestService) { }
 
@@ -66,7 +65,7 @@ export class UserService {
   // }
 
   public checkPermission(permisionID: number, callback: (ok: boolean) => void): void {
-    this.rest.getUserPermisions(this.getUser().id).subscribe(res => {
+    this.rest.getUserPermissions(this.getUser().id).subscribe(res => {
       if (res.status === 200) {
         const perm = res.data.find(p => p.id === permisionID);
         callback(!(perm?.userId));

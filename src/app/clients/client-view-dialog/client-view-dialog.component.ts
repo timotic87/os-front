@@ -29,8 +29,6 @@ export class ClientViewDialogComponent implements OnInit {
     console.log(data)
     currencyService.getCurrencyList()
     this.listOfCountry = countryService.getCountryList();
-
-
   }
 
 

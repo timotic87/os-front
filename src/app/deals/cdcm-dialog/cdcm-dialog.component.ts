@@ -177,7 +177,7 @@ export class CdcmDialogComponent implements OnInit {
           case 'Cancel':
             break;
           case 'Calculate and Save':
-            this.cdcmService.calculateAndCreateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value}, this.dialogRef);
+            this.cdcmService.calculateAndCreateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value, cdcmTypeID: 1}, this.dialogRef);
 
             break;
           case 'Calculate':
