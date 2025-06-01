@@ -57,9 +57,9 @@
   <span class="m-3 font-semibold block">Operational cost: {{ cdcm['operational_cost'] | currency: 'RSD ' }}</span>
   <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
   <span class="m-3 font-semibold block">Gross profit: {{ cdcm['gross_profit'] | currency: 'RSD ' }}</span>
-  <span class="m-3 font-semibold block">GP%: {{ cdcm['gross_profit_percent'] }}</span>
+  <span class="m-3 font-semibold block">GP%: {{ cdcm['gross_profit_percent'] }}%</span>
   <span class="m-3 font-semibold block">Net profit: {{ cdcm['net_profit'] | currency: 'RSD ' }}</span>
-  <span class="m-3 font-semibold block">NP%: {{ cdcm['net_profit_percent'] }}</span>
+  <span class="m-3 font-semibold block">NP%: {{ cdcm['net_profit_percent'] }}%</span>
 
   <app-color-label [color]="statusColor" size="base" *ngIf="cdcm.statusID===1 && !(comments.length>0)">Status: {{ cdcm.status.name }}</app-color-label>
   <app-color-label [color]="statusColor" size="base" *ngIf="cdcm.statusID===2">Status: {{ cdcm.status.name }}</app-color-label>

@@ -5,6 +5,7 @@
   </div>
   <form [formGroup]="createDealForm" autocomplete="off">
     <div class="grid grid-cols-4 gap-4 p-3">
+
       <div class="col-span-2">
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Choose contract documet</div>
         <app-pick-file (onFileSelected)="contractSelectDoc($event)"></app-pick-file>
@@ -16,12 +17,12 @@
           <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="createDealForm.get('contract_file_name').touched && !createDealForm.get('contract_file_name').valid ? 'border-red-500':''" formControlName="contract_file_name" autocomplete="contract_file_name">
         </div>
+        <!--        <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('deal_number').touched && !createDealForm.get('deal_number').valid">Deal number needs to be minimum 5 characters long.</label>-->
       </div>
 
 
       <div class="col-span-1">
                 <div class="toggleCustom w-full pl-3 flex flex-row">
-        <!--          (change)="isExpiredChange();"-->
                   <input
 
                     formControlName="isExpired"
@@ -60,8 +61,8 @@
       </div>
       <hr class="col-span-4 mb-3 mt-4 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
       <div class="col-span-2">
-        <div class="text-gray-600 dark:text-gray-300">Salary fee type:</div>
-        <select formControlName="salaryFeetype" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
+        <div class="text-gray-600 dark:text-gray-300">Fee type:</div>
+        <select formControlName="salaryFeetype" [disabled]="true" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
      w-full bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
     leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
     dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
@@ -145,7 +146,7 @@
         @case (3){
           <div class="grid grid-cols-4 gap-4 col-span-4">
             <div class="col-span-2">
-              <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary fix fee</div>
+              <div class="flex justify-center text-gray-600 dark:text-gray-300">Fee per employee</div>
               <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
                 <input type="number"
                        class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
@@ -165,127 +166,13 @@
             </div>
 
             <div class="col-span-1">
-              <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary days due</div>
+              <div class="flex justify-center text-gray-600 dark:text-gray-300">Days due</div>
               <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
                 <input onkeydown="if(event.key==='.'){event.preventDefault();}"
                        oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
                        class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                        [ngClass]="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid ? 'border-red-500':''"
                        formControlName="salarydaysdue" autocomplete="new-salarydaysdue">
-              </div>
-            </div>
-          </div>
-        }
-      }
-
-
-      <div class="col-span-2">
-<!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costFeetype').touched && !createDealForm.get('costFeetype').valid">Must select Fee type.</label>-->
-        <div class="text-gray-600 dark:text-gray-300">Cost fee type:</div>
-        <select formControlName="costFeetype" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
-     w-full bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
-                [ngClass]="createDealForm.get('costFeetype').touched && !createDealForm.get('costFeetype').valid ? 'border-red-500':''">
-          @for(feeType of feeTypes; track feeType){
-            <option [ngValue]="feeType">{{ feeType.name }}</option>
-          }
-        </select>
-      </div>
-      <div class="col-span-2"></div>
-      @switch (createDealForm.get('costFeetype').value.ID){
-        @case (1){
-          <div class="col-span-1">
-            <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost percent</div>
-            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-              <input type="number"
-                     class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                     [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
-                     formControlName="costValue" autocomplete="new-costValue">
-            </div>
-          </div>
-          <div class="col-span-2">
-
-            <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost type:</div>
-            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-              <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                     [ngClass]="createDealForm.get('costType').touched && !createDealForm.get('costType').valid ? 'border-red-500':''" formControlName="costType" autocomplete="new-costType">
-            </div>
-            <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('costType').touched && !createDealForm.get('costType').valid">Name needs to be minimum 3 characters long.</label>
-
-          </div>
-          <div class="col-span-1">
-            <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost days due</div>
-            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-              <input onkeydown="if(event.key==='.'){event.preventDefault();}"
-                     oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
-                     class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                     [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
-                     formControlName="costdaysdue" autocomplete="new-costdaysdue">
-            </div>
-          </div>
-        }
-        @case (2){
-          <div class="col-span-1">
-            <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost multiplier</div>
-            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-              <input type="number"
-                     class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                     [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
-                     formControlName="costValue" autocomplete="new-costValue">
-            </div>
-          </div>
-          <div class="col-span-2">
-
-            <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost type:</div>
-            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-              <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                     [ngClass]="createDealForm.get('costType').touched && !createDealForm.get('costType').valid ? 'border-red-500':''" formControlName="costType" autocomplete="new-costType">
-            </div>
-            <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('costType').touched && !createDealForm.get('costType').valid">Name needs to be minimum 3 characters long.</label>
-
-          </div>
-          <div class="col-span-1">
-            <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost days due</div>
-            <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-              <input onkeydown="if(event.key==='.'){event.preventDefault();}"
-                     oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
-                     class="customNumberInput w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                     [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
-                     formControlName="costdaysdue" autocomplete="new-costdaysdue">
-            </div>
-          </div>
-        }
-        @case (3){
-          <div class="grid grid-cols-4 gap-4 col-span-4">
-            <div class="col-span-2">
-              <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost fix fee</div>
-              <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-                <input type="number"
-                       class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                       [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
-                       formControlName="costValue" autocomplete="new-costValue">
-              </div>
-            </div>
-            <div class="col-span-1">
-              <div class="text-gray-600 dark:text-gray-300">Currency:</div>
-              <select formControlName="costCurrency" class="w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                      [ngClass]="createDealForm.get('costCurrency').touched && !createDealForm.get('costCurrency').valid ? 'border-red-500':''">
-                @for(currency of currencyList; track currency){
-                  <option [ngValue]="currency">{{ currency.name }}</option>
-                }
-              </select>
-              <!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>-->
-            </div>
-
-            <div class="col-span-1">
-              <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost days due</div>
-              <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-                <input onkeydown="if(event.key==='.'){event.preventDefault();}"
-                       oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
-                       class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                       [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
-                       formControlName="costdaysdue" autocomplete="new-costdaysdue">
               </div>
             </div>
           </div>

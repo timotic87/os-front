@@ -78,7 +78,14 @@ export class CdcmCardComponent implements OnInit{
   }
 
   lockCDCM(ID:number){
-    this.cdcmService.lockCDCM(ID,1, this.cdcm.dealID);
+    let appTypeID;
+    if(this.cdcm.typeID===1){
+      appTypeID = 1;
+    }else if(this.cdcm.typeID===2){
+      appTypeID = 4;
+    }
+
+    this.cdcmService.lockCDCM(ID,appTypeID, this.cdcm.dealID);
   }
 
   changeColorStatus(id:number){

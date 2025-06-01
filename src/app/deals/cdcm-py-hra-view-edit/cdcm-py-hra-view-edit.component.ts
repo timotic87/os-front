@@ -10,6 +10,7 @@ import {UserService} from "../../services/user.service";
 import {RestService} from "../../services/rest.service";
 import {ApprovalStepModel} from "../../models/approval/ApprovalStepModel";
 import {ApprovalStatus} from "../../models/approval/approvalStatus";
+import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
 
 @Component({
   selector: 'app-cdcm-py-hra-view-edit',
@@ -19,14 +20,14 @@ import {ApprovalStatus} from "../../models/approval/approvalStatus";
     FormsModule,
     NgIf,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    ApprovalCardComponent
   ],
   templateUrl: './cdcm-py-hra-view-edit.component.html',
   styleUrl: './cdcm-py-hra-view-edit.component.css'
 })
 export class CdcmPyHraViewEditComponent implements OnInit {
 
-  ChargingDPArr= [{name: 'NO', num: 0},{name: 'YES', num: 1}];
   PayslipsArr= [{name: 'NO', num: 0},{name: 'YES', num: 1}];
   feeTypes= [{name: 'Markup', num: 0},{name: 'Flat', num: 1}];
 
@@ -42,13 +43,14 @@ export class CdcmPyHraViewEditComponent implements OnInit {
   approval: ApprovalModel;
 
   cdcm: any;
-  project: ProjectModel;
+
+  cdcmApproval: any;
 
 
   constructor(public cdcmService: CDCMService, private dialogService: DialogService, @Inject(MAT_DIALOG_DATA) public data: any,
               private dialogRef: MatDialogRef<CdcmPyHraViewEditComponent>, private userService: UserService, private rest: RestService) {
+    console.log(this.data)
     this.cdcm = this.data.cdcm
-    this.project = this.data.project;
     cdcmService.seniorityListListener.subscribe(()=>{
       if (this.cdcm.isHra){
         this.operationalCostForm.get('HRA_Consultant').setValue(cdcmService.getSeniorityObjByName(this.cdcm.hra_conultant_seniority));
@@ -59,6 +61,12 @@ export class CdcmPyHraViewEditComponent implements OnInit {
         this.payslipsCost=this.cdcm.payslips_cost;
       }
     });
+
+    cdcmService.updateCDCMSubject.subscribe(cdcmUpdated => {
+      if (cdcmUpdated) {
+        this.dialogRef.close();
+      }
+    })
 
     cdcmService.calculationCDCM = {
       "directCost": this.cdcm.direct_cost,
@@ -79,29 +87,12 @@ export class CdcmPyHraViewEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.cdcm){
-      this.rest.getApprovalsByCdcmID(this.cdcm.ID).subscribe(res=>{
-        if (res.status === 200) {
-          let approvalSeps: ApprovalStepModel[] = [];
 
-          for (let item of res.data) {
-            approvalSeps.push(new ApprovalStepModel(item.ApprovalStepID, item.approvalID,
-              item.userID, item.firstName, item.lastName, item.stepOrder, new ApprovalStatus(item.approvalStepStatusID,
-                item.approvalStepStatusName), item.approvalStepStatusChangeDate, item.profilePicUrl, item.comment));
-          }
-
-          this.approval =  new ApprovalModel(res.data[0].approvalID, res.data[0].cdcmID, res.data[0].documentID, res.data[0].approvalCreatedDate, res.data[0].isSequential,
-            new ApprovalStatus(res.data[0].approvalStatusID, res.data[0].approvalStatusName), approvalSeps);
-
-        }
-      });
-    }
+    this.getApprovalsByCdcmID(this.cdcm.ID);
 
     this.basicInfoForm = new FormGroup({
       No_of_employees: new FormControl(this.cdcm.No_of_employees, [Validators.required]),
       price_of_employee: new FormControl(this.cdcm.price_of_employee, [Validators.required]),
-      other_cost: new FormControl(this.cdcm.other_cost, [Validators.required]),
-      feeTypes: new FormControl(this.cdcm.MU_on_costs? this.feeTypes[0]:this.feeTypes[1]),
       due_days_on_fee: new FormControl(this.cdcm.due_days_on_fee, [Validators.required])
     });
     this.basicInfoForm.get('No_of_employees').valueChanges.subscribe(value=>{
@@ -125,6 +116,11 @@ export class CdcmPyHraViewEditComponent implements OnInit {
       aditionalCostComment:  new FormControl(this.cdcm.aditionalCostComment, [Validators.required])
 
     });
+     if ( this.operationalCostForm.get('additional_costs').value > 0){
+       this.operationalCostForm.get('aditionalCostComment').setValidators(Validators.required);
+     }else {
+       this.operationalCostForm.get('aditionalCostComment').clearValidators();
+     }
 
     this.operationalCostForm.get('additional_costs').valueChanges.subscribe(value => {
       if (value > 0) {
@@ -190,6 +186,7 @@ export class CdcmPyHraViewEditComponent implements OnInit {
 
 
   calculateSave(){
+
     if (!this.basicInfoForm.valid){
       this.showBasicInfoMsgValidation = true;
     }
@@ -198,24 +195,20 @@ export class CdcmPyHraViewEditComponent implements OnInit {
     }
     if (this.operationalCostForm.valid && this.basicInfoForm.valid) {
       this.dialogService.showMultiOptionDialog({msg: 'Choose Your option.', options: ['Cancel', 'Calculate and Edit', 'Calculate']}).afterClosed().subscribe(option=>{
-        this.basicInfoForm.value.subservice = this.project.subservice
-        this.basicInfoForm.value.disabled_people=this.basicInfoForm.get('disabled_people').value;
-        this.basicInfoForm.value.projectID=this.cdcm.projectID;
-        this.operationalCostForm.value.collective_insurance = this.collective_insurance;
-        this.operationalCostForm.value.userID = this.userService.getUser().id;
+        this.basicInfoForm.value.dealID = this.cdcm.dealID;
         this.operationalCostForm.value.interest_rate  = this.cdcmService.cdcmStaticsList[2].valueDouble;
-        this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
         this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
+        this.operationalCostForm.value.franchise_fee = this.cdcm.franchise_fee_percent;
         this.operationalCostForm.value.ID = this.cdcm.ID;
         switch (option){
           case 'Cancel':
             this.dialogRef.close();
             break;
           case 'Calculate and Edit':
-            // this.cdcmService.updateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
+            this.cdcmService.updateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value, cdcmTypeID: 2});
             break;
           case 'Calculate':
-            this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value});
+            this.cdcmService.calculateCDCM({...this.basicInfoForm.value, ...this.operationalCostForm.value, cdcmTypeID: 2});
             break;
         }
       })
@@ -238,5 +231,13 @@ export class CdcmPyHraViewEditComponent implements OnInit {
 
   cancel(){
     this.dialogRef.close()
+  }
+
+  getApprovalsByCdcmID(cdcmID) {
+    this.rest.getApprovalsByCdcmID(cdcmID).subscribe(res=>{
+      if(res.status===200){
+        this.cdcmApproval = res.data;
+      }
+    })
   }
 }

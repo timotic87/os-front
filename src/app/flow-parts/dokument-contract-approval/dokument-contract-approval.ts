@@ -30,6 +30,7 @@ export class DokumentContractApproval implements OnInit {
   @Input() docSubTypeID: any;
   @Input() statusIDShow: any;
   @Input() type: 'offer' | 'contract' = 'offer';
+  @Input() approvalID = 3;
 
   docApproval: any;
   activeContractDocument: any;

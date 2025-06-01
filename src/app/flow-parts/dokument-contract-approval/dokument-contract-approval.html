@@ -13,7 +13,7 @@
   <input type="file" #fileInput accept="application/pdf" style="display: none;" (change)="onFileSelected($event)">
 
   <div class="grid grid-cols-3 gap-2 w-full">
-    <app-document-contract-card *ngIf="activeContractDocument" [document]="activeContractDocument"></app-document-contract-card>
+    <app-document-contract-card *ngIf="activeContractDocument" [document]="activeContractDocument" [approvalID]="approvalID"></app-document-contract-card>
     @if (docApproval){
 
       <app-approval-card [approval]="docApproval"></app-approval-card>

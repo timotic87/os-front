@@ -19,6 +19,7 @@ import {DocumentService} from "../../../services/document.service";
 export class DocumentContractCardComponent {
 
   @Input() document: any;
+  @Input() approvalID: any;
 
   constructor(private rest: RestService, private dialogService: DialogService, private documentService: DocumentService) {
   }
@@ -49,7 +50,7 @@ export class DocumentContractCardComponent {
   }
 
   submitDocument(){
-    this.documentService.startApproval(this.document.ID, 3, this.document.dealID);
+    this.documentService.startApproval(this.document.ID, this.approvalID, this.document.dealID);
   }
 
   download(){

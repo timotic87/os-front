@@ -117,7 +117,6 @@ export class CdcmPyDialogComponent implements OnInit {
         this.operationalCostForm.get('payslips').value.num===1 ? this.operationalCostForm.value.payslipsCost = this.payslipsCost:this.operationalCostForm.value.payslipsCost=0;
         this.operationalCostForm.value.franchise_fee = this.deal.legalEntity.franchise_fee;
 
-        console.log(option)
         switch (option){
           case 'Cancel':
             break;

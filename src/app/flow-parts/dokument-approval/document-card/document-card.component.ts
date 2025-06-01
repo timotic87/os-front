@@ -18,6 +18,7 @@ import {DocumentService} from "../../../services/document.service";
 })
 export class DocumentCardComponent {
 
+  @Input() approvalID: any;
   constructor(private rest: RestService, private dialogService: DialogService, public documentService: DocumentService) {
   }
 
@@ -47,7 +48,7 @@ export class DocumentCardComponent {
   }
 
   submitDocument(){
-    this.documentService.startApproval(this.documentService.activeDocument.ID, 2, this.documentService.activeDocument.dealID);
+    this.documentService.startApproval(this.documentService.activeDocument.ID, this.approvalID, this.documentService.activeDocument.dealID);
   }
 
   download(){

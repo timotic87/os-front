@@ -182,9 +182,13 @@
       <span class="m-3 font-semibold block">Operational cost: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.operationalCost">{{cdcmService.calculationCDCM.operationalCost | currency: 'RSD '}}</span></span>
       <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
       <span class="m-3 font-semibold block">Gross profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.grossProfit | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">GP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.gpPercent.toFixed(2)+'%'}}</span></span>
+      <span class="m-3 font-semibold block">GP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.gpPercent+'%'}}</span></span>
       <span class="m-3 font-semibold block">Net profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.netProfit | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">NP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.npPercent.toFixed(2)+'%'}}</span></span>
+      <span class="m-3 font-semibold block">NP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.npPercent+'%'}}</span></span>
+
+      <div>
+        <app-approval-card [approval]="cdcmApproval" *ngIf="cdcmApproval"></app-approval-card>
+      </div>
 
     </div>
   </div>

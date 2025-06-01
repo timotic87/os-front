@@ -7,7 +7,7 @@ import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DialogService} from "../../../../services/dialog.service";
 
 @Component({
-  selector: 'app-promoting-project',
+  selector: 'app-promoting-project-pyhra',
   standalone: true,
     imports: [
         FormsModule,
@@ -16,10 +16,10 @@ import {DialogService} from "../../../../services/dialog.service";
         NgClass,
         PickFileComponent
     ],
-  templateUrl: './promoting-project.component.html',
-  styleUrl: './promoting-project.component.css'
+  templateUrl: './promoting-project-pyhra.component.html',
+  styleUrl: './promoting-project-pyhra.component.css'
 })
-export class PromotingProjectComponent implements OnInit{
+export class PromotingProjectPyhraComponent implements OnInit{
 
   createDealForm: FormGroup;
   contractFile: File = null;
@@ -37,19 +37,14 @@ export class PromotingProjectComponent implements OnInit{
   ngOnInit(): void {
         this.createDealForm = new FormGroup({
           contract_file_name: new FormControl(null, [Validators.required]),
-          salaryFeetype: new FormControl(null, [Validators.required]),
-          costFeetype: new FormControl(null, [Validators.required]),
+          salaryFeetype: new FormControl({value: '', disabled: true}, [Validators.required]),
           isExpired: new FormControl(true ),
           startDate: new FormControl(null, [Validators.required]),
           endDate: new FormControl(null,[Validators.required]),
           salaryValue: new FormControl(null, [Validators.required]),
           salaryType: new FormControl(null, [Validators.required]),
-          costValue: new FormControl(null, [Validators.required]),
-          costType: new FormControl({value: 'COST', disabled:true}, [Validators.required]),
           salarydaysdue: new FormControl(null, [Validators.required]),
-          costdaysdue: new FormControl(null, [Validators.required]),
-          salaryCurrency: new FormControl(null, [Validators.required]),
-          costCurrency: new FormControl(null, [Validators.required])
+          salaryCurrency: new FormControl(null, [Validators.required])
         });
 
         this.createDealForm.get('isExpired').valueChanges.subscribe(value => {
@@ -73,8 +68,7 @@ export class PromotingProjectComponent implements OnInit{
     this.rest.getFeeTypes().subscribe(res=>{
       if (res.status===200){
         this.feeTypes = res.data;
-        this.createDealForm.get('salaryFeetype').setValue(this.feeTypes[0]);
-        this.createDealForm.get('costFeetype').setValue(this.feeTypes[0]);
+        this.createDealForm.get('salaryFeetype').setValue(this.feeTypes[2]);
       }
     });
     this.rest.getSalaryTypes().subscribe(res=>{
@@ -96,20 +90,20 @@ export class PromotingProjectComponent implements OnInit{
     formParams.set('filePath', this.deal.client.name);
     formParams.set('fileName', this.createDealForm.get('contract_file_name').value);
     formParams.set('typeName', 'Contract');
-    formParams.set('subTypeName', 'Staffing and payroll');
+    formParams.set('subTypeName', 'HRA&PY');
     formParams.set('isExpired', this.createDealForm.value.isExpired);
     formParams.set('startDate', this.createDealForm.value.startDate);
     formParams.set('endDate', this.createDealForm.value.endDate);
     formParams.set('clientID', this.deal.client.id);
     formParams.set('salaryFeeTypeID', this.createDealForm.value.salaryFeetype? this.createDealForm.value.salaryFeetype.ID:null);
     formParams.set('fee_type_salary_value', this.createDealForm.value.salaryValue);
-    formParams.set('fee_type_cost_value', this.createDealForm.value.costValue);
+    formParams.set('fee_type_cost_value', null);
     formParams.set('salary_typeID', this.createDealForm.value.salaryType? this.createDealForm.value.salaryType.ID:null);
     formParams.set('payment_due_on_salary', this.createDealForm.value.salarydaysdue);
-    formParams.set('payment_due_on_cost', this.createDealForm.value.costdaysdue);
-    formParams.set('costFeeTypeID', this.createDealForm.value.costFeetype? this.createDealForm.value.costFeetype.ID:null);
+    formParams.set('payment_due_on_cost', null);
+    formParams.set('costFeeTypeID', null);
     formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
-    formParams.set('costCurrency', this.createDealForm.value.costCurrency ? this.createDealForm.value.costCurrency.id:null);
+    formParams.set('costCurrency', null);
 
     this.rest.promotingToProject(formParams).subscribe(res=>{
       if (res.status===200){
