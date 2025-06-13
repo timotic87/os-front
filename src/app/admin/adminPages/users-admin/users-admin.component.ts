@@ -108,8 +108,8 @@ export class UsersAdminComponent {
         if (res.status===200){
           user.permissions = res.data;
           this.dialog.open(UserPermissionsDialogComponent, {
-            width: '800px',
-            minHeight: '600px',
+            width: '70vw',
+            minHeight: '80vh',
             data: user
           })
         }

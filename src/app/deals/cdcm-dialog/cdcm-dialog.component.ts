@@ -41,18 +41,18 @@ export class CdcmDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.basicInfoForm = new FormGroup({
-      No_of_employees: new FormControl(null, [Validators.required]),
-      Grand_Groos_Salaray_per_Employee: new FormControl(null, [Validators.required]),
-      other_cost: new FormControl(null, [Validators.required]),
+      No_of_employees: new FormControl(null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(1999)]),
+      Grand_Groos_Salaray_per_Employee: new FormControl(null, [Validators.required, Validators.min(60000)]),
+      other_cost: new FormControl(null),
       disabled_people: new FormControl({value: 0, disabled: true}),
       Charging_DP: new FormControl({value: this.ChargingDPArr[0], disabled: true}),
       feeTypes: new FormControl(this.feeTypes[0]),
-      MU_on_salary: new FormControl(null, [Validators.required]),
-      MU_on_costs: new FormControl(null, [Validators.required]),
+      MU_on_salary: new FormControl(null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(100)]),
+      MU_on_costs: new FormControl(null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(100)]),
       MU_on_disabled_people: new FormControl(null),
       Flat_fee: new FormControl({value: null, disabled: true}),
-      due_days_on_cost: new FormControl(null, [Validators.required]),
-      due_days_on_fee: new FormControl(null, [Validators.required])
+      due_days_on_cost: new FormControl(null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]),
+      due_days_on_fee: new FormControl(null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')])
     });
     this.basicInfoForm.get('No_of_employees').valueChanges.subscribe(value => {
       this.collective_insurance = value * this.cdcmService.cdcmStaticsList[0].valueDouble;
@@ -73,11 +73,11 @@ export class CdcmDialogComponent implements OnInit {
         this.basicInfoForm.get('Flat_fee').clearValidators();
         this.basicInfoForm.get('MU_on_salary').enable();
         this.basicInfoForm.get('MU_on_costs').enable();
-        this.basicInfoForm.get('MU_on_salary').setValidators([Validators.required]);
-        this.basicInfoForm.get('MU_on_costs').setValidators([Validators.required]);
+        this.basicInfoForm.get('MU_on_salary').setValidators([Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(100)]);
+        this.basicInfoForm.get('MU_on_costs').setValidators([Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(100)]);
       } else {
         this.basicInfoForm.get('Flat_fee').enable();
-        this.basicInfoForm.get('Flat_fee').setValidators([Validators.required]);
+        this.basicInfoForm.get('Flat_fee').setValidators([Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]);
         this.basicInfoForm.get('MU_on_salary').disable();
         this.basicInfoForm.get('MU_on_costs').disable();
         this.basicInfoForm.get('MU_on_salary').clearValidators();
@@ -102,9 +102,9 @@ export class CdcmDialogComponent implements OnInit {
       hra_checkbox: new FormControl(true),
       payroll_checkbox: new FormControl(true),
       HRA_Consultant: new FormControl('', Validators.required),
-      HRA_percent_of_time: new FormControl('', Validators.required),
+      HRA_percent_of_time: new FormControl('', [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(100)]),
       PY_Consultant: new FormControl('', Validators.required),
-      PY_percent_of_time: new FormControl('', Validators.required),
+      PY_percent_of_time: new FormControl('', [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$'), Validators.max(100)]),
       additional_costs: new FormControl(0, Validators.required),
       payslips: new FormControl(this.PayslipsArr[1]),
       aditionalCostComment:  new FormControl(null)

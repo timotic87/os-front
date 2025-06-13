@@ -12,6 +12,14 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Montserrat, sans-serif; }
-/*button, a, div, span {*/
-/*  caret-color: transparent;*/
-/*}*/
+* {
+  caret-color: transparent;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  caret-color: auto;
+}
+

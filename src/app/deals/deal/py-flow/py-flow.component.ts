@@ -22,6 +22,7 @@ import {PromotingProjectComponent} from "../stuffing-flow/promoting-project/prom
 import {PromotingProjectPyhraComponent} from "./promoting-project-pyhra/promoting-project-pyhra.component";
 import {ProjectCardComponent} from "../stuffing-flow/project-card/project-card.component";
 import {ProjectCardPyhraComponent} from "./project-card-pyhra/project-card-pyhra.component";
+import {DialogService} from "../../../services/dialog.service";
 
 @Component({
   selector: 'app-py-flow',
@@ -51,7 +52,8 @@ export class PyFlowComponent implements OnInit {
   inactiveCDCM: any[];
   cdcmApproval;
 
-  constructor(private matDialog: MatDialog, private rest: RestService, private cdcmService: CDCMService, private documentService: DocumentService) {
+  constructor(private matDialog: MatDialog, private rest: RestService, private cdcmService: CDCMService, private documentService: DocumentService,
+              private dialogService: DialogService) {
 
     documentService.approvalStart.subscribe(data=>{
       window.location.reload();
@@ -129,27 +131,49 @@ export class PyFlowComponent implements OnInit {
   }
 
   updateDealStatus(event: Event){
+    if (event['clientAccepted']===null){
+      console.log('test')
+      this.dialogService.showSnackBar('Choose the client response first', null, 2500);
+      return;
+    }
     if (event['clientAccepted'] === true){
       let statusID = 9
       if (event['status']==='contractAccepted_by_client') statusID=13
-      this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe(res=>{
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+      this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
+        next: () =>{
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        },
+        error: err=>{
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+        }
       });
     } else {
-      this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe(res=>{
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+      this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe({
+        next: () =>{
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        },
+        error: err=>{
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+        }
+
       });
     }
   }
 
   contractSinged(){
-    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 14}).subscribe(res=>{
-      if (res.status===200){
+    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 14}).subscribe({
+      next: res=>{
+        if (res.status===200){
         window.location.reload();
         window.scrollTo(0, document.body.scrollHeight);
       }
+      },
+      error: err=>{
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+      }
+
     });
   }
 

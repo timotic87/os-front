@@ -8,6 +8,7 @@ import {ClientModel} from "../../models/clientModel";
 import {CountryService} from "../../services/country.service";
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
 import {DialogService} from "../../services/dialog.service";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-client-view-dialog',
@@ -25,8 +26,7 @@ export class ClientViewDialogComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<ClientViewDialogComponent>,
               public currencyService: CurrencyService, private clientService: ClientsService, public countryService: CountryService,
-              private dialogService: DialogService) {
-    console.log(data)
+              private dialogService: DialogService, public userService: UserService) {
     currencyService.getCurrencyList()
     this.listOfCountry = countryService.getCountryList();
   }
@@ -54,6 +54,12 @@ export class ClientViewDialogComponent implements OnInit {
   }
 
   editClient(){
+
+    if(!this.userService.can('edit_all_clients')){
+      this.dialogService.showMsgDialog("You don't have permission to edit the client!!");
+      return;
+    }
+
     this.isEditable = !this.isEditable;
   }
 

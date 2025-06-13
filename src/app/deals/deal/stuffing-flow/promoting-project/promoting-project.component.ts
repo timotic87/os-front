@@ -1,10 +1,10 @@
-import {Component, Inject, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgIf} from "@angular/common";
 import {PickFileComponent} from "../../../../clients/documentaton/elements/pick-file/pick-file.component";
 import {RestService} from "../../../../services/rest.service";
-import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DialogService} from "../../../../services/dialog.service";
+import {UserService} from "../../../../services/user.service";
 
 @Component({
   selector: 'app-promoting-project',
@@ -30,27 +30,69 @@ export class PromotingProjectComponent implements OnInit{
 
   @Input() deal: any
 
-  constructor(private rest: RestService, private dialogService: DialogService) {
+  constructor(private rest: RestService, private dialogService: DialogService, private userService: UserService) {
     this.getStatics();
   }
 
   ngOnInit(): void {
         this.createDealForm = new FormGroup({
-          contract_file_name: new FormControl(null, [Validators.required]),
+          contract_file_name: new FormControl(null, [Validators.required, Validators.minLength(3)]),
           salaryFeetype: new FormControl(null, [Validators.required]),
           costFeetype: new FormControl(null, [Validators.required]),
           isExpired: new FormControl(true ),
           startDate: new FormControl(null, [Validators.required]),
           endDate: new FormControl(null,[Validators.required]),
-          salaryValue: new FormControl(null, [Validators.required]),
+          salaryValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
           salaryType: new FormControl(null, [Validators.required]),
-          costValue: new FormControl(null, [Validators.required]),
+          costValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
           costType: new FormControl({value: 'COST', disabled:true}, [Validators.required]),
-          salarydaysdue: new FormControl(null, [Validators.required]),
-          costdaysdue: new FormControl(null, [Validators.required]),
+          salarydaysdue: new FormControl(null, [Validators.required, Validators.min(1)]),
+          costdaysdue: new FormControl(null, [Validators.required, Validators.min(1)]),
           salaryCurrency: new FormControl(null, [Validators.required]),
           costCurrency: new FormControl(null, [Validators.required])
         });
+
+        this.createDealForm.get('salaryFeetype').valueChanges.subscribe(value => {
+          if (value.ID===3) {
+            this.createDealForm.get('salaryType').setValue(null);
+            this.createDealForm.get('salaryValue').setValue(null);
+            this.createDealForm.get('salaryType').clearValidators();
+            this.createDealForm.get('salaryValue').clearValidators();
+            this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1)]);
+          }else if(value.ID===1) {
+            this.createDealForm.get('salaryType').setValue(null);
+            this.createDealForm.get('salaryValue').setValue(null);
+            this.createDealForm.get('salaryType').clearValidators();
+            this.createDealForm.get('salaryValue').clearValidators();
+            this.createDealForm.get('salaryType').addValidators(Validators.required);
+            this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+          }else if(value.ID===2){
+            this.createDealForm.get('salaryType').setValue(null);
+            this.createDealForm.get('salaryValue').setValue(null);
+            this.createDealForm.get('salaryType').clearValidators();
+            this.createDealForm.get('salaryValue').clearValidators();
+            this.createDealForm.get('salaryType').addValidators(Validators.required);
+            this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1)]);
+          }
+
+        });
+
+    this.createDealForm.get('costFeetype').valueChanges.subscribe(value => {
+      if (value.ID===3) {
+        this.createDealForm.get('costValue').setValue(null);
+        this.createDealForm.get('costValue').clearValidators();
+        this.createDealForm.get('costValue').addValidators([Validators.required, Validators.min(1)]);
+      }else if(value.ID===1) {
+        this.createDealForm.get('costValue').setValue(null);
+        this.createDealForm.get('costValue').clearValidators();
+        this.createDealForm.get('costValue').addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+      }else if(value.ID===2){
+        this.createDealForm.get('costValue').setValue(null);
+        this.createDealForm.get('costValue').clearValidators();
+        this.createDealForm.get('costValue').addValidators([Validators.required, Validators.min(1)]);
+      }
+
+    });
 
         this.createDealForm.get('isExpired').valueChanges.subscribe(value => {
           if (value) {
@@ -89,7 +131,17 @@ export class PromotingProjectComponent implements OnInit{
     })
   }
 
-  promoteProjectClick(){
+  async promoteProjectClick(){
+    if (!this.userService.can('edit_deal') && !await this.userService.hasEntityAccess('deal', this.deal.ID, 'edit')){
+      this.dialogService.showMsgDialog("You don't have the right to change deals.");
+      return
+    }
+
+    if (!this.createDealForm.valid) {
+      this.dialogService.showMsgDialog("Please fill in all required fields");
+      return;
+    }
+
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
     formParams.set('dealID', this.deal.ID);
@@ -111,11 +163,21 @@ export class PromotingProjectComponent implements OnInit{
     formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
     formParams.set('costCurrency', this.createDealForm.value.costCurrency ? this.createDealForm.value.costCurrency.id:null);
 
-    this.rest.promotingToProject(formParams).subscribe(res=>{
-      if (res.status===200){
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+
+    this.dialogService.showLoader();
+    this.rest.promotingToProject(formParams).subscribe({
+      next: res =>{
+        if (res.status===200){
+          this.dialogService.closeLoader();
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
+
     })
 
   }

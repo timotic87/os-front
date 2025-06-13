@@ -16,12 +16,12 @@
           <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="createDealForm.get('contract_file_name').touched && !createDealForm.get('contract_file_name').valid ? 'border-red-500':''" formControlName="contract_file_name" autocomplete="contract_file_name">
         </div>
-      </div>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('contract_file_name').touched && !createDealForm.get('contract_file_name').valid">Minimum 3 characters.</label>
 
+      </div>
 
       <div class="col-span-1">
                 <div class="toggleCustom w-full pl-3 flex flex-row">
-        <!--          (change)="isExpiredChange();"-->
                   <input
 
                     formControlName="isExpired"
@@ -73,17 +73,21 @@
       </div>
       <div class="col-span-2"></div>
 
+      @if (createDealForm.get('salaryFeetype').value) {
       @switch (createDealForm.get('salaryFeetype').value.ID){
         @case (1){
           <div class="grid grid-cols-4 gap-4 col-span-4">
             <div class="col-span-1">
               <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary percent</div>
               <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-                <input type="number"
+                <input type="number" placeholder="Enter a number (as %)"
                        class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                        [ngClass]="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid ? 'border-red-500':''"
                        formControlName="salaryValue" autocomplete="new-salaryValue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid">The field is not valid.</label>
+
+
             </div>
             <div class="col-span-2">
               <div class="text-gray-600 dark:text-gray-300">Salary type:</div>
@@ -93,7 +97,7 @@
                   <option [ngValue]="salaryType">{{ salaryType.name }}</option>
                 }
               </select>
-              <!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>-->
+                 <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>
             </div>
 
             <div class="col-span-1">
@@ -105,6 +109,8 @@
                        [ngClass]="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid ? 'border-red-500':''"
                        formControlName="salarydaysdue" autocomplete="new-salarydaysdue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid">The field is not valid.</label>
+
             </div>
           </div>
         }
@@ -113,11 +119,13 @@
             <div class="col-span-1">
               <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary multiplier</div>
               <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-                <input type="number"
+                <input type="number" placeholder="Enter multiplier number (as 1.1)"
                        class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                        [ngClass]="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid ? 'border-red-500':''"
                        formControlName="salaryValue" autocomplete="new-salaryValue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid">The field is not valid.</label>
+
             </div>
             <div class="col-span-2">
               <div class="text-gray-600 dark:text-gray-300">Salary type:</div>
@@ -127,7 +135,7 @@
                   <option [ngValue]="salaryType">{{ salaryType.name }}</option>
                 }
               </select>
-              <!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>-->
+                      <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>
             </div>
 
             <div class="col-span-1">
@@ -139,6 +147,8 @@
                        [ngClass]="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid ? 'border-red-500':''"
                        formControlName="salarydaysdue" autocomplete="new-salarydaysdue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid">Must select Salary type.</label>
+
             </div>
           </div>
         }
@@ -147,11 +157,13 @@
             <div class="col-span-2">
               <div class="flex justify-center text-gray-600 dark:text-gray-300">Salary fix fee</div>
               <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-                <input type="number"
+                <input type="number"  placeholder="Enter a number (as RSD)"
                        class="customNumberInput w-full h-11 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                        [ngClass]="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid ? 'border-red-500':''"
                        formControlName="salaryValue" autocomplete="new-salaryValue">
               </div>
+                      <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryValue').touched && !createDealForm.get('salaryValue').valid">The field is not valid.</label>
+
             </div>
             <div class="col-span-1">
               <div class="text-gray-600 dark:text-gray-300">Currency:</div>
@@ -161,7 +173,7 @@
                   <option [ngValue]="currency">{{ currency.name }}</option>
                 }
               </select>
-              <!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>-->
+                      <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryCurrency').touched && !createDealForm.get('salaryCurrency').valid">Must select currency.</label>
             </div>
 
             <div class="col-span-1">
@@ -173,11 +185,13 @@
                        [ngClass]="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid ? 'border-red-500':''"
                        formControlName="salarydaysdue" autocomplete="new-salarydaysdue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salarydaysdue').touched && !createDealForm.get('salarydaysdue').valid">The field is not valid.</label>
+
             </div>
           </div>
         }
       }
-
+      }
 
       <div class="col-span-2">
 <!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costFeetype').touched && !createDealForm.get('costFeetype').valid">Must select Fee type.</label>-->
@@ -193,6 +207,8 @@
         </select>
       </div>
       <div class="col-span-2"></div>
+
+      @if (createDealForm.get('costFeetype').value) {
       @switch (createDealForm.get('costFeetype').value.ID){
         @case (1){
           <div class="col-span-1">
@@ -203,6 +219,8 @@
                      [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
                      formControlName="costValue" autocomplete="new-costValue">
             </div>
+            <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid">The field is not valid.</label>
+
           </div>
           <div class="col-span-2">
 
@@ -211,9 +229,7 @@
               <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                      [ngClass]="createDealForm.get('costType').touched && !createDealForm.get('costType').valid ? 'border-red-500':''" formControlName="costType" autocomplete="new-costType">
             </div>
-            <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('costType').touched && !createDealForm.get('costType').valid">Name needs to be minimum 3 characters long.</label>
-
-          </div>
+               </div>
           <div class="col-span-1">
             <div class="flex justify-center text-gray-600 dark:text-gray-300">Cost days due</div>
             <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -223,6 +239,7 @@
                      [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
                      formControlName="costdaysdue" autocomplete="new-costdaysdue">
             </div>
+            <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid">The field is not valid.</label>
           </div>
         }
         @case (2){
@@ -234,6 +251,8 @@
                      [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
                      formControlName="costValue" autocomplete="new-costValue">
             </div>
+            <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid">The field is not valid.</label>
+
           </div>
           <div class="col-span-2">
 
@@ -242,7 +261,6 @@
               <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                      [ngClass]="createDealForm.get('costType').touched && !createDealForm.get('costType').valid ? 'border-red-500':''" formControlName="costType" autocomplete="new-costType">
             </div>
-            <label class="text-xs text-red-500 block text-center" *ngIf="createDealForm.get('costType').touched && !createDealForm.get('costType').valid">Name needs to be minimum 3 characters long.</label>
 
           </div>
           <div class="col-span-1">
@@ -254,6 +272,8 @@
                      [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
                      formControlName="costdaysdue" autocomplete="new-costdaysdue">
             </div>
+            <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid">The field is not valid.</label>
+
           </div>
         }
         @case (3){
@@ -266,6 +286,8 @@
                        [ngClass]="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid ? 'border-red-500':''"
                        formControlName="costValue" autocomplete="new-costValue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costValue').touched && !createDealForm.get('costValue').valid">The field is not valid.</label>
+
             </div>
             <div class="col-span-1">
               <div class="text-gray-600 dark:text-gray-300">Currency:</div>
@@ -275,7 +297,7 @@
                   <option [ngValue]="currency">{{ currency.name }}</option>
                 }
               </select>
-              <!--        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('salaryType').touched && !createDealForm.get('salaryType').valid">Must select Salary type.</label>-->
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costCurrency').touched && !createDealForm.get('costCurrency').valid">Must select currency.</label>
             </div>
 
             <div class="col-span-1">
@@ -287,15 +309,18 @@
                        [ngClass]="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid ? 'border-red-500':''"
                        formControlName="costdaysdue" autocomplete="new-costdaysdue">
               </div>
+              <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="createDealForm.get('costdaysdue').touched && !createDealForm.get('costdaysdue').valid">The field is not valid.</label>
+
             </div>
           </div>
         }
+      }
       }
 
       <hr class="col-span-4 mb-3 mt-4 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
 
       <button (click)="promoteProjectClick();"
-              class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
+              class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
     hover:shadow-blue-500/40 focus:opacity-[0.85]

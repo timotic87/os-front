@@ -62,8 +62,15 @@ export class DealComentsDialogComponent implements OnInit{
     if(this.commentForm.valid){
       this.dialogService.showLoader();
       const data = { dealID: this.dealID, comment: this.commentForm.value.commentText };
-      this.rest.createDealComment(data).subscribe(res=>{
-        this.dialogService.closeLoader();
+      this.rest.createDealComment(data).subscribe({
+        next: () => {
+          this.dialogService.closeLoader();
+        },
+        error: err => {
+          this.dialogService.closeLoader();
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+        }
+
       });
     }else {
 
@@ -77,21 +84,4 @@ export class DealComentsDialogComponent implements OnInit{
     })
   }
 
-
-  async checkPermission() {
-
-    try {
-      const res = await firstValueFrom(this.rest.getUserPermissions(this.userService.getUser().id));
-
-      const permCreateComment = res.data.find(permission => permission.name === 'create_all_comments');
-
-      if (permCreateComment.userId) {
-        this.createCommentPerm = true;
-      }
-
-    } catch (error) {
-      console.error('❌ Error while checking permissions:', error);
-      this.dialogService.showMsgDialog('Error while checking permissions');
-    }
-  }
 }

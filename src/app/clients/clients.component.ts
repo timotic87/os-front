@@ -34,7 +34,7 @@ export class ClientsComponent implements OnInit{
   lastItemNumber = 50;
   constructor(private rest: RestService,
               public clientService: ClientsService,private dialog: MatDialog, private dialogService: DialogService,
-              private userService: UserService) {
+              public userService: UserService) {
     this.checkPermissions()
     clientService.listOfClients = []
     this.reloadClients();
@@ -48,6 +48,7 @@ export class ClientsComponent implements OnInit{
     }
 
   onView(client: any){
+
     this.dialog.open(ClientViewDialogComponent, {
       width: '800px',
       minHeight: '600px',
@@ -110,6 +111,12 @@ export class ClientsComponent implements OnInit{
   }
 
   delete(client){
+
+    if (!this.userService.can('delete_client')){
+      this.dialogService.showMsgDialog("You dont have permission to delete client");
+      return;
+    }
+
     this.dialogService.showChooseDialog("Da li ste sigurni da zelite da obrisete ovog klijenta").afterClosed().subscribe(isYes=>{
       if (isYes){
         let data = {clientId: client.id, socketData: undefined}

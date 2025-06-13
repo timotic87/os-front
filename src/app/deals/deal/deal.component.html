@@ -18,7 +18,7 @@
                 class="cdcmChildeTwo mt-25 z-10 text-base list-none bg-white divide-y divide-gray-100 shadow w-44 dark:bg-gray-700 relative">
         <ul>
           <li>
-            <a href="javascript:void(0)"
+            <a href="javascript:void(0)" (click)="changeBD()"
                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Change BD</a>
           </li>
           <li>
@@ -77,41 +77,48 @@
           Number for finance: <span class="text-[#386097] dark:text-[#56BDED] mr-6">{{ 'xxxxxxx' }}</span></p>
       </div>
       <div class="border-2 border-[#386097] dark:border-[#56BDED] p-3 rounded-lg col-span-2 xl:col-span-1">
-        <div class="flex items-start gap-2.5 mt-3" *ngIf="lastComment">
-          @if (lastComment.creator.profilePicUrl){
-            <img class="w-8 h-8 rounded-full" [src]=lastComment.creator.profilePicUrl alt="user img" style="object-fit: cover;">
-          } @else {
-            <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
-          }
-          <div
-            class="commentWraper flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+        @if (lastComment && userService.can('view_all_comments')) {
+          <div class="flex items-start gap-2.5 mt-3">
+            @if (lastComment.creator.profilePicUrl){
+              <img class="w-8 h-8 rounded-full" [src]=lastComment.creator.profilePicUrl alt="user img" style="object-fit: cover;">
+            } @else {
+              <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
+            }
+            <div
+              class="commentWraper flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+              <div class="flex items-center space-x-2 rtl:space-x-reverse">
               <span
                 class="text-sm font-semibold text-gray-900 dark:text-white">{{ lastComment.creator.firstName+' '+lastComment.creator.lastName }}</span>
-              <span
-                class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ lastComment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+                <span
+                  class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ lastComment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+              </div>
+              <p
+                class="commentText text-sm font-normal pt-2.5 text-gray-900 dark:text-white">{{ lastComment.comment }}</p>
             </div>
-            <p
-              class="commentText text-sm font-normal pt-2.5 text-gray-900 dark:text-white">{{ lastComment.comment }}</p>
           </div>
-        </div>
+        } @else {
+          @if (!userService.can('view_all_comments')){
+            <p>You don't have permission to see comments!</p>
+          }
+
+        }
 
         <div class="flex flex-column justify-end" *ngIf="lastComment">
-          <div class="hover:cursor-pointer w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block" (click)="openComment()" >
+          <button class="hover:cursor-pointer w-8 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110 inline-block" (click)="openComment()" [disabled]="!userService.can('create_all_comments') || !userService.can('view_all_comments')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
             </svg>
-          </div>
+          </button>
         </div>
 
         <div *ngIf="!lastComment">
-          @if (commentPerm){
+          @if (userService.can('view_all_comments')){
             <p>No comment yet!</p>
           } @else {
             <p>You don't have permission to see comments!</p>
           }
 
-          <button (click)="openComment();" [disabled]="!createCommentPerm"
+          <button (click)="openComment();" [disabled]="!userService.can('create_all_comments') || !userService.can('view_all_comments')"
                   class="hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg

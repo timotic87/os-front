@@ -15,8 +15,8 @@ import {environment} from "../../../environments/environment";
 import {socketEnum} from "../../services/enum-sevice";
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {HistoryDialogComponent} from "../../customComponents/history-dialog/history-dialog.component";
-import {firstValueFrom} from "rxjs";
 import {PyFlowComponent} from "./py-flow/py-flow.component";
+import {ChangeBdConsultantDialogComponent} from "./change-bd-consultant-dialog/change-bd-consultant-dialog.component";
 
 @Component({
   selector: 'app-project',
@@ -46,22 +46,20 @@ export class DealComponent implements OnInit{
 
   formGroup: FormGroup;
 
-  commentPerm: boolean = false;
-  createCommentPerm: boolean = false;
 
   socket: Socket;
 
 
-  constructor(private route: ActivatedRoute, private matDialog: MatDialog, private userService: UserService,
+
+  constructor(private route: ActivatedRoute, private matDialog: MatDialog, public userService: UserService,
               private rest: RestService, private dialogService: DialogService) {
     this.dealID = +this.route.snapshot.paramMap.get('id');
     this.sockets();
     this.getDealFunc(this.dealID);
     this.getLastComment(this.dealID);
-    this.checkPermission();
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     }
 
   openComment(){
@@ -74,11 +72,18 @@ export class DealComponent implements OnInit{
 
   getDealFunc(id: number){
     this.dialogService.showLoader();
-    this.rest.getDealByID(id).subscribe(res=>{
-      this.dialogService.closeLoader()
-      if (res.status === 200){
-        this.deal = res.data;
+    this.rest.getDealByID(id).subscribe({
+      next: res =>{
+        this.dialogService.closeLoader()
+        if (res.status === 200){
+          this.deal = res.data;
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
+
     });
   }
 
@@ -102,65 +107,73 @@ export class DealComponent implements OnInit{
   }
 
   changeDealStatus(statusID){
+
+    if (!this.userService.can('change_deal_status')){
+      this.dialogService.showMsgDialog("You don't have the right to change deal status.");
+      return
+    }
+
     this.dialogService.showLoader();
     this.rest.changeDealStatus({dealID: this.deal.ID, statusID}).subscribe({
       next: (res)=>{
-        console.log(res)
+        this.dialogService.closeLoader();
         if(res.status === 200){
           this.deal.status = res.data.deal.status;
           this.deal.statusID = statusID;
           this.dialogService.showSnackBar("Project status updated successfully!", '', 3000);
         }
       },
-      error: (error)=>{
-        this.dialogService.showERRMsgDialog(error);
-      },
-      complete: ()=>{
+      error: (err)=>{
         this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
     })
   }
 
   openHistory(){
+
+    if (!this.userService.can('view_deal_history')){
+      this.dialogService.showMsgDialog("You don't have the right to see the deal history.");
+      return
+    }
+
     this.dialogService.showLoader();
 
     this.rest.getAuditLogsByEntityAndEntityID({entity: 'Deal', entityID: this.dealID}).subscribe({
       next: (res)=>{
+        this.dialogService.closeLoader();
         this.matDialog.open(HistoryDialogComponent, {
           width: '70vw',
           maxHeight: '90vh',
           data: res.data,
         })
       },
-      error: (error)=>{
-        this.dialogService.showERRMsgDialog(error);
-      },
-      complete: ()=>{
+      error: (err)=>{
         this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
     });
   }
 
-  async checkPermission() {
-
-    try {
-      const res = await firstValueFrom(this.rest.getUserPermissions(this.userService.getUser().id));
-      const permViewComment = res.data.find(permission => permission.name === 'view_all_comments');
-
-      if (permViewComment.userId) {
-        this.commentPerm = true;
-      }
-
-      const permCreateComment = res.data.find(permission => permission.name === 'create_all_comments');
-
-      if (permCreateComment.userId) {
-        this.createCommentPerm = true;
-      }
-
-    } catch (error) {
-      console.error('❌ Error while checking permissions:', error);
-      this.dialogService.showMsgDialog('Error while checking permissions');
+  changeBD(){
+    if (!this.userService.can('change_deal_bd')){
+      this.dialogService.showMsgDialog("You don't have the right to change BD consultant.");
+      return
     }
+
+
+    this.matDialog.open(ChangeBdConsultantDialogComponent, {
+      width: '30vw',
+      data: this.dealID,
+    }).afterClosed().subscribe({
+      next: isOk=>{
+        if(isOk){
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      }
+    })
   }
+
 
 }

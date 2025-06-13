@@ -5,6 +5,7 @@ import {PickFileComponent} from "../../../../clients/documentaton/elements/pick-
 import {RestService} from "../../../../services/rest.service";
 import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DialogService} from "../../../../services/dialog.service";
+import {UserService} from "../../../../services/user.service";
 
 @Component({
   selector: 'app-promoting-project-pyhra',
@@ -30,7 +31,7 @@ export class PromotingProjectPyhraComponent implements OnInit{
 
   @Input() deal: any
 
-  constructor(private rest: RestService, private dialogService: DialogService) {
+  constructor(private rest: RestService, private dialogService: DialogService, private userService: UserService) {
     this.getStatics();
   }
 
@@ -41,8 +42,8 @@ export class PromotingProjectPyhraComponent implements OnInit{
           isExpired: new FormControl(true ),
           startDate: new FormControl(null, [Validators.required]),
           endDate: new FormControl(null,[Validators.required]),
-          salaryValue: new FormControl(null, [Validators.required]),
-          salaryType: new FormControl(null, [Validators.required]),
+          salaryValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
+          salaryType: new FormControl({value: null, disabled: true}),
           salarydaysdue: new FormControl(null, [Validators.required]),
           salaryCurrency: new FormControl(null, [Validators.required])
         });
@@ -83,7 +84,17 @@ export class PromotingProjectPyhraComponent implements OnInit{
     })
   }
 
-  promoteProjectClick(){
+ async promoteProjectClick(){
+    if (!this.userService.can('edit_deal') && !await this.userService.hasEntityAccess('deal', this.deal.ID, 'edit')){
+      this.dialogService.showMsgDialog("You don't have the right to change deals.");
+      return
+    }
+
+    if (!this.createDealForm.valid) {
+      this.dialogService.showMsgDialog("Please fill in all required fields");
+      return;
+    }
+
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
     formParams.set('dealID', this.deal.ID);
@@ -105,11 +116,20 @@ export class PromotingProjectPyhraComponent implements OnInit{
     formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
     formParams.set('costCurrency', null);
 
-    this.rest.promotingToProject(formParams).subscribe(res=>{
-      if (res.status===200){
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+    this.dialogService.showLoader();
+    this.rest.promotingToProject(formParams).subscribe({
+      next: res=>{
+        if (res.status===200){
+          this.dialogService.closeLoader();
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
+
     })
 
   }

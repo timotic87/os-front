@@ -8,6 +8,7 @@ import {ApprovalCardComponent} from "../../customComponents/approval-card/approv
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {DocumentContractCardComponent} from "./document-contract-card/document-contract-card.component";
 import {DocumentCardComponent} from "../dokument-approval/document-card/document-card.component";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-dokument-contract-approval',
@@ -17,8 +18,7 @@ import {DocumentCardComponent} from "../dokument-approval/document-card/document
     ApprovalCardComponent,
     MatMenu,
     MatMenuTrigger,
-    DocumentContractCardComponent,
-    DocumentCardComponent
+    DocumentContractCardComponent
   ],
   templateUrl: './dokument-contract-approval.html',
   styleUrl: './dokument-contract-approval.css'
@@ -36,7 +36,7 @@ export class DokumentContractApproval implements OnInit {
   activeContractDocument: any;
   inactiveContractDocuments: any = [];
 
-  constructor(public matDialog: MatDialog, public rest: RestService, public dialogService: DialogService) {
+  constructor(public matDialog: MatDialog, public rest: RestService, public dialogService: DialogService, private userService: UserService) {
 
   }
 
@@ -47,7 +47,11 @@ export class DokumentContractApproval implements OnInit {
     }
 
 
-  openFileExplorer(fileInput: HTMLInputElement) {
+  async openFileExplorer(fileInput: HTMLInputElement) {
+    if (!this.userService.can('edit_deal') && !await this.userService.hasEntityAccess('deal', this.deal.ID, 'edit')){
+      this.dialogService.showMsgDialog("You don't have the right to change deals.");
+      return
+    }
     fileInput.click();
   }
 
@@ -113,17 +117,11 @@ export class DokumentContractApproval implements OnInit {
   }
 
   showInactiveDoc(datafile: any){
-    this.rest.getFile(datafile.ID).subscribe(res=>{
-      let blob:Blob=res as Blob;
-      let myBlob= new Blob([blob], {type: 'application/pdf'})
-      const newWindow = window.open();
-      newWindow.document.write(`<iframe src="${URL.createObjectURL(myBlob)}" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-    });
-
+    window.open(`/documentview/${datafile.ID}`, '_blank');
   }
 
   downloadInactiveFile(datafile: any){
-    this.rest.getFile(datafile.ID).subscribe(res => {
+    this.rest.downloadFile(datafile.ID).subscribe(res => {
       const blob = new Blob([res], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
 

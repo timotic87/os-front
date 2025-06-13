@@ -19,14 +19,14 @@
           <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="addClientForm.get('mb').touched && !addClientForm.get('mb').valid ? 'border-red-500':''" formControlName="mb" autocomplete="new-mb">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('mb').touched && !addClientForm.get('mb').valid">Must have 8 characters and only numbers</label>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('mb').touched && !addClientForm.get('mb').valid">{{validationTextes.mb}}</label>
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">TIN:</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
           <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="addClientForm.get('pib').touched && !addClientForm.get('pib').valid ? 'border-red-500':''" formControlName="pib" autocomplete="new-pib">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('pib').touched && !addClientForm.get('pib').valid">Must have 8 characters and only numbers</label>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('pib').touched && !addClientForm.get('pib').valid">{{validationTextes.pib}}</label>
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Mail:</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -41,9 +41,9 @@
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
           <input type="text" formControlName="country" [matAutocomplete]="autoCountry" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="addClientForm.get('country').touched && !addClientForm.get('country').valid ? 'border-red-500':''" autocomplete="new-country">
-          <mat-autocomplete #autoCountry="matAutocomplete" class="bg-white dark:bg-gray-600">
+          <mat-autocomplete #autoCountry="matAutocomplete">
             @for (country of listOfCountry; track country){
-              <mat-option [value]="country.name" (click)="onCountryClick(country)">{{country.name}}</mat-option>
+              <mat-option [value]="country.name" (click)="onCountryClick(country)" class="bg-white dark:bg-gray-600">{{country.name}}</mat-option>
             }
           </mat-autocomplete>
 
@@ -54,7 +54,7 @@
           <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="city" autocomplete="new-city"
                  [ngClass]="addClientForm.get('city').touched && !addClientForm.get('city').valid ? 'border-red-500':''">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('city').touched && !addClientForm.get('city').valid">City needs to be minimum 2 characters long.</label>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('city').touched && !addClientForm.get('city').valid">City needs to be minimum 5 characters long.</label>
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Address:</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
           <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="address" autocomplete="new-address"
@@ -66,7 +66,7 @@
           <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="zipCode" autocomplete="new-zipCpde"
                  [ngClass]="addClientForm.get('zipCode').touched && !addClientForm.get('zipCode').valid ? 'border-red-500':''">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('zipCode').touched && !addClientForm.get('zipCode').valid">Must have 5 characters and only numbers</label>
+        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('zipCode').touched && !addClientForm.get('zipCode').valid">{{validationTextes.zip}}</label>
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Invoice currency:</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">

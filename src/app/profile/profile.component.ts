@@ -5,16 +5,15 @@ import {CookieService} from "ngx-cookie-service";
 import {Router} from "@angular/router";
 import { Storage, ref, uploadBytesResumable, getDownloadURL } from '@angular/fire/storage';
 import {Observable} from "rxjs";
-import {AsyncPipe, NgIf} from "@angular/common";
 import {RestService} from "../services/rest.service";
+import {DatePipe} from "@angular/common";
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [
-    AsyncPipe,
-    NgIf
+    DatePipe
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -27,8 +26,11 @@ export class ProfileComponent {
 
   progress = 0
 
+  dealList;
+
   constructor(private dialogService: DialogService, public userService: UserService, private cookieService: CookieService, private router: Router, private storage: Storage, private rest: RestService) {
     this.urlPic=userService.getUser().picUrl
+    this.getMyDeals();
   }
 
 onChangePassClick(){
@@ -92,14 +94,22 @@ onChangePassClick(){
     });
   }
 
-  async getUrl(){
-    // const filePath = `uploads/1.jpg`;
-    // const fileRef = ref(this.storage, filePath);
-    // // @ts-ignore
-    // this.downloadURL$ = new Observable<string | undefined>(async (observer) => {
-    //   const url = await getDownloadURL(fileRef);
-    //   observer.next(url);
-    // });
+  getMyDeals(){
+    this.dialogService.showLoader();
+    this.rest.getDealsByEntityAccess().subscribe({
+      next: res=>{
+        this.dialogService.closeLoader();
+        this.dealList = res.data;
+      },
+      error: err=>{
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+      }
+    })
+  }
+
+  onDealClick(deal){
+      this.router.navigate([`/deal/${deal.ID}`]);
   }
 
 }

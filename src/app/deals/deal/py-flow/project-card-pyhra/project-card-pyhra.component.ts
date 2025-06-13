@@ -40,7 +40,7 @@ export class ProjectCardPyhraComponent implements OnInit {
   }
 
   showDoc(doc){
-  this.rest.getFile(doc.ID).subscribe(res=>{
+  this.rest.getFileWW(doc.ID).subscribe(res=>{
     let blob:Blob=res as Blob;
     let myBlob= new Blob([blob], {type: 'application/pdf'})
     const newWindow = window.open();
@@ -49,7 +49,7 @@ export class ProjectCardPyhraComponent implements OnInit {
   }
 
   downloadDoc(doc){
-  this.rest.getFile(doc.ID).subscribe(res => {
+  this.rest.downloadFile(doc.ID).subscribe(res => {
     const blob = new Blob([res], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
 

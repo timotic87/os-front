@@ -5,6 +5,7 @@ import {ColorLabelComponent} from "../../../customComponents/color-label/color-l
 import {RestService} from "../../../services/rest.service";
 import {DialogService} from "../../../services/dialog.service";
 import {DocumentService} from "../../../services/document.service";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-document-card',
@@ -18,30 +19,38 @@ import {DocumentService} from "../../../services/document.service";
 })
 export class DocumentCardComponent {
 
+  pdfSrc: any=null;
+
   @Input() approvalID: any;
-  constructor(private rest: RestService, private dialogService: DialogService, public documentService: DocumentService) {
+  constructor(private rest: RestService, private dialogService: DialogService, public documentService: DocumentService, private matDialog: MatDialog) {
   }
 
 
   showFile(){
-    this.rest.getFile(this.documentService.activeDocument.ID).subscribe(res=>{
-      let blob:Blob=res as Blob;
-      let myBlob= new Blob([blob], {type: 'application/pdf'})
-      const newWindow = window.open();
-      newWindow.document.write(`<iframe src="${URL.createObjectURL(myBlob)}" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-    });
+    window.open(`/documentview/${this.documentService.activeDocument.ID}`, '_blank');
   }
 
   delete(){
     this.dialogService.showChooseDialog('Are you sure you want to delete this document?').afterClosed().subscribe(isdelete=>{
       if (isdelete){
-        this.rest.deleteDocumentById(this.documentService.activeDocument.ID, this.documentService.activeDocument.fileName).subscribe(res=>{
-          if (res.status === 200){
-            this.documentService.activeDocumentChange.next(null);
-            this.dialogService.showSnackBar('Successfuly deleted document', '', 4000);
-          }else {
-            this.dialogService.errorDialog(res);
+        this.dialogService.showLoader()
+        this.rest.deleteDocumentById(this.documentService.activeDocument.ID, this.documentService.activeDocument.fileName).subscribe({
+          next: res=>{
+            this.dialogService.closeLoader()
+            if (res.status === 200){
+              this.documentService.activeDocumentChange.next(null);
+              window.location.reload();
+              window.scrollTo(0, document.body.scrollHeight);
+              this.dialogService.showSnackBar('Successfuly deleted document', '', 4000);
+            }else {
+              this.dialogService.errorDialog(res);
+            }
+          },
+          error:err=>{
+            this.dialogService.closeLoader();
+            this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
           }
+
         })
       }
     });
@@ -52,7 +61,7 @@ export class DocumentCardComponent {
   }
 
   download(){
-    this.rest.getFile(this.documentService.activeDocument.ID).subscribe(res => {
+    this.rest.downloadFile(this.documentService.activeDocument.ID).subscribe(res => {
       const blob = new Blob([res], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
 

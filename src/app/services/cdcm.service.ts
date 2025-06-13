@@ -80,10 +80,19 @@ export class CDCMService {
   }
 
   calculateAndCreateCDCM(formData,dialogRef){
-    this.rest.createCDCM(formData).subscribe(res=>{
-      if (res.status===200){
-        this.newCDCMSubject.next(res.data);
-        dialogRef.close()
+    this.dialogService.showLoader();
+    this.rest.createCDCM(formData).subscribe({
+      next: res=>{
+        this.dialogService.closeLoader();
+        if (res.status===200){
+          this.newCDCMSubject.next(res.data);
+          dialogRef.close()
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        dialogRef.close();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
     })
   }
@@ -98,24 +107,51 @@ export class CDCMService {
   }
 
   deleteCDCM(ID: number){
-    this.rest.deleteCDCM(ID).subscribe(res=>{
-      if (res.status===200){
-        this.deleteCDCMSubject.next(ID);
+    this.dialogService.showLoader();
+    this.rest.deleteCDCM(ID).subscribe({
+      next: res=>{
+        this.dialogService.closeLoader();
+        if (res.status===200){
+          this.deleteCDCMSubject.next(ID);
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
+
+
+
     });
   }
   lockCDCM(ID:number, approvalTemplateID:number, dealID: number) {
-    this.rest.lockCDCM(ID, approvalTemplateID, dealID).subscribe(res=>{
-      if (res.status===200){
-        this.updateStatusCDCMSubject.next({ID});
-      }
-    })
+    this.dialogService.showLoader();
+    this.rest.lockCDCM(ID, approvalTemplateID, dealID).subscribe({
+      next: res=> {
+        this.dialogService.closeLoader();
+        if (res.status === 200) {
+          this.updateStatusCDCMSubject.next({ID});
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+        }
+    });
   }
 
   updateCDCM(data){
-    this.rest.updateCDCM(data).subscribe(res=>{
-      if (res.status===200){
-        this.updateCDCMSubject.next(res.data);
+    this.dialogService.showLoader();
+    this.rest.updateCDCM(data).subscribe({
+      next: res=>{
+        this.dialogService.closeLoader();
+        if (res.status===200){
+          this.updateCDCMSubject.next(res.data);
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
     })
   }

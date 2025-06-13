@@ -22,6 +22,7 @@ import {
 } from "../../../flow-parts/client-contract-document-status/client-contract-document-status.component";
 import {PromotingProjectComponent} from "./promoting-project/promoting-project.component";
 import {ProjectCardComponent} from "./project-card/project-card.component";
+import {DialogService} from "../../../services/dialog.service";
 
 @Component({
   selector: 'app-stuffing-flow',
@@ -60,8 +61,7 @@ export class StuffingFlowComponent implements OnInit {
   cdcmApproval;
 
   constructor(private matDialog: MatDialog, public cdcmService: CDCMService, private rest: RestService,
-              private userService: UserService, private documentService: DocumentService) {
-    this.checkPermissions();
+              private userService: UserService, private documentService: DocumentService, private dialogService: DialogService) {
 
     documentService.approvalStart.subscribe(data=>{
       window.location.reload();
@@ -100,19 +100,11 @@ export class StuffingFlowComponent implements OnInit {
   }
 
   dialogCDCM() {
+
     this.matDialog.open(CdcmDialogComponent, {
       maxHeight: '90vh',
       width: '150vh',
       data: this.deal
-    });
-  }
-
-  checkPermissions(){
-    this.rest.getUserPermissions(this.userService.getUser().id).subscribe(res=>{
-      if(res.status===200){
-        let permDocView = res.data.find(permision => permision.id === 12);
-        this.canViewDocumentation = permDocView.userId;
-      }
     });
   }
 
@@ -150,27 +142,50 @@ export class StuffingFlowComponent implements OnInit {
   }
 
   updateDealStatus(event: Event){
+    if (event['clientAccepted']===null){
+      console.log('test')
+      this.dialogService.showSnackBar('Choose the client response first', null, 2500);
+      return;
+    }
     if (event['clientAccepted'] === true){
       let statusID = 9
       if (event['status']==='contractAccepted_by_client') statusID=13
-      this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe(res=>{
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+      this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
+        next: ()=>{
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        },
+        error: err=>{
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+        }
+
       });
     } else {
-      this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe(res=>{
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+      this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe({
+        next: ()=>{
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        },
+        error: err=>{
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
+        }
+
       });
     }
   }
 
   contractSinged(){
-    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 14}).subscribe(res=>{
-      if (res.status===200){
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 14}).subscribe({
+      next: res=>{
+        if (res.status===200){
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      },
+      error: err=>{
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
+
     });
   }
 

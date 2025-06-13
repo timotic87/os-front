@@ -21,14 +21,16 @@
                  [ngClass]="basicInfoForm.get('No_of_employees').touched && !basicInfoForm.get('No_of_employees').valid ? 'border-red-500':''"
                  formControlName="No_of_employees" autocomplete="new-No_of_employees">
         </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="basicInfoForm.get('No_of_employees').touched && !basicInfoForm.get('No_of_employees').valid">Minimum value is 1, and the maximum is 1999</label>
 
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Grand Gross Salary per Employee</div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Grand Gross Salary per Employee/RSD</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
           <input type="number"
                  class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="basicInfoForm.get('Grand_Groos_Salaray_per_Employee').touched && !basicInfoForm.get('Grand_Groos_Salaray_per_Employee').valid ? 'border-red-500':''"
                  formControlName="Grand_Groos_Salaray_per_Employee" autocomplete="Grand_Groos_Salaray_per_Employee">
         </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="basicInfoForm.get('Grand_Groos_Salaray_per_Employee').touched && !basicInfoForm.get('Grand_Groos_Salaray_per_Employee').valid">The field is not valid.</label>
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Other cost</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -77,22 +79,22 @@
         </div>
 
         <div [ngClass]="basicInfoForm.get('feeTypes').value.name==='Markup' ? 'visible':'notvisible'">
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on salary</div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on salary (%)</div>
           <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <input type="number"
+            <input type="number" placeholder="Enter a number (as %)"
                    class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                    [ngClass]="basicInfoForm.get('MU_on_salary').touched && !basicInfoForm.get('MU_on_salary').valid ? 'border-red-500':''"
                    formControlName="MU_on_salary" autocomplete="MU_on_salary">
           </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on costs</div>
+          <label class="text-xs text-red-500 block text-center" *ngIf="basicInfoForm.get('MU_on_salary').touched && !basicInfoForm.get('MU_on_salary').valid">The field is not valid.</label>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on costs (%)</div>
           <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <input type="number"
+            <input type="number" placeholder="Enter a number (as %)"
                    class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                    [ngClass]="basicInfoForm.get('MU_on_costs').touched && !basicInfoForm.get('MU_on_costs').valid ? 'border-red-500':''"
                    formControlName="MU_on_costs" autocomplete="MU_on_costs">
           </div>
-
+          <label class="text-xs text-red-500 block text-center" *ngIf="basicInfoForm.get('MU_on_costs').touched && !basicInfoForm.get('MU_on_costs').valid">The field is not valid.</label>
           @if (basicInfoForm.get('Charging_DP').value.name === 'YES') {
             <div class="flex justify-center text-gray-600 dark:text-gray-300">MU on disabled people</div>
             <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -104,9 +106,9 @@
           }
         </div>
         <div [ngClass]="basicInfoForm.get('feeTypes').value.name==='Flat' ? 'visible':'notvisible'">
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">Flat fee</div>
+          <div class="flex justify-center text-gray-600 dark:text-gray-300">Flat fee (RSD)</div>
           <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <input type="number"
+            <input type="number" placeholder="Enter a number (as RSD)"
                    class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                    [ngClass]="basicInfoForm.get('Flat_fee').touched && !basicInfoForm.get('Flat_fee').valid ? 'border-red-500':''"
                    formControlName="Flat_fee" autocomplete="Flat_fee">
@@ -121,6 +123,7 @@
                  [ngClass]="basicInfoForm.get('due_days_on_cost').touched && !basicInfoForm.get('due_days_on_cost').valid ? 'border-red-500':''"
                  formControlName="due_days_on_cost" autocomplete="due_days_on_cost">
         </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="basicInfoForm.get('due_days_on_cost').touched && !basicInfoForm.get('due_days_on_cost').valid">The field is not valid.</label>
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">On fee</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
@@ -129,20 +132,9 @@
                  [ngClass]="basicInfoForm.get('due_days_on_fee').touched && !basicInfoForm.get('due_days_on_fee').valid ? 'border-red-500':''"
                  formControlName="due_days_on_fee" autocomplete="due_days_on_fee">
         </div>
+        <label class="text-xs text-red-500 block text-center" *ngIf="basicInfoForm.get('due_days_on_fee').touched && !basicInfoForm.get('due_days_on_fee').valid">The field is not valid.</label>
 
         <span class="m-3 mt-6 text-red-500 block" *ngIf="showBasicInfoMsgValidation">Fill all the blanks*</span>
-
-<!--        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">-->
-<!--          <button (click)="basicInfoCreate();"-->
-<!--                  class="w-3/4 middle none center mt-3 rounded-lg bg-[#386097]-->
-<!--    py-3 px-6 font-sans text-xs font-bold uppercase text-white-->
-<!--    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg-->
-<!--    hover:shadow-blue-500/40 focus:opacity-[0.85]-->
-<!--    focus:shadow-none active:opacity-[0.85] active:shadow-none-->
-<!--    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"-->
-<!--                  data-ripple-light="true">Calculate/Save-->
-<!--          </button>-->
-<!--        </div>-->
       </form>
     </div>
     <!--    BasicInfo part end-->
@@ -187,12 +179,13 @@
 
         <div class="flex justify-center text-gray-600 dark:text-gray-300">% of time</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+          <input onkeydown="if(event.key==='.'){event.preventDefault();}"  placeholder="Enter a number (as %)"
                  oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
                  class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="operationalCostForm.get('HRA_percent_of_time').touched && !operationalCostForm.get('HRA_percent_of_time').valid ? 'border-red-500':''"
                  formControlName="HRA_percent_of_time" autocomplete="new-percent_of_time">
         </div>
+          <label class="text-xs text-red-500 block text-center" *ngIf="operationalCostForm.get('HRA_percent_of_time').touched && !operationalCostForm.get('HRA_percent_of_time').valid">The field is not valid.</label>
 
           <div class="flex justify-center text-gray-600 dark:text-gray-300">
             <span class="mb-3">HRA cost:</span><span *ngIf="operationalCostForm.get('HRA_Consultant').value && operationalCostForm.get('HRA_percent_of_time').value">
@@ -228,12 +221,13 @@
 
           <div class="flex justify-center text-gray-600 dark:text-gray-300">% of time</div>
           <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <input onkeydown="if(event.key==='.'){event.preventDefault();}"
+            <input onkeydown="if(event.key==='.'){event.preventDefault();}" placeholder="Enter a number (as %)"
                    oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
                    class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                    [ngClass]="operationalCostForm.get('PY_percent_of_time').touched && !operationalCostForm.get('PY_percent_of_time').valid ? 'border-red-500':''"
                    formControlName="PY_percent_of_time" autocomplete="new-percent_of_time">
           </div>
+          <label class="text-xs text-red-500 block text-center" *ngIf="operationalCostForm.get('PY_percent_of_time').touched && !operationalCostForm.get('PY_percent_of_time').valid">The field is not valid.</label>
 
           <div class="flex justify-center text-gray-600 dark:text-gray-300">
             <span class="mb-3">PY cost:</span><span *ngIf="operationalCostForm.get('PY_Consultant').value && operationalCostForm.get('PY_percent_of_time').value">

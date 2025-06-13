@@ -41,12 +41,16 @@ export class ClientsService {
   editClientById(data){
     if (this.tokenService.isTokenOk()){
       this.dialogService.showLoader()
-      this.rest.editClient(data).subscribe(res=>{
-        this.dialogService.closeLoader()
-        if (res.status===200){
-          this.isListChange.next(true);
-        }else if(res.status===403){
-          this.dialogService.showMsgDialog(res.data)
+      this.rest.editClient(data).subscribe({
+        next: res=>{
+          this.dialogService.closeLoader();
+          if (res.status===200){
+            this.isListChange.next(true);
+          }
+        },
+        error: err => {
+          this.dialogService.closeLoader();
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
         }
       })
     }else {
@@ -57,16 +61,16 @@ export class ClientsService {
   deleteClientById({clientId, socketData}){
     if (this.tokenService.isTokenOk()){
       this.dialogService.showLoader()
-      this.rest.deleteClient({id: clientId, token: this.cookieService.get('jwt'), socketData}).subscribe(res=>{
-        console.log(res)
-        this.dialogService.closeLoader();
-        if (res.status===200){
-
-          this.isListChange.next(true);
-          //todo PREVOD
-          this.dialogService.showSnackBar("Uspesno obrisan client", "Cancel", 25);
-        }else {
-          this.dialogService.showMsgDialog(res.msg);
+      this.rest.deleteClient({id: clientId, token: this.cookieService.get('jwt'), socketData}).subscribe({
+        next: res=>{
+          if (res.status===200){
+            this.isListChange.next(true);
+            this.dialogService.closeLoader();
+            this.dialogService.showSnackBar("You have successfully deleted the client.", "Cancel", 2500);
+          }
+        }, error: err => {
+          this.dialogService.closeLoader();
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
         }
       });
     }else {
@@ -76,15 +80,19 @@ export class ClientsService {
 
   createClient(data){
       this.dialogService.showLoader()
-      this.rest.createClient(data).subscribe(res=>{
-        console.log(res)
-        this.dialogService.closeLoader()
-        if (res.status===201){
-          this.isListChange.next(true);
-          this.dialogService.showSnackBar("You are succesfuly create Client", 'Close', 2500)
-        }else {
-          this.dialogService.showMsgDialog(`code: ${res.status} msg: ${res.msg}`);
+      this.rest.createClient(data).subscribe({
+        next:res=>{
+          if (res.status===201){
+            this.isListChange.next(true);
+            this.dialogService.closeLoader()
+            this.dialogService.showSnackBar("You are succesfuly create Client", 'Close', 2500)
+          }
+        },
+        error: err=>{
+          this.dialogService.closeLoader()
+          this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
         }
+
       })
   }
 

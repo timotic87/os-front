@@ -208,6 +208,13 @@ export class CdcmViewEditComponent implements OnInit {
 
 
   calcEditCDCM(){
+
+    if (!this.userService.can('change_deal_status')){
+      this.dialogService.showMsgDialog("You don't have the right to change deals.");
+      return
+    }
+
+
     if (!this.basicInfoForm.valid){
       this.showBasicInfoMsgValidation = true;
     }

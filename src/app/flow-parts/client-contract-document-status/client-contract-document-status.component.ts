@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {NgIf} from "@angular/common";
 import {RestService} from "../../services/rest.service";
+import {DialogService} from "../../services/dialog.service";
 
 @Component({
   selector: 'app-client-contract-document-status',
@@ -24,16 +25,23 @@ export class ClientContractDocumentStatusComponent {
   rejectionReason: string = '';
   rejectedReturnTo: 'contractBack' | 'cancel' = 'contractBack';
 
-  constructor(private rest: RestService) {
+  constructor(private rest: RestService, private dialogService: DialogService) {
   }
 
   markAsSent() {
-    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 12}).subscribe(res=>{
-      if (res.status === 200) {
-        window.location.reload();
-        window.scrollTo(0, document.body.scrollHeight);
+    this.dialogService.showLoader();
+    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 12}).subscribe({
+      next: res=>{
+        if (res.status === 200) {
+          window.location.reload();
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
-    })
+    });
   }
 
   submitClientResponse() {

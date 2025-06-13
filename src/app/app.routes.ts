@@ -11,32 +11,25 @@ import {
   ServicesAndSubservicesComponent
 } from "./admin/adminPages/services-and-subservices/services-and-subservices.component";
 import {ApprovalsComponent} from "./admin/adminPages/approvals/approvals.component";
-import {RestService} from "./services/rest.service";
-import {firstValueFrom} from "rxjs";
 import {DealsComponent} from "./deals/deals.component";
 import {DealComponent} from "./deals/deal/deal.component";
 import {DocumentsComponent} from "./admin/adminPages/documents/documents.component";
+import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
   {path: 'login', component: LoginComponent},
-  {path: 'clients', component: ClientsComponent, canActivate: [async ()=>{
+  {path: 'clients', component: ClientsComponent, canActivate: [()=>{
+
       const userService = inject(UserService);
-      const rest: RestService = inject(RestService);
       const dialogService = inject(DialogService);
 
-      try {
-        const res = await firstValueFrom(rest.getUserPermissions(userService.getUser().id));
-        const perm = res.data.find(permission => permission.name === 'view_all_clients');
-        if (!perm.userId) {
-          dialogService.showMsgDialog('You dont have permission');
-          return false;
-        }
+      if (userService.can('view_all_clients')) {
         return true;
-      } catch (error) {
-        console.error('Router error - clients:', error);
-        return false;
       }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
     }]},
   {path: 'profile', component: ProfileComponent},
   {
@@ -58,43 +51,43 @@ export const routes: Routes = [
     ]
 
   },
-  {path: 'deals', component: DealsComponent, canActivate: [async ()=>{
+  {path: 'deals', component: DealsComponent, canActivate: [()=>{
       const userService = inject(UserService);
-      const rest: RestService = inject(RestService);
       const dialogService = inject(DialogService);
 
-      try {
-        const res = await firstValueFrom(rest.getUserPermissions(userService.getUser().id));
-        const perm = res.data.find(permission => permission.name === 'view_list_deals');
-        if (!perm.userId) {
-          dialogService.showMsgDialog('You dont have permission');
-          return false;
-        }
+      if (userService.can('view_list_deals')) {
         return true;
-      } catch (error) {
-        console.error('Router error - deals:', error);
-        return false;
       }
+
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
     }]},
-  {path: 'deal/:id', component: DealComponent},//todo reformat name
+  {path: 'deal/:id', component: DealComponent, canActivate: [async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+      const id = Number(route.paramMap.get('id'));
+
+      const hasGlobal = userService.can('view_deal');
+      const hasEntity = await userService.hasEntityAccess('deal', id);
+
+      if (hasGlobal || hasEntity) {
+        return true;
+      }
+
+      dialogService.showMsgDialog('You don’t have permission');
+      return false;
+    }]
+  },
   {path: 'projects', component: DealsComponent, canActivate: [async ()=>{
       const userService = inject(UserService);
-      const rest: RestService = inject(RestService);
       const dialogService = inject(DialogService);
-
-      try {
-        const res = await firstValueFrom(rest.getUserPermissions(userService.getUser().id));
-        const perm = res.data.find(permission => permission.id === 21);
-        if (!perm.userId) {
-          dialogService.showMsgDialog('You dont have permission');
-          return false;
-        }
+      if (userService.can('')) {//todo dodati ime permisije
         return true;
-      } catch (error) {
-        console.error('Router error - clients:', error);
-        return false;
       }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
     }]},
+  { path: 'documentview/:id', component: DocumentViewComponent }
 
 ];
 

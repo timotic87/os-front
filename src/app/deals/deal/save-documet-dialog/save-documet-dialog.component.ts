@@ -43,8 +43,10 @@ export class SaveDocumetDialogComponent implements OnInit {
     formParams.set('documetTypeID', this.data.documetTypeID.toString());
     formParams.set('docSubTypeID', this.data.docSubTypeID.toString());
 
+    this.dialogService.showLoader();
     this.rest.saveFileSys(formParams).subscribe({
       next: (result) => {
+        this.dialogService.showLoader();
         if (result.status===200) {
           this.documentService.activeDocumentChange.next(result.data);
           this.documentService.addNewDocument.next(result.data);
@@ -52,7 +54,8 @@ export class SaveDocumetDialogComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.dialogService.showERRMsgDialog(err);
+        this.dialogService.closeLoader()
+        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
       }
     });
 

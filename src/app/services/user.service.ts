@@ -4,6 +4,8 @@ import {CookieService} from "ngx-cookie-service";
 import {JwtDecoderService} from "./jwt-decoder.service";
 import {firstValueFrom, Subject} from "rxjs";
 import {RestService} from "./rest.service";
+import {DialogService} from "./dialog.service";
+
 
 @Injectable({
   providedIn: 'root'
@@ -12,18 +14,28 @@ export class UserService {
 
   isUserLogedIn = new Subject<boolean>();
   user: UserModel;
+  permissions: any
 
-  constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService, private rest: RestService) { }
+  constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService, private rest: RestService,
+              private dialogService: DialogService) { }
 
   public getUser(){
     const objStr = localStorage.getItem('user');
     return objStr ? UserModel.createUserFromLocalStorage(JSON.parse(objStr)) : null;
   }
 
+  public getPermissions() {
+    const objStr = localStorage.getItem('permissions');
+    return objStr ? JSON.parse(objStr) : null;
+  }
+
   public setUser(){
     if (!this.cookieService.get('jwt')) return this.user=null;
+    this.permissions = this.jwtDecoderService.decodeToken(this.cookieService.get('jwt')).permissions
     this.user = UserModel.createUserModel(this.jwtDecoderService.decodeToken(this.cookieService.get('jwt')).user);
+
     localStorage.setItem('user', JSON.stringify(this.user));
+    localStorage.setItem('permissions', JSON.stringify(this.permissions));
     return
   }
 
@@ -37,43 +49,40 @@ export class UserService {
 
   public deleteUser(){
     this.user = null;
+    this.permissions = null;
     localStorage.removeItem('user');
+    localStorage.removeItem('permissions');
   }
 
-  // public checkPermision(permisionID:number):boolean{
-  //   this.rest.getUserPermisions(this.getUser().id).subscribe(res => {
-  //     if (res.status === 200) {
-  //       let perm = res.data.find(permision => permision.id === permisionID);
-  //       return perm.userId ? false : true;
-  //     }
-  //     return false;
-  //   });
-  // }
+  public can(permissionName: string): boolean {
+    return this.getPermissions().includes(permissionName);
+  }
+  async hasEntityAccess(entityType: string, entityId: number, requiredLevel?: 'view' | 'edit'): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.rest.getEntityaccess({ entityType, entityId }).subscribe({
+        next: res => {
+          if (res.success && res.hasAccess?.hasAccess) {
+            const actualLevel = res.hasAccess.accessLevel;
 
-  // public async checkPermission(permisionID: number): Promise<boolean> {
-  //   try {
-  //     const res = await firstValueFrom(this.rest.getUserPermisions(this.getUser().id));
-  //     if (res.status === 200) {
-  //       const perm = res.data.find(p => p.id === permisionID);
-  //       return !(perm?.userId); // ako ima userId → false
-  //     }
-  //     return false;
-  //   } catch (error) {
-  //     console.error("Greška u checkPermission:", error);
-  //     return false;
-  //   }
-  // }
+            if (!requiredLevel) {
+              // Ako nije prosleđen nivo – bilo koji accessLevel je prihvatljiv
+              resolve(true);
+            } else {
+              // Ako jeste prosleđen – mora da se poklopi
+              resolve(actualLevel === requiredLevel);
+            }
 
-  public checkPermission(permisionID: number, callback: (ok: boolean) => void): void {
-    this.rest.getUserPermissions(this.getUser().id).subscribe(res => {
-      if (res.status === 200) {
-        const perm = res.data.find(p => p.id === permisionID);
-        callback(!(perm?.userId));
-      } else {
-        callback(false);
-      }
-    }, error => {
-      callback(false);
+          } else {
+            resolve(false);
+          }
+        },
+        error: err => {
+          this.dialogService.showMsgDialog('Status: ' + err.status + ' msg: ' + err.error.message);
+          resolve(false);
+        }
+      });
     });
   }
+
+
 }

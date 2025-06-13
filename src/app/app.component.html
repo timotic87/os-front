@@ -2,10 +2,10 @@
   @if(link !== '/login' && link!=='/'){
     <app-navbar></app-navbar>
   }
-    <div class="sidenav dark:bg-gray-900 bg-gray-50 shadow-2xl dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] pt-20 px-5" [ngClass]="notificationService.showNotificationSideBar? 'show':''">
+    <div class="sidenav dark:bg-gray-900 bg-gray-50 shadow-2xl dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] pt-20 px-5" [ngClass]="shownotBar? 'show':''" >
 
-        <div class="side-header">
-          <div class="icon-left w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="hideSidebar();">
+        <div class="side-header" (click)="closeNotifications();">
+          <div class="icon-left w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>

@@ -1,6 +1,6 @@
 <section class="container mx-auto pb-6 pt-20 dark:bg-gray-600 h-full">
 
-  <button (click)="addClient();"
+  <button (click)="addClient();" [disabled]="!userService.can('create_client')"
     class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
     py-3 px-6 font-sans text-xs font-bold uppercase text-white
     shadow-md shadow-blue-500/20 transition-all hover:shadow-lg

@@ -36,7 +36,7 @@ export class DocumentListComponent implements OnInit{
   }
 
   showFile(id){
-    this.rest.getFile(id).subscribe(res=>{
+    this.rest.getFileWW(id).subscribe(res=>{
         let blob:Blob=res as Blob;
         let myBlob= new Blob([blob], {type: 'application/pdf'})
         const newWindow = window.open();

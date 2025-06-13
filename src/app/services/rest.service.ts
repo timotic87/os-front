@@ -4,10 +4,8 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {authorizationEnum} from "./enum-sevice";
 import {CookieService} from "ngx-cookie-service";
-import { io, Socket } from 'socket.io-client';
 import {Router} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
-import {data} from "autoprefixer";
 
 @Injectable({
   providedIn: 'root'
@@ -15,24 +13,12 @@ import {data} from "autoprefixer";
 
 export class RestService {
 
-  private socket: Socket;
   private socketId: string | undefined;
 
   // baseUrl = 'http://10.48.100.232:3000';
   baseUrl  = environment.SERVER_URL
   constructor(private http: HttpClient, private cookieService: CookieService, private matDialog: MatDialog, router: Router) {
-    this.socket = io(this.baseUrl);
 
-    this.socket.on('connect', () => {
-      this.socketId = this.socket.id;
-    });
-
-    // Slušanje 'unauthorized' poruke
-    this.socket.on('auth', (data: any) => {
-      alert(data.message);  // todo Prikaz poruke kada korisnik nije autorizovan
-      matDialog.closeAll();
-      router.navigate(['/login'])
-    });
 
   }
 
@@ -92,8 +78,13 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getFilesById/${clientId}`, {headers: this.headers()}) as Observable<any>;
   }
 
-  getFile(id){
-    return this.http.get(`${this.baseUrl}/getFile/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
+  getFileWW(id){
+    console.log(id)
+    return this.http.get(`${this.baseUrl}/getFileWW/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
+  }
+  downloadFile(id){
+    console.log(id)
+    return this.http.get(`${this.baseUrl}/downloadFile/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
   }
 
   deleteDocumentById(id, filename){
@@ -142,16 +133,16 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/changeUserPermissions`,data , {headers: this.headers()}) as Observable<any>;
   }
 
-  getNotifications(id){
-    return this.http.get(`${this.baseUrl}/getNotifications/${id}`, {headers: this.headers()}) as Observable<any>;
+  getNotifications(){
+    return this.http.get(`${this.baseUrl}/getUserNotifications`, {headers: this.headers()}) as Observable<any>;
   }
 
-  changeNotificationStatus(data){
-    return this.http.put(`${this.baseUrl}/changeNotificationStatus`,data , {headers: this.headers()}) as Observable<any>;
+  markAsRead(data){
+    return this.http.put(`${this.baseUrl}/markAsRead`,data , {headers: this.headers()}) as Observable<any>;
   }
 
   changeNotificationFlaggedStatus(data){
-    return this.http.put(`${this.baseUrl}/changeNotificationFlaggedStatus`,data , {headers: this.headers()}) as Observable<any>;
+    return this.http.put(`${this.baseUrl}/changeFlaggedStatus`,data , {headers: this.headers()}) as Observable<any>;
   }
 
   deleteNotificationById(id){
@@ -210,6 +201,9 @@ export class RestService {
   }
   getDeals(){
     return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
+  }
+  getDealsByEntityAccess(){
+    return this.http.get(`${this.baseUrl}/getDealsByEntityAccess`, {headers: this.headers()}) as Observable<any>;
   }
   getDealByID(ID: number){
     return this.http.get(`${this.baseUrl}/getDealByID/${ID}`, {headers: this.headers()}) as Observable<any>;
@@ -337,6 +331,9 @@ export class RestService {
   deleteDocumentSubtype(ID: number){
     return this.http.put(`${this.baseUrl}/deleteDocumentSubtype`, {ID}, {headers: this.headers()}) as Observable<any>;
   }
+  changeBD(data){
+    return this.http.put(`${this.baseUrl}/changeBD`, data, {headers: this.headers()}) as Observable<any>;
+  }
   createDocumentSubType(data: any){
     return this.http.post(`${this.baseUrl}/createDocumentSubType`, data, {headers: this.headers()}) as Observable<any>;
   }
@@ -365,6 +362,9 @@ export class RestService {
 
   getProjectByDealID(dealID: any){
     return this.http.get(`${this.baseUrl}/getProjectByDealID/${dealID}`, {headers: this.headers()}) as Observable<any>;
+  }
+  getEntityaccess(data){
+    return this.http.get(`${this.baseUrl}/entityaccess/${data.entityType}/${data.entityId}`, {headers: this.headers()}) as Observable<any>;
   }
 
 }

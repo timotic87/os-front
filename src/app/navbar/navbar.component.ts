@@ -4,13 +4,13 @@ import {UserService} from "../services/user.service";
 import {MatMenu, MatMenuItem, MatMenuTrigger,} from "@angular/material/menu";
 import {MatIconModule} from '@angular/material/icon';
 import {CookieService} from "ngx-cookie-service";
-import {DialogService} from "../services/dialog.service";
 import {MatDialog} from "@angular/material/dialog";
 import {
   ChangePasswordDialogComponent
 } from "../admin/adminPages/users-admin/change-password-dialog/change-password-dialog.component";
-import {NotificationsService} from "../services/notifications.service";
 import {NgIf} from "@angular/common";
+import {NotificationStoreService} from "../services/notification-store-service.service";
+import {DialogService} from "../services/dialog.service";
 
 @Component({
   selector: 'app-navbar',
@@ -30,11 +30,12 @@ import {NgIf} from "@angular/common";
 export class NavbarComponent {
 
   numberOfNotifications = 0;
+  notificationList = []
 
   constructor(public userService: UserService, private cookieService: CookieService, private router: Router, private dialog: MatDialog,
-              public notificationsService: NotificationsService, private dialogService: DialogService) {
-    notificationsService.numbNotiChange.subscribe(numb=>{
-      this.numberOfNotifications = numb
+              private notificationStoreService: NotificationStoreService, private dialogService: DialogService) {
+    this.notificationStoreService.notifications$.subscribe(list => {
+      this.notificationList = list;
     });
 
   }
@@ -43,7 +44,6 @@ export class NavbarComponent {
     this.cookieService.delete('jwt', '/');
     this.userService.deleteUser();
     this.router.navigate(['login']);
-    this.notificationsService.showNotificationSideBar = false;
   }
 
   resetPass(){
@@ -55,7 +55,10 @@ export class NavbarComponent {
   }
 
   notiClick(){
-    if (this.notificationsService.notifications.length===0) this.dialogService.showMsgDialog('There are no notifications to display.');
-    else this.notificationsService.sideBarShowSub.next(!this.notificationsService.showNotificationSideBar);
+    if (this.notificationList.length===0) this.dialogService.showMsgDialog('There are no notifications to display.');
+    else {
+      this.notificationStoreService.toggleValue = !this.notificationStoreService.toggleValue;
+      this.notificationStoreService.toggleNotificationBar.next(this.notificationStoreService.toggleValue);
+    }
   }
 }

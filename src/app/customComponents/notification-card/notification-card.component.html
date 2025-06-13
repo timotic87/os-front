@@ -1,17 +1,18 @@
 <div class="h-40 w-full bg-white dark:bg-gray-600 p-3 shadow-lg dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] rounded">
   <div class="flex items-center justify-start">
-    <app-color-label color="orange">{{notification.dateTime | date:'dd/MM/yyyy HH:mm'}}</app-color-label>
-    <div class="w-4 mx-3 transform hover:text-[#386097] dark:hover:text-[#56BDED]" *ngIf="notification.flagged" (click)="flaggedChange(notification);">
+    <app-color-label color="orange">{{notification.creationDate | date:'dd/MM/yyyy HH:mm'}}</app-color-label>
+    <span class="block text-gray-400 dark:text-neutral-400 font-semibold">{{ notification.creator.firstname+' '+notification.creator.lastName }}</span>
+    <div class="w-4 mx-3 hover:text-[#386097] dark:hover:text-[#56BDED]" *ngIf="notification.flagged" (click)="flaggedChange(notification.id);">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M23.903,0H3C1.346,0,0,1.346,0,3V24H2V15H23.903l-5.651-7.5L23.903,0Z" fill="currentColor"/></svg>
     </div>
-    <div class="w-4 mx-3 transform hover:text-[#386097] dark:hover:text-[#56BDED]" *ngIf="!notification.flagged" (click)="flaggedChange(notification);">
+    <div class="w-4 mx-3 transform hover:text-[#386097] dark:hover:text-[#56BDED]" *ngIf="!notification.flagged" (click)="flaggedChange(notification.id);">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M24.008,0H3.5C1.57,0,0,1.57,0,3.5V24H3v-8H24.008l-6.028-8L24.008,0Zm-6.017,13H3V3.5c0-.275,.224-.5,.5-.5h14.492l-3.767,5,3.767,5Z " fill="currentColor"/></svg>
     </div>
   </div>
-  <span class="block my-3 text-md-start text-gray-400 dark:text-neutral-400 font-semibold">{{ notification.fullName }}</span>
-  <span class="block h-9 text-sm">{{notification.msg}}</span>
+  <span class="block h-9 text-sm mt-3">{{notification.msg}}</span>
+  <a [href]="notification.link" class="block h-9 text-sm">{{notification.link}}</a>
   <div class="flex items-center justify-end mt-2">
-    <div class="w-5 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" *ngIf="!notification.isRead" (click)="changeIsRead(notification)">
+    <div class="w-5 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" *ngIf="!notification.isRead" (click)="changeIsRead(notification.id)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -19,7 +20,7 @@
               d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
       </svg>
     </div>
-    <div class="w-5 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="deleteNotification(notification)">
+    <div class="w-5 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="deleteNotification()">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
