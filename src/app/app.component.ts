@@ -43,6 +43,11 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
     const user = this.userService.getUser();
 
     this.rest.getNotifications().subscribe({
@@ -62,11 +67,6 @@ export class AppComponent implements OnInit {
     // 🟢 Ako postoji validan korisnik, konektuj socket
     if (user && user.id) {
       this.notificationSocketService.connectSocket();
-
-      // (opciono) možeš i da slušaš notifikacije odmah
-      this.notificationSocketService.listenForNotifications().subscribe((data) => {
-        console.log('📥 Primljena notifikacija iz AppComponent:', data);
-      });
     }
   }
 

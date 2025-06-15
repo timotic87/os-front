@@ -27,8 +27,8 @@ export class NotificationCardComponent implements OnInit {
   changeIsRead(id) {
     this.rest.markAsRead({id}).subscribe({
       next: res=>{
-        console.log(res)
         this.notification.isRead=true;
+        this.notificationStoreService.markNotificationAsRead(id)
       },
       error: err => {
         console.log(err)
@@ -51,8 +51,7 @@ export class NotificationCardComponent implements OnInit {
   deleteNotification() {
     this.rest.deleteNotificationById(this.notification.id).subscribe({
       next: ()=>{
-       let newArr = this.notificationStoreService['_notifications'].value.filter(n => n.id !== this.notification.id);
-        this.notificationStoreService._notifications.next(newArr);
+        this.notificationStoreService.removeNotification(this.notification.id)
       },
       error: err => {
         console.log(err);
@@ -61,7 +60,6 @@ export class NotificationCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.notification.flagged)
   }
 
 }

@@ -59,7 +59,7 @@ export class ChangeBdConsultantDialogComponent implements OnInit {
     this.dialogService.showChooseDialog("Are you sure you want to change the BD consultant?").afterClosed().subscribe(result => {
       if (result) {
         this.dialogService.showLoader();
-        this.rest.changeBD({dealID: this.dealID, bdID:this.sellectedBD.id}).subscribe({
+        this.rest.changeBD({dealID: this.dealID, newBDUserID:this.sellectedBD.id}).subscribe({
           next: () => {
             this.dialogService.closeLoader();
             this.dialogRef.close(true);

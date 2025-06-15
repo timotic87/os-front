@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {UserService} from "../services/user.service";
 import {MatMenu, MatMenuItem, MatMenuTrigger,} from "@angular/material/menu";
@@ -27,15 +27,18 @@ import {DialogService} from "../services/dialog.service";
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
 
-  numberOfNotifications = 0;
+  unreadCount = 0;
   notificationList = []
 
   constructor(public userService: UserService, private cookieService: CookieService, private router: Router, private dialog: MatDialog,
               private notificationStoreService: NotificationStoreService, private dialogService: DialogService) {
     this.notificationStoreService.notifications$.subscribe(list => {
       this.notificationList = list;
+    });
+    this.notificationStoreService.unreadCount$.subscribe(count => {
+      this.unreadCount = count;
     });
 
   }
@@ -60,5 +63,9 @@ export class NavbarComponent {
       this.notificationStoreService.toggleValue = !this.notificationStoreService.toggleValue;
       this.notificationStoreService.toggleNotificationBar.next(this.notificationStoreService.toggleValue);
     }
+  }
+
+  ngOnInit(): void {
+
   }
 }

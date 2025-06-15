@@ -2,17 +2,14 @@ import {Component, OnInit} from '@angular/core';
 import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
 import {ActivatedRoute} from "@angular/router";
 import {RestService} from "../../services/rest.service";
-import {NgIf} from "@angular/common";
 import {DialogService} from "../../services/dialog.service";
-import {DocumentService} from "../../services/document.service";
 
 
 @Component({
   selector: 'app-document-view',
   standalone: true,
   imports: [
-    NgxExtendedPdfViewerModule,
-    NgIf
+    NgxExtendedPdfViewerModule
   ],
   templateUrl: './document-view.component.html',
   styleUrl: './document-view.component.css'

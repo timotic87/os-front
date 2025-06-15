@@ -39,7 +39,6 @@ export class LoginComponent implements OnInit {
     if (this.tokenService.isTokenExist() && !this.tokenService.isTokenExp()) {
       this.userService.setUser(); // ← Postavi user-a u memoriju
       this.notificationSocketService.connectSocket(); // ← Konektuj socket
-      this.notificationServiceInit(); // ← Poveži listener
       this.router.navigate([`/${this.userService.getUser().defpage}`]);
     }
   }
@@ -56,8 +55,7 @@ export class LoginComponent implements OnInit {
         this.userService.setUser(); // Postavi user
         this.userService.isUserLogedIn.next(true);
 
-        this.notificationSocketService.connectSocket(); // ← obavezno nakon setUser
-        this.notificationServiceInit(); // ← veže listener na socket
+        this.notificationSocketService.connectSocket();  // ← veže listener na socket
 
         this.router.navigate([this.userService.getUser().defpage]);
       } else {
@@ -66,10 +64,4 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  notificationServiceInit() {
-    this.notificationSocketService.listenForNotifications().subscribe((notification) => {
-      console.log('📥 Primljena notifikacija:', notification);
-      // TODO: ovde može toast ili dodavanje u listu
-    });
-  }
 }
