@@ -10,6 +10,56 @@
           data-ripple-light="true">Create new project
   </button>
 
+  <div class="flex flex-wrap gap-4 mb-4">
+    <select [(ngModel)]="filterLegalEntityId" (change)="reloadDeals()" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
+    block appearance-none bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+      <option [ngValue]="undefined">All Legal Entities</option>
+      <option *ngFor="let le of legalEntities" [ngValue]="le.id">{{ le.shortName }}</option>
+    </select>
+
+    <select [(ngModel)]="filterServiceId" (change)="reloadDeals()" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
+    block appearance-none bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+      <option [ngValue]="undefined">All Services</option>
+      <option *ngFor="let s of services" [ngValue]="s.ID">{{ s.name }}</option>
+    </select>
+
+    <select [(ngModel)]="filterStatusId" (change)="reloadDeals()" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
+    block appearance-none bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
+    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
+    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+      <option [ngValue]="undefined">All Statuses</option>
+      <option *ngFor="let s of statuses" [ngValue]="s.ID">{{ s.name }}</option>
+    </select>
+
+  </div>
+  <div class="mb-3 w-full lg:w-2/6">
+    <div class="relative mb-4 flex w-full flex-wrap items-stretch">
+      <input [(ngModel)]="clientName"
+             type="search"
+             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l
+           border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]
+           text-base font-normal leading-[1.6] text-neutral-700 outline-none transition
+           duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400
+           focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none
+           dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
+             placeholder="Search by client name"
+             (keyup.enter)="reloadDeals()"
+      />
+
+      <button
+        (click)="reloadDeals()"
+        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"
+        type="button">
+        Search
+      </button>
+    </div>
+  </div>
+
+
 
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -84,4 +134,47 @@
       </tbody>
     </table>
   </div>
+  <div class="my-2 flex sm:flex-row flex-col pb-6 items-center justify-center">
+    <!-- Select za broj po strani -->
+    <div class="flex flex-row mb-1 sm:mb-0 mr-4">
+      <div class="relative">
+        <select [(ngModel)]="pageSize" (change)="goToPage(0)"
+                class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border block appearance-none w-full bg-white border-gray-400 text-gray-400 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097] dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+          <option [ngValue]="30">30</option>
+          <option [ngValue]="50">50</option>
+          <option [ngValue]="100">100</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigacija kroz strane -->
+    <div class="flex justify-center pt-2 text-gray-400 items-center">
+      <!-- Strelica levo -->
+      <a (click)="goToPreviousPage()" href="javascript:void(0)" class="mr-2 dark:hover:text-[#56BDED] hover:text-[#386097]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
+        </svg>
+      </a>
+
+      <!-- Raspon redova -->
+      <span class="mx-2">
+      {{ offset * pageSize + 1 }} – {{ Math.min((offset + 1) * pageSize, totalDeals) }} of {{ totalDeals }}
+    </span>
+
+      <!-- Strelica desno -->
+      <a (click)="goToNextPage()" class="ml-2 dark:hover:text-[#56BDED] hover:text-[#386097]" href="javascript:void(0)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
 </div>

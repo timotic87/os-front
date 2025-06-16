@@ -202,6 +202,18 @@ export class RestService {
   getDeals(){
     return this.http.get(`${this.baseUrl}/getDeals`, {headers: this.headers()}) as Observable<any>;
   }
+  getDealsFiltered(data: {
+    offset: number,
+    rowsNum: number,
+    statusId?: number,
+    flowStatusId?: number,
+    legalEntityId?: number,
+    serviceId?: number,
+    subserviceId?: number
+  }) {
+    return this.http.post(`${this.baseUrl}/getDeals`, data, { headers: this.headers() }) as Observable<{ data: any[], totalCount: number }>;
+  }
+
   getDealsByEntityAccess(){
     return this.http.get(`${this.baseUrl}/getDealsByEntityAccess`, {headers: this.headers()}) as Observable<any>;
   }
@@ -365,6 +377,14 @@ export class RestService {
   }
   getEntityaccess(data){
     return this.http.get(`${this.baseUrl}/entityaccess/${data.entityType}/${data.entityId}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getDealStatuses() {
+    return this.http.get(`${this.baseUrl}/dealStatuses`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getDealFlowStatuses() {
+    return this.http.get(`${this.baseUrl}/dealFlowStatuses`, { headers: this.headers() }) as Observable<any>;
   }
 
 }

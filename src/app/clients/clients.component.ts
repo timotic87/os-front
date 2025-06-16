@@ -22,6 +22,7 @@ import {DocumentatonComponent} from "./documentaton/documentaton.component";
 })
 export class ClientsComponent implements OnInit{
 
+
   canViewDocumentation: boolean = false;
 
 
@@ -56,31 +57,35 @@ export class ClientsComponent implements OnInit{
     });
   }
 
-  reloadClients(){
-      this.clientsNumber = parseInt(String(this.clientsNumber));
-      this.rest.getClients({offset: this.offset*this.clientsNumber, rowsNum: this.clientsNumber, searchName: this.searchText}).subscribe(res=>{
-        console.log(res)
-        if(res.status===200) {
-          this.fullNumber = res.data[0].full_count;
-          //maxpageNumber
-          if(this.fullNumber%this.clientsNumber===0){
-            this.maxPages = this.fullNumber/this.clientsNumber;
-          }else {
-            this.maxPages = Math.floor(this.fullNumber/this.clientsNumber) + 1;
-          }
-          //maxpageNumer end
-          //lastItemNumber
-          if(this.maxPages===this.offset+1){
-            this.lastItemNumber = this.fullNumber
-          }else {
-            this.lastItemNumber = (this.offset+1)*this.clientsNumber
-          }
-          //lastItemNumber END
-           this.clientService.listOfClients = res.data
-        }
-      })
+  reloadClients(): void {
+    this.dialogService.showLoader();
 
+    const offsetValue = this.offset * this.clientsNumber;
+
+    this.rest.getClients({
+      offset: offsetValue,
+      rowsNum: this.clientsNumber,
+      searchName: this.searchText?.trim() || null
+    }).subscribe({
+      next: res => {
+        if (res.status === 200) {
+          this.clientService.listOfClients = res.data;
+          this.fullNumber = res.totalCount;
+          this.maxPages = Math.ceil(this.fullNumber / this.clientsNumber);
+          this.lastItemNumber = Math.min((this.offset + 1) * this.clientsNumber, this.fullNumber);
+        }
+      },
+      error: err => {
+        this.dialogService.closeLoader();
+        this.dialogService.showMsgDialog('❌ Greška prilikom učitavanja klijenata: ' + (err.error?.message || err.status));
+      },
+      complete: () => {
+        this.dialogService.closeLoader();
+      }
+    });
   }
+
+
 
   onClientsNumberChange(){
     this.offset = 0;

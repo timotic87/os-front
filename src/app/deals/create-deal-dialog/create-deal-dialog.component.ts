@@ -29,6 +29,8 @@ import {RestService} from "../../services/rest.service";
 })
 export class CreateDealDialogComponent implements OnInit {
 
+  isLoading = false;
+
   createDealForm: FormGroup
   listLe: LegalEntityModel[] = [];
 
@@ -36,7 +38,7 @@ export class CreateDealDialogComponent implements OnInit {
   currentService= null;
   currentClient = null;
 
-  currentClientList: ClientModel[] = [];
+  currentClientList = [];
 
   constructor(public leService: LegalEntityService, private clientService: ClientsService, public SANDS: ServicesAndSubservicesService, private dialogRef: MatDialogRef<CreateDealDialogComponent>,
               private userService: UserService, public allUsersService: UsersService, private rest: RestService) {
@@ -64,9 +66,16 @@ export class CreateDealDialogComponent implements OnInit {
       });
     });
 
-    this.createDealForm.controls['client'].valueChanges.subscribe(value=>{
-      this.currentClientList = this.clientService.getListOfClientsByName(value);
+    this.createDealForm.controls['client'].valueChanges.subscribe(value => {
+      if (typeof value === 'string' && value.trim().length > 1) {
+        this.clientService.getListOfClientsByName(value.trim()).subscribe(clients => {
+          this.currentClientList = clients;
+        });
+      } else {
+        this.currentClientList = [];
+      }
     });
+
     this.createDealForm.controls['service'].valueChanges.subscribe(value=>{
       this.currentService = value;
       this.SANDS.createListOfSubervicesForLE(this.currentLe.id, this.currentService.ID).then(()=>{

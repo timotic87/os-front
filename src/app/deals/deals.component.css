@@ -1,1 +1,41 @@
+.pagination-wrapper {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.pagination-wrapper button.active {
+  font-weight: bold;
+  background: #d1d1d1;
+}
+.customNumberInput::-webkit-inner-spin-button,
+.customNumberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+::ng-deep.mat-mdc-autocomplete-panel {
+  background-color:  rgb(75 85 99)!important;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::ng-deep.mat-mdc-autocomplete-panel {
+    background-color: rgb(75 85 99) !important;
+  }
+  ::ng-deep.mdc-list-item__primary-text{
+    color: rgb(245 245 245) !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  ::ng-deep.mat-mdc-autocomplete-panel {
+    background-color: rgb(245 245 245) !important;
+  }
+  ::ng-deep.mdc-list-item__primary-text{
+    color: rgb(75 85 99) !important;
+  }
+}
+
+
+
 
