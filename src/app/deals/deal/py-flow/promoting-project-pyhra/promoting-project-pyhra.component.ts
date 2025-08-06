@@ -51,10 +51,12 @@ export class PromotingProjectPyhraComponent implements OnInit{
         this.createDealForm.get('isExpired').valueChanges.subscribe(value => {
           if (value) {
             this.createDealForm.get('endDate').setValue(null);
+            this.createDealForm.get('endDate').enable();
             this.createDealForm.get('endDate').clearValidators();
             this.createDealForm.get('endDate').addValidators(Validators.required);
           }else {
             this.createDealForm.get('endDate').setValue(null);
+            this.createDealForm.get('endDate').disable();
             this.createDealForm.get('endDate').clearValidators();
           }
         })

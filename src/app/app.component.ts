@@ -8,6 +8,7 @@ import {NotificationSocketService} from "./services/notification-socket.service"
 import {RestService} from "./services/rest.service";
 import {NotificationStoreService} from "./services/notification-store-service.service";
 import {NotificationCardComponent} from "./customComponents/notification-card/notification-card.component";
+import {DialogService} from "./services/dialog.service";
 
 @Component({
   selector: 'app-root',
@@ -25,8 +26,8 @@ export class AppComponent implements OnInit {
 
   notificationList = [];
 
-  constructor(router: Router, private userService: UserService, private notificationSocketService: NotificationSocketService, private rest: RestService,
-              public notificationStoreService: NotificationStoreService) {
+  constructor(router: Router, private userService: UserService, private notificationSocketService: NotificationSocketService,
+              private rest: RestService, public notificationStoreService: NotificationStoreService, private dialogService: DialogService) {
     router.events.forEach((event) => {
 
       if(event instanceof NavigationStart) {
@@ -50,19 +51,6 @@ export class AppComponent implements OnInit {
 
     const user = this.userService.getUser();
 
-    this.rest.getNotifications().subscribe({
-      next: res=>{
-        if (res.status == 200) {
-          res.data.forEach((item) => {
-            this.notificationStoreService.addNotification(item);
-          })
-        }
-      },
-      error: err=>{
-        console.log(err)
-      }
-    })
-
 
     // 🟢 Ako postoji validan korisnik, konektuj socket
     if (user && user.id) {
@@ -73,6 +61,26 @@ export class AppComponent implements OnInit {
   closeNotifications(){
     this.notificationStoreService.toggleValue = false;
     this.notificationStoreService.toggleNotificationBar.next(false)
+  }
+
+  deleteAllNotification(){
+    this.dialogService.showChooseDialog("Are you sure you want to clear all notifications?").afterClosed().subscribe(isYes=>{
+      if(isYes){
+        this.dialogService.showLoader();
+        this.rest.deleteAllNotification().subscribe({
+          next: res=>{
+            this.dialogService.closeLoader();
+            this.notificationStoreService.clearNotifications();
+
+          },
+          error: err=>{
+            this.dialogService.closeLoader();
+            this.dialogService.showMsgDialog('❌ Greška prilikom brisanja notifikacija: ' + (err.error?.message || err.status));
+          }
+        });
+      }
+
+    });
   }
 
 }

@@ -78,9 +78,12 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getFilesById/${clientId}`, {headers: this.headers()}) as Observable<any>;
   }
 
-  getFileWW(id){
-    console.log(id)
-    return this.http.get(`${this.baseUrl}/getFileWW/${id}`, {headers: this.headers(), responseType:'blob'}) as Observable<any>;
+  getFileWW(id: number): Observable<ArrayBuffer> {
+    console.log(id);
+    return this.http.get(`${this.baseUrl}/getFileWW/${id}`, {
+      headers: this.headers(),
+      responseType: 'arraybuffer'
+    });
   }
   downloadFile(id){
     console.log(id)
@@ -147,6 +150,10 @@ export class RestService {
 
   deleteNotificationById(id){
     return this.http.delete(`${this.baseUrl}/deleteNotification/${id}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  deleteAllNotification(){
+    return this.http.delete(`${this.baseUrl}/deleteAllNotification`, {headers: this.headers()}) as Observable<any>;
   }
 
   changePicUrl(data){

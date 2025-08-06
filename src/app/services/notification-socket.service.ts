@@ -2,14 +2,16 @@ import {Injectable, NgZone} from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
-import { Observable } from 'rxjs';
 import {NotificationStoreService} from "./notification-store-service.service";
 import {Router} from "@angular/router";
+import {Subject} from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class NotificationSocketService {
   private socket: Socket | null = null;
   private isInitialized = false;
+
+  public dealCreated$ = new Subject<any>();
 
   constructor(private userService: UserService, private notificationStoreService: NotificationStoreService, private router: Router, private ngZone: NgZone) {}
 
@@ -24,6 +26,8 @@ export class NotificationSocketService {
     });
 
    this.listenForNotifications();
+
+   this.listenForDealCreated();
 
     this.isInitialized = true;
   }
@@ -51,6 +55,14 @@ export class NotificationSocketService {
           });
         };
       }
+    });
+  }
+
+  private listenForDealCreated() {
+    if (!this.socket) return;
+
+    this.socket.on('deal_created', (data) => {
+      this.dealCreated$.next(data);
     });
   }
 

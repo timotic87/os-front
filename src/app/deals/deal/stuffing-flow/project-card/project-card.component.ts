@@ -40,12 +40,7 @@ export class ProjectCardComponent implements OnInit {
   }
 
   showDoc(doc){
-  this.rest.getFileWW(doc.ID).subscribe(res=>{
-    let blob:Blob=res as Blob;
-    let myBlob= new Blob([blob], {type: 'application/pdf'})
-    const newWindow = window.open();
-    newWindow.document.write(`<iframe src="${URL.createObjectURL(myBlob)}" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-  });
+    window.open(`/documentview/${doc.ID}`, '_blank');
   }
 
   downloadDoc(doc){

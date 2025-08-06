@@ -46,6 +46,8 @@ export class NavbarComponent implements OnInit {
   logout(){
     this.cookieService.delete('jwt', '/');
     this.userService.deleteUser();
+    this.notificationStoreService.toggleNotificationBar.next(false)
+    this.notificationStoreService.clearNotifications()
     this.router.navigate(['login']);
   }
 

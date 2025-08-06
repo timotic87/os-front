@@ -41,26 +41,29 @@ export class PromotingProjectComponent implements OnInit{
           costFeetype: new FormControl(null, [Validators.required]),
           isExpired: new FormControl(true ),
           startDate: new FormControl(null, [Validators.required]),
-          endDate: new FormControl(null,[Validators.required]),
+          endDate: new FormControl('',[Validators.required]),
           salaryValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
-          salaryType: new FormControl(null, [Validators.required]),
+          salaryType: new FormControl('', [Validators.required]),
           costValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
           costType: new FormControl({value: 'COST', disabled:true}, [Validators.required]),
           salarydaysdue: new FormControl(null, [Validators.required, Validators.min(1)]),
           costdaysdue: new FormControl(null, [Validators.required, Validators.min(1)]),
-          salaryCurrency: new FormControl(null, [Validators.required]),
-          costCurrency: new FormControl(null, [Validators.required])
+          salaryCurrency: new FormControl(null),
+          costCurrency: new FormControl(null)
         });
 
         this.createDealForm.get('salaryFeetype').valueChanges.subscribe(value => {
           if (value.ID===3) {
-            this.createDealForm.get('salaryType').setValue(null);
+            this.createDealForm.get('salaryType').setValue(1);
+            this.createDealForm.get('salaryType').disable();
             this.createDealForm.get('salaryValue').setValue(null);
             this.createDealForm.get('salaryType').clearValidators();
             this.createDealForm.get('salaryValue').clearValidators();
             this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1)]);
+            console.log(this.createDealForm.get('salaryType').valid)
           }else if(value.ID===1) {
             this.createDealForm.get('salaryType').setValue(null);
+            this.createDealForm.get('salaryType').enable();
             this.createDealForm.get('salaryValue').setValue(null);
             this.createDealForm.get('salaryType').clearValidators();
             this.createDealForm.get('salaryValue').clearValidators();
@@ -68,6 +71,7 @@ export class PromotingProjectComponent implements OnInit{
             this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
           }else if(value.ID===2){
             this.createDealForm.get('salaryType').setValue(null);
+            this.createDealForm.get('salaryType').enable();
             this.createDealForm.get('salaryValue').setValue(null);
             this.createDealForm.get('salaryType').clearValidators();
             this.createDealForm.get('salaryValue').clearValidators();
@@ -85,23 +89,23 @@ export class PromotingProjectComponent implements OnInit{
       }else if(value.ID===1) {
         this.createDealForm.get('costValue').setValue(null);
         this.createDealForm.get('costValue').clearValidators();
-        this.createDealForm.get('costValue').addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
       }else if(value.ID===2){
         this.createDealForm.get('costValue').setValue(null);
         this.createDealForm.get('costValue').clearValidators();
-        this.createDealForm.get('costValue').addValidators([Validators.required, Validators.min(1)]);
       }
 
     });
 
         this.createDealForm.get('isExpired').valueChanges.subscribe(value => {
           if (value) {
-            this.createDealForm.get('endDate').setValue(null);
+            this.createDealForm.get('endDate').setValue("");
+            this.createDealForm.get('endDate').enable();
             this.createDealForm.get('endDate').clearValidators();
             this.createDealForm.get('endDate').addValidators(Validators.required);
           }else {
-            this.createDealForm.get('endDate').setValue(null);
+            this.createDealForm.get('endDate').setValue("");
             this.createDealForm.get('endDate').clearValidators();
+            this.createDealForm.get('endDate').disable();
           }
         })
     }
@@ -162,7 +166,6 @@ export class PromotingProjectComponent implements OnInit{
     formParams.set('costFeeTypeID', this.createDealForm.value.costFeetype? this.createDealForm.value.costFeetype.ID:null);
     formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
     formParams.set('costCurrency', this.createDealForm.value.costCurrency ? this.createDealForm.value.costCurrency.id:null);
-
 
     this.dialogService.showLoader();
     this.rest.promotingToProject(formParams).subscribe({

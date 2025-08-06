@@ -8,19 +8,12 @@ import {MatDialog} from "@angular/material/dialog";
 import {RestService} from "../../../services/rest.service";
 import {CDCMService} from "../../../services/cdcm.service";
 import {DocumentService} from "../../../services/document.service";
-import {CdcmViewEditComponent} from "../../cdcm-view-edit/cdcm-view-edit.component";
 import {CdcmPyHraViewEditComponent} from "../../cdcm-py-hra-view-edit/cdcm-py-hra-view-edit.component";
-import {
-  ClientContractDocumentStatusComponent
-} from "../../../flow-parts/client-contract-document-status/client-contract-document-status.component";
-import {
-  ClientDocumentStatusComponent
-} from "../../../flow-parts/client-document-status/client-document-status.component";
+import {ClientContractDocumentStatusComponent} from "../../../flow-parts/client-contract-document-status/client-contract-document-status.component";
+import {ClientDocumentStatusComponent} from "../../../flow-parts/client-document-status/client-document-status.component";
 import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/dokument-approval.component";
 import {DokumentContractApproval} from "../../../flow-parts/dokument-contract-approval/dokument-contract-approval";
-import {PromotingProjectComponent} from "../stuffing-flow/promoting-project/promoting-project.component";
 import {PromotingProjectPyhraComponent} from "./promoting-project-pyhra/promoting-project-pyhra.component";
-import {ProjectCardComponent} from "../stuffing-flow/project-card/project-card.component";
 import {ProjectCardPyhraComponent} from "./project-card-pyhra/project-card-pyhra.component";
 import {DialogService} from "../../../services/dialog.service";
 
@@ -36,9 +29,7 @@ import {DialogService} from "../../../services/dialog.service";
     ClientDocumentStatusComponent,
     DokumentApprovalComponent,
     DokumentContractApproval,
-    PromotingProjectComponent,
     PromotingProjectPyhraComponent,
-    ProjectCardComponent,
     ProjectCardPyhraComponent
   ],
   templateUrl: './py-flow.component.html',

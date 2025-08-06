@@ -134,6 +134,7 @@
   </div>
   <app-stuffing-flow *ngIf="!!deal && deal.subservice.typeID===2" [deal]="deal"></app-stuffing-flow>
   <app-py-flow [deal]="deal" *ngIf="!!deal && deal.subservice.typeID===3"></app-py-flow>
+  <app-reg-flow [deal]="deal" *ngIf="!!deal && deal.subservice.typeID===1"></app-reg-flow>
 
 </div>
 

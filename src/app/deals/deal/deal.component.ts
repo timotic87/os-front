@@ -8,7 +8,7 @@ import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";
 import {FormGroup} from "@angular/forms";
 import {ColorLabelComponent} from "../../customComponents/color-label/color-label.component";
-import {DealComentsDialogComponent} from "./deal-coments-dialog/deal-coments-dialog.component";
+import {DealComentsDialogComponent} from "../../flow-parts/deal-coments-dialog/deal-coments-dialog.component";
 import {UserService} from "../../services/user.service";
 import {io, Socket} from "socket.io-client";
 import {environment} from "../../../environments/environment";
@@ -16,7 +16,8 @@ import {socketEnum} from "../../services/enum-sevice";
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {HistoryDialogComponent} from "../../customComponents/history-dialog/history-dialog.component";
 import {PyFlowComponent} from "./py-flow/py-flow.component";
-import {ChangeBdConsultantDialogComponent} from "./change-bd-consultant-dialog/change-bd-consultant-dialog.component";
+import {ChangeBdConsultantDialogComponent} from "../../flow-parts/change-bd-consultant-dialog/change-bd-consultant-dialog.component";
+import {RegFlowComponent} from "./reg-flow/reg-flow.component";
 
 @Component({
   selector: 'app-project',
@@ -28,7 +29,8 @@ import {ChangeBdConsultantDialogComponent} from "./change-bd-consultant-dialog/c
     StuffingFlowComponent,
     MatMenu,
     MatMenuTrigger,
-    PyFlowComponent
+    PyFlowComponent,
+    RegFlowComponent
   ],
   templateUrl: './deal.component.html',
   styleUrl: './deal.component.css'

@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {SaveDocumetDialogComponent} from "../../deals/deal/save-documet-dialog/save-documet-dialog.component";
+import {SaveDocumetDialogComponent} from "../save-documet-dialog/save-documet-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";

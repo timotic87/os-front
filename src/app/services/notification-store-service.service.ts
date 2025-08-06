@@ -1,4 +1,3 @@
-// services/notification-store.service.ts
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Subject} from 'rxjs';
 

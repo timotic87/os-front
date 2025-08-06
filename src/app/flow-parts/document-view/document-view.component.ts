@@ -16,7 +16,7 @@ import {DialogService} from "../../services/dialog.service";
 })
 export class DocumentViewComponent implements OnInit{
 
-  pdfSrc: string | undefined;
+  pdfSrc: string | Uint8Array | undefined;
 
   constructor(private route: ActivatedRoute, private rest: RestService, private dialogService: DialogService) {
   }
@@ -32,15 +32,16 @@ export class DocumentViewComponent implements OnInit{
     }
 
     this.rest.getFileWW(documentID).subscribe({
-      next: res => {
+      next: (res: ArrayBuffer) => {
         console.log('✅ Fajl učitan');
-        this.pdfSrc = URL.createObjectURL(new Blob([res], { type: 'application/pdf' }));
+        this.pdfSrc = new Uint8Array(res); // ovo je podržano
       },
       error: err => {
-        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.message);
-        console.error('❌'+ err.message, err);
+        this.dialogService.showMsgDialog('Status: ' + err.status + ' msg: ' + err.message);
+        console.error('❌' + err.message, err);
       }
     });
+
   }
 
 

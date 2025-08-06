@@ -177,9 +177,9 @@
       <span class="m-3 font-semibold block">Fee: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.fee | currency: 'RSD '}}</span></span>
       <span class="m-3 font-semibold block">Revenue: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.revenue | currency: 'RSD '}}</span></span>
       <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
-      <span class="m-3 font-semibold block">Franshise fee: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.franshiseFeeCost">{{cdcmService.calculationCDCM.franshiseFeeCost | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">Financing cost: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.financingCost">{{cdcmService.calculationCDCM.financingCost | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">Operational cost: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.operationalCost">{{cdcmService.calculationCDCM.operationalCost | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Franchise fee: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.franshiseFeeCost">{{cdcmService.calculationCDCM.franshiseFeeCost | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Financing costs: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.financingCost">{{cdcmService.calculationCDCM.financingCost | currency: 'RSD '}}</span></span>
+      <span class="m-3 font-semibold block">Operational costs: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.operationalCost">{{cdcmService.calculationCDCM.operationalCost | currency: 'RSD '}}</span></span>
       <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
       <span class="m-3 font-semibold block">Gross profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.grossProfit | currency: 'RSD '}}</span></span>
       <span class="m-3 font-semibold block">GP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.gpPercent+'%'}}</span></span>

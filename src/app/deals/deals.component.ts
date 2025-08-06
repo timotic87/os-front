@@ -10,7 +10,9 @@ import {firstValueFrom} from "rxjs";
 import {DialogService} from "../services/dialog.service";
 import {DealService} from "../services/deal.service";
 import { CommonModule } from '@angular/common';
-import {LoginComponent} from "../login/login.component";
+import {io} from "socket.io-client";
+import {environment} from "../../environments/environment";
+import {NotificationSocketService} from "../services/notification-socket.service";
 
 @Component({
   selector: 'app-projects',
@@ -46,8 +48,10 @@ export class DealsComponent implements OnInit {
   createDealDisable = true;
   openDealPage = false;
 
+  socket  = io(environment.SERVER_URL);
+
   constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService,
-              private dialogService: DialogService, private dealService: DealService) {
+              private dialogService: DialogService, private dealService: DealService, private notService: NotificationSocketService) {
 
     this.checkPermission();
 
@@ -61,6 +65,7 @@ export class DealsComponent implements OnInit {
     });
     refDialog.afterClosed().subscribe(status => {
       if (status == 200) {
+
         //todo bolja obrada novog deal... treba odradioti socket da se svima update i da se pokrene notifikacija ovde
       }
     })
@@ -135,6 +140,11 @@ export class DealsComponent implements OnInit {
     this.rest.getDealStatuses().subscribe(res => this.statuses = res.data);
 
     this.reloadDeals();
+
+    this.notService.dealCreated$.subscribe(data=>{
+      this.reloadDeals();
+    })
+
   }
 
   goToPage(pageIndex: number): void {
