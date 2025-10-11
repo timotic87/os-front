@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {CreateDealDialogComponent} from "./create-deal-dialog/create-deal-dialog.component";
@@ -6,13 +6,17 @@ import {DatePipe} from "@angular/common";
 import {Router} from "@angular/router";
 import {UserService} from "../services/user.service";
 import {RestService} from "../services/rest.service";
-import {firstValueFrom} from "rxjs";
+import {firstValueFrom, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 import {DialogService} from "../services/dialog.service";
 import {DealService} from "../services/deal.service";
 import { CommonModule } from '@angular/common';
-import {io} from "socket.io-client";
-import {environment} from "../../environments/environment";
 import {NotificationSocketService} from "../services/notification-socket.service";
+
+// shadCN UI Components
+import { ButtonComponent } from '../shared/components/ui/button/button.component';
+import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent, CardFooterComponent } from '../shared/components/ui/card/card.component';
+import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 
 @Component({
   selector: 'app-projects',
@@ -22,12 +26,23 @@ import {NotificationSocketService} from "../services/notification-socket.service
     DatePipe,
     CommonModule,
     FormsModule,
+    // shadCN UI Components
+    ButtonComponent,
+    CardComponent,
+    CardHeaderComponent,
+    CardTitleComponent,
+    CardDescriptionComponent,
+    CardContentComponent,
+    CardFooterComponent,
+    BadgeComponent
   ],
   templateUrl: './deals.component.html',
   styleUrl: './deals.component.css'
 })
-export class DealsComponent implements OnInit {
+export class DealsComponent implements OnInit, OnDestroy {
 
+  private destroy$ = new Subject<void>();
+  
   dealsArr: any[] = [];
   totalDeals = 0;
   pageSize = 30;
@@ -48,7 +63,7 @@ export class DealsComponent implements OnInit {
   createDealDisable = true;
   openDealPage = false;
 
-  socket  = io(environment.SERVER_URL);
+  // Socket connection is handled by NotificationSocketService
 
   constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService,
               private dialogService: DialogService, private dealService: DealService, private notService: NotificationSocketService) {
@@ -141,9 +156,33 @@ export class DealsComponent implements OnInit {
 
     this.reloadDeals();
 
-    this.notService.dealCreated$.subscribe(data=>{
+    this.notService.dealCreated$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
       this.reloadDeals();
     })
+
+    // Listen for deal status updates
+    this.notService.dealStatusUpdated$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+      console.log('🔄 Deal status updated:', data);
+      
+      // If we have deal ID in the data, try to update just that deal
+      if (data && data.dealId) {
+        const dealIndex = this.dealsArr.findIndex(deal => deal.ID == data.dealId);
+        if (dealIndex !== -1 && data.newStatus && data.newFlowStatus) {
+          // Update just this deal's status in the array
+          this.dealsArr[dealIndex].status = data.newStatus;
+          this.dealsArr[dealIndex].flowStatus = data.newFlowStatus;
+          console.log('🔄 Updated deal in list without full reload');
+        } else {
+          // Deal not found in current page or missing status data, reload all
+          console.log('🔄 Deal not in current page or missing data, reloading all');
+          this.reloadDeals();
+        }
+      } else {
+        // No specific deal info, reload all
+        console.log('🔄 No deal ID provided, reloading all deals');
+        this.reloadDeals();
+      }
+    });
 
   }
 
@@ -201,4 +240,86 @@ export class DealsComponent implements OnInit {
   }
 
   protected readonly Math = Math;
+
+  // Utility methods for UI
+  getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus.includes('active') || lowerStatus.includes('completed') || lowerStatus.includes('završen')) {
+      return 'success';
+    } else if (lowerStatus.includes('pending') || lowerStatus.includes('čeka')) {
+      return 'warning';
+    } else if (lowerStatus.includes('cancelled') || lowerStatus.includes('otkazan')) {
+      return 'destructive';
+    } else {
+      return 'outline';
+    }
+  }
+
+  getFlowStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus.includes('in progress') || lowerStatus.includes('u toku')) {
+      return 'info';
+    } else if (lowerStatus.includes('completed') || lowerStatus.includes('završen')) {
+      return 'success';
+    } else if (lowerStatus.includes('review') || lowerStatus.includes('revizija')) {
+      return 'warning';
+    } else {
+      return 'secondary';
+    }
+  }
+
+  // Statistics methods
+  getActiveDealsCount(): number {
+    return this.dealsArr.filter(deal => 
+      deal.status.name.toLowerCase().includes('active') || 
+      deal.status.name.toLowerCase().includes('u toku')
+    ).length;
+  }
+
+  getPendingDealsCount(): number {
+    return this.dealsArr.filter(deal => 
+      deal.status.name.toLowerCase().includes('pending') ||
+      deal.status.name.toLowerCase().includes('čeka') ||
+      deal.flowStatus.name.toLowerCase().includes('review')
+    ).length;
+  }
+
+  getCompletedDealsCount(): number {
+    return this.dealsArr.filter(deal => 
+      deal.status.name.toLowerCase().includes('completed') ||
+      deal.status.name.toLowerCase().includes('završen')
+    ).length;
+  }
+
+  // Clear all filters
+  clearFilters(): void {
+    this.filterStatusId = undefined;
+    this.filterLegalEntityId = undefined;
+    this.filterServiceId = undefined;
+    this.clientName = '';
+    this.offset = 0;
+    this.reloadDeals();
+  }
+
+  get maxPages(): number {
+    return Math.ceil(this.totalDeals / this.pageSize);
+  }
+
+  onPageSizeChange(): void {
+    this.offset = 0;
+    this.reloadDeals();
+  }
+
+  leftArrow(): void {
+    this.goToPreviousPage();
+  }
+
+  rightArrow(): void {
+    this.goToNextPage();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

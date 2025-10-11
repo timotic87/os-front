@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ViewEncapsulation} from '@angular/core';
 import {CurrencyPipe, NgClass, NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {CDCMService} from "../../services/cdcm.service";
@@ -11,6 +11,7 @@ import {ApprovalCardComponent} from "../../customComponents/approval-card/approv
 @Component({
   selector: 'app-cdcm-view-edit',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   imports: [
     CurrencyPipe,
     NgIf,
@@ -19,7 +20,7 @@ import {ApprovalCardComponent} from "../../customComponents/approval-card/approv
     ApprovalCardComponent
   ],
   templateUrl: './cdcm-view-edit.component.html',
-  styleUrl: './cdcm-view-edit.component.css'
+  styleUrls: ['./cdcm-view-edit.component.css']
 })
 export class CdcmViewEditComponent implements OnInit {
 

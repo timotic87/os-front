@@ -1,220 +1,360 @@
-<div class="h-fit w-full dark:bg-gray-600 py-6 text-gray-400 dark:text-neutral-100 text-xs xl:text-base">
-  <div class="pb-6 flex justify-center">
-    <h2 class="text-center mt-3 text-2xl">CDCM</h2>
+<div class="w-full bg-white dark:bg-gray-900 min-h-fit">
+<div class="max-w-7xl mx-auto p-4">
+  <!-- Header -->
+  <div class="text-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Edit HRA/PY CDCM</h1>
+    <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">View and modify Cost, Delivery, Commercial & Marketing calculation</p>
   </div>
-  <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
-  <div class="grid grid-cols-3 gap-2 px-2">
-    <!--    BasinInfo part start-->
-    <div
-      class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 
-      <form [formGroup]="basicInfoForm">
-        <h2 class="m-3 text-center text-xl font-semibold">Basic Info</h2>
-
-        <h3 class="m-3 font-semibold">Input from client:</h3>
-
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">No. of employees</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input onkeydown="if(event.key==='.'){event.preventDefault();}"
-                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
-                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="basicInfoForm.get('No_of_employees').touched && !basicInfoForm.get('No_of_employees').valid ? 'border-red-500':''"
-                 formControlName="No_of_employees" autocomplete="new-No_of_employees">
-        </div>
-
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Price of employee</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="number"
-                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="basicInfoForm.get('price_of_employee').touched && !basicInfoForm.get('price_of_employee').valid ? 'border-red-500':''"
-                 formControlName="price_of_employee" autocomplete="new_price_of_employee">
-        </div>
-
-        <span class="m-3 font-semibold">Due days:</span>
-
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">On fee</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="number"
-                 class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="basicInfoForm.get('due_days_on_fee').touched && !basicInfoForm.get('due_days_on_fee').valid ? 'border-red-500':''"
-                 formControlName="due_days_on_fee" autocomplete="due_days_on_fee">
-        </div>
-      </form>
-      <span class="m-3 mt-6 text-red-500 block" *ngIf="showBasicInfoMsgValidation">Fill all the blanks*</span>
-    </div>
-    <!--    BasicInfo part end-->
-
-    <!--    Operational cost stat-->
-    <div class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-      <form [formGroup]="operationalCostForm">
-        <p class="m-3 text-center text-xl font-semibold">Operational costs</p>
-        <div class="flex flex-row mb-3">
-          <div class="flex items-center basis-1/2">
-            <input formControlName='hra_checkbox' id="hra-checkbox" type="checkbox" value="" (click)="onHRACHClick()"
-                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-            <label for="hra-checkbox" class="ms-2 font-medium text-gray-900 dark:text-gray-300">HRA</label>
-          </div>
-
-          <div class="flex items-center basis-1/2">
-            <input formControlName='payroll_checkbox' id="payroll-checkbox" type="checkbox" value="" (click)="onPYCHClick()"
-                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-            <label for="payroll-checkbox"
-                   class="ms-2 font-medium text-gray-900 dark:text-gray-300">PAYROLL</label>
-          </div>
-        </div>
-
-        <div *ngIf="operationalCostForm.get('hra_checkbox').value">
-          <span class="m-3 font-semibold">HRA operational costs</span>
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">HRA Consultant</div>
-          <div class="flex justify-center text-gray-400 dark:text-neutral-100">
-            <select formControlName="HRA_Consultant" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
-    w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
-              @for (o of cdcmService.cdcmSeniorityList; track o) {
-                <option [ngValue]="o">{{ o.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">
-            <span class="mb-3">Cost:</span><span *ngIf="operationalCostForm.get('HRA_Consultant').value">
-            {{operationalCostForm.get('HRA_Consultant').value["hracost"] | currency: 'RSD '}}
-          </span>
-          </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">% of time</div>
-          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <input onkeydown="if(event.key==='.'){event.preventDefault();}"
-                   oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
-                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                   [ngClass]="operationalCostForm.get('HRA_percent_of_time').touched && !operationalCostForm.get('HRA_percent_of_time').valid ? 'border-red-500':''"
-                   formControlName="HRA_percent_of_time" autocomplete="new-percent_of_time">
-          </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">
-            <span class="mb-3">HRA cost:</span><span *ngIf="operationalCostForm.get('HRA_Consultant').value && operationalCostForm.get('HRA_percent_of_time').value">
-            {{operationalCostForm.get('HRA_Consultant').value["hracost"] * (operationalCostForm.get('HRA_percent_of_time').value/100) | currency: 'RSD '}}
-          </span>
-          </div>
-        </div>
-
-        <div *ngIf="operationalCostForm.get('payroll_checkbox').value">
-          <span class="m-3 font-semibold">PY operational costs</span>
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">PY Consultant</div>
-          <div class="flex justify-center text-gray-400 dark:text-neutral-100">
-            <select formControlName="PY_Consultant" class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
-    w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
-              @for (o of cdcmService.cdcmSeniorityList; track o) {
-                <option [ngValue]="o">{{ o.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">
-            <span class="mb-3">Cost:</span><span *ngIf="operationalCostForm.get('PY_Consultant').value">
-            {{operationalCostForm.get('PY_Consultant').value["pycost"] | currency: 'RSD '}}
-          </span>
-          </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">% of time</div>
-          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <input onkeydown="if(event.key==='.'){event.preventDefault();}"
-                   oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');" type="number"
-                   class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                   [ngClass]="operationalCostForm.get('PY_percent_of_time').touched && !operationalCostForm.get('PY_percent_of_time').valid ? 'border-red-500':''"
-                   formControlName="PY_percent_of_time" autocomplete="new-percent_of_time">
-          </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">
-            <span class="mb-3">PY cost:</span><span *ngIf="operationalCostForm.get('PY_Consultant').value && operationalCostForm.get('PY_percent_of_time').value">
-            {{operationalCostForm.get('PY_Consultant').value["pycost"] * (operationalCostForm.get('PY_percent_of_time').value/100) | currency: 'RSD '}}
-          </span>
-          </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300">Payslips</div>
-          <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-            <select formControlName="payslips" class="disabled:opacity-75 disabled:hover:border-gray-400 dark:hover:border-[#56BDED] hover:border-[#386097] rounded border
-    w-3/4 bg-white border-gray-400 text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
-              @for (o of PayslipsArr; track o) {
-                <option [ngValue]="o">{{ o.name }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="flex justify-center text-gray-600 dark:text-gray-300" *ngIf="operationalCostForm.get('payslips').value['num']===1">
-            <span class="mb-3">Payslips cost:</span><span>
-            {{payslipsCost | currency: 'RSD '}}
-          </span>
-          </div>
-          <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
-
-        </div>
-
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Additional costs</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="operationalCostForm.get('additional_costs').touched && !operationalCostForm.get('additional_costs').valid ? 'border-red-500':''"
-                 formControlName="additional_costs" autocomplete="new-Additional_costs">
-        </div>
-
-        <div class="flex justify-center text-gray-600 dark:text-gray-300 mt-3">Additional cost comment</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <textarea type="text" id="accomment" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                    [ngClass]="operationalCostForm.get('aditionalCostComment').touched && !operationalCostForm.get('aditionalCostComment').valid ? 'border-red-500':''" formControlName="aditionalCostComment" autocomplete="new-accomment"></textarea>
-        </div>
-
-        <span class="m-3 mt-6 text-red-500 block" *ngIf="showOperationalCostMsgValidation">Fill all the blanks*</span>
-
-      </form>
-
-    </div>
-    <!--    Calculation start-->
-    <div class="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-      <p class="m-3 text-center text-xl font-semibold">Calculation</p>
-      <span class="m-3 font-semibold block">Fee: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.fee | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">Revenue: <span *ngIf="cdcmService.calculationCDCM">{{cdcmService.calculationCDCM.revenue | currency: 'RSD '}}</span></span>
-      <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
-      <span class="m-3 font-semibold block">Franchise fee: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.franshiseFeeCost">{{cdcmService.calculationCDCM.franshiseFeeCost | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">Financing costs: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.financingCost">{{cdcmService.calculationCDCM.financingCost | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">Operational costs: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.operationalCost">{{cdcmService.calculationCDCM.operationalCost | currency: 'RSD '}}</span></span>
-      <hr class="mb-3 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50"/>
-      <span class="m-3 font-semibold block">Gross profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.grossProfit | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">GP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.gp">{{cdcmService.calculationCDCM.gp.gpPercent+'%'}}</span></span>
-      <span class="m-3 font-semibold block">Net profit: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.netProfit | currency: 'RSD '}}</span></span>
-      <span class="m-3 font-semibold block">NP%: <span *ngIf="cdcmService.calculationCDCM && cdcmService.calculationCDCM.np">{{cdcmService.calculationCDCM.np.npPercent+'%'}}</span></span>
-
-      <div>
-        <app-approval-card [approval]="cdcmApproval" *ngIf="cdcmApproval"></app-approval-card>
+  <!-- Main Content Grid -->
+  <div class="card-grid">
+    <!-- Basic Information Card -->
+    <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Basic Information
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Project details and employee information</p>
       </div>
+      <div class="p-6">
+        <form [formGroup]="basicInfoForm" class="space-y-4">
+          <div class="space-y-6">
+            <h3 class="text-md font-medium text-gray-900 dark:text-gray-100">Input from client:</h3>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Number of employees</label>
+              <input 
+                onkeydown="if(event.key==='.'){event.preventDefault();}"
+                oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');"
+                type="number"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                [class.border-red-500]="basicInfoForm.get('No_of_employees').touched && !basicInfoForm.get('No_of_employees').valid"
+                formControlName="No_of_employees" 
+                autocomplete="new-No_of_employees">
+            </div>
 
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price per employee</label>
+              <input 
+                type="number"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                [class.border-red-500]="basicInfoForm.get('price_of_employee').touched && !basicInfoForm.get('price_of_employee').valid"
+                formControlName="price_of_employee" 
+                autocomplete="new_price_of_employee">
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Due days</label>
+              <input 
+                type="number"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                [class.border-red-500]="basicInfoForm.get('due_days_on_fee').touched && !basicInfoForm.get('due_days_on_fee').valid"
+                formControlName="due_days_on_fee" 
+                autocomplete="due_days_on_fee">
+            </div>
+          </div>
+
+          <div *ngIf="showBasicInfoMsgValidation" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+            <div class="flex items-center">
+              <svg class="h-4 w-4 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              <span class="text-sm text-red-600 dark:text-red-400 font-medium">Please fill all the required fields</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Operational Costs Card -->
+    <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          Operational Costs
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Configure HRA and Payroll operational costs</p>
+      </div>
+      <div class="p-6">
+        <form [formGroup]="operationalCostForm" class="space-y-6">
+          <!-- Service Selection -->
+          <div class="space-y-4">
+            <h3 class="text-md font-medium text-gray-900 dark:text-gray-100">Select Services:</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex items-center space-x-3">
+                <input formControlName='hra_checkbox' id="hra-checkbox" type="checkbox" (click)="onHRACHClick()"
+                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="hra-checkbox" class="text-sm font-medium text-gray-700 dark:text-gray-300">HRA Services</label>
+              </div>
+              <div class="flex items-center space-x-3">
+                <input formControlName='payroll_checkbox' id="payroll-checkbox" type="checkbox" (click)="onPYCHClick()"
+                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="payroll-checkbox" class="text-sm font-medium text-gray-700 dark:text-gray-300">Payroll Services</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- HRA Section -->
+          <div *ngIf="operationalCostForm.get('hra_checkbox').value" class="space-y-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">HRA Operational Costs</h4>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">HRA Consultant</label>
+              <select formControlName="HRA_Consultant" 
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <option value="">Select consultant...</option>
+                @for (o of cdcmService.cdcmSeniorityList; track o) {
+                  <option [ngValue]="o">{{ o.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div *ngIf="operationalCostForm.get('HRA_Consultant').value" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-medium">Monthly Cost: </span>
+                <span class="text-gray-900 dark:text-gray-100 font-semibold">
+                  {{operationalCostForm.get('HRA_Consultant').value["hracost"] | currency: 'RSD '}}
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Percentage of time (%)</label>
+              <input 
+                onkeydown="if(event.key==='.'){event.preventDefault();}"
+                oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');"
+                type="number"
+                min="0" max="100"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                [class.border-red-500]="operationalCostForm.get('HRA_percent_of_time').touched && !operationalCostForm.get('HRA_percent_of_time').valid"
+                formControlName="HRA_percent_of_time" 
+                placeholder="Enter percentage (1-100)"
+                autocomplete="new-percent_of_time">
+            </div>
+
+            <div *ngIf="operationalCostForm.get('HRA_Consultant').value && operationalCostForm.get('HRA_percent_of_time').value" 
+                 class="bg-green-50 dark:bg-green-950/20 p-3 rounded-md border border-green-200 dark:border-green-800">
+              <div class="text-sm">
+                <span class="font-medium text-green-800 dark:text-green-300">Total HRA Cost: </span>
+                <span class="text-green-900 dark:text-green-200 font-bold">
+                  {{operationalCostForm.get('HRA_Consultant').value["hracost"] * (operationalCostForm.get('HRA_percent_of_time').value/100) | currency: 'RSD '}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PY Section -->
+          <div *ngIf="operationalCostForm.get('payroll_checkbox').value" class="space-y-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">Payroll Operational Costs</h4>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">PY Consultant</label>
+              <select formControlName="PY_Consultant" 
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <option value="">Select consultant...</option>
+                @for (o of cdcmService.cdcmSeniorityList; track o) {
+                  <option [ngValue]="o">{{ o.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div *ngIf="operationalCostForm.get('PY_Consultant').value" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-medium">Monthly Cost: </span>
+                <span class="text-gray-900 dark:text-gray-100 font-semibold">
+                  {{operationalCostForm.get('PY_Consultant').value["pycost"] | currency: 'RSD '}}
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Percentage of time (%)</label>
+              <input 
+                onkeydown="if(event.key==='.'){event.preventDefault();}"
+                oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');"
+                type="number"
+                min="0" max="100"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                [class.border-red-500]="operationalCostForm.get('PY_percent_of_time').touched && !operationalCostForm.get('PY_percent_of_time').valid"
+                formControlName="PY_percent_of_time" 
+                placeholder="Enter percentage (1-100)"
+                autocomplete="new-percent_of_time">
+            </div>
+
+            <div *ngIf="operationalCostForm.get('PY_Consultant').value && operationalCostForm.get('PY_percent_of_time').value" 
+                 class="bg-green-50 dark:bg-green-950/20 p-3 rounded-md border border-green-200 dark:border-green-800">
+              <div class="text-sm">
+                <span class="font-medium text-green-800 dark:text-green-300">Total PY Cost: </span>
+                <span class="text-green-900 dark:text-green-200 font-bold">
+                  {{operationalCostForm.get('PY_Consultant').value["pycost"] * (operationalCostForm.get('PY_percent_of_time').value/100) | currency: 'RSD '}}
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Payslips Processing</label>
+              <select formControlName="payslips" 
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                @for (o of PayslipsArr; track o) {
+                  <option [ngValue]="o">{{ o.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div *ngIf="operationalCostForm.get('payslips').value['num']===1" class="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-md border border-orange-200 dark:border-orange-800">
+              <div class="text-sm">
+                <span class="font-medium text-orange-800 dark:text-orange-300">Payslips Processing Cost: </span>
+                <span class="text-orange-900 dark:text-orange-200 font-semibold">
+                  {{payslipsCost | currency: 'RSD '}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Costs Section -->
+          <div class="space-y-4">
+            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">Additional Costs</h4>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Additional costs (RSD)</label>
+              <input 
+                type="number"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                [class.border-red-500]="operationalCostForm.get('additional_costs').touched && !operationalCostForm.get('additional_costs').valid"
+                formControlName="additional_costs" 
+                placeholder="Enter additional costs if any"
+                autocomplete="new-Additional_costs">
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Comment for additional costs</label>
+              <textarea 
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-none"
+                [class.border-red-500]="operationalCostForm.get('aditionalCostComment').touched && !operationalCostForm.get('aditionalCostComment').valid"
+                formControlName="aditionalCostComment" 
+                placeholder="Describe additional costs..."
+                autocomplete="new-accomment"></textarea>
+            </div>
+          </div>
+
+          <div *ngIf="showOperationalCostMsgValidation" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+            <div class="flex items-center">
+              <svg class="h-4 w-4 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              <span class="text-sm text-red-600 dark:text-red-400 font-medium">Please fill all the required operational cost fields</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Calculation Results Card -->
+    <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          Calculation Results
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Financial breakdown and profitability analysis</p>
+      </div>
+      <div class="p-6">
+        <div *ngIf="cdcmService.calculationCDCM; else noCalculation" class="space-y-4">
+          <!-- Revenue Section -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div class="text-sm font-medium text-blue-600 dark:text-blue-400">Fee</div>
+              <div class="text-lg font-bold text-blue-900 dark:text-blue-100">{{cdcmService.calculationCDCM.fee | currency: 'RSD '}}</div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <div class="text-sm font-medium text-green-600 dark:text-green-400">Revenue</div>
+              <div class="text-lg font-bold text-green-900 dark:text-green-100">{{cdcmService.calculationCDCM.revenue | currency: 'RSD '}}</div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Cost Breakdown</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div *ngIf="cdcmService.calculationCDCM.franshiseFeeCost" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                <div class="text-xs font-medium text-gray-600 dark:text-gray-400">Franchise Fee</div>
+                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{cdcmService.calculationCDCM.franshiseFeeCost | currency: 'RSD '}}</div>
+              </div>
+              <div *ngIf="cdcmService.calculationCDCM.financingCost" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                <div class="text-xs font-medium text-gray-600 dark:text-gray-400">Financing Costs</div>
+                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{cdcmService.calculationCDCM.financingCost | currency: 'RSD '}}</div>
+              </div>
+              <div *ngIf="cdcmService.calculationCDCM.operationalCost" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                <div class="text-xs font-medium text-gray-600 dark:text-gray-400">Operational Costs</div>
+                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{cdcmService.calculationCDCM.operationalCost | currency: 'RSD '}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Profitability</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div *ngIf="cdcmService.calculationCDCM.gp" class="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div class="text-sm font-medium text-yellow-600 dark:text-yellow-400">Gross Profit</div>
+                <div class="text-lg font-bold text-yellow-900 dark:text-yellow-100">{{cdcmService.calculationCDCM.gp.grossProfit | currency: 'RSD '}}</div>
+                <div class="text-xs text-yellow-600 dark:text-yellow-400">{{cdcmService.calculationCDCM.gp.gpPercent}}%</div>
+              </div>
+              <div *ngIf="cdcmService.calculationCDCM.np" class="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div class="text-sm font-medium text-purple-600 dark:text-purple-400">Net Profit</div>
+                <div class="text-lg font-bold text-purple-900 dark:text-purple-100">{{cdcmService.calculationCDCM.np.netProfit | currency: 'RSD '}}</div>
+                <div class="text-xs text-purple-600 dark:text-purple-400">{{cdcmService.calculationCDCM.np.npPercent}}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #noCalculation>
+          <div class="text-center py-8">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No calculation yet</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Fill out the forms above and click Calculate to see the results.</p>
+          </div>
+        </ng-template>
+        
+        <!-- Approval Section -->
+        <div *ngIf="cdcmApproval" class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6">
+          <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Approval Status</h4>
+          <app-approval-card [approval]="cdcmApproval"></app-approval-card>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="flex flex-row-reverse text-gray-400 m-3">
-    <button (click)="cancel();"
-            type="button"
-            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal mr-4
-       text-white shadow-[0_4px_9px_-4px_#dc4c64] transition duration-150 ease-in-out hover:bg-red-600
-        hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:bg-red-600
-         focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)] focus:outline-none
-          focus:ring-0 active:bg-danger-700 active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.3),0_4px_18px_0_rgba(220,76,100,0.2)]
-           dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]
-            dark:focus:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(220,76,100,0.2),0_4px_18px_0_rgba(220,76,100,0.1)]">
-      Close
-    </button>
-    <button (click)="calculateSave();"
-            type="button"
-            class="inline-block rounded bg-[#386097] px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
-      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 dark:bg-[#56BDED]
-      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
-      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
-      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
-      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
-      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
-      Calculate/Save
-    </button>
-  </div>
 
-</div>
+      <!-- Footer Actions -->
+      <div class="flex items-center justify-end space-x-3 px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-b-lg mt-6">
+        <button
+          type="button"
+          (click)="cancel()"
+          [disabled]="cdcm.statusID !== 1"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Close
+        </button>
+        <button
+          type="button"
+          (click)="calculateSave()"
+          [disabled]="cdcm.statusID !== 1"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Calculate &amp; Save
+        </button>
+      </div>

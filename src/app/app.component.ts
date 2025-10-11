@@ -26,10 +26,12 @@ export class AppComponent implements OnInit {
 
   notificationList = [];
 
-  constructor(router: Router, private userService: UserService, private notificationSocketService: NotificationSocketService,
+  constructor(private router: Router, private userService: UserService, private notificationSocketService: NotificationSocketService,
               private rest: RestService, public notificationStoreService: NotificationStoreService, private dialogService: DialogService) {
+    // Inicijalizuj link sa trenutnom rutom
+    this.link = this.router.url;
+    
     router.events.forEach((event) => {
-
       if(event instanceof NavigationStart) {
         this.link = event.url;
       }
@@ -44,7 +46,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission();
     }

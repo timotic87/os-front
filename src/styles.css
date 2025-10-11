@@ -5,8 +5,62 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+
   html {
     font-family: Montserrat, sans-serif;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -21,5 +75,209 @@ textarea,
 select,
 [contenteditable="true"] {
   caret-color: auto;
+}
+
+/* Global Material Autocomplete styling for consistent theming */
+.mat-mdc-autocomplete-panel {
+  background: hsl(var(--popover)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+.mat-mdc-option {
+  background: transparent !important;
+  color: hsl(var(--popover-foreground)) !important;
+  min-height: 40px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  transition: background-color 150ms ease-in-out !important;
+}
+
+.mat-mdc-option:hover {
+  background: hsl(var(--accent) / 0.1) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background: hsl(var(--accent) / 0.15) !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+  background: hsl(var(--muted) / 0.5) !important;
+}
+
+.mdc-list-item__primary-text {
+  color: hsl(var(--popover-foreground)) !important;
+}
+
+/* Fallback for system dark mode */
+@media (prefers-color-scheme: dark) {
+  .mat-mdc-autocomplete-panel {
+    background: rgb(39 39 42) !important;
+    border-color: rgb(63 63 70) !important;
+  }
+  
+  .mat-mdc-option {
+    color: rgb(244 244 245) !important;
+  }
+  
+  .mat-mdc-option:hover {
+    background: rgb(63 63 70 / 0.8) !important;
+  }
+  
+  .mdc-list-item__primary-text {
+    color: rgb(244 244 245) !important;
+  }
+  
+  /* Global dark mode support for dialogs and modals */
+  .max-w-6xl, .max-w-7xl, .max-w-5xl, .max-w-4xl, .max-w-3xl,
+  [class*="max-w-"] {
+    background-color: rgb(17 24 39) !important; /* gray-900 */
+    color: rgb(243 244 246) !important; /* gray-100 */
+  }
+  
+  /* Dark mode for specific dialog and modal containers, but NOT document cards */
+  .mat-mdc-dialog-container .bg-white,
+  .cdk-overlay-pane .bg-white:not(.document-card):not([class*="document"]) {
+    background-color: rgb(17 24 39) !important; /* gray-900 */
+    color: rgb(243 244 246) !important; /* gray-100 */
+  }
+  
+  /* Dark borders */
+  .border-gray-200 {
+    border-color: rgb(55 65 81) !important; /* gray-700 */
+  }
+}
+
+/* Custom backdrop classes for dialogs */
+.cdk-overlay-transparent-backdrop {
+  background-color: rgba(0, 0, 0, 0.1) !important; /* Very light backdrop */
+}
+
+/* Prevent dark mode artifacts on document cards when dialogs are open */
+.cdk-global-overlay-wrapper {
+  z-index: 1000;
+}
+
+.approve-dialog-panel {
+  z-index: 1001;
+}
+
+.approve-dialog-panel-no-backdrop {
+  z-index: 1001;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure document cards maintain their styling when dialogs are open */
+.document-card,
+.bg-white {
+  isolation: isolate; /* Create new stacking context */
+}
+
+/* CRITICAL: Force document cards to maintain proper styling during dialog overlay */
+.cdk-overlay-container ~ * .document-card,
+.cdk-overlay-container + * .document-card,
+body.cdk-overlay-container .document-card,
+.document-card,
+div.document-card {
+  background-color: white !important;
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+  border-color: rgb(229, 231, 235) !important; /* gray-200 */
+}
+
+/* Dark mode document cards */
+.dark .cdk-overlay-container ~ * .document-card,
+.dark .cdk-overlay-container + * .document-card,
+.dark .document-card,
+.dark div.document-card {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+  color: rgb(243 244 246) !important; /* gray-100 */
+  border-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+/* Specific overrides for promoting-project component inputs */
+app-promoting-project input[type="text"],
+app-promoting-project input[type="number"],
+app-promoting-project input[type="date"],
+app-promoting-project select {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark app-promoting-project input[type="text"],
+.dark app-promoting-project input[type="number"],
+.dark app-promoting-project input[type="date"], 
+.dark app-promoting-project select {
+  color: rgb(255 255 255) !important;
+}
+
+/* Calendar picker icon override for promoting-project in dark mode */
+.dark app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') !important;
+  filter: none !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+  color-scheme: dark !important;
+}
+
+/* Make sure date input uses dark color scheme */
+.dark app-promoting-project input[type="date"] {
+  color-scheme: dark !important;
+}
+
+/* Standard light mode calendar icon */
+app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer !important;
+  opacity: 0.7 !important;
+}
+
+app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1 !important;
+}
+
+/* Dropdown select options styling for promoting-project in dark mode */
+.dark app-promoting-project select option {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Fallback with specific colors */
+.dark app-promoting-project select option {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Also add system dark mode fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') !important;
+    filter: none !important;
+    opacity: 0.9 !important;
+  }
+}
+
+/* Ultra specific for document card elements */
+.document-card h3,
+.document-card p,
+.document-card span,
+.document-card div {
+  color: inherit !important;
+}
+
+/* Ensure text colors don't get affected by overlays */
+.document-card .text-gray-900 {
+  color: rgb(17, 24, 39) !important;
+}
+
+.document-card .text-gray-500 {
+  color: rgb(107, 114, 128) !important;
+}
+
+.dark .document-card .text-gray-900 {
+  color: rgb(243, 244, 246) !important;
+}
+
+.dark .document-card .text-gray-500 {
+  color: rgb(156, 163, 175) !important;
 }
 

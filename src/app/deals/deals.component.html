@@ -1,180 +1,284 @@
-<div class="container mx-auto p-6 pt-20 dark:bg-gray-600 h-full">
-
-  <button (click)="createDeal();" [disabled]="createDealDisable"
-          class="my-5 middle none center mr-4 rounded-lg bg-[#386097]
-    py-3 px-6 font-sans text-xs font-bold uppercase text-white
-    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
-    hover:shadow-blue-500/40 focus:opacity-[0.85]
-    focus:shadow-none active:opacity-[0.85] active:shadow-none
-    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
-          data-ripple-light="true">Create new project
-  </button>
-
-  <div class="flex flex-wrap gap-4 mb-4">
-    <select [(ngModel)]="filterLegalEntityId" (change)="reloadDeals()" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
-    block appearance-none bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
-      <option [ngValue]="undefined">All Legal Entities</option>
-      <option *ngFor="let le of legalEntities" [ngValue]="le.id">{{ le.shortName }}</option>
-    </select>
-
-    <select [(ngModel)]="filterServiceId" (change)="reloadDeals()" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
-    block appearance-none bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
-      <option [ngValue]="undefined">All Services</option>
-      <option *ngFor="let s of services" [ngValue]="s.ID">{{ s.name }}</option>
-    </select>
-
-    <select [(ngModel)]="filterStatusId" (change)="reloadDeals()" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
-    block appearance-none bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
-      <option [ngValue]="undefined">All Statuses</option>
-      <option *ngFor="let s of statuses" [ngValue]="s.ID">{{ s.name }}</option>
-    </select>
-
-  </div>
-  <div class="mb-3 w-full lg:w-2/6">
-    <div class="relative mb-4 flex w-full flex-wrap items-stretch">
-      <input [(ngModel)]="clientName"
-             type="search"
-             class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l
-           border border-gray-300 bg-transparent bg-clip-padding px-3 py-[0.25rem]
-           text-base font-normal leading-[1.6] text-neutral-700 outline-none transition
-           duration-200 ease-in-out focus:z-[3] focus:border-primary dark:focus:text-neutral-400
-           focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none
-           dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
-             placeholder="Search by client name"
-             (keyup.enter)="reloadDeals()"
-      />
-
-      <button
-        (click)="reloadDeals()"
-        class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 dark:text-white"
-        type="button">
-        Search
-      </button>
+<div class="container mx-auto px-4 py-6 pt-24 space-y-8 max-w-7xl">
+  <!-- Header Section -->
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground">Deals</h1>
+        <p class="text-muted-foreground">Manage all your deals and projects in one place</p>
+      </div>
+      <ui-button (onClick)="createDeal();" [disabled]="createDealDisable" size="lg">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Deal
+      </ui-button>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="grid gap-4 md:grid-cols-4">
+      <ui-card>
+        <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <ui-card-title className="text-sm font-medium">Total Deals</ui-card-title>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </ui-card-header>
+        <ui-card-content>
+          <div class="text-2xl font-bold">{{ totalDeals }}</div>
+          <p class="text-xs text-muted-foreground">all deals in system</p>
+        </ui-card-content>
+      </ui-card>
+      
+      <ui-card>
+        <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <ui-card-title className="text-sm font-medium">Active</ui-card-title>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </ui-card-header>
+        <ui-card-content>
+          <div class="text-2xl font-bold text-green-600">{{ getActiveDealsCount() }}</div>
+          <p class="text-xs text-muted-foreground">in progress</p>
+        </ui-card-content>
+      </ui-card>
+      
+      <ui-card>
+        <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <ui-card-title className="text-sm font-medium">Pending</ui-card-title>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </ui-card-header>
+        <ui-card-content>
+          <div class="text-2xl font-bold text-yellow-600">{{ getPendingDealsCount() }}</div>
+          <p class="text-xs text-muted-foreground">action required</p>
+        </ui-card-content>
+      </ui-card>
+      
+      <ui-card>
+        <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <ui-card-title className="text-sm font-medium">Completed</ui-card-title>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </ui-card-header>
+        <ui-card-content>
+          <div class="text-2xl font-bold text-blue-600">{{ getCompletedDealsCount() }}</div>
+          <p class="text-xs text-muted-foreground">successfully completed</p>
+        </ui-card-content>
+      </ui-card>
     </div>
   </div>
 
+  <!-- Filters Section -->
+  <div class="mt-6"></div>
+  <ui-card>
+    <ui-card-header>
+      <ui-card-title>Filters</ui-card-title>
+      <ui-card-description>Filter deals by various criteria to find what you need</ui-card-description>
+    </ui-card-header>
+    <ui-card-content className="space-y-4">
+      <div class="grid gap-4 md:grid-cols-4">
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-medium text-foreground">Legal Entity</label>
+          <select 
+            [(ngModel)]="filterLegalEntityId"
+            (change)="reloadDeals()"
+            class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <option [ngValue]="undefined">All entities</option>
+            <option *ngFor="let le of legalEntities" [ngValue]="le.id">{{ le.shortName }}</option>
+          </select>
+        </div>
+        
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-medium text-foreground">Service</label>
+          <select 
+            [(ngModel)]="filterServiceId"
+            (change)="reloadDeals()"
+            class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <option [ngValue]="undefined">All services</option>
+            <option *ngFor="let s of services" [ngValue]="s.ID">{{ s.name }}</option>
+          </select>
+        </div>
+        
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-medium text-foreground">Status</label>
+          <select 
+            [(ngModel)]="filterStatusId"
+            (change)="reloadDeals()"
+            class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <option [ngValue]="undefined">All statuses</option>
+            <option *ngFor="let s of statuses" [ngValue]="s.ID">{{ s.name }}</option>
+          </select>
+        </div>
+        
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-medium text-foreground">Search Client</label>
+          <input
+            type="search"
+            placeholder="Enter client name..."
+            [(ngModel)]="clientName"
+            (keyup.enter)="reloadDeals()"
+            class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center pt-2">
+        <ui-button variant="outline" (onClick)="clearFilters()">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Clear Filters
+        </ui-button>
+        
+        <ui-button (onClick)="reloadDeals()">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Search
+        </ui-button>
+      </div>
+    </ui-card-content>
+  </ui-card>
 
 
-  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-      <tr>
-        <th scope="col" class="px-6 py-3">
-          ID
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Date
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Service
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Subservice
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Client
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Legal Entity
-        </th>
-        <th scope="col" class="px-6 py-3">
-          BD Consultant
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Flow status
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Status
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (deal of dealsArr; track deal) {
-          <tr (click)="onDealClick(deal)"
-            class="hover:cursor-pointer odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100" >
-            <th scope="row" class="px-6 py-4 text-[#386097] font-bold whitespace-nowrap dark:text-[#56BDED]">
-              {{ deal.ID }}
-            </th>
-            <td class="px-6 py-4">
-              {{ deal.createdDate | date:'dd.MM.yyyy'}}
-            </td>
-            <td class="px-6 py-4">
-              {{ deal.service.name }}
-            </td>
-            <td class="px-6 py-4">
-              {{ deal.subservice.name }}
-            </td>
-            <td class="px-6 py-4">
-              {{ deal.client.name }}
-            </td>
-            <td class="px-6 py-4">
-              {{ deal.legalEntity.shortName }}
-            </td>
-            <td class="px-6 py-4">
-              @if(deal.BDOwner.profilePicUrl){
-                <img class="w-6 h-6 rounded-full inline-block" [src]='deal.BDOwner.profilePicUrl' alt="Rounded avatar" style="object-fit: cover;">
-              }
 
-              {{ deal.BDOwner.firstName +" "+ deal.BDOwner.lastName }}
-            </td>
-            <td class="px-6 py-4">
-              {{ deal.flowStatus.name }}
-            </td>
-            <td class="px-6 py-4">
-              {{ deal.status.name }}
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-  <div class="my-2 flex sm:flex-row flex-col pb-6 items-center justify-center">
-    <!-- Select za broj po strani -->
-    <div class="flex flex-row mb-1 sm:mb-0 mr-4">
-      <div class="relative">
-        <select [(ngModel)]="pageSize" (change)="goToPage(0)"
-                class="dark:hover:border-[#56BDED] hover:border-[#386097] rounded border block appearance-none w-full bg-white border-gray-400 text-gray-400 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white dark:focus:border-[#56BDED] focus:border-[#386097] dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600">
+  <!-- Projects Table -->
+  <div class="mt-6"></div>
+  <ui-card>
+    <ui-card-header class="px-6 py-4">
+      <ui-card-title>Deals List</ui-card-title>
+      <ui-card-description>All deals with their details and current status</ui-card-description>
+    </ui-card-header>
+    <ui-card-content class="p-0">
+      <div class="w-full">
+        <table class="w-full table-fixed border-collapse">
+          <thead>
+            <tr class="border-b">
+              <th class="w-16 px-4 py-3 text-left font-medium text-muted-foreground">ID</th>
+              <th class="w-24 px-4 py-3 text-left font-medium text-muted-foreground">Date</th>
+              <th class="w-36 px-4 py-3 text-left font-medium text-muted-foreground">Service</th>
+              <th class="w-56 px-4 py-3 text-left font-medium text-muted-foreground">Client</th>
+              <th class="w-24 px-4 py-3 text-left font-medium text-muted-foreground">Entity</th>
+              <th class="w-44 px-4 py-3 text-left font-medium text-muted-foreground">BD Consultant</th>
+              <th class="w-32 px-4 py-3 text-left font-medium text-muted-foreground">Flow Status</th>
+              <th class="w-24 px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+          @for (deal of dealsArr; track deal) {
+              <tr class="border-b hover:bg-muted/50 transition-colors cursor-pointer" (click)="onDealClick(deal)">
+                <td class="px-4 py-4">
+                  <span class="font-mono font-semibold text-primary">#{{ deal.ID }}</span>
+                </td>
+                <td class="px-4 py-4 text-muted-foreground">
+                  <span class="text-sm truncate block">{{ deal.createdDate | date:'dd.MM.yyyy' }}</span>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-foreground text-sm truncate">{{ deal.service.name }}</span>
+                    <span class="text-xs text-muted-foreground truncate">{{ deal.subservice.name }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                    <span class="text-sm truncate">{{ deal.client.name }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-4">
+                  <ui-badge variant="outline" class="text-xs">{{ deal.legalEntity.shortName }}</ui-badge>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    @if(deal.BDOwner.profilePicUrl) {
+                      <img class="w-6 h-6 rounded-full flex-shrink-0" [src]="deal.BDOwner.profilePicUrl" alt="Avatar" style="object-fit: cover;">
+                    } @else {
+                      <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+                        {{ deal.BDOwner.firstName.charAt(0) }}{{ deal.BDOwner.lastName.charAt(0) }}
+                      </div>
+                    }
+                    <span class="text-xs truncate">{{ deal.BDOwner.firstName }} {{ deal.BDOwner.lastName }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-4">
+                  <ui-badge [variant]="getFlowStatusVariant(deal.flowStatus.name)" class="text-xs">
+                    {{ deal.flowStatus.name }}
+                  </ui-badge>
+                </td>
+                <td class="px-4 py-4">
+                  <ui-badge [variant]="getStatusVariant(deal.status.name)" class="text-xs">
+                    {{ deal.status.name }}
+                  </ui-badge>
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr>
+                <td colspan="8" class="h-24 text-center px-6 py-4">
+                  <div class="flex flex-col items-center justify-center text-muted-foreground">
+                    <svg class="h-12 w-12 mb-4 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="text-lg font-medium">No deals found</p>
+                    <p class="text-sm">Change filters or add a new deal</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ui-card-content>
+    
+    <!-- Pagination -->
+    <ui-card-footer class="flex items-center justify-between px-6 py-4 border-t">
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-muted-foreground">Rows per page:</span>
+        <select 
+          [(ngModel)]="pageSize" 
+          (change)="onPageSizeChange()"
+          class="h-8 w-20 mr-4 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
           <option [ngValue]="30">30</option>
           <option [ngValue]="50">50</option>
           <option [ngValue]="100">100</option>
         </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-          </svg>
+      </div>
+      
+      <div class="flex items-center gap-6">
+        <span class="text-sm text-muted-foreground">
+          {{ offset * pageSize + 1 }}-{{ Math.min((offset + 1) * pageSize, totalDeals) }} of {{ totalDeals }}
+        </span>
+        
+        <div class="flex items-center gap-2">
+          <ui-button 
+            variant="outline" 
+            size="sm" 
+            [disabled]="offset === 0"
+            (onClick)="leftArrow()"
+            title="Previous page">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </ui-button>
+          
+          <span class="text-sm text-muted-foreground px-3 py-1 min-w-[60px] text-center">
+            {{ offset + 1 }} of {{ maxPages }}
+          </span>
+          
+          <ui-button 
+            variant="outline" 
+            size="sm" 
+            [disabled]="offset + 1 >= maxPages"
+            (onClick)="rightArrow()"
+            title="Next page">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </ui-button>
         </div>
       </div>
-    </div>
-
-    <!-- Navigacija kroz strane -->
-    <div class="flex justify-center pt-2 text-gray-400 items-center">
-      <!-- Strelica levo -->
-      <a (click)="goToPreviousPage()" href="javascript:void(0)" class="mr-2 dark:hover:text-[#56BDED] hover:text-[#386097]">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
-        </svg>
-      </a>
-
-      <!-- Raspon redova -->
-      <span class="mx-2">
-      {{ offset * pageSize + 1 }} – {{ Math.min((offset + 1) * pageSize, totalDeals) }} of {{ totalDeals }}
-    </span>
-
-      <!-- Strelica desno -->
-      <a (click)="goToNextPage()" class="ml-2 dark:hover:text-[#56BDED] hover:text-[#386097]" href="javascript:void(0)">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
-        </svg>
-      </a>
-    </div>
-  </div>
+    </ui-card-footer>
+  </ui-card>
 
 </div>

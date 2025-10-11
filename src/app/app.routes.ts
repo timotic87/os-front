@@ -16,12 +16,12 @@ import {DealComponent} from "./deals/deal/deal.component";
 import {DocumentsComponent} from "./admin/adminPages/documents/documents.component";
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
   {path: 'login', component: LoginComponent},
-  {path: 'clients', component: ClientsComponent, canActivate: [()=>{
-
+  {path: 'clients', component: ClientsComponent, canActivate: [authGuard, ()=>{
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
 
@@ -31,9 +31,9 @@ export const routes: Routes = [
       dialogService.showMsgDialog('You dont have permission');
       return false;
     }]},
-  {path: 'profile', component: ProfileComponent},
+  {path: 'profile', component: ProfileComponent, canActivate: [authGuard]},
   {
-    path: 'admin', component: AdminComponent, canActivate: [() => {
+    path: 'admin', component: AdminComponent, canActivate: [authGuard, () => {
       const userService = inject(UserService);
       const router = inject(Router);
       const dialogService = inject(DialogService);
@@ -51,7 +51,7 @@ export const routes: Routes = [
     ]
 
   },
-  {path: 'deals', component: DealsComponent, canActivate: [()=>{
+  {path: 'deals', component: DealsComponent, canActivate: [authGuard, ()=>{
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
 
@@ -62,7 +62,7 @@ export const routes: Routes = [
       dialogService.showMsgDialog('You dont have permission');
       return false;
     }]},
-  {path: 'deal/:id', component: DealComponent, canActivate: [async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+  {path: 'deal/:id', component: DealComponent, canActivate: [authGuard, async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
       const id = Number(route.paramMap.get('id'));
@@ -74,11 +74,11 @@ export const routes: Routes = [
         return true;
       }
 
-      dialogService.showMsgDialog('You don’t have permission');
+      dialogService.showMsgDialog("You don't have permission");
       return false;
     }]
   },
-  {path: 'projects', component: DealsComponent, canActivate: [async ()=>{
+  {path: 'projects', component: DealsComponent, canActivate: [authGuard, async ()=>{
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
       if (userService.can('')) {//todo dodati ime permisije
@@ -87,7 +87,7 @@ export const routes: Routes = [
       dialogService.showMsgDialog('You dont have permission');
       return false;
     }]},
-  { path: 'documentview/:id', component: DocumentViewComponent }
+  { path: 'documentview/:id', component: DocumentViewComponent, canActivate: [authGuard] }
 
 ];
 

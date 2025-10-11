@@ -1,6 +1,62 @@
-<div
-  class="block w-full p-3 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800
-  dark:border-gray-700 dark:hover:bg-gray-700 my-3">
-  <span>Calculation created {{ cdcm.createdDate | date: 'MMM d, y' }} at {{ cdcm.createdDate | date: 'h:mm a' }}</span>
-  <app-color-label color="red" size="base" class="block my-2">Status: {{ cdcm.status.name }}</app-color-label>
+<!-- CDCM Inactive Card - Ultra Compact Design -->
+<div class="group cdcm-inactive-card cdcm-card-hover glass-effect bg-gradient-to-r from-white via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 border border-l-4 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg shadow-sm cursor-pointer" [ngClass]="getStatusBorderClass()">
+  <div class="p-3">
+    <!-- Compact Header Row -->
+    <div class="flex items-center justify-between">
+      <!-- Left Section: ID + Status -->
+      <div class="flex items-center gap-3">
+        <!-- ID Badge -->
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+            {{ cdcm.ID }}
+          </div>
+          <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">CDCM</div>
+        </div>
+        
+        <!-- Status Indicator -->
+        <div class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" 
+             [class]="getStatusClasses()">
+          <div class="w-1.5 h-1.5 rounded-full mr-1.5 animate-pulse" 
+               [class]="getStatusDotClasses()"></div>
+          {{ cdcm.status.name }}
+        </div>
+      </div>
+      
+      <!-- Right Section: Date + View Icon -->
+      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <time class="font-medium">{{ cdcm.createdDate | date: 'MMM d' }}</time>
+        <svg class="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" 
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Compact Financial Data -->
+    <div class="mt-2 flex items-center gap-4 text-xs" *ngIf="cdcm.revenue || cdcm.net_profit">
+      <div class="flex items-center gap-1" *ngIf="cdcm.revenue">
+        <span class="text-gray-500 dark:text-gray-400">Rev:</span>
+        <span class="font-semibold text-green-600 dark:text-green-400">{{ cdcm.revenue | currency: 'RSD':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+      <div class="w-px h-3 bg-gray-300 dark:bg-gray-600" *ngIf="cdcm.revenue && cdcm.net_profit"></div>
+      <div class="flex items-center gap-1" *ngIf="cdcm.net_profit">
+        <span class="text-gray-500 dark:text-gray-400">Profit:</span>
+        <span class="font-semibold text-blue-600 dark:text-blue-400">{{ cdcm.net_profit | currency: 'RSD':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <!-- Creator Info - Ultra Compact -->
+    <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+        <div class="avatar-glow w-4 h-4 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium">
+          {{ (cdcm.creator?.firstName?.[0] || '?') + (cdcm.creator?.lastName?.[0] || '') }}
+        </div>
+        <span class="truncate max-w-20">{{ cdcm.creator?.firstName || 'Unknown' }}</span>
+      </div>
+      <div class="opacity-60 group-hover:opacity-100 transition-opacity text-xs text-gray-400 dark:text-gray-500">
+        Click to view →
+      </div>
+    </div>
+  </div>
 </div>

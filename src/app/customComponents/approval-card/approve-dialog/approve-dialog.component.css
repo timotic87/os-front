@@ -1,0 +1,420 @@
+/* Modern Approval Dialog Styles */
+.approval-dialog-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header animations */
+.approval-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.approval-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Content spacing */
+.approval-content {
+  min-height: auto;
+  padding: 1.5rem;
+}
+
+/* Form enhancements */
+.comment-section textarea {
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.comment-section textarea:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Error state animation */
+.error-message {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button enhancements */
+.approval-actions button {
+  position: relative;
+  overflow: hidden;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+.approval-actions button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.approval-actions button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Approve button specific styling */
+.approve-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.approve-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+}
+
+/* Decline button specific styling */
+.decline-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.decline-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+}
+
+/* Cancel button specific styling */
+.cancel-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Step info card styling */
+.step-info-card {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border: 1px solid rgba(209, 213, 219, 0.5);
+}
+
+/* Dark mode step info card */
+:host-context(.dark) .step-info-card,
+.dark .step-info-card {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+  border: 1px solid rgba(55, 65, 81, 0.7) !important;
+  color: #f9fafb !important;
+}
+
+/* Dark mode styles using .dark class - compatible with class-based dark mode */
+.dark .step-info-card {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+  border: 1px solid rgba(55, 65, 81, 0.7) !important;
+}
+
+.dark .step-info-card h3 {
+  color: #f9fafb !important;
+}
+
+.dark .step-info-card p {
+  color: #d1d5db !important;
+}
+
+/* LIGHT MODE: Force white background and proper styling for light mode */
+textarea#commentID,
+textarea.approve-dialog-textarea,
+.comment-section textarea,
+form textarea,
+div textarea,
+textarea.w-full.px-4.py-3 {
+  background-color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(209, 213, 219) !important; /* gray-300 */
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+/* Light mode placeholder */
+textarea::placeholder,
+input::placeholder {
+  color: rgb(107, 114, 128) !important; /* gray-500 */
+}
+
+/* Light mode focus state */
+textarea:focus,
+input:focus {
+  border-color: rgb(59, 130, 246) !important; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* CRITICAL: Ultra-specific dark mode input styling for textarea - HIGHEST PRIORITY */
+.dark textarea,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="number"],
+.dark input,
+.dark select {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* NUCLEAR OPTION: Extreme specificity to override Tailwind */
+html.dark textarea.w-full.px-4.py-3,
+html.dark div textarea.w-full,
+html.dark form textarea.w-full,
+html.dark .comment-section textarea.w-full,
+html.dark .approval-dialog-container textarea.w-full {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Target exact Tailwind classes with .dark prefix */
+.dark textarea.bg-white,
+.dark textarea[class*="bg-white"],
+.dark .bg-white textarea,
+.dark [class*="bg-white"] textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Override any Tailwind background utilities in dark mode */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: rgb(31, 41, 55) !important; /* Make sure containers are dark too */
+}
+
+/* Maximum specificity for the exact textarea element */
+.dark textarea#commentID.w-full.px-4.py-3.border.border-gray-300.rounded-lg.bg-white,
+.dark textarea[id="commentID"].w-full,
+.dark #commentID.w-full[formControlName="comment"] {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* ULTIMATE OVERRIDE: Target the exact classes from HTML */
+.dark textarea.w-full.px-4.py-3.border.border-gray-300.rounded-lg.bg-white.text-gray-900,
+.dark .comment-section textarea.w-full.px-4.py-3.border.rounded-lg,
+.dark form textarea.w-full.px-4.py-3.border.border-gray-300.rounded-lg,
+.dark div.relative textarea.w-full.px-4.py-3.border,
+.dark div.comment-section textarea.w-full.px-4.py-3 {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Target exact Tailwind utility combinations */
+.dark .w-full.px-4.py-3.border.border-gray-300.dark\:border-gray-600.rounded-lg.bg-white.dark\:bg-gray-800,
+.dark .w-full.px-4.py-3.border[class*="border-gray-300"][class*="bg-white"],
+.dark textarea[class*="w-full"][class*="px-4"][class*="py-3"][class*="bg-white"] {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Override any possible Tailwind dark: prefixed classes that don't work */
+.dark textarea[class*="dark:bg-gray-800"],
+.dark textarea[class*="dark:text-gray-100"],
+.dark textarea[class*="dark:border-gray-600"] {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Maximum specificity for dark mode textarea in approve dialog */
+.dark #commentID,
+.dark textarea#commentID,
+.dark .comment-section textarea,
+.dark form textarea,
+.dark div textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* ng-deep selectors for dark mode */
+.dark ::ng-deep textarea,
+.dark ::ng-deep input,
+.dark ::ng-deep select {
+  background-color: rgb(31, 41, 55) !important;
+  border-color: rgb(75, 85, 99) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+/* Component-specific targeting */
+.dark app-approve-dialog textarea,
+.dark app-approve-dialog input,
+.dark app-approve-dialog select {
+  background-color: rgb(31, 41, 55) !important;
+  border-color: rgb(75, 85, 99) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+/* Final fallback for any textarea in dark mode */
+.dark textarea[formControlName="comment"],
+.dark .approval-dialog-container textarea,
+.dark .comment-section textarea {
+  background-color: rgb(31, 41, 55) !important;
+  border-color: rgb(75, 85, 99) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+/* Placeholder text styling for dark mode */
+.dark textarea::placeholder,
+.dark input::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+/* Focus state for dark mode */
+.dark textarea:focus,
+.dark input:focus {
+  border-color: rgb(59, 130, 246) !important; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Additional fallback for dark mode */
+.bg-gray-50 {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.dark\:bg-gray-800 {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
+/* Help section styling */
+.help-section {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Action button area styling */
+.approval-actions {
+  border-top: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.dark .approval-actions {
+  border-top: 1px solid rgba(55, 65, 81, 0.8);
+}
+
+/* Button sizing and spacing */
+.approval-actions button {
+  min-width: 100px;
+  padding: 0.625rem 1.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .approval-dialog-container {
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem);
+    min-width: 320px;
+  }
+  
+  .approval-content {
+    padding: 1rem;
+  }
+  
+  .approval-actions {
+    padding: 1rem 1.25rem;
+  }
+  
+  .approval-actions .flex {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+  
+  .approval-actions button {
+    width: 100%;
+    justify-content: center;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .approval-dialog-container {
+    margin: 0.25rem;
+    max-width: calc(100vw - 0.5rem);
+  }
+}
+
+/* Focus improvements for accessibility */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+.approval-dialog-container * {
+  transition-property: color, background-color, border-color, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Global dialog panel override for rounded corners */
+:host ::ng-deep .approve-dialog-panel {
+  border-radius: 0px !important;
+  overflow: hidden !important;
+}
+
+:host ::ng-deep .approve-dialog-panel .mat-mdc-dialog-container {
+  border-radius: 0px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .approve-dialog-panel .mdc-dialog__surface {
+  border-radius: 0px !important;
+  overflow: hidden !important;
+}
+
+/* Additional dark mode enforcement */
+.dark .step-info-card,
+[data-theme="dark"] .step-info-card,
+html.dark .step-info-card,
+body.dark .step-info-card {
+  background: #1f2937 !important;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+  border-color: #374151 !important;
+}
+
+.dark .step-info-card h3,
+[data-theme="dark"] .step-info-card h3,
+html.dark .step-info-card h3,
+body.dark .step-info-card h3 {
+  color: #f9fafb !important;
+}
+
+.dark .step-info-card p,
+[data-theme="dark"] .step-info-card p,
+html.dark .step-info-card p,
+body.dark .step-info-card p {
+  color: #d1d5db !important;
+}

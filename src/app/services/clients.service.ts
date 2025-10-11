@@ -5,8 +5,7 @@ import {CookieService} from "ngx-cookie-service";
 import {RestService} from "./rest.service";
 import {DialogService} from "./dialog.service";
 import {Router} from "@angular/router";
-import {Observable, Subject} from "rxjs";
-import {map} from 'rxjs/operators'; // proveri da li već imaš ovaj import
+import {Observable, Subject, of, map, catchError} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -39,20 +38,24 @@ export class ClientsService {
   editClientById(data) {
     if (this.tokenService.isTokenOk()) {
       this.dialogService.showLoader()
-      this.rest.editClient(data).subscribe({
-        next: res => {
-          this.dialogService.closeLoader();
+      return this.rest.editClient(data).pipe(
+        map(res => {
+          // Don't close loader here - let component handle it
           if (res.status === 200) {
             this.isListChange.next(true);
+            return { success: true, data: res };
           }
-        },
-        error: err => {
-          this.dialogService.closeLoader();
-          this.dialogService.showMsgDialog('Status: ' + err.status + ' msg: ' + err.error.message);
-        }
-      })
+          return { success: false, data: res };
+        }),
+        catchError(err => {
+          // Don't close loader here - let component handle it
+          // Don't show error dialog here - let component handle it
+          return of({ success: false, error: err });
+        })
+      );
     } else {
       this.router.navigate(["/login"])
+      return of({ success: false, error: 'Not authenticated' });
     }
   }
 

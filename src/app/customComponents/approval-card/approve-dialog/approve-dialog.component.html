@@ -1,58 +1,153 @@
-<div class="h-full w-full dark:bg-gray-600 py-6">
-  <div class="pb-6 flex justify-center text-gray-400 dark:text-neutral-100 mx-9">
-    <h2 class="text-center mt-3">Choose Approve or Decline option. Comment for the Decline is mandatory and for the Approve is optional</h2>
-  </div>
-  <hr class="mb-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50 w-full" />
-  <div >
-  <form [formGroup]="approveFormGroup">
-    <div class="basis-1/1">
-      <div class="flex justify-center text-gray-600 dark:text-gray-300 mt-3">Comment:</div>
-      <div class="flex justify-center text-gray-400 p-6 dark:text-neutral-100">
-          <textarea type="text" id="commentID" class="w-full border border-gray-300 rounded-md py-2 px-3 mx-2 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                    [ngClass]="approveFormGroup.get('comment').touched && !approveFormGroup.get('comment').valid ? 'border-red-500':''" formControlName="comment" autocomplete="new-name"></textarea>
+<!-- Modern Approval Dialog -->
+<div class="approval-dialog-container bg-gradient-to-br from-white via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 overflow-hidden">
+  
+  <!-- Header Section -->
+  <div class="approval-header bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 px-6 py-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
       </div>
-      <div class="flex flex-row-reverse">
-        <span class="text-xs text-red-500 mr-6" *ngIf="showMandatoryText">*If you want to decline please put a comment</span>
+      <div>
+        <h2 class="text-xl font-bold text-white">Approval Decision</h2>
+        <p class="text-blue-100 text-sm">Review and take action on this approval step</p>
       </div>
     </div>
-  </form>
-  <div class="w-full flex flex-row-reverse p-4">
-
-    <button (click)="cancel();"
-            type="button"
-            class="inline-block rounded bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
-      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150
-      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
-      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
-      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
-      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
-      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
-      Cancel
-    </button>
-
-    <button (click)="decline();"
-            type="button"
-            class="inline-block rounded bg-orange-500 text-white px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
-      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
-      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
-      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
-      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
-      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
-      Decline
-    </button>
-
-    <button (click)="approve();"
-            type="button"
-            class="inline-block rounded bg-green-600 dark:bg-green-400 px-6 pb-2 pt-2.5 text-xs font-medium uppercase mx-4
-      leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150
-      ease-in-out hover:bg-info-600 hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:bg-info-600
-      focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0
-      active:bg-info-700 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)]
-      dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]
-      dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]">
-      Approve
-    </button>
-
   </div>
+
+  <!-- Content Section -->
+  <div class="approval-content space-y-5">
+    
+    <!-- Step Info Card -->
+    <div class="step-info-card rounded-lg p-4 border" [ngStyle]="getStepCardStyles()">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-900/70 rounded-full flex items-center justify-center">
+          <span class="text-sm font-bold text-blue-300">{{approvalStep.stepOrder}}</span>
+        </div>
+        <div>
+          <h3 class="font-semibold" [ngClass]="getStepCardTextClasses().h3">Step {{approvalStep.stepOrder}} of Approval Process</h3>
+          <p class="text-sm" [ngClass]="getStepCardTextClasses().p">Assigned to: {{approvalStep.user.firstName}} {{approvalStep.user.lastName}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment Section -->
+    <form [formGroup]="approveFormGroup" class="space-y-4">
+      <div class="comment-section">
+        <label for="commentID" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m8 0v5a2 2 0 01-2 2H9a2 2 0 01-2-2v-5m8 0H7"/>
+          </svg>
+          Comment
+          <span class="text-xs text-gray-500 ml-2">(Required for decline, optional for approve)</span>
+        </label>
+        <div class="relative">
+          <textarea 
+            id="commentID" 
+            formControlName="comment" 
+            rows="4"
+            placeholder="Add your comment here... (required for decline)"
+            class="w-full px-4 py-3 border rounded-lg 
+                   focus:ring-2 focus:ring-blue-500
+                   transition-all duration-200 resize-none approve-dialog-textarea"
+            [ngStyle]="getTextareaStyles()"
+            [ngClass]="{
+              'border-red-500 focus:ring-red-500 focus:border-red-500': showMandatoryText,
+              'border-green-500': approveFormGroup.get('comment').value && approveFormGroup.get('comment').value.trim().length > 0
+            }"></textarea>
+          
+          <!-- Character counter -->
+          <div class="absolute bottom-2 right-2 text-xs text-gray-400 dark:text-gray-500">
+            {{(approveFormGroup.get('comment').value || '').length}}/500
+          </div>
+        </div>
+        
+        <!-- Error message -->
+        <div class="error-message mt-2" *ngIf="showMandatoryText">
+          <div class="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Comment is required when declining an approval step</span>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Quick Actions Help -->
+    <div class="help-section bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div class="text-sm text-blue-700 dark:text-blue-300">
+          <p class="font-medium mb-1">Quick Guide:</p>
+          <ul class="space-y-1 text-xs">
+            <li class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <strong>Approve:</strong> Accept this step (comment optional)
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+              <strong>Decline:</strong> Reject this step (comment required)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Action Buttons -->
+  <div class="approval-actions px-6 py-5 border-t" [ngStyle]="getActionAreaStyles()">
+    <div class="flex justify-end gap-4">
+      
+      <!-- Cancel Button -->
+      <button 
+        type="button" 
+        (click)="cancel()"
+        class="cancel-btn px-4 py-2 text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-700 
+               border border-gray-300 dark:border-gray-600 rounded-lg 
+               hover:bg-gray-50 dark:hover:bg-gray-600 
+               focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 
+               transition-all duration-200 font-medium text-sm">
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Cancel
+      </button>
+
+      <!-- Decline Button -->
+      <button 
+        type="button" 
+        (click)="decline()"
+        class="decline-btn px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded-lg 
+               hover:bg-red-600 dark:hover:bg-red-700 
+               focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
+               transition-all duration-200 font-medium text-sm 
+               shadow-lg hover:shadow-xl">
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Decline
+      </button>
+
+      <!-- Approve Button -->
+      <button 
+        type="button" 
+        (click)="approve()"
+        class="approve-btn px-6 py-2 bg-green-500 dark:bg-green-600 text-white rounded-lg 
+               hover:bg-green-600 dark:hover:bg-green-700 
+               focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+               transition-all duration-200 font-medium text-sm 
+               shadow-lg hover:shadow-xl">
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Approve
+      </button>
+
+    </div>
+  </div>
+
 </div>

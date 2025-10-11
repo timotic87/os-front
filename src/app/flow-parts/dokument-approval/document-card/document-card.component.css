@@ -1,0 +1,405 @@
+/* Compact Document Card Styles */
+
+/* CRITICAL HOST OVERRIDE - SIMPLE FIX */
+:host {
+  display: block !important;
+  background-color: white !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0.5rem !important;
+}
+
+:host .document-card {
+  background-color: white !important;
+  color: rgb(17, 24, 39) !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+}
+
+/* Dark mode for :host element */
+.dark :host {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+}
+
+.dark :host .document-card {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+  color: rgb(243 244 246) !important; /* gray-100 */
+  border-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+.document-card {
+  /* Clean, simple card style - SIMPLIFIED */
+  background-color: white !important;
+  color: rgb(17, 24, 39) !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+  margin: 0 !important;
+  padding: 1.25rem !important;
+  border-radius: 0.5rem !important;
+}
+
+.document-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Typography */
+.document-card h3 {
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* Icon container */
+.document-card .p-1\.5 {
+  transition: all 0.15s ease;
+}
+
+.document-card:hover .p-1\.5 {
+  transform: scale(1.05);
+}
+
+/* Button styling */
+ui-button {
+  transition: all 0.15s ease;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+}
+
+ui-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+ui-button:active {
+  transform: translateY(0);
+}
+
+/* Badge styling */
+ui-badge {
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+/* Icon animations */
+svg {
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+ui-button:hover:not(:disabled) svg {
+  transform: scale(1.08);
+}
+
+/* Focus states */
+ui-button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Disabled states */
+ui-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+ui-button:disabled:hover {
+  transform: none !important;
+}
+
+/* Button specific styles */
+ui-button[variant="ghost"] {
+  color: #6b7280;
+}
+
+ui-button[variant="ghost"]:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.dark ui-button[variant="ghost"] {
+  color: #9ca3af;
+}
+
+.dark ui-button[variant="ghost"]:hover:not(:disabled) {
+  background-color: #374151;
+  color: #f3f4f6;
+}
+
+/* Delete button styling */
+ui-button.text-red-600:hover:not(:disabled) {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.dark ui-button.dark\:text-red-400:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+/* Submit button - simple HTML button styling */
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #16a34a;
+  color: white;
+  border: 1px solid #16a34a;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #15803d;
+  border-color: #15803d;
+  transform: translateY(-1px);
+}
+
+.submit-btn:active {
+  background-color: #166534;
+  border-color: #166534;
+  transform: translateY(0);
+}
+
+.submit-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.submit-btn:disabled {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+  color: white;
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit-btn:disabled:hover {
+  transform: none;
+}
+
+/* Status Badge Style - identical to cdcm-card */
+.status-success {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-warning {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fed7aa;
+}
+
+.status-destructive {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.status-secondary {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.status-default {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+/* Dark mode status styles */
+.dark .status-success {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.dark .status-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #fde68a;
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.dark .status-destructive {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.dark .status-secondary {
+  background-color: rgba(100, 116, 139, 0.1);
+  color: #cbd5e1;
+  border-color: rgba(100, 116, 139, 0.2);
+}
+
+.dark .status-default {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #d1d5db;
+  border-color: rgba(107, 114, 128, 0.2);
+}
+
+/* Ensure proper text truncation */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .document-card {
+    padding: 0.75rem;
+  }
+  
+  .document-card h3 {
+    font-size: 0.875rem;
+  }
+  
+  .document-card .flex.gap-2 {
+    gap: 0.375rem;
+  }
+  
+  ui-button.h-8 {
+    height: 1.75rem;
+    min-height: 1.75rem;
+  }
+}
+
+/* Ensure button container doesn't overflow */
+.document-card .flex.items-center.gap-2 {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+/* Ensure ml-auto works properly */
+.ml-auto {
+  margin-left: auto;
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+  color: #f3f4f6;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+/* Force all text elements in document-card to inherit proper colors */
+.document-card h3,
+.document-card p,
+.document-card span,
+.document-card div:not(.status-success):not(.status-warning):not(.status-destructive):not(.status-secondary):not(.status-default) {
+  color: inherit !important;
+}
+
+/* Force specific Tailwind text classes */
+.document-card .text-gray-900 {
+  color: rgb(17, 24, 39) !important;
+}
+
+.document-card .text-gray-500 {
+  color: rgb(107, 114, 128) !important;
+}
+
+.document-card .text-gray-100 {
+  color: rgb(243, 244, 246) !important;
+}
+
+.document-card .text-gray-400 {
+  color: rgb(156, 163, 175) !important;
+}
+
+/* Dark mode handling - only when .dark class is explicitly set */
+.dark .document-card {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+  color: rgb(243 244 246) !important; /* gray-100 */
+  border-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+.dark .document-card .text-gray-900 {
+  color: rgb(243, 244, 246) !important;
+}
+
+.dark .document-card .text-gray-500 {
+  color: rgb(156, 163, 175) !important;
+}
+
+.dark .document-card .text-gray-100 {
+  color: rgb(243, 244, 246) !important;
+}
+
+.dark .document-card .text-gray-400 {
+  color: rgb(156, 163, 175) !important;
+}
+
+/* Override any system dark mode preferences */
+@media (prefers-color-scheme: dark) {
+  :host:not(.dark *) {
+    background-color: white !important;
+  }
+  
+  .document-card:not(.dark *) {
+    background-color: white !important;
+    color: rgb(17, 24, 39) !important;
+    border-color: rgb(229, 231, 235) !important;
+  }
+  
+  .document-card:not(.dark *) .text-gray-900 {
+    color: rgb(17, 24, 39) !important;
+  }
+  
+  .document-card:not(.dark *) .text-gray-500 {
+    color: rgb(107, 114, 128) !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .document-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .document-card .flex.gap-2 {
+    display: none;
+  }
+}

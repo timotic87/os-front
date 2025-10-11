@@ -1,4 +1,4 @@
-import {Component, Inject, Input, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgIf} from "@angular/common";
 import {PickFileComponent} from "../../../../clients/documentaton/elements/pick-file/pick-file.component";
@@ -30,6 +30,7 @@ export class PromotingProjectPyhraComponent implements OnInit{
   currencyList;
 
   @Input() deal: any
+  @Output() projectPromoted = new EventEmitter<any>();
 
   constructor(private rest: RestService, private dialogService: DialogService, private userService: UserService) {
     this.getStatics();
@@ -42,7 +43,7 @@ export class PromotingProjectPyhraComponent implements OnInit{
           isExpired: new FormControl(true ),
           startDate: new FormControl(null, [Validators.required]),
           endDate: new FormControl(null,[Validators.required]),
-          salaryValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
+          salaryValue: new FormControl(null, [Validators.required, Validators.min(1)]),
           salaryType: new FormControl({value: null, disabled: true}),
           salarydaysdue: new FormControl(null, [Validators.required]),
           salaryCurrency: new FormControl(null, [Validators.required])
@@ -123,8 +124,13 @@ export class PromotingProjectPyhraComponent implements OnInit{
       next: res=>{
         if (res.status===200){
           this.dialogService.closeLoader();
-          window.location.reload();
-          window.scrollTo(0, document.body.scrollHeight);
+          this.dialogService.showSnackBar('Project promoted successfully!', '', 3000);
+          // Emit event to parent component with updated status
+          this.projectPromoted.emit({
+            success: true,
+            newFlowStatusID: 15,
+            message: 'Project has been successfully promoted'
+          });
         }
       },
       error: err => {

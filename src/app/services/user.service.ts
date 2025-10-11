@@ -5,6 +5,7 @@ import {JwtDecoderService} from "./jwt-decoder.service";
 import {firstValueFrom, Subject} from "rxjs";
 import {RestService} from "./rest.service";
 import {DialogService} from "./dialog.service";
+import {NotificationSocketService} from "./notification-socket.service";
 
 
 @Injectable({
@@ -17,7 +18,7 @@ export class UserService {
   permissions: any
 
   constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService, private rest: RestService,
-              private dialogService: DialogService) { }
+              private dialogService: DialogService, private notificationSocketService: NotificationSocketService) { }
 
   public getUser(){
     const objStr = localStorage.getItem('user');
@@ -36,6 +37,10 @@ export class UserService {
 
     localStorage.setItem('user', JSON.stringify(this.user));
     localStorage.setItem('permissions', JSON.stringify(this.permissions));
+    
+    // Reset socket connection with new user data
+    this.notificationSocketService.resetConnection();
+    
     return
   }
 
@@ -48,6 +53,9 @@ export class UserService {
   }
 
   public deleteUser(){
+    // Disconnect socket before clearing user data
+    this.notificationSocketService.disconnectSocket();
+    
     this.user = null;
     this.permissions = null;
     localStorage.removeItem('user');

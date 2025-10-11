@@ -1,17 +1,433 @@
-.customNumberInput::-webkit-inner-spin-button,
-.customNumberInput::-webkit-outer-spin-button {
+/* CDCM View Edit Compact Component Styles - UPDATED VERSION 2025-01-11 */
+
+/* TEST - if you see red border, CSS is loading */
+.test-css-loading {
+  border: 2px solid red !important;
+}
+
+/* Grid Layout for cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1536px) {
+  .card-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Card styles - kompaktne sa dark mode podrškom */
+.card-grid > div {
+  min-height: fit-content;
+  transition: all 0.2s ease-in-out;
+}
+
+.card-grid > div:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Base input styling with light mode defaults */
+input[type="number"], 
+input[type="text"], 
+input,
+select, 
+textarea {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+  line-height: 1.25;
+  border-radius: 0.375rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+  /* Light mode defaults */
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  color: #111827 !important;
+}
+
+/* Remove number input spinners for cleaner look */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Focus states for better UX */
+input:focus, 
+select:focus, 
+textarea:focus {
+  outline: none;
+  ring-width: 2px;
+  ring-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+/* Dark mode specific overrides using .dark class */
+.dark input[type="number"], 
+.dark input[type="text"], 
+.dark input,
+.dark select, 
+.dark textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Super specific targeting for cdcm view-edit dialog in dark mode */
+.dark app-cdcm-view-edit input[type="number"],
+.dark app-cdcm-view-edit input[type="text"],
+.dark app-cdcm-view-edit input,
+.dark app-cdcm-view-edit select,
+.dark app-cdcm-view-edit textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Maximum specificity selectors for dark mode */
+html.dark body div div div div input[type="number"],
+html.dark body div div div div input[type="text"],
+html.dark body div div div div input,
+html.dark body div div div div select,
+html.dark body div div div div textarea,
+
+.dark div.card-grid div form input[type="number"],
+.dark div.card-grid div form input[type="text"],
+.dark div.card-grid div form input,
+.dark div.card-grid div form select,
+.dark div.card-grid div form textarea,
+
+.dark [class*="bg-white"] input[type="number"],
+.dark [class*="bg-white"] input[type="text"],
+.dark [class*="bg-white"] input,
+.dark [class*="bg-white"] select,
+.dark [class*="bg-white"] textarea,
+
+.dark div[class*="bg-white"] input[type="number"],
+.dark div[class*="bg-white"] input[type="text"],
+.dark div[class*="bg-white"] input,
+.dark div[class*="bg-white"] select,
+.dark div[class*="bg-white"] textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Ultra specific for form controls in dark mode */
+.dark form input,
+.dark form select,
+.dark form textarea,
+.dark div form input,
+.dark div form select,
+.dark div form textarea,
+.dark div div form input,
+.dark div div form select,
+.dark div div form textarea {
+  background-color: rgb(31, 41, 55) !important;
+  border-color: rgb(75, 85, 99) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+/* ng-deep selectors for dark mode */
+.dark ::ng-deep input[type="number"],
+.dark ::ng-deep input[type="text"],
+.dark ::ng-deep input,
+.dark ::ng-deep select,
+.dark ::ng-deep textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Override any Tailwind classes with ng-deep in dark mode */
+.dark ::ng-deep .bg-white input,
+.dark ::ng-deep .bg-white select,
+.dark ::ng-deep .bg-white textarea,
+.dark ::ng-deep input.bg-white,
+.dark ::ng-deep select.bg-white,
+.dark ::ng-deep textarea.bg-white,
+.dark ::ng-deep input[class*="bg-white"],
+.dark ::ng-deep select[class*="bg-white"],
+.dark ::ng-deep textarea[class*="bg-white"] {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Ensure proper dark backgrounds - including dialog/modal backgrounds */
+.dark .bg-white, 
+.dark .max-w-6xl, 
+.dark .max-w-7xl {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+/* Card backgrounds in dark mode */
+.dark .card-grid > div {
+  background-color: rgb(17, 24, 39) !important;
+  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+/* Button dark mode */
+.dark button {
+  border-color: rgb(75, 85, 99) !important;
+}
+
+/* Validation and info boxes in dark mode */
+.dark .bg-red-50 {
+  background-color: rgba(127, 29, 29, 0.2) !important; /* red-900 with opacity */
+  border-color: rgb(153, 27, 27) !important; /* red-800 */
+}
+
+.dark .bg-gray-50 {
+  background-color: rgba(31, 41, 55, 0.5) !important; /* gray-800 with opacity */
+}
+
+.dark .bg-blue-50 {
+  background-color: rgba(30, 58, 138, 0.3) !important; /* blue-950 with opacity */
+}
+
+.dark .bg-green-50 {
+  background-color: rgba(20, 83, 45, 0.3) !important; /* green-950 with opacity */
+}
+
+.dark .bg-purple-50 {
+  background-color: rgba(59, 39, 132, 0.3) !important; /* purple-950 with opacity */
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.3) !important; /* emerald-950 with opacity */
+}
+
+.dark .bg-teal-50 {
+  background-color: rgba(19, 78, 74, 0.3) !important; /* teal-950 with opacity */
+}
+
+/* ULTRA SPECIFIC - Target exact Tailwind classes using .dark class */
+.dark input.block.w-full.rounded.border-gray-300.shadow-sm.focus\:border-blue-500.focus\:ring-blue-500.text-sm.h-8,
+.dark select.block.w-full.rounded.border-gray-300.shadow-sm.focus\:border-blue-500.focus\:ring-blue-500.text-sm.h-8,
+.dark textarea.block.w-full.rounded.border-gray-300.shadow-sm.focus\:border-blue-500.focus\:ring-blue-500.text-sm,
+.dark input[class*="block w-full rounded border-gray-300"],
+.dark select[class*="block w-full rounded border-gray-300"],
+.dark textarea[class*="block w-full rounded border-gray-300"] {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* FINAL ULTRA-SPECIFIC DARK MODE OVERRIDE using .dark class - Maximum CSS Specificity */
+.dark :host input,
+.dark :host select,
+.dark :host textarea,
+.dark :host input[type="number"],
+.dark :host input[type="text"],
+.dark :host input[class],
+.dark :host select[class],
+.dark :host textarea[class] {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Absolutely final override for any possible input in dark mode */
+.dark :host .w-full input,
+.dark :host .w-full select,
+.dark :host .w-full textarea,
+.dark :host div input,
+.dark :host div select, 
+.dark :host div textarea,
+.dark :host form input,
+.dark :host form select,
+.dark :host form textarea,
+.dark :host div div input,
+.dark :host div div select,
+.dark :host div div textarea,
+.dark :host div div div input,
+.dark :host div div div select,
+.dark :host div div div textarea {
+  background-color: rgb(31, 41, 55) !important;
+  border-color: rgb(75, 85, 99) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+/* Compact spacing overrides */
+.space-y-1 > * + * {
+  margin-top: 0.25rem;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* Compact padding for cards */
+.card-grid .p-4 {
+  padding: 0.75rem;
+}
+
+.card-grid .p-3 {
+  padding: 0.5rem;
+}
+
+/* Compact gaps */
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+/* Button compact styles */
+button {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+/* Icon sizing for compact design */
+svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Ensure text sizes are appropriate for compact design */
+h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+h2 {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+h3 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+h4 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* Compact labels */
+label {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.15s ease-in-out, 
+              border-color 0.15s ease-in-out, 
+              color 0.15s ease-in-out;
+}
+
+/* Responsive text sizing */
+@media (max-width: 768px) {
+  .text-2xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  .text-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+/* Legacy support - keeping existing classes */
+.customNumberInput::-webkit-outer-spin-button,
+.customNumberInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.customNumberInput[type=number] {
+  -moz-appearance: textfield;
+}
+
+.notvisible {
+  display: none !important;
 }
 
 .visible {
   display: block;
 }
 
-.notvisible {
-  display: none;
+button:focus, input:focus {
+  outline: none;
 }
 
-button:focus, input:focus {
-  outline: none;  /* Uklanja fokusni okvir */
+/* Better number overflow handling */
+.break-words {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
+/* Prevent number overflow in cards */
+[class*="text-lg"], [class*="text-base"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Specific styles for revenue and profitability cards */
+.revenue-card, .profit-card {
+  overflow: hidden;
+}
+
+.revenue-card .break-words,
+.profit-card .break-words {
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+  line-height: 1.2;
+}
+
+/* Better responsive grid */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .text-base {
+    font-size: 0.875rem !important;
+  }
+  
+  .text-lg {
+    font-size: 1rem !important;
+  }
 }

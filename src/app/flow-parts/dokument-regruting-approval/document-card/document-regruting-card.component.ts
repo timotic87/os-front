@@ -39,9 +39,8 @@ export class DocumentRegrutingCardComponent {
             this.dialogService.closeLoader()
             if (res.status === 200){
               this.documentService.activeDocumentChange.next(null);
-              window.location.reload();
-              window.scrollTo(0, document.body.scrollHeight);
-              this.dialogService.showSnackBar('Successfuly deleted document', '', 4000);
+              this.documentService.documentDeleted.next(true);
+              this.dialogService.showSnackBar('Successfully deleted document', '', 4000);
             }else {
               this.dialogService.errorDialog(res);
             }

@@ -1,0 +1,44 @@
+node_modules/
+build/
+/build
+dist/
+.angular/
+.git/
+.firebase/
+package-lock.json
+
+# Large build files
+*.js.map
+*.chunk.js
+*.bundle.js
+*.min.js
+main.js
+
+# IDE and temp files
+.vscode/
+.idea/
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Angular specific
+.angular/cache/
+.angular/build-cache/
+
+# Large image and media files (15MB+)
+buildings.jpg
+*.jpg
+*.png
+*.gif
+*.mp4
+*.avi
+src/assets/localization/
+
+# Large image and media files (15MB+)
+buildings.jpg
+*.jpg
+*.png
+*.gif
+*.mp4
+*.avi

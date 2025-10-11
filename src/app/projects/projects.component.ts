@@ -5,6 +5,14 @@ import { RestService } from '../services/rest.service';
 import {MatDialog} from "@angular/material/dialog";
 import {AssignAdminComponent} from "./assign-admin/assign-admin.component";
 
+// shadCN UI Components
+import { ButtonComponent } from '../shared/components/ui/button/button.component';
+import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent, CardFooterComponent } from '../shared/components/ui/card/card.component';
+import { InputComponent } from '../shared/components/ui/input/input.component';
+import { SelectComponent } from '../shared/components/ui/select/select.component';
+import { TableComponent, TableHeaderComponent, TableBodyComponent, TableRowComponent, TableHeadComponent, TableCellComponent } from '../shared/components/ui/table/table.component';
+import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
+
 @Component({
   selector: 'app-deals',
   standalone: true,
@@ -12,7 +20,24 @@ import {AssignAdminComponent} from "./assign-admin/assign-admin.component";
     FormsModule,
     DatePipe,
     ReactiveFormsModule,
-    NgIf
+    NgIf,
+    // shadCN UI Components
+    ButtonComponent,
+    CardComponent,
+    CardHeaderComponent,
+    CardTitleComponent,
+    CardDescriptionComponent,
+    CardContentComponent,
+    CardFooterComponent,
+    InputComponent,
+    SelectComponent,
+    TableComponent,
+    TableHeaderComponent,
+    TableBodyComponent,
+    TableRowComponent,
+    TableHeadComponent,
+    TableCellComponent,
+    BadgeComponent
   ],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.css'
@@ -87,6 +112,25 @@ export class ProjectsComponent implements OnInit {
 
   dealClick(deal){
     console.log("click deal")
+  }
+
+  // Statistics methods for dashboard cards
+  getAssignedProjectsCount(): number {
+    return this.deals?.filter(deal => deal.hraID).length || 0;
+  }
+
+  getExpiredProjectsCount(): number {
+    return this.deals?.filter(deal => deal.isExpired).length || 0;
+  }
+
+  getUnassignedProjectsCount(): number {
+    return this.deals?.filter(deal => !deal.hraID).length || 0;
+  }
+
+  // Clear filters functionality
+  clearFilters(): void {
+    this.filterForm.reset();
+    this.applyFilters();
   }
 
 }

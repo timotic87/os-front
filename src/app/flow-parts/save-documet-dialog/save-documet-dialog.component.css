@@ -1,0 +1,222 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Complete dialog background override - force transparent everything */
+:host ::ng-deep .mat-mdc-dialog-container,
+:host ::ng-deep .mat-dialog-container,
+:host ::ng-deep .mdc-dialog,
+:host ::ng-deep .mdc-dialog__container,
+:host ::ng-deep .mdc-dialog__surface,
+:host ::ng-deep .mat-mdc-dialog-surface {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Force overlay pane to be transparent */
+:host ::ng-deep .cdk-overlay-pane {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Remove any potential white backgrounds from nested elements */
+:host ::ng-deep .mat-mdc-dialog-container *,
+:host ::ng-deep .mat-dialog-container * {
+  background-color: transparent !important;
+}
+
+/* Override any potential Material Design container styles */
+:host ::ng-deep [class*="mat-"],
+:host ::ng-deep [class*="mdc-"] {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Targeted approach - only remove Material Design backgrounds */
+:host ::ng-deep .mat-mdc-dialog-container *:not(.bg-white):not([class*="bg-"]),
+:host ::ng-deep .mat-dialog-container *:not(.bg-white):not([class*="bg-"]) {
+  background-color: transparent !important;
+}
+
+/* Preserve our main card's background - Light mode */
+:host > div {
+  background-color: white !important;
+}
+
+/* Dark mode override for our main card */
+:host-context(.dark) > div,
+.dark :host > div {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+}
+
+/* Restore all our intended backgrounds */
+:host .bg-white {
+  background-color: white !important;
+}
+
+:host .bg-blue-50 {
+  background-color: rgb(239 246 255) !important;
+}
+
+:host-context(.dark) .bg-blue-50 {
+  background-color: rgba(23, 37, 84, 0.5) !important;
+}
+
+:host .bg-gray-50 {
+  background-color: rgb(249 250 251) !important;
+}
+
+:host-context(.dark) .bg-gray-50 {
+  background-color: rgb(55 65 81) !important;
+}
+
+:host .bg-gray-700 {
+  background-color: rgb(55 65 81) !important;
+}
+
+:host .bg-orange-50 {
+  background-color: rgb(255 247 237) !important;
+}
+
+:host-context(.dark) .bg-orange-50 {
+  background-color: rgba(67, 20, 7, 0.5) !important;
+}
+
+/* Ensure input backgrounds work properly */
+:host input {
+  background-color: white !important;
+  color: rgb(17 24 39) !important; /* gray-900 for light mode */
+}
+
+:host-context(.dark) input {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(243 244 246) !important; /* gray-100 for dark mode */
+}
+
+/* Force text color on input field specifically */
+:host input.text-gray-900 {
+  color: rgb(17 24 39) !important;
+}
+
+:host-context(.dark) input.dark\:text-gray-100 {
+  color: rgb(243 244 246) !important;
+}
+
+/* Additional input text color fixes */
+:host input[type="text"] {
+  color: rgb(17 24 39) !important; /* Dark text for light mode */
+}
+
+:host-context(.dark) input[type="text"] {
+  color: rgb(243 244 246) !important; /* Light text for dark mode */
+}
+
+/* Override any Tailwind classes that might interfere */
+:host-context(.dark) .text-gray-900 {
+  color: rgb(243 244 246) !important;
+}
+
+:host-context(.dark) .dark\:text-gray-100 {
+  color: rgb(243 244 246) !important;
+}
+
+/* Button styling overrides */
+:host ::ng-deep ui-button button {
+  font-weight: 500 !important;
+}
+
+:host ::ng-deep ui-button[className*="bg-"] button {
+  color: white !important;
+  background: rgb(56, 96, 151) !important; /* #386097 */
+  border: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+:host-context(.dark) ::ng-deep ui-button[className*="bg-"] button {
+  background: rgb(86, 189, 237) !important; /* #56BDED */
+}
+
+:host ::ng-deep ui-button[className*="bg-"]:hover button {
+  background: rgba(56, 96, 151, 0.9) !important;
+}
+
+:host-context(.dark) ::ng-deep ui-button[className*="bg-"]:hover button {
+  background: rgba(86, 189, 237, 0.9) !important;
+}
+
+/* Final attempt at removing white corners - try setting background on dialog itself */
+:host ::ng-deep .cdk-global-overlay-wrapper,
+:host ::ng-deep .cdk-overlay-container {
+  background: transparent !important;
+}
+
+/* Target our specific host class */
+.transparent-dialog-host ::ng-deep .mat-mdc-dialog-container,
+.transparent-dialog-host ::ng-deep .mat-dialog-container {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+/* More aggressive approach - force everything to be transparent */
+:host ::ng-deep .mat-mdc-dialog-container,
+:host ::ng-deep .mat-mdc-dialog-container *,
+:host ::ng-deep .mat-dialog-container,
+:host ::ng-deep .mat-dialog-container *,
+:host ::ng-deep .cdk-dialog-container,
+:host ::ng-deep .cdk-dialog-container * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Force all Material elements to transparent specifically */
+:host ::ng-deep [class*="mat-"],
+:host ::ng-deep [class*="mdc-"],
+:host ::ng-deep [class*="cdk-"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* NUCLEAR APPROACH - Force transparent on absolutely everything */
+:host ::ng-deep * {
+  border-radius: 0 !important;
+}
+
+:host ::ng-deep *:not([class*="bg-"]):not([style*="background"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Specifically target the overlay backdrop and container */
+:host ::ng-deep .cdk-overlay-backdrop,
+:host ::ng-deep .cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  background-color: rgba(0, 0, 0, 0.32) !important;
+}
+
+/* Last resort - brute force white corners */
+:host-context(.dark) ::ng-deep *:not([class*="bg-"]):not([style*="background"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  :host {
+    max-width: calc(100vw - 2rem);
+  }
+}

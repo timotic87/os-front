@@ -1,26 +1,117 @@
-<div class="bg-gray-100 flex justify-center items-center h-screen">
-  <!-- Left: Image -->
-  <div class="w-1/2 h-screen hidden lg:block">
-    <img src="../../assets/buildings.jpg" alt="buildings image" class="object-cover w-full h-full">
-  </div>
-  <!-- Right: Login Form -->
-  <div class="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
-    <div class="w-full flex justify-center">
-      <img src="../../assets/mp_color.png" class="object-contain h-48 w-48 mb-20">
+<div class="min-h-screen flex">
+  <!-- Left: Welcome Section - Dark Background -->
+  <div class="hidden lg:flex lg:w-1/2 bg-slate-900 relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <svg class="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100" height="100" fill="url(#grid)" />
+      </svg>
     </div>
-    <h1 class="text-2xl font-semibold mb-4">Login</h1>
-    <form [formGroup]="loginForm">
-      <!-- Username Input -->
-      <div class="mb-4">
-        <label for="username" class="block text-gray-600">Username</label>
-        <input type="text" id="username" name="username" class="text-black w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500" formControlName="username" autocomplete="false">
+    
+    <!-- Decorative circles -->
+    <div class="absolute top-20 left-20 w-32 h-32 bg-blue-500/20 rounded-full blur-xl"></div>
+    <div class="absolute bottom-32 right-16 w-24 h-24 bg-purple-500/20 rounded-full blur-xl"></div>
+    
+    <!-- Welcome Content -->
+    <div class="relative z-10 flex flex-col justify-center px-12 py-12">
+      <div class="max-w-md">
+        <img src="../../assets/mp_color.png" alt="Logo" class="h-12 w-auto mb-8 filter brightness-0 invert">
+        
+        <h1 class="text-3xl font-bold text-white mb-4">
+          Welcome to <br>
+          <span class="text-blue-400">OneSpot</span>
+        </h1>
+        
+        <p class="text-lg text-slate-300 mb-8">
+          Your centralized platform for managing projects, clients and finances.
+        </p>
+        
+        <!-- Features -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+            <span class="text-sm text-slate-400">Client Management</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+            <span class="text-sm text-slate-400">Project Tracking</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+            <span class="text-sm text-slate-400">Financial Overview</span>
+          </div>
+        </div>
       </div>
-      <!-- Password Input -->
-      <div class="mb-4">
-        <label for="password" class="block text-gray-600">Password</label>
-        <input type="password" id="password" name="password" class="text-black w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500" formControlName="password" autocomplete="false">
+    </div>
+  </div>
+  
+  <!-- Right: Login Form - Light Background -->
+  <div class="flex-1 flex items-center justify-center px-6 py-12 lg:px-8 bg-white">
+    <div class="w-full max-w-sm space-y-8">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden text-center">
+        <img src="../../assets/mp_color.png" alt="Logo" class="h-16 w-auto mx-auto mb-4">
+        <h2 class="text-2xl font-bold text-slate-900">OneSpot</h2>
+        <p class="text-sm text-slate-600 mt-2">Sign in to your account</p>
       </div>
-      <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full" (click)="login();">Login</button>
-    </form>
+      
+      <!-- Desktop Header -->
+      <div class="hidden lg:block">
+        <h2 class="text-3xl font-bold text-slate-900">Sign In</h2>
+        <p class="text-slate-600 mt-2">Enter your credentials to access the system</p>
+      </div>
+      
+      <!-- Error Alert -->
+      <ui-alert *ngIf="loginError" variant="destructive" class="mb-4">
+        <ui-alert-description>
+          {{ loginError }}
+        </ui-alert-description>
+      </ui-alert>
+      
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" class="space-y-6">
+        <!-- Username Field -->
+        <ui-input 
+          label="Username" 
+          type="text" 
+          placeholder="Enter your username"
+          [required]="true"
+          formControlName="username"
+          [error]="getFieldError('username')">
+        </ui-input>
+        
+        <!-- Password Field -->
+        <ui-input 
+          label="Password" 
+          type="password" 
+          placeholder="Enter your password"
+          [required]="true"
+          formControlName="password"
+          [error]="getFieldError('password')">
+        </ui-input>
+        
+        <!-- Login Button -->
+        <ui-button 
+          type="submit" 
+          size="lg" 
+          className="w-full"
+          [disabled]="loginForm.invalid || isLoading"
+          (onClick)="login()">
+          <div *ngIf="isLoading" class="flex items-center gap-2">
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="m4,12a8,8 0 0,1 8,-8V0C5.373,0 0,5.373 0,12h4zm2,5.291A7.962,7.962 0 0,1 4,12H0c0,3.042 1.135,5.824 3,7.938l3,-2.647z"></path>
+            </svg>
+            <span>Signing in...</span>
+          </div>
+          <span *ngIf="!isLoading">Sign In</span>
+        </ui-button>
+      </form>
+    </div>
   </div>
 </div>

@@ -1,77 +1,411 @@
-<div class="pb-3">
-  <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50"/>
-  <button (click)="dialogCDCM();" [disabled]="activeCDCM"
-          class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
-    py-3 px-6 font-sans text-xs font-bold uppercase text-white
-    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
-    hover:shadow-blue-500/40 focus:opacity-[0.85]
-    focus:shadow-none active:opacity-[0.85] active:shadow-none
-    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
-          data-ripple-light="true">Add CDCM
-  </button>
-  <div class="grid grid-cols-3 gap-2 w-full">
-    <app-cdcm-card [cdcm]="activeCDCM" *ngIf="activeCDCM"></app-cdcm-card>
-    @if (cdcmApproval){
+<div class="hra-py-flow-container">
+  
+  <!-- Step Progress Indicator -->
+  <ui-card>
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        HRA/PY Flow Progress
+      </ui-card-title>
+      <ui-card-description>Track the current status and progress through the HRA/PY workflow</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div class="flex items-center space-x-4 text-sm">
+        <ui-badge [variant]="getFlowStatusVariant(deal?.flowStatus?.ID || 0)" class="text-xs">
+          {{ deal?.flowStatus?.name || 'Not Started' }}
+        </ui-badge>
+        <span class="text-muted-foreground">•</span>
+        <span class="text-muted-foreground">Step {{ deal?.flowStatus?.ID || 1 }} of 15</span>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="mt-4 w-full bg-muted rounded-full h-2">
+        <div class="bg-primary h-2 rounded-full transition-all duration-500" 
+             [style.width.%]="((deal?.flowStatus?.ID || 0) / 15) * 100"></div>
+      </div>
+    </ui-card-content>
+  </ui-card>
 
-      <app-approval-card [approval]="cdcmApproval"></app-approval-card>
-    }
-    <div>
-      @for (inCdcm of inactiveCDCM; track inCdcm){
-        <app-cdcm-inactive-card [cdcm]="inCdcm" *ngIf="inCdcm.statusID>3" (click)="openCDCMView(inCdcm)">{{inCdcm.ID}}</app-cdcm-inactive-card>
-      }
-    </div>
-  </div>
-  <!--  Offer part-->
-  <app-dokument-approval
-    [deal]="deal"
-    [docTypeID]="1"
-    [docSubTypeID]="9"
-    [approvalID]="6"
-    [statusIDShow]="4"></app-dokument-approval>
-  <!--  Offer part end-->
+  <!-- Step 1: CDCM Management -->
+  <ui-card>
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary" style="margin-bottom: 8px;">
+          1
+        </div>
+        CDCM Management
+      </ui-card-title>
+      <ui-card-description>Create and manage Cost, Delivery, Commercial & Marketing documents</ui-card-description>
+    </ui-card-header>
+    <ui-card-content class="space-y-4">
+      
+      <!-- Add CDCM Button -->
+      <ui-button 
+        (onClick)="dialogCDCM()" 
+        [disabled]="activeCDCM && activeCDCM.statusID !== 4"
+        class="w-full sm:w-auto">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        {{ getCreateButtonText() }}
+      </ui-button>
 
-  <!--  Offer client approval part-->
-  <app-client-document-status *ngIf="deal.flowStatus.ID>6"
-                              [deal]="deal"
-                              [documentType]="'offer'"
-                              (statusChange)="updateDealStatus($event)">
-  </app-client-document-status>
-  <!--  Offer client approval part end-->
+      <!-- CDCM Cards Grid -->
+      <div class="grid gap-4 md:grid-cols-3" *ngIf="activeCDCM || cdcmApproval || (inactiveCDCM && inactiveCDCM.length > 0)">
+        
+        <!-- Active CDCM -->
+        <div *ngIf="activeCDCM">
+          <h4 class="text-sm font-medium text-foreground mb-2">Active CDCM</h4>
+          <app-cdcm-card [cdcm]="activeCDCM"></app-cdcm-card>
+        </div>
 
-  <!--  Contract part-->
-  <app-dokument-contract-approval
-    [deal]="deal"
-    [docTypeID]="2"
-    [docSubTypeID]="3"
-    [statusIDShow]="9"
-    [approvalID]="7"
-    [type]="'contract'"></app-dokument-contract-approval>
-  <!--  Contract part end-->
+        <!-- CDCM Approval -->
+        <div *ngIf="cdcmApproval">
+          <h4 class="text-sm font-medium text-foreground mb-2">Approval Status</h4>
+          <app-approval-card 
+            [approval]="cdcmApproval" 
+            context="cdcm"
+            (approvalUpdated)="onApprovalUpdated($event)"
+            (allApprovalsCompleted)="onApprovalCompleted($event)">
+          </app-approval-card>
+        </div>
+        
+        <!-- Approval Status Info -->
+        <div *ngIf="!cdcmApproval && activeCDCM && activeCDCM.statusID === 1" class="col-span-full">
+          <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div>
+                <h4 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Ready for Approval</h4>
+                <p class="text-sm text-blue-700 dark:text-blue-300 mb-2">
+                  Your CDCM calculation is ready. To start the approval process, click the menu (⋯) on the CDCM card and select <strong>"Lock/Start Approval"</strong>.
+                </p>
+                <p class="text-xs text-blue-600 dark:text-blue-400">
+                  Once locked, the approval workflow will begin and appear in this section.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <!--  Contract client approval part-->
-  <app-client-contract-document-status *ngIf="deal.flowStatus.ID>=11"
-                                       [deal]="deal"
-                                       [documentType]="'contract'"
-                                       (statusChange)="updateDealStatus($event)">
-  </app-client-contract-document-status>
-  <!--  Contract client approval part end-->
+        <!-- CDCM Approved Status -->
+        <div *ngIf="activeCDCM && activeCDCM.statusID === 3" class="col-span-full">
+          <div class="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div>
+                <h4 class="text-sm font-medium text-green-900 dark:text-green-100 mb-1">🎉 CDCM Approved!</h4>
+                <p class="text-sm text-green-700 dark:text-green-300 mb-2">
+                  Your CDCM calculation has been fully approved and is ready for the next step.
+                </p>
+                <p class="text-xs text-green-600 dark:text-green-400">
+                  You can now proceed to the Offer Documentation step below.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <hr class="my-3 h-0.5 border-t-0 bg-neutral-200 opacity-100 dark:opacity-50" *ngIf="deal.flowStatus.ID>=13"/>
-  <button (click)="contractSinged();" *ngIf="deal.flowStatus.ID===13"
-          class="dugmici hover:cursor-pointer my-5 middle none center mr-4 rounded-lg bg-[#386097]
-    py-3 px-6 font-sans text-xs font-bold uppercase text-white
-    shadow-md shadow-blue-500/20 transition-all hover:shadow-lg
-    hover:shadow-blue-500/40 focus:opacity-[0.85]
-    focus:shadow-none active:opacity-[0.85] active:shadow-none
-    disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:bg-[#56BDED]"
-          data-ripple-light="true">Mark contract signed
-  </button>
+        <!-- CDCM Declined Status -->
+        <div *ngIf="activeCDCM && activeCDCM.statusID === 4" class="col-span-full">
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5C2.312 18.167 3.274 20 4.814 20z"/>
+              </svg>
+              <div>
+                <h4 class="text-sm font-medium text-red-900 dark:text-red-100 mb-1">CDCM Declined</h4>
+                <p class="text-sm text-red-700 dark:text-red-300 mb-2">
+                  Your CDCM calculation was declined during the approval process. Please review the feedback and create a new CDCM.
+                </p>
+                <p class="text-xs text-red-600 dark:text-red-400">
+                  Click the "Create CDCM Calculation" button above to start over.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <div *ngIf="deal.flowStatus.ID > 13" class="p-4 bg-green-100 border border-green-400 rounded text-green-700 font-semibold">
-    ✅ Contract singed.
-  </div>
+        <!-- Inactive CDCMs -->
+        <div *ngIf="inactiveCDCM && inactiveCDCM.length > 0" class="inactive-cdcm-section">
+          <h4 class="text-sm font-medium text-foreground mb-2">Previous CDCMs</h4>
+          <div class="space-y-2">
+            @for (inCdcm of inactiveCDCM; track inCdcm.ID) {
+              <app-cdcm-inactive-card 
+                *ngIf="inCdcm.statusID > 3" 
+                [cdcm]="inCdcm" 
+                (click)="openCDCMView(inCdcm)"
+                class="cursor-pointer">
+                {{inCdcm.ID}}
+              </app-cdcm-inactive-card>
+            }
+          </div>
+        </div>
+      </div>
+    </ui-card-content>
+  </ui-card>
 
-  <app-promoting-project-pyhra [deal]="deal" *ngIf="deal.flowStatus.ID===14"></app-promoting-project-pyhra>
+  <!-- Step 2: Offer Documentation -->
+  <ui-card [class]="getStepCardClass(4)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(4)" style="margin-bottom: 8px;">
+          2
+        </div>
+        Offer Documentation
+      </ui-card-title>
+      <ui-card-description>Generate and manage offer documents for client review</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 4; else stepNotActiveYet">
+        <app-dokument-approval
+          #offerDocumentComponent
+          [deal]="deal"
+          [docTypeID]="1"
+          [docSubTypeID]="9"
+          [approvalID]="6"
+          [statusIDShow]="4">
+        </app-dokument-approval>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the CDCM calculation is completed and approved.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
 
-  <app-project-card-pyhra *ngIf="deal.flowStatus.ID>14" [deal]="deal"></app-project-card-pyhra>
+  <!-- Step 3: Client Offer Review -->
+  <ui-card [class]="getStepCardClass(7)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(7)" style="margin-bottom: 8px;">
+          3
+        </div>
+        Client Offer Review
+      </ui-card-title>
+      <ui-card-description>Awaiting client response to the submitted offer</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 7; else stepNotActiveYet">
+        <app-client-document-status 
+          [deal]="deal"
+          [documentType]="'offer'"
+          [flowType]="'py'"
+          (statusChange)="updateDealStatus($event)">
+        </app-client-document-status>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the offer documentation is completed and approved.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Step 4: Contract Documentation -->
+  <ui-card [class]="getStepCardClass(9)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(9)" style="margin-bottom: 8px;">
+          4
+        </div>
+        Contract Documentation
+      </ui-card-title>
+      <ui-card-description>Generate and manage contract documents</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 9; else stepNotActiveYet">
+        <app-dokument-contract-approval
+          #contractDocumentComponent
+          [deal]="deal"
+          [docTypeID]="2"
+          [docSubTypeID]="3"
+          [statusIDShow]="9"
+          [approvalID]="7"
+          [type]="'contract'">
+        </app-dokument-contract-approval>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the client approves the offer.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Step 5: Client Contract Review -->
+  <ui-card [class]="getStepCardClass(11)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(11)" style="margin-bottom: 8px;">
+          5
+        </div>
+        Client Contract Review
+      </ui-card-title>
+      <ui-card-description>Awaiting client response to the contract</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 11; else stepNotActiveYet">
+        <app-client-contract-document-status 
+          [deal]="deal"
+          [documentType]="'contract'"
+          (statusChange)="updateDealStatus($event)">
+        </app-client-contract-document-status>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the contract documentation is completed and approved.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Step 6: Contract Signing -->
+  <ui-card [class]="getStepCardClass(13)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(13)" style="margin-bottom: 8px;">
+          6
+        </div>
+        Contract Signing
+      </ui-card-title>
+      <ui-card-description>Finalize and sign the contract</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 13; else stepNotActiveYet" class="space-y-4">
+        <ui-button 
+          *ngIf="deal.flowStatus.ID === 13"
+          (onClick)="contractSinged()"
+          class="w-full sm:w-auto">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Mark Contract as Signed
+        </ui-button>
+
+        <!-- Contract Completed Status -->
+        <div *ngIf="deal.flowStatus.ID > 13" class="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <span class="text-green-700 font-semibold">Contract has been signed successfully</span>
+        </div>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the client approves the contract.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Step 7: Project Promotion -->
+  <ui-card [class]="getStepCardClass(14)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(14)" style="margin-bottom: 8px;">
+          7
+        </div>
+        Project Promotion
+      </ui-card-title>
+      <ui-card-description>Promote the deal to active project status</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 14; else stepNotActiveYet">
+        <!-- Show promoting project form only if project hasn't been created yet -->
+        <div *ngIf="deal.flowStatus.ID === 14">
+          <app-promoting-project-pyhra [deal]="deal" (projectPromoted)="onProjectPromoted($event)"></app-promoting-project-pyhra>
+        </div>
+        
+        <!-- Show success message when project has been promoted -->
+        <div *ngIf="deal.flowStatus.ID >= 15" class="text-center py-8 space-y-4">
+          <div class="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-card-foreground">Project Promoted Successfully!</h3>
+          <p class="text-muted-foreground">Your deal has been successfully promoted to project status. You can view the project details in Step 8 below.</p>
+          <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+            Project Created
+          </div>
+        </div>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the contract is signed.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Step 8: Active Project -->
+  <ui-card [class]="getStepCardClass(15)">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <div [class]="getStepIndicatorClass(15)" style="margin-bottom: 8px;">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        Active Project
+      </ui-card-title>
+      <ui-card-description>Deal has been successfully converted to an active project</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div *ngIf="deal.flowStatus.ID >= 15; else stepNotActiveYet">
+        <app-project-card-pyhra [deal]="deal"></app-project-card-pyhra>
+      </div>
+      <ng-template #stepNotActiveYet>
+        <div class="text-center py-6">
+          <div class="text-muted-foreground text-sm">
+            <svg class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            This step will be available after the project is promoted.
+          </div>
+        </div>
+      </ng-template>
+    </ui-card-content>
+  </ui-card>
 </div>

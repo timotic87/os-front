@@ -1,21 +1,125 @@
+/* Hide number input spin buttons */
 .customNumberInput::-webkit-inner-spin-button,
 .customNumberInput::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-::ng-deep.mat-mdc-autocomplete-panel {
-  background-color:  rgb(75 85 99)!important;
+/* Material Autocomplete Dropdown Styling */
+::ng-deep .mat-mdc-autocomplete-panel {
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  max-height: 256px !important;
 }
 
+::ng-deep .mat-mdc-option {
+  background: transparent !important;
+  color: hsl(var(--foreground)) !important;
+  min-height: 40px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  transition: background-color 150ms ease-in-out !important;
+}
+
+::ng-deep .mat-mdc-option:hover {
+  background: hsl(var(--muted) / 0.8) !important;
+}
+
+::ng-deep .mat-mdc-option.mdc-list-item--selected {
+  background: hsl(var(--accent) / 0.1) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+::ng-deep .mat-mdc-option.mat-mdc-option-active {
+  background: hsl(var(--muted) / 0.5) !important;
+}
+
+::ng-deep .mdc-list-item__primary-text {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 400 !important;
+}
+
+/* Dark theme specific overrides */
+.dark ::ng-deep .mat-mdc-autocomplete-panel {
+  background: hsl(var(--popover)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark ::ng-deep .mat-mdc-option {
+  color: hsl(var(--popover-foreground)) !important;
+}
+
+.dark ::ng-deep .mat-mdc-option:hover {
+  background: hsl(var(--accent) / 0.1) !important;
+}
+
+.dark ::ng-deep .mdc-list-item__primary-text {
+  color: hsl(var(--popover-foreground)) !important;
+}
+
+/* Force dark theme for system preference */
 @media (prefers-color-scheme: dark) {
-  ::ng-deep.mat-mdc-autocomplete-panel {
-    background-color: rgb(75 85 99) !important;
+  ::ng-deep .mat-mdc-autocomplete-panel {
+    background: rgb(39 39 42) !important;
+    border-color: rgb(63 63 70) !important;
+    color: rgb(244 244 245) !important;
   }
-  ::ng-deep.mdc-list-item__primary-text{
-    color: rgb(245 245 245) !important;
+  
+  ::ng-deep .mat-mdc-option {
+    color: rgb(244 244 245) !important;
+  }
+  
+  ::ng-deep .mat-mdc-option:hover {
+    background: rgb(63 63 70) !important;
+  }
+  
+  ::ng-deep .mdc-list-item__primary-text {
+    color: rgb(244 244 245) !important;
   }
 }
 
+/* Dialog container dark mode support */
+:host ::ng-deep .mat-mdc-dialog-container {
+  transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out;
+}
 
+.dark :host ::ng-deep .mat-mdc-dialog-container {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+/* System preference dark mode support */
+@media (prefers-color-scheme: dark) {
+  :host ::ng-deep .mat-mdc-dialog-container {
+    background: rgb(39 39 42) !important;
+    border: 1px solid rgb(63 63 70) !important;
+    color: rgb(244 244 245) !important;
+  }
+  
+  :host ::ng-deep .mat-mdc-text-field-wrapper {
+    background: rgb(39 39 42) !important;
+    border: 1px solid rgb(63 63 70) !important;
+  }
+  
+  :host ::ng-deep .mat-mdc-form-field-input-control {
+    color: rgb(244 244 245) !important;
+  }
+  
+  :host ::ng-deep .mat-mdc-floating-label {
+    color: rgb(161 161 170) !important;
+  }
+  
+  :host ::ng-deep .mat-mdc-select-panel {
+    background: rgb(39 39 42) !important;
+    border: 1px solid rgb(63 63 70) !important;
+  }
+  
+  :host ::ng-deep .mat-mdc-form-field-error {
+    color: rgb(248 113 113) !important;
+  }
+}
 

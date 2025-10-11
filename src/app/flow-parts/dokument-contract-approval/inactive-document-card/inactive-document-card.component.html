@@ -1,0 +1,69 @@
+<!-- Compact Inactive Document Card -->
+<div class="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 mb-2">
+  <div class="px-3 py-2">
+    <div class="flex items-center justify-between">
+      <!-- Left: Icon + Document Info -->
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <!-- Document Icon -->
+        <div class="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-[#386097] to-[#2d4b73] dark:from-[#56BDED] dark:to-[#4a9dd9] rounded-md flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-white">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+          </svg>
+        </div>
+        
+        <!-- Document Details -->
+        <div class="min-w-0 flex-1">
+          <div class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+            {{ document?.fileName || 'Unknown file' }}
+          </div>
+          <div class="flex items-center gap-2 mt-0.5">
+            <!-- Status Badge -->
+            <div class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" [class]="getStatusClasses()">
+              <div class="w-1 h-1 rounded-full mr-1" [class]="getStatusDotClasses()"></div>
+              {{ document?.status?.name || 'Unknown' }}
+            </div>
+            <!-- Document ID -->
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              #{{ document?.ID || 'N/A' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right: Actions Menu -->
+      <div class="flex-shrink-0 ml-2">
+        <button [matMenuTriggerFor]="docMenu" 
+                class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors duration-150"
+                type="button">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+          </svg>
+        </button>
+
+        <!-- Actions Menu -->
+        <mat-menu #docMenu="matMenu" class="document-dropdown-menu">
+          <div class="py-1">
+            <button mat-menu-item (click)="onViewDocument()" class="menu-item">
+              <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <span>View Document</span>
+            </button>
+            <button mat-menu-item (click)="onDownloadDocument()" class="menu-item">
+              <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span>Download File</span>
+            </button>
+            <button mat-menu-item (click)="onOpenApproval()" class="menu-item">
+              <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>View Approval</span>
+            </button>
+          </div>
+        </mat-menu>
+      </div>
+    </div>
+  </div>
+</div>

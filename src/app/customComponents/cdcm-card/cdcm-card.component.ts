@@ -35,10 +35,24 @@ export class CdcmCardComponent implements OnInit{
   constructor(private matDialog: MatDialog, private cdcmService: CDCMService, private rest: RestService) {
     cdcmService.updateStatusCDCMSubject.subscribe(cdcmObj => {
       if (cdcmObj['ID']===this.cdcm.ID){
-        this.changeColorStatus(cdcmObj['statusID']);
+        console.log('📋 CDCM Card: Status update received:', cdcmObj);
+        
+        // Update the local CDCM status data
+        if (cdcmObj['statusID']) {
+          this.cdcm.statusID = cdcmObj['statusID'];
+        }
+        
+        // Update the status display
+        this.changeColorStatus(cdcmObj['statusID'] || this.cdcm.statusID);
+        
+        // If this was an approval completion, show appropriate message
+        if (cdcmObj['approvalCompleted']) {
+          const statusText = cdcmObj['statusID'] === 3 ? 'approved' : 
+                           cdcmObj['statusID'] === 4 ? 'declined' : 'updated';
+          console.log(`✨ CDCM ${statusText} via approval process`);
+        }
       }
-
-    })
+    });
 
   }
 

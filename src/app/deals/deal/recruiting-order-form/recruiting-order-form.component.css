@@ -1,0 +1,35 @@
+/* Custom styles for recruiting order form */
+.recruiting-order-form {
+  /* Any custom styles if needed */
+}
+
+/* Ensure consistent dark mode styling */
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+.dark input:focus,
+.dark select:focus, 
+.dark textarea:focus {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 2px var(--ring) !important;
+}
+
+/* Custom validation styling */
+.border-red-500 {
+  border-color: #ef4444 !important;
+}
+
+/* Loading animation improvements */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

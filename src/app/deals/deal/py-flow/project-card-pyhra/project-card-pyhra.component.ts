@@ -1,5 +1,4 @@
 import {Component, Input,OnInit} from '@angular/core';
-import {ColorLabelComponent} from "../../../../customComponents/color-label/color-label.component";
 import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
 import {RestService} from "../../../../services/rest.service";
 
@@ -7,7 +6,6 @@ import {RestService} from "../../../../services/rest.service";
   selector: 'app-project-card-pyhra',
   standalone: true,
   imports: [
-    ColorLabelComponent,
     DatePipe,
     NgIf,
     CurrencyPipe

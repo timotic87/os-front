@@ -1,8 +1,9 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {NgIf} from "@angular/common";
+import {NgIf, TitleCasePipe} from "@angular/common";
 import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";
+import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 
 @Component({
   selector: 'app-client-contract-document-status',
@@ -11,6 +12,8 @@ import {DialogService} from "../../services/dialog.service";
     FormsModule,
     NgIf,
     ReactiveFormsModule,
+    TitleCasePipe,
+    ButtonComponent
   ],
   templateUrl: './client-contract-document-status.component.html',
   styleUrl: './client-contract-document-status.component.css'
@@ -19,6 +22,7 @@ export class ClientContractDocumentStatusComponent {
 
   @Input() deal: any;
   @Input() documentType: 'offer' | 'contract' = 'offer'; // for label context
+  @Input() actionsDisabled: boolean = false; // Disable all actions when deal is not active
   @Output() statusChange = new EventEmitter<any>();
 
   clientAccepted: boolean | null = null;
@@ -32,9 +36,18 @@ export class ClientContractDocumentStatusComponent {
     this.dialogService.showLoader();
     this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 12}).subscribe({
       next: res=>{
+        this.dialogService.closeLoader();
         if (res.status === 200) {
-          window.location.reload();
-          window.scrollTo(0, document.body.scrollHeight);
+          // Update the local deal object to reflect the new status
+          this.deal.flowStatus.ID = 12;
+          // Show success message
+          this.dialogService.showSnackBar('Contract marked as sent to client successfully!', '', 3000);
+          // Emit status change event to notify parent components
+          this.statusChange.emit({
+            flowStatusUpdated: true,
+            newFlowStatusID: 12,
+            status: 'sent_to_client'
+          });
         }
       },
       error: err => {

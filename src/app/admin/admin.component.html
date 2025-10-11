@@ -1,42 +1,66 @@
-<section class="container mx-auto p-6 dark:bg-gray-600 text-gray-500 dark:text-gray-400">
-  <div class="mt-10 mb-5">
-    <div
-      class="flex-grow basis-[100%] items-center lg:!flex lg:basis-auto"
-      id="navbarSupportedContent12">
-      <!-- Navigation links -->
-      <ul
-        class="list-style-none mr-auto flex flex-col pl-0 lg:flex-row"
-        data-te-navbar-nav-ref>
-
-        <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
-          <!-- Clients link -->
-          <a #usersBtn class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
-             routerLinkActive="active" [routerLink]="[{ outlets: { admin: ['users'] } }]"
-             data-te-nav-link-ref>Users</a>
-        </li>
-        <!-- Profile link -->
-        <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
-          <a class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
-             routerLinkActive="active" [routerLink]="[{ outlets: { admin: ['services'] } }]"
-             data-te-nav-link-ref>Services and Subservices</a>
-        </li>
-<!--          Approvals link-->
-        <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
-          <a class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
-             routerLinkActive="active" [routerLink]="[{ outlets: { admin: ['approvals'] } }]"
-             data-te-nav-link-ref>Approvals</a>
-        </li>
-        <!--          Documets link-->
-        <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
-          <a class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
-             routerLinkActive="active" [routerLink]="[{ outlets: { admin: ['documents'] } }]"
-             data-te-nav-link-ref>Documents</a>
-        </li>
-
-      </ul>
+<div class="container mx-auto px-4 py-6 pt-24 space-y-8 max-w-7xl">
+  <!-- Header Section -->
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground">Administracija</h1>
+        <p class="text-muted-foreground">Upravljanje sistemskim podešavanjima i korisnicima</p>
+      </div>
     </div>
   </div>
-  <router-outlet name="admin"></router-outlet>
-</section>
+
+  <!-- Navigation Tabs -->
+  <ui-card>
+    <ui-card-header>
+      <ui-card-title>Admin paneli</ui-card-title>
+      <ui-card-description>Izaberite sekciju koju želite da upravljate</ui-card-description>
+    </ui-card-header>
+    <ui-card-content className="p-0">
+      <nav class="flex space-x-1 p-1">
+        <a #usersBtn
+           class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-muted-foreground h-9 px-4 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+           routerLinkActive="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm" 
+           [routerLink]="[{ outlets: { admin: ['users'] } }]">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+          </svg>
+          Korisnici
+        </a>
+        
+        <a class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-muted-foreground h-9 px-4 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+           routerLinkActive="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm" 
+           [routerLink]="[{ outlets: { admin: ['services'] } }]">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          Servisi i podservisi
+        </a>
+        
+        <a class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-muted-foreground h-9 px-4 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+           routerLinkActive="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm" 
+           [routerLink]="[{ outlets: { admin: ['approvals'] } }]">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Odobravanja
+        </a>
+        
+        <a class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-muted-foreground h-9 px-4 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+           routerLinkActive="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm" 
+           [routerLink]="[{ outlets: { admin: ['documents'] } }]">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Dokumenta
+        </a>
+      </nav>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Content Area -->
+  <div class="min-h-[400px]">
+    <router-outlet name="admin"></router-outlet>
+  </div>
+</div>
 
 

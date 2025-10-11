@@ -1,1 +1,72 @@
+/* Compact Approval Card Styles */
 
+/* Smooth rotation animation for expand/collapse arrow */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Hover effects */
+.cursor-pointer:hover {
+  cursor: pointer;
+}
+
+/* Badge transitions */
+.inline-flex {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Compact spacing */
+.compact-approval {
+  margin-top: 0.75rem;
+  padding: 0;
+}
+
+.compact-approval .expanded-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.compact-approval .expanded-content.show {
+  max-height: 500px; /* Adjust based on content */
+}
+
+/* Better spacing for approval step cards */
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Additional margin for step cards */
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.last\:mb-0:last-child {
+  margin-bottom: 0;
+}
+
+/* Dark mode improvements */
+@media (prefers-color-scheme: dark) {
+  .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.1);
+  }
+  
+  .bg-yellow-100 {
+    background-color: rgba(245, 158, 11, 0.1);
+  }
+  
+  .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+}

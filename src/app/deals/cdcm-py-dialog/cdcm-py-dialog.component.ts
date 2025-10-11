@@ -1,19 +1,39 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ViewEncapsulation} from '@angular/core';
 import {CurrencyPipe, NgClass, NgIf} from "@angular/common";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {CDCMService} from "../../services/cdcm.service";
 import {DialogService} from "../../services/dialog.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {UserService} from "../../services/user.service";
+import {RestService} from "../../services/rest.service";
+
+// ShadCN UI Components
+import { ButtonComponent } from '../../shared/components/ui/button/button.component';
+import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent, CardFooterComponent } from '../../shared/components/ui/card/card.component';
+import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
+import { InputComponent } from '../../shared/components/ui/input/input.component';
+import { SelectComponent } from '../../shared/components/ui/select/select.component';
 @Component({
   selector: 'app-cdcm-py-dialog',
   standalone: true,
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        CurrencyPipe,
-        NgIf
-    ],
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    NgClass,
+    CurrencyPipe,
+    // ShadCN UI Components
+    ButtonComponent,
+    CardComponent,
+    CardHeaderComponent,
+    CardTitleComponent,
+    CardDescriptionComponent,
+    CardContentComponent,
+    CardFooterComponent,
+    BadgeComponent,
+    InputComponent,
+    SelectComponent
+  ],
   templateUrl: './cdcm-py-dialog.component.html',
   styleUrl: './cdcm-py-dialog.component.css'
 })

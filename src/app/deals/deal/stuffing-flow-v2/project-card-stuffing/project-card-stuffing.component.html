@@ -1,0 +1,154 @@
+<div *ngIf="project" class="space-y-4">
+  <!-- Project Overview Card -->
+  <ui-card>
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Active Project Details
+      </ui-card-title>
+      <ui-card-description>Project information and contract document</ui-card-description>
+    </ui-card-header>
+    <ui-card-content class="space-y-6">
+      <!-- Creator & Date Info -->
+      <div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800 creator-info">
+        <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+        <div class="text-sm">
+          <span class="font-medium text-blue-900 dark:text-blue-100">Created by</span>
+          <span class="text-blue-700 dark:text-blue-300 ml-1">{{ project.creator.firstName }} {{ project.creator.lastName }}</span>
+          <span class="text-blue-600 dark:text-blue-400 ml-2">{{ project.createDate | date: 'MMM d, y' }} at {{ project.createDate | date: 'h:mm a' }}</span>
+        </div>
+      </div>
+
+      <!-- Project Duration Timeline -->
+      <div class="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-slate-200 dark:border-slate-800 timeline-section">
+        <h4 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+          <svg class="h-4 w-4 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Project Timeline
+        </h4>
+        <div class="flex items-center gap-4 text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <span class="font-medium text-slate-700 dark:text-slate-300">{{ project.startDate | date: 'MMM d, y' }}</span>
+          </div>
+          <div class="flex-1 h-px bg-slate-300 dark:bg-slate-600 relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500"></div>
+          </div>
+          <div class="flex items-center gap-2">
+            @if (project.endDate) {
+              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span class="font-medium text-slate-700 dark:text-slate-300">{{ project.endDate | date: 'MMM d, y' }}</span>
+            } @else {
+              <div class="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
+              <span class="text-gray-500 dark:text-gray-400 italic">indefinite</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Fee Information -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fee-section">
+        <!-- Salary Fee -->
+        <div class="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+          <h4 class="text-sm font-medium text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+            </svg>
+            Salary Fee
+          </h4>
+          <div class="space-y-2">
+            <div class="text-sm text-green-700 dark:text-green-300">
+              @if (project.salaryFeeType.ID===1) {
+                {{project.fee_type_salary_value}}% of {{project.salaryType.name}}
+              } @else if (project.salaryFeeType.ID===2){
+                {{project.fee_type_salary_value}}x {{project.salaryType.name}}
+              } @else {
+                <span class="font-semibold text-green-900 dark:text-green-100">
+                  {{project.fee_type_salary_value | currency: project.salaryCurrency.name === "EUR" ? project.salaryCurrency.name : (project.salaryCurrency.name + " ")}}
+                </span>
+              }
+            </div>
+            <div class="text-xs text-green-600 dark:text-green-400">
+              Payment due: {{project.payment_due_on_salary}} days
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Fee -->
+        <div class="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
+          <h4 class="text-sm font-medium text-orange-900 dark:text-orange-100 mb-2 flex items-center gap-2">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            Cost Fee
+          </h4>
+          <div class="space-y-2">
+            <div class="text-sm text-orange-700 dark:text-orange-300">
+              @if (project.costFeeType.ID===1) {
+                {{project.fee_type_cost_value}}% of COST
+              } @else if (project.costFeeType.ID===2){
+                {{project.fee_type_cost_value}}x COST
+              } @else {
+                <span class="font-semibold text-orange-900 dark:text-orange-100">
+                  {{project.fee_type_cost_value | currency: project.costCurrency.name === "EUR" ? project.costCurrency.name : (project.costCurrency.name + " ")}}
+                </span>
+              }
+            </div>
+            <div class="text-xs text-orange-600 dark:text-orange-400">
+              Payment due: {{project.payment_due_on_cost}} days
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contract Document -->
+      <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <h4 class="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+          <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Contract Document
+        </h4>
+        <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-600">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-medium text-sm text-foreground">{{ project.document.fileName }}</div>
+              <div class="text-xs text-muted-foreground">Contract document</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <ui-button 
+              variant="outline" 
+              size="sm"
+              (onClick)="showDoc(project.document)">
+              <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              View
+            </ui-button>
+            <ui-button 
+              variant="outline" 
+              size="sm"
+              (onClick)="downloadDoc(project.document)">
+              <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Download
+            </ui-button>
+          </div>
+        </div>
+      </div>
+    </ui-card-content>
+  </ui-card>
+</div>

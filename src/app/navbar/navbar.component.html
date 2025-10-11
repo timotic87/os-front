@@ -20,7 +20,7 @@
       <ul
         class="list-style-none mr-auto flex flex-col pl-0 sm:flex-row"
         data-te-navbar-nav-ref>
-        @if(userService.getUser().unit.id===19 && userService.getUser().position.id===44){
+        @if(userService.getUser()?.unit?.id===19 && userService.getUser()?.position?.id===44){
           <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>
             <!-- Admin link -->
             <a class="text-neutral-500 font-semibold transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 lg:px-2 [&.active]:text-[#386097] dark:[&.active]:text-[#56BDED]"
@@ -83,8 +83,14 @@
           >{{unreadCount}}</span>
         </a>
       </div>
+      
+      <!-- Theme Toggle -->
+      <div class="mr-4">
+        <app-theme-toggle></app-theme-toggle>
+      </div>
+      
       <div class="mr-3 text-neutral-900 dark:text-neutral-200">
-        <span>{{ userService.getUser().fullName}} ({{userService.getUser().unit.name}}/{{userService.getUser().position.name}})</span>
+        <span>{{ userService.getUser()?.fullName}} ({{userService.getUser()?.unit?.name}}/{{userService.getUser()?.position?.name}})</span>
       </div>
 
       @if (!userService.getUser().picUrl || userService.getUser().picUrl==='null'){
@@ -101,7 +107,7 @@
         <button mat-menu-item class="itemClass" (click)="resetPass();">
           <mat-icon >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 mt-1">
-              <path d="M9 17.5C9 18.8807 7.88071 20 6.5 20C5.11929 20 4 18.8807 4 17.5C4 16.1193 5.11929 15 6.5 15C7.88071 15 9 16.1193 9 17.5ZM9 17.5H15.125M19 20V17.75C19 17.6119 18.8881 17.5 18.75 17.5M15.125 17.5H18.75M15.125 17.5V20M18.75 17.5Lnan nanCnan nan nan nan nan nanLnan nanCnan nan nan nan nan nanL18.75 17.5ZM5 11H19C20.1046 11 21 10.1046 21 9V6C21 4.89543 20.1046 4 19 4H5C3.89543 4 3 4.89543 3 6V9C3 10.1046 3.89543 11 5 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 17.5C9 18.8807 7.88071 20 6.5 20C5.11929 20 4 18.8807 4 17.5C4 16.1193 5.11929 15 6.5 15C7.88071 15 9 16.1193 9 17.5ZM9 17.5H15.125M19 20V17.75C19 17.6119 18.8881 17.5 18.75 17.5M15.125 17.5H18.75M15.125 17.5V20M18.75 17.5M5 11H19C20.1046 11 21 10.1046 21 9V6C21 4.89543 20.1046 4 19 4H5C3.89543 4 3 4.89543 3 6V9C3 10.1046 3.89543 11 5 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>
               <circle cx="12" cy="7.5" r="1.5" fill="currentColor"/>
               <circle cx="16.5" cy="7.5" r="1.5" fill="currentColor"/>

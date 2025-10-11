@@ -394,4 +394,50 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/dealFlowStatuses`, { headers: this.headers() }) as Observable<any>;
   }
 
+  // Recruiting Order methods
+  createRecruitingOrder(data: any) {
+    return this.http.post(`${this.baseUrl}/createRecruitingOrder`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getRecruitingOrders(data: any) {
+    return this.http.post(`${this.baseUrl}/getRecruitingOrders`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getRecruitingOrderByID(ID: number) {
+    return this.http.get(`${this.baseUrl}/getRecruitingOrderByID/${ID}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getRecruitingOrderByDealId(dealID: number) {
+    return this.http.get(`${this.baseUrl}/getRecruitingOrderByDealId/${dealID}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  changeRecruitingOrderStatus(data: any) {
+    return this.http.put(`${this.baseUrl}/changeRecruitingOrderStatus`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getRecruitingOrderStatuses() {
+    return this.http.get(`${this.baseUrl}/getRecruitingOrderStatuses`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  promoteDealToRecruitingOrder(data: any) {
+    return this.http.post(`${this.baseUrl}/promoteDealToRecruitingOrder`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Position methods
+  createPosition(data: any) {
+    return this.http.post(`${this.baseUrl}/createPosition`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getPositionsByOrderID(orderID: number) {
+    return this.http.get(`${this.baseUrl}/getPositionsByOrderID/${orderID}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  changePositionStatus(data: any) {
+    return this.http.put(`${this.baseUrl}/changePositionStatus`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getExtraFeeTypes() {
+    return this.http.get(`${this.baseUrl}/getExtraFeeTypes`, { headers: this.headers() }) as Observable<any>;
+  }
+
 }

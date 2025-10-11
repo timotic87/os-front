@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {CurrencyPipe, NgClass, NgIf} from "@angular/common";
+import {CurrencyPipe, NgClass, NgFor, NgIf} from "@angular/common";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ApprovalModel} from "../../models/approval/approvalModel";
 import {ProjectModel} from "../../models/projectModel";
@@ -12,6 +12,8 @@ import {ApprovalStepModel} from "../../models/approval/ApprovalStepModel";
 import {ApprovalStatus} from "../../models/approval/approvalStatus";
 import {ApprovalCardComponent} from "../../customComponents/approval-card/approval-card.component";
 
+
+
 @Component({
   selector: 'app-cdcm-py-hra-view-edit',
   standalone: true,
@@ -19,6 +21,7 @@ import {ApprovalCardComponent} from "../../customComponents/approval-card/approv
     CurrencyPipe,
     FormsModule,
     NgIf,
+    NgFor,
     ReactiveFormsModule,
     NgClass,
     ApprovalCardComponent

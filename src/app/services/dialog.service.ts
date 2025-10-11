@@ -65,11 +65,18 @@ export class DialogService {
     });
   }
   closeLoader(){
-    setTimeout(()=>{
-      if (this.loaderRef){
-        this.loaderRef.close();
-        this.loaderRef=null;
-      }
-    }, 500);
+    if (this.loaderRef){
+      this.loaderRef.close();
+      this.loaderRef=null;
+    }
+  }
+  
+  forceCloseLoader(){
+    if (this.loaderRef){
+      this.loaderRef.close();
+      this.loaderRef=null;
+    }
+    // Also try to close any potentially remaining dialogs
+    this.matDialog.closeAll();
   }
 }

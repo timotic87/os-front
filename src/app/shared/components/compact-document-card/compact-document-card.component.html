@@ -1,0 +1,49 @@
+<div class="bg-card border border-border rounded-lg p-3 my-2">
+  <!-- Single compact row -->
+  <div class="flex items-center gap-3">
+    <!-- Document icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+    </svg>
+    
+    <!-- Document info -->
+    <div class="flex-1 min-w-0">
+      <h3 class="font-medium text-sm truncate">{{ document.fileName }}</h3>
+      <p class="text-xs text-muted-foreground">by {{ document.creator.firstName }} {{ document.creator.lastName }} • {{ document.cretedDate | date: 'MMM d, y' }}</p>
+    </div>
+    
+    <!-- Status badge -->
+    <ui-badge [variant]="getBadgeVariant()" class="text-xs flex-shrink-0">
+      {{ document.status.name }}
+    </ui-badge>
+    
+    <!-- Action buttons -->
+    <div class="flex gap-1 flex-shrink-0">
+      <ui-button variant="ghost" size="sm" (onClick)="showFile()" class="h-7 w-7 p-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      </ui-button>
+      
+      <ui-button variant="ghost" size="sm" (onClick)="download()" class="h-7 w-7 p-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+      </ui-button>
+      
+      <ui-button variant="ghost" size="sm" (onClick)="delete()" [disabled]="document.statusID > 1" class="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </ui-button>
+      
+      <ui-button size="sm" (onClick)="submitDocument()" [disabled]="document.statusID > 1" class="h-7 px-3 text-xs bg-green-600 hover:bg-green-700 text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Submit
+      </ui-button>
+    </div>
+  </div>
+</div>

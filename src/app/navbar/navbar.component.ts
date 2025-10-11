@@ -11,6 +11,7 @@ import {
 import {NgIf} from "@angular/common";
 import {NotificationStoreService} from "../services/notification-store-service.service";
 import {DialogService} from "../services/dialog.service";
+import { ThemeToggleComponent } from '../components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-navbar',
@@ -22,7 +23,8 @@ import {DialogService} from "../services/dialog.service";
     MatIconModule,
     RouterLinkActive,
     RouterLink,
-    NgIf
+    NgIf,
+    ThemeToggleComponent
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'

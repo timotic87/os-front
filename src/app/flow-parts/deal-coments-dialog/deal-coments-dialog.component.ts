@@ -5,10 +5,9 @@ import {RestService} from "../../services/rest.service";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {DialogService} from "../../services/dialog.service";
 import {UserService} from "../../services/user.service";
-import {io, Socket} from "socket.io-client";
-import {environment} from "../../../environments/environment";
 import {socketEnum} from "../../services/enum-sevice";
 import {firstValueFrom} from "rxjs";
+import {NotificationSocketService} from "../../services/notification-socket.service";
 
 @Component({
   selector: 'app-deal-coments-dialog',
@@ -31,18 +30,12 @@ export class DealComentsDialogComponent implements OnInit{
 
   createCommentPerm: boolean = false;
 
-  socket: Socket;
-
   constructor(@Inject(MAT_DIALOG_DATA) public dealID, private rest: RestService, private dialogService: DialogService,
-              private userService: UserService, private dialogRef: MatDialogRef<DealComentsDialogComponent>,) {
+              private userService: UserService, private dialogRef: MatDialogRef<DealComentsDialogComponent>,
+              private notificationSocketService: NotificationSocketService) {
 
-    this.socket = io(environment.SERVER_URL);
-    // @ts-ignore
-    this.socket.on(socketEnum.CREATE_DEAL_COMMENT, data=>{
-      if(data.success && data.dealComment.dealID===this.dealID){
-        this.getAllComments();
-      }
-    });
+    // TODO: Replace with proper socket handling through NotificationSocketService
+    // Listen for deal comments through the existing socket service instead of creating new connection
     this.getAllComments();
 
   }

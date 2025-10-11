@@ -1,0 +1,444 @@
+<div class="recruiting-order-form">
+  <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" *ngIf="orderForm">
+    
+    <!-- Order Details Section -->
+    <ui-card class="mb-6">
+      <ui-card-header>
+        <ui-card-title class="flex items-center gap-2">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Order Details
+        </ui-card-title>
+        <ui-card-description>
+          Basic information about the recruiting order
+        </ui-card-description>
+      </ui-card-header>
+      <ui-card-content class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Order Number -->
+          <div class="space-y-2">
+            <ui-label for="orderNumber">Order Number *</ui-label>
+            <ui-input
+              id="orderNumber"
+              formControlName="orderNumber"
+              placeholder="Will be auto-generated"
+              [class.border-red-500]="hasError('orderNumber')">
+            </ui-input>
+            <div *ngIf="hasError('orderNumber')" class="text-red-500 text-sm">
+              {{ getErrorMessage('orderNumber') }}
+            </div>
+          </div>
+
+          <!-- Client Name -->
+          <div class="space-y-2">
+            <ui-label for="clientName">Client Name</ui-label>
+            <ui-input
+              id="clientName"
+              formControlName="clientName"
+              placeholder="Client name">
+            </ui-input>
+          </div>
+          
+          <!-- Number of Positions -->
+          <div class="space-y-2">
+            <ui-label for="numberOfPositions">Number of Positions *</ui-label>
+            <ui-input
+              id="numberOfPositions"
+              type="number"
+              formControlName="numberOfPositions"
+              placeholder="e.g. 1"
+              [class.border-red-500]="hasError('numberOfPositions')">
+            </ui-input>
+            <div *ngIf="hasError('numberOfPositions')" class="text-red-500 text-sm">
+              {{ getErrorMessage('numberOfPositions') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-2">
+          <ui-label for="description">Description</ui-label>
+          <ui-textarea
+            id="description"
+            formControlName="description"
+            placeholder="Order description (optional)"
+            rows="3"
+            [class.border-red-500]="hasError('description')">
+          </ui-textarea>
+          <div *ngIf="hasError('description')" class="text-red-500 text-sm">
+            {{ getErrorMessage('description') }}
+          </div>
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- Positions Section -->
+    <ui-card class="mb-6">
+      <ui-card-header>
+        <div class="flex items-center justify-between">
+          <div>
+            <ui-card-title class="flex items-center gap-2">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              Positions ({{ positions.length }})
+            </ui-card-title>
+            <ui-card-description>
+              Define the positions for this recruiting order
+            </ui-card-description>
+          </div>
+          <div class="relative">
+            <ui-button 
+              type="button" 
+              variant="outline" 
+              size="sm"
+              (click)="addPosition()"
+              [disabled]="isActionsDisabled || !isBasicFormValid"
+              [title]="!isBasicFormValid ? 'Please fill in all required order details first' : 'Add new position'">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Add Position
+            </ui-button>
+            <div *ngIf="!isBasicFormValid" class="text-xs text-amber-600 mt-1">
+              Complete order details first
+            </div>
+          </div>
+        </div>
+      </ui-card-header>
+      <ui-card-content>
+        <div formArrayName="positions" class="space-y-6">
+          <div *ngFor="let position of positions.controls; let i = index" 
+               [formGroupName]="i" 
+               class="border dark:!border-gray-700 rounded-lg p-4 relative">
+            
+            <!-- Position Header -->
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-lg font-semibold">Position {{ i + 1 }}</h4>
+              <ui-button 
+                *ngIf="positions.length > 1"
+                type="button"
+                variant="outline"
+                size="sm"
+                (click)="removePosition(i)"
+                [disabled]="isActionsDisabled"
+                class="text-red-600 hover:text-red-700">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-4 w-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </ui-button>
+            </div>
+
+            <!-- Basic Position Information -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <!-- Job Title -->
+              <div>
+                <ui-label [for]="'jobTitle' + i" class="block text-sm font-medium mb-2">Job Title *</ui-label>
+                <ui-input
+                  [id]="'jobTitle' + i"
+                  formControlName="jobTitle"
+                  placeholder="e.g. Senior Developer"
+                  [class.border-red-500]="hasError('jobTitle', i)">
+                </ui-input>
+                <div *ngIf="hasError('jobTitle', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('jobTitle', i) }}
+                </div>
+              </div>
+
+              <!-- Expected Salary -->
+              <div>
+                <ui-label [for]="'expectedSalary' + i" class="block text-sm font-medium mb-2">Expected Salary *</ui-label>
+                <ui-input
+                  [id]="'expectedSalary' + i"
+                  type="number"
+                  formControlName="expectedSalary"
+                  placeholder="e.g. 120000"
+                  [class.border-red-500]="hasError('expectedSalary', i)">
+                </ui-input>
+                <div *ngIf="hasError('expectedSalary', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('expectedSalary', i) }}
+                </div>
+              </div>
+
+              <!-- Expected Salary Type -->
+              <div>
+                <ui-label [for]="'expectedSalaryType' + i" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+                <select 
+                  [id]="'expectedSalaryType' + i"
+                  formControlName="expectedSalaryType"
+                  class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                  <option *ngFor="let salaryType of salaryTypes" [ngValue]="salaryType.ID">
+                    {{ salaryType.name }}
+                  </option>
+                </select>
+                <div *ngIf="hasError('expectedSalaryType', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('expectedSalaryType', i) }}
+                </div>
+              </div>
+              
+              <!-- Currency -->
+              <div>
+                <ui-label [for]="'currencyID' + i" class="block text-sm font-medium mb-2">Currency *</ui-label>
+                <select 
+                  [id]="'currencyID' + i"
+                  formControlName="currencyID"
+                  class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                  <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
+                    {{ currency.code }} {{ currency.name }}
+                  </option>
+                </select>
+                <div *ngIf="hasError('currencyID', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('currencyID', i) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Fee Configuration -->
+            <div class="border-t dark:!border-gray-700 pt-4">
+              <h5 class="text-md font-semibold mb-3">Fee Configuration</h5>
+              
+              <!-- Fee Type -->
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                  <ui-label [for]="'feeType' + i" class="block text-sm font-medium mb-2">Fee Type *</ui-label>
+                  <select 
+                    [id]="'feeType' + i"
+                    formControlName="feeType"
+                    (change)="onFeeTypeChange(i, $any($event.target).value)"
+                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                    <option value="fixed">Fixed Amount</option>
+                    <option value="percentage">Percentage</option>
+                    <option value="multiplier">Multiplier</option>
+                  </select>
+                </div>
+
+                <!-- Fee Amount (for fixed type) -->
+                <div *ngIf="position.get('feeType')?.value === 'fixed'">
+                  <ui-label [for]="'feeAmount' + i" class="block text-sm font-medium mb-2">Fee Amount *</ui-label>
+                  <ui-input
+                    [id]="'feeAmount' + i"
+                    type="number"
+                    formControlName="feeAmount"
+                    placeholder="e.g. 50000"
+                    [class.border-red-500]="hasError('feeAmount', i)">
+                  </ui-input>
+                  <div *ngIf="hasError('feeAmount', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('feeAmount', i) }}
+                  </div>
+                </div>
+
+                <!-- Fee Currency (for fixed type) -->
+                <div *ngIf="position.get('feeType')?.value === 'fixed'">
+                  <ui-label [for]="'feeCurrencyID' + i" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
+                  <select 
+                    [id]="'feeCurrencyID' + i"
+                    formControlName="feeCurrencyID"
+                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                    <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
+                      {{ currency.code }} {{ currency.name }}
+                    </option>
+                  </select>
+                  <div *ngIf="hasError('feeCurrencyID', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('feeCurrencyID', i) }}
+                  </div>
+                </div>
+
+                <!-- Fee Percentage (for percentage type) -->
+                <div *ngIf="position.get('feeType')?.value === 'percentage'">
+                  <ui-label [for]="'feePercentage' + i" class="block text-sm font-medium mb-2">Fee Percentage *</ui-label>
+                  <ui-input
+                    [id]="'feePercentage' + i"
+                    type="number"
+                    formControlName="feePercentage"
+                    placeholder="e.g. 15"
+                    [class.border-red-500]="hasError('feePercentage', i)">
+                  </ui-input>
+                  <div *ngIf="hasError('feePercentage', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('feePercentage', i) }}
+                  </div>
+                </div>
+
+                <!-- Fee Salary Type (for percentage/multiplier type) -->
+                <div *ngIf="position.get('feeType')?.value === 'percentage' || position.get('feeType')?.value === 'multiplier'">
+                  <ui-label [for]="'feeSalaryType' + i" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+                  <select 
+                    [id]="'feeSalaryType' + i"
+                    formControlName="feeSalaryType"
+                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                    <option *ngFor="let salaryType of salaryTypes" [ngValue]="salaryType.ID">
+                      {{ salaryType.name }}
+                    </option>
+                  </select>
+                  <div *ngIf="hasError('feeSalaryType', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('feeSalaryType', i) }}
+                  </div>
+                </div>
+
+                <!-- Fee Multiplier (for multiplier type) -->
+                <div *ngIf="position.get('feeType')?.value === 'multiplier'">
+                  <ui-label [for]="'feeMultiplier' + i" class="block text-sm font-medium mb-2">Fee Multiplier *</ui-label>
+                  <ui-input
+                    [id]="'feeMultiplier' + i"
+                    type="number"
+                    formControlName="feeMultiplier"
+                    placeholder="e.g. 1.5"
+                    step="0.1"
+                    [class.border-red-500]="hasError('feeMultiplier', i)">
+                  </ui-input>
+                  <div *ngIf="hasError('feeMultiplier', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('feeMultiplier', i) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Extra Fee Type Selection -->
+              <div class="mb-4">
+                <ui-label [for]="'extraFeeTypeID' + i" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+                <select 
+                  [id]="'extraFeeTypeID' + i"
+                  formControlName="extraFeeTypeID"
+                  (change)="onExtraFeeTypeIDChange(i, $any($event.target).value)"
+                  class="w-full md:w-1/3 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                  <option *ngFor="let extraFeeType of extraFeeTypes" [ngValue]="extraFeeType.ID">
+                    {{ extraFeeType.name }}
+                  </option>
+                </select>
+                <div *ngIf="hasError('extraFeeTypeID', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('extraFeeTypeID', i) }}
+                </div>
+              </div>
+
+              <!-- Extra Fee Configuration -->
+              <div *ngIf="position.get('extraFeeTypeID')?.value && getExtraFeeTypeName(position.get('extraFeeTypeID')?.value) !== 'NONE'" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                  <ui-label [for]="'extraFeeType' + i" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+                  <select 
+                    [id]="'extraFeeType' + i"
+                    formControlName="extraFeeType"
+                    (change)="onExtraFeeTypeChange(i, $any($event.target).value)"
+                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                    <option value="fixed">Fixed Amount</option>
+                    <option value="percentage">Percentage</option>
+                    <option value="multiplier">Multiplier</option>
+                  </select>
+                </div>
+
+                <!-- Extra Fee Amount (for fixed type) -->
+                <div *ngIf="position.get('extraFeeType')?.value === 'fixed'">
+                  <ui-label [for]="'extraFeeAmount' + i" class="block text-sm font-medium mb-2">Extra Fee Amount</ui-label>
+                  <ui-input
+                    [id]="'extraFeeAmount' + i"
+                    type="number"
+                    formControlName="extraFeeAmount"
+                    placeholder="e.g. 10000"
+                    [class.border-red-500]="hasError('extraFeeAmount', i)">
+                  </ui-input>
+                  <div *ngIf="hasError('extraFeeAmount', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('extraFeeAmount', i) }}
+                  </div>
+                </div>
+
+                <!-- Extra Fee Currency (for fixed type) -->
+                <div *ngIf="position.get('extraFeeType')?.value === 'fixed'">
+                  <ui-label [for]="'extraFeeCurrencyID' + i" class="block text-sm font-medium mb-2">Extra Fee Currency</ui-label>
+                  <select 
+                    [id]="'extraFeeCurrencyID' + i"
+                    formControlName="extraFeeCurrencyID"
+                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                    <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
+                      {{ currency.code }} {{ currency.name }}
+                    </option>
+                  </select>
+                  <div *ngIf="hasError('extraFeeCurrencyID', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('extraFeeCurrencyID', i) }}
+                  </div>
+                </div>
+
+                <!-- Extra Fee Percentage (for percentage type) -->
+                <div *ngIf="position.get('extraFeeType')?.value === 'percentage'">
+                  <ui-label [for]="'extraFeePercentage' + i" class="block text-sm font-medium mb-2">Extra Fee Percentage</ui-label>
+                  <ui-input
+                    [id]="'extraFeePercentage' + i"
+                    type="number"
+                    formControlName="extraFeePercentage"
+                    placeholder="e.g. 10"
+                    [class.border-red-500]="hasError('extraFeePercentage', i)">
+                  </ui-input>
+                  <div *ngIf="hasError('extraFeePercentage', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('extraFeePercentage', i) }}
+                  </div>
+                </div>
+
+
+                <!-- Extra Fee Multiplier (for multiplier type) -->
+                <div *ngIf="position.get('extraFeeType')?.value === 'multiplier'">
+                  <ui-label [for]="'extraFeeMultiplier' + i" class="block text-sm font-medium mb-2">Extra Fee Multiplier</ui-label>
+                  <ui-input
+                    [id]="'extraFeeMultiplier' + i"
+                    type="number"
+                    formControlName="extraFeeMultiplier"
+                    placeholder="e.g. 0.5"
+                    step="0.1"
+                    [class.border-red-500]="hasError('extraFeeMultiplier', i)">
+                  </ui-input>
+                  <div *ngIf="hasError('extraFeeMultiplier', i)" class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('extraFeeMultiplier', i) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mt-4">
+              <ui-label [for]="'notes' + i" class="block text-sm font-medium mb-2">Notes</ui-label>
+              <ui-textarea
+                [id]="'notes' + i"
+                formControlName="notes"
+                placeholder="Additional notes for this position (optional)"
+                rows="2">
+              </ui-textarea>
+            </div>
+          </div>
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- Submit Button -->
+    <div class="flex flex-col items-end gap-2">
+      <div *ngIf="!isEntireFormValid && !isSubmitting" class="text-xs text-amber-600 text-right">
+        <span *ngIf="!isBasicFormValid">Complete order details first</span>
+        <span *ngIf="isBasicFormValid && !areAllPositionsValid">Complete all position details</span>
+      </div>
+      <ui-button 
+        type="submit"
+        [disabled]="!isEntireFormValid || isActionsDisabled || isSubmitting"
+        [title]="!isEntireFormValid ? 'Please complete all required fields' : 'Create recruiting order'"
+        class="min-w-[200px]">
+        <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <svg *ngIf="!isSubmitting" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        {{ isSubmitting ? 'Creating Order...' : 'Create Recruiting Order' }}
+      </ui-button>
+    </div>
+  </form>
+
+  <!-- Debug Info (temporary) -->
+  <div *ngIf="orderForm" class="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded text-sm">
+    <p><strong>Deal ID:</strong> {{ deal?.ID }}</p>
+    <p><strong>Deal Status:</strong> {{ deal?.flowStatus?.ID }}</p>
+    <p><strong>Form Valid:</strong> {{ orderForm?.valid }}</p>
+    <p><strong>Basic Form Valid:</strong> {{ isBasicFormValid }}</p>
+    <p><strong>All Positions Valid:</strong> {{ areAllPositionsValid }}</p>
+    <p><strong>Entire Form Valid:</strong> {{ isEntireFormValid }}</p>
+    <p><strong>Actions Disabled:</strong> {{ isActionsDisabled }}</p>
+    <p><strong>Number of Positions:</strong> {{ orderForm?.get('numberOfPositions')?.value }}</p>
+    <p><strong>Currencies Loaded:</strong> {{ currencies.length }}</p>
+    <p><strong>Salary Types Loaded:</strong> {{ salaryTypes.length }}</p>
+    <p><strong>Extra Fee Types Loaded:</strong> {{ extraFeeTypes.length }}</p>
+  </div>
+</div>

@@ -22,6 +22,7 @@ export class CDCMService {
   newCDCMSubject = new Subject<any>();
   deleteCDCMSubject = new Subject<number>();
   updateStatusCDCMSubject = new Subject<object>();
+  approvalCompletedSubject = new Subject<any>();  // New subject for approval completions
 
   constructor(private rest: RestService, private dialogService: DialogService) {
     this.getFields();
@@ -160,6 +161,44 @@ export class CDCMService {
     this.createlistDPperNumberOfEmployee();
     this.createlistcdcmSeniorityList();
     this.createlistcdcmStatics();
+  }
+
+  // Handle CDCM approval completion
+  handleApprovalCompletion(approvalData: any): void {
+    console.log('📊 CDCMService: Handling approval completion:', approvalData);
+    
+    // Determine the new CDCM status based on approval results
+    let newStatus = 2; // Default to 'In Approval'
+    
+    if (approvalData.allSteps) {
+      const allApproved = approvalData.allSteps.every(step => step.statusID === 2);
+      const anyDeclined = approvalData.allSteps.some(step => step.statusID === 3);
+      
+      if (allApproved) {
+        newStatus = 3; // Approved
+        console.log('✅ All approval steps approved - CDCM status will be: Approved');
+      } else if (anyDeclined) {
+        newStatus = 4; // Declined
+        console.log('❌ Some approval steps declined - CDCM status will be: Declined');
+      }
+    }
+    
+    // Emit the status change to notify components
+    this.updateStatusCDCMSubject.next({
+      ID: approvalData.cdcmId,
+      statusID: newStatus,
+      approvalCompleted: true,
+      approvalData: approvalData
+    });
+    
+    // Emit specific approval completion event
+    this.approvalCompletedSubject.next({
+      cdcmId: approvalData.cdcmId,
+      newStatus: newStatus,
+      allApproved: newStatus === 3,
+      anyDeclined: newStatus === 4,
+      approvalData: approvalData
+    });
   }
 
 
