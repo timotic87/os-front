@@ -61,8 +61,7 @@
 
             <div>
               <label class="block text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-2">What should happen next?</label>
-              <!-- Debug info: flowType={{ flowType }}, rejectedReturnTo={{ rejectedReturnTo }} -->
-              <select [(ngModel)]="rejectedReturnTo" 
+              <select [(ngModel)]="rejectedReturnTo"
                       [disabled]="actionsDisabled"
                       class="w-full rounded-md border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-yellow-950/50 px-3 py-2 text-sm text-yellow-900 dark:text-yellow-100 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500">
                 <option *ngIf="flowType !== 'recruiting'" value="cdcm">🔄 {{ getCdcmLabel() }}</option>

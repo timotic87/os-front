@@ -66,6 +66,30 @@ export class RegFlowComponent implements OnInit {
       this.refreshDocumentLists();
     });
     
+    // CRITICAL: Direct listener for approval completion from approval-step-card component
+    documentService.approvalCompleted.subscribe(data => {
+      if (data && data.allApproved) {
+        // Check deal ID with both strict and loose equality
+        const dealIdMatches = data.dealId === this.deal?.ID || data.dealId == this.deal?.ID;
+        
+        if (!dealIdMatches) {
+          return;
+        }
+        
+        // Document fully approved - determine next flow status and update immediately
+        let nextStatusID = 7; // Default to offer review
+        
+        if (data.fullData?.documentTypeID === 2) {
+          nextStatusID = 12; // Contract review
+        } else if (data.fullData?.documentTypeID === 1) {
+          nextStatusID = 7; // Offer review
+        }
+        
+        // Update flow status immediately
+        this.updateDealFlowStatus(nextStatusID);
+      }
+    });
+    
     // Alternative approach: Listen for any approval completion and manually check status
     documentService.approvalStart.subscribe(data => {
       // Check for status change after delay
@@ -469,6 +493,10 @@ export class RegFlowComponent implements OnInit {
    * Update deal flow status and handle local state updates
    */
   private updateDealFlowStatus(statusID: number): void {
+    if (!this.deal?.ID) {
+      return;
+    }
+    
     this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
       next: (res) => {
         if (res.status === 200) {

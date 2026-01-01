@@ -96,18 +96,34 @@ export class ApprovalStepCardComponent implements OnInit{
             
             // If all approvals are completed, emit completion event
             if (result.allApproved) {
-              console.log('🎉 ALL APPROVALS COMPLETED! Emitting completion event:', {
-                approvalId: this.approval.ID,
-                allSteps: this.approvalSteps,
-                allApproved: result.allApproved
-              });
+              // Extract dealId from multiple possible sources
+              let extractedDealId = result.fullData?.dealId || this.approval.dealId || this.approval.deal?.ID || 
+                                   this.approval.document?.dealId || result.fullData?.deal?.ID;
+              
+              // If still not found, try to get it from URL params as fallback
+              if (!extractedDealId) {
+                const dealIdFromUrl = +this.route.snapshot.paramMap.get('id');
+                if (dealIdFromUrl) {
+                  extractedDealId = dealIdFromUrl;
+                }
+              }
+              
+              // Emit local event to parent component
               this.approvalCompleted.emit({
                 approvalId: this.approval.ID,
                 allSteps: this.approvalSteps,
                 fullData: result.fullData
               });
-            } else {
-              console.log('Approval step completed, but not all approvals done yet. allApproved =', result.allApproved);
+              
+              // Emit global event through DocumentService for all listeners
+              this.documentService.approvalCompleted.next({
+                approvalId: this.approval.ID,
+                documentId: result.fullData?.documentId || this.approval.documentId,
+                dealId: extractedDealId,
+                allApproved: result.allApproved,
+                allSteps: this.approvalSteps,
+                fullData: result.fullData
+              });
             }
             
             // Emit document status update event to trigger document refresh for any status change

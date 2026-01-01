@@ -15,6 +15,7 @@ export class DocumentService {
   inactiveDocumentChange = new Subject<any>();
   approvalStart = new Subject<any>();
   approvalRejected = new Subject<any>();
+  approvalCompleted = new Subject<any>();
   addNewDocument = new Subject<any>();
   documentDeleted = new Subject<boolean>();
   documentSubmitted = new Subject<any>();

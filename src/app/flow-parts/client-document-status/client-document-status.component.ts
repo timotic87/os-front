@@ -44,31 +44,20 @@ export class ClientDocumentStatusComponent implements OnInit, OnChanges {
   
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['flowType'] && changes['flowType'].currentValue) {
-      console.log('[CLIENT-DOCUMENT-STATUS] flowType changed:', changes['flowType']);
       this.setDefaultRejectedReturnTo();
     }
   }
 
   ngOnInit() {
-    console.log('[CLIENT-DOCUMENT-STATUS] ngOnInit called with:', {
-      flowType: this.flowType,
-      documentType: this.documentType,
-      currentRejectedReturnTo: this.rejectedReturnTo
-    });
-    
     this.setDefaultRejectedReturnTo();
-    
-    console.log('[CLIENT-DOCUMENT-STATUS] After ngOnInit, rejectedReturnTo is:', this.rejectedReturnTo);
   }
   
   private setDefaultRejectedReturnTo(): void {
     // Set default rejectedReturnTo based on flow type
     if (this.flowType === 'recruiting') {
       this.rejectedReturnTo = 'document'; // recruiting doesn't have CDCM step
-      console.log('[CLIENT-DOCUMENT-STATUS] Set rejectedReturnTo to document for recruiting flow');
     } else {
       this.rejectedReturnTo = 'cdcm'; // py and stuffing flows have CDCM step
-      console.log(`[CLIENT-DOCUMENT-STATUS] Set rejectedReturnTo to cdcm for ${this.flowType} flow`);
     }
   }
 
@@ -128,24 +117,14 @@ export class ClientDocumentStatusComponent implements OnInit, OnChanges {
   }
 
   submitClientResponse() {
-    console.log('[CLIENT-DOCUMENT-STATUS] Submitting client response:', {
-      flowType: this.flowType,
-      documentType: this.documentType,
-      clientAccepted: this.clientAccepted,
-      rejectedReturnTo: this.rejectedReturnTo,
-      rejectionReason: this.rejectionReason
-    });
-
     // Validate that rejectedReturnTo is valid for this flow type
     if (this.clientAccepted === false) {
       if (this.flowType === 'recruiting' && this.rejectedReturnTo === 'cdcm') {
-        console.error('[CLIENT-DOCUMENT-STATUS] Invalid rejectedReturnTo for recruiting flow:', this.rejectedReturnTo);
         this.dialogService.showMsgDialog('Invalid return option selected for recruiting flow');
         return;
       }
       
       if (!this.rejectedReturnTo) {
-        console.error('[CLIENT-DOCUMENT-STATUS] No return option selected');
         this.dialogService.showMsgDialog('Please select what should happen next');
         return;
       }
@@ -164,7 +143,6 @@ export class ClientDocumentStatusComponent implements OnInit, OnChanges {
       updateData.rejectedReturnTo = this.rejectedReturnTo;
     }
 
-    console.log('[CLIENT-DOCUMENT-STATUS] Emitting statusChange event:', updateData);
     this.statusChange.emit(updateData);
   }
 
