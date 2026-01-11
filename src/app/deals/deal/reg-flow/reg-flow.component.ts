@@ -7,6 +7,9 @@ import {RestService} from '../../../services/rest.service';
 import {DialogService} from '../../../services/dialog.service';
 import {DocumentService} from '../../../services/document.service';
 import {RecruitingOrderFormComponent} from '../recruiting-order-form/recruiting-order-form.component';
+import {MatDialog} from '@angular/material/dialog';
+import {RecruitingOrderDetailsDialogComponent} from '../recruiting-order-details-dialog/recruiting-order-details-dialog.component';
+import {AddPositionDialogComponent} from '../add-position-dialog/add-position-dialog.component';
 // ShadCN UI Components
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent, CardFooterComponent } from '../../../shared/components/ui/card/card.component';
@@ -29,7 +32,10 @@ import { BadgeComponent } from '../../../shared/components/ui/badge/badge.compon
     CardDescriptionComponent,
     CardContentComponent,
     CardFooterComponent,
-    BadgeComponent
+    BadgeComponent,
+    // Dialog Components
+    AddPositionDialogComponent,
+    RecruitingOrderDetailsDialogComponent
   ],
   templateUrl: './reg-flow.component.html',
   styleUrl: './reg-flow.component.css'
@@ -49,7 +55,8 @@ export class RegFlowComponent implements OnInit {
     private rest: RestService,
     private dialogService: DialogService,
     private cdr: ChangeDetectorRef,
-    private documentService: DocumentService
+    private documentService: DocumentService,
+    private dialog: MatDialog
   ) {
     // Listen for document approval events to refresh UI without page reload
     documentService.approvalStart.subscribe(data => {
@@ -333,12 +340,12 @@ export class RegFlowComponent implements OnInit {
 
   /**
    * Get the current document type ID based on flow status
+   * For recruiting flow, always use typeID=1 (offer) as it serves as the final contract
    */
   getCurrentDocTypeID(): number {
-    const flowStatusID = this.deal?.flowStatus?.ID || 0;
-    // If we're in contract phase (status 9+), return contract type (2)
-    // Otherwise return offer type (1)
-    return flowStatusID >= 9 ? 2 : 1;
+    // In recruiting flow, we only use offer documents (typeID=1)
+    // The offer document serves as the final contract, so always return 1
+    return 1;
   }
 
   /**
@@ -555,7 +562,9 @@ export class RegFlowComponent implements OnInit {
    * Handle when recruiting order creation starts
    */
   onOrderCreating(isCreating: boolean): void {
+    console.log('📥 onOrderCreating called with:', isCreating);
     this.isCreatingOrder = isCreating;
+    console.log('   isCreatingOrder is now:', this.isCreatingOrder);
     this.cdr.detectChanges();
   }
   
@@ -563,20 +572,45 @@ export class RegFlowComponent implements OnInit {
    * Handle when recruiting order is successfully created
    */
   onOrderCreated(order: any): void {
+    console.log('✅ onOrderCreated called with:', order);
+    console.log('✅ Setting recruitingOrder and isCreatingOrder = false');
+    
     this.recruitingOrder = order;
     this.isCreatingOrder = false;
+    
+    // Force change detection
     this.cdr.detectChanges();
+    
+    // Update local deal status to 15 (Recruiting Order Created)
+    if (this.deal?.flowStatus) {
+      this.deal.flowStatus.ID = 15;
+      this.cdr.detectChanges();
+    }
     
     this.dialogService.showSnackBar('Recruiting order created successfully!', '', 3000);
   }
   
   /**
-   * View recruiting order details (navigate to order management)
+   * View recruiting order details in a dialog
    */
   viewRecruitingOrder(): void {
     if (this.recruitingOrder?.ID) {
-      // TODO: Navigate to recruiting order details page
-      this.dialogService.showSnackBar('Order details view - Coming soon', '', 2000);
+      // Fetch full order details with positions
+      this.rest.getRecruitingOrderByID(this.recruitingOrder.ID).subscribe({
+        next: (res) => {
+          if (res.status === 200 && res.data) {
+            this.dialog.open(RecruitingOrderDetailsDialogComponent, {
+              width: '800px',
+              maxWidth: '95vw',
+              data: { order: res.data }
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching order details:', err);
+          this.dialogService.showMsgDialog('Error loading order details: ' + (err.error?.message || err.message));
+        }
+      });
     }
   }
   
@@ -585,8 +619,28 @@ export class RegFlowComponent implements OnInit {
    */
   addPosition(): void {
     if (this.recruitingOrder?.ID) {
-      // TODO: Open add position dialog or navigate to position creation
-      this.dialogService.showSnackBar('Add position functionality - Coming soon', '', 2000);
+      const dialogRef = this.dialog.open(AddPositionDialogComponent, {
+        width: '900px',
+        maxWidth: '95vw',
+        data: { orderID: this.recruitingOrder.ID }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          // Refresh order data after adding position
+          this.rest.getRecruitingOrderByID(this.recruitingOrder.ID).subscribe({
+            next: (res) => {
+              if (res.status === 200 && res.data) {
+                this.recruitingOrder = res.data;
+                this.cdr.detectChanges();
+              }
+            },
+            error: (err) => {
+              console.error('Error refreshing order:', err);
+            }
+          });
+        }
+      });
     }
   }
 

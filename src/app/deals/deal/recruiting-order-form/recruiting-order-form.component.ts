@@ -45,11 +45,13 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   isSubmitting: boolean = false;
   currencies: any[] = [];
   salaryTypes: any[] = [];
+  feeTypes: any[] = [];
   extraFeeTypes: any[] = [];
-  
+
   // Default values for form fields
   private defaultSalaryTypeID = 1;
   private defaultCurrencyID = 1;
+  private defaultFeeTypeID = 1;
   private defaultExtraFeeTypeID = 1;
 
   constructor(
@@ -60,10 +62,6 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    console.log('🚀 RecruitingOrderFormComponent initialized!');
-    console.log('Deal data:', this.deal);
-    console.log('Actions disabled:', this.isActionsDisabled);
-    
     this.loadInitialData();
   }
 
@@ -81,8 +79,8 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   private loadInitialData(): void {
     let loadedCount = 0;
-    const totalToLoad = 3;
-    
+    const totalToLoad = 4;
+
     const checkAndInitialize = () => {
       loadedCount++;
       if (loadedCount === totalToLoad) {
@@ -91,24 +89,32 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     };
     this.loadCurrencies(checkAndInitialize);
     this.loadSalaryTypes(checkAndInitialize);
+    this.loadFeeTypes(checkAndInitialize);
     this.loadExtraFeeTypes(checkAndInitialize);
   }
-  
+
   /**
    * Load currencies from backend
    */
   private loadCurrencies(onComplete?: () => void): void {
     this.rest.getCurrencyList().subscribe({
       next: (res) => {
-        if (res.status === 200 && res.data) {
+        if (res.status === 200 && res.data && res.data.length > 0) {
           this.currencies = res.data;
+          // Set default to first currency BEFORE calling onComplete
+          this.defaultCurrencyID = this.currencies[0].ID;
+        } else {
+          // Fallback to default if no currencies returned
+          this.currencies = [{ ID: 1, name: 'RSD', nbsCode: 941 }];
+          this.defaultCurrencyID = 1;
         }
         onComplete?.();
       },
       error: (err) => {
-        console.error('Error loading currencies:', err);
+        console.error('❌ Error loading currencies:', err);
         // Set default RSD if loading fails
-        this.currencies = [{ ID: 1, name: 'RSD', code: 'RSD' }];
+        this.currencies = [{ ID: 1, name: 'RSD', nbsCode: 941 }];
+        this.defaultCurrencyID = 1;
         onComplete?.();
       }
     });
@@ -133,6 +139,30 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
           { ID: 2, name: 'Monthly Net' },
           { ID: 3, name: 'Yearly Gross' },
           { ID: 4, name: 'Yearly Net' }
+        ];
+        onComplete?.();
+      }
+    });
+  }
+
+  /**
+   * Load fee types from backend
+   */
+  private loadFeeTypes(onComplete?: () => void): void {
+    this.rest.getFeeTypes().subscribe({
+      next: (res) => {
+        if (res.status === 200 && res.data) {
+          this.feeTypes = res.data;
+        }
+        onComplete?.();
+      },
+      error: (err) => {
+        console.error('Error loading fee types:', err);
+        // Set default fee types if loading fails
+        this.feeTypes = [
+          { ID: 1, name: 'Fixed' },
+          { ID: 2, name: 'Percentage' },
+          { ID: 3, name: 'Multiplier' }
         ];
         onComplete?.();
       }
@@ -169,20 +199,31 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   private initializeForm(): void {
     // Generate auto order number with timestamp
     const autoOrderNumber = `RO-${Date.now()}`;
-    
+
     this.orderForm = this.fb.group({
       // Order details
       orderNumber: [autoOrderNumber, [Validators.required, Validators.minLength(1)]],
       clientName: [{value: this.deal?.client?.name || '', disabled: true}], // Remove required validator for disabled field
       description: [''], // Remove maxLength validator as it's optional
       numberOfPositions: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
-      
+
       // Positions array
       positions: this.fb.array([])
     });
 
     // Add at least one position by default
     this.addPosition();
+    
+    // Set currency values explicitly after creating positions
+    if (this.positions.length > 0 && this.defaultCurrencyID) {
+      this.positions.controls.forEach((position, index) => {
+        position.patchValue({
+          currencyID: this.defaultCurrencyID,
+          feeCurrencyID: this.defaultCurrencyID,
+          extraFeeCurrencyID: this.defaultCurrencyID
+        });
+      });
+    }
 
     // Set initial disabled state
     this.updateFormDisabledState();
@@ -195,7 +236,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     if (!this.orderForm) return;
 
     const controls = ['orderNumber', 'description', 'numberOfPositions'];
-    
+
     controls.forEach(controlName => {
       const control = this.orderForm.get(controlName);
       if (this.isActionsDisabled) {
@@ -216,9 +257,9 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   private updatePositionDisabledState(positionForm: FormGroup): void {
     const positionControls = [
-      'jobTitle', 'expectedSalary', 'expectedSalaryType', 'currencyID',
-      'feeType', 'feeAmount', 'feeCurrencyID', 'feePercentage', 'feeMultiplier', 'feeSalaryType',
-      'extraFeeTypeID', 'extraFeeType', 'extraFeeAmount', 'extraFeeCurrencyID', 
+      'jobTitle', 'location', 'expectedSalary', 'expectedSalaryType', 'currencyID',
+      'feeTypesId', 'feeAmount', 'feeCurrencyID', 'feePercentage', 'feeMultiplier', 'feeSalaryType',
+      'extraFeeTypeID', 'extraFeeType', 'extraFeeAmount', 'extraFeeCurrencyID',
       'extraFeePercentage', 'extraFeeMultiplier', 'notes'
     ];
 
@@ -248,7 +289,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     const numberOfPositionsValid = this.orderForm.get('numberOfPositions')?.valid ?? false;
     const descriptionValid = this.orderForm.get('description')?.valid ?? false;
     // Skip clientName validation since it's disabled
-    
+
     return orderNumberValid && numberOfPositionsValid && descriptionValid;
   }
 
@@ -257,24 +298,24 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   get areAllPositionsValid(): boolean {
     if (!this.orderForm || !this.positions || this.positions.length === 0) return false;
-    
+
     const allValid = this.positions.controls.every((position, index) => {
       if (!position.valid) {
         const positionGroup = position as FormGroup;
-        console.log(`Position ${index + 1} is invalid:`, {
-          errors: position.errors,
-          value: position.value,
-          controls: Object.keys(positionGroup.controls).map(key => ({
-            key,
-            valid: position.get(key)?.valid,
-            errors: position.get(key)?.errors,
-            value: position.get(key)?.value
-          }))
-        });
+        // console.log(`Position ${index + 1} is invalid:`, {
+        //   errors: position.errors,
+        //   value: position.value,
+        //   controls: Object.keys(positionGroup.controls).map(key => ({
+        //     key,
+        //     valid: position.get(key)?.valid,
+        //     errors: position.get(key)?.errors,
+        //     value: position.get(key)?.value
+        //   }))
+        // });
       }
       return position.valid;
     });
-    
+
     return allValid;
   }
 
@@ -289,32 +330,35 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   /**
    * Get extra fee type name by ID
    */
-  getExtraFeeTypeName(extraFeeTypeID: number): string {
+  getExtraFeeTypeName(extraFeeTypeID: number | string): string {
     if (!this.extraFeeTypes || !extraFeeTypeID) return '';
-    const extraFeeType = this.extraFeeTypes.find(type => type.ID === extraFeeTypeID);
+    // Convert to number if string
+    const id = typeof extraFeeTypeID === 'string' ? parseInt(extraFeeTypeID, 10) : extraFeeTypeID;
+    const extraFeeType = this.extraFeeTypes.find(type => type.ID === id);
     return extraFeeType ? extraFeeType.name : '';
   }
+
 
   /**
    * Create a new position FormGroup
    */
   private createPositionForm(): FormGroup {
-    
     return this.fb.group({
       jobTitle: ['', [Validators.required, Validators.minLength(2)]],
-      expectedSalary: [0, [Validators.required, Validators.min(0)]], // Set default to 0 and make required
-      expectedSalaryType: [this.defaultSalaryTypeID],
-      currencyID: [this.defaultCurrencyID], // NO validator - currency is optional selection
-      feeType: ['fixed', [Validators.required]],
-      feeAmount: [0, [Validators.required, Validators.min(0)]], // Set default to 0
-      feeCurrencyID: [this.defaultCurrencyID], // NO validator - currency is optional selection
+      location: ['', [Validators.required, Validators.minLength(2)]],
+      expectedSalary: [0, [Validators.required, Validators.min(0)]],
+      expectedSalaryType: [this.defaultSalaryTypeID, [Validators.required]],
+      currencyID: [this.defaultCurrencyID, [Validators.required]],
+      feeTypesId: [this.defaultFeeTypeID, [Validators.required]],
+      feeAmount: [0], // Validators set dynamically based on fee type
+      feeCurrencyID: [this.defaultCurrencyID], // Validators set dynamically based on fee type
       feePercentage: [null],
       feeMultiplier: [null],
       feeSalaryType: [this.defaultSalaryTypeID],
       extraFeeTypeID: [this.defaultExtraFeeTypeID],
-      extraFeeType: ['fixed', [Validators.required]],
-      extraFeeAmount: [0, [Validators.min(0)]], // Set default to 0
-      extraFeeCurrencyID: [this.defaultCurrencyID], // NO validator - currency is optional selection
+      extraFeeType: ['fixed'],
+      extraFeeAmount: [0],
+      extraFeeCurrencyID: [this.defaultCurrencyID],
       extraFeePercentage: [null],
       extraFeeMultiplier: [null],
       notes: ['']
@@ -329,8 +373,21 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     const positionForm = this.createPositionForm();
     this.positions.push(positionForm);
     
+    // Set currency IDs explicitly if available
+    if (this.defaultCurrencyID) {
+      positionForm.patchValue({
+        currencyID: this.defaultCurrencyID,
+        feeCurrencyID: this.defaultCurrencyID,
+        extraFeeCurrencyID: this.defaultCurrencyID
+      });
+    }
+
     // Apply disabled state to the new position
     this.updatePositionDisabledState(positionForm);
+
+    // Initialize validators based on default fee type
+    const positionIndex = this.positions.length - 1;
+    this.onFeeTypeChange(positionIndex, this.defaultFeeTypeID);
   }
 
   /**
@@ -345,53 +402,94 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   }
 
   /**
+   * Get fee type name by ID
+   */
+  getFeeTypeName(feeTypeID: number | string): string {
+    if (!this.feeTypes || !feeTypeID) return '';
+    // Convert to number if string
+    const id = typeof feeTypeID === 'string' ? parseInt(feeTypeID, 10) : feeTypeID;
+    const feeType = this.feeTypes.find(type => type.ID === id);
+    return feeType ? feeType.name : '';
+  }
+
+  /**
    * Handle fee type change for a position
    */
-  onFeeTypeChange(positionIndex: number, feeType: string): void {
+  onFeeTypeChange(positionIndex: number, feeTypeID: any): void {
     const position = this.positions.at(positionIndex);
     
-    // Reset fee-related fields
+    // Parse the ID - Angular select with [ngValue] may return 'index: value' string
+    let parsedID: number;
+    if (typeof feeTypeID === 'string' && feeTypeID.includes(':')) {
+      // Extract value after colon: '0: 1' -> 1
+      parsedID = parseInt(feeTypeID.split(':')[1].trim(), 10);
+    } else {
+      parsedID = typeof feeTypeID === 'string' ? parseInt(feeTypeID, 10) : feeTypeID;
+    }
+    
+    const feeTypeName = this.getFeeTypeName(parsedID).toLowerCase();
+    
+    // Reset fee-related fields (but keep currency values)
     position.patchValue({
       feeAmount: null,
       feePercentage: null,
       feeMultiplier: null
+      // Do NOT reset feeCurrencyID here - it should retain its value
     });
 
     // Update validators based on fee type
     const feeAmountControl = position.get('feeAmount');
+    const feeCurrencyIDControl = position.get('feeCurrencyID');
     const feePercentageControl = position.get('feePercentage');
     const feeMultiplierControl = position.get('feeMultiplier');
 
     // Clear all validators first
     feeAmountControl?.clearValidators();
+    feeCurrencyIDControl?.clearValidators();
     feePercentageControl?.clearValidators();
     feeMultiplierControl?.clearValidators();
 
     // Add appropriate validators based on fee type
-    if (feeType === 'fixed') {
+    if (feeTypeName.includes('fixed')) {
       feeAmountControl?.setValidators([Validators.required, Validators.min(0)]);
-    } else if (feeType === 'percentage') {
+      feeCurrencyIDControl?.setValidators([Validators.required]);
+      // Ensure currency value is set if not already
+      if (!feeCurrencyIDControl?.value && this.defaultCurrencyID) {
+        position.patchValue({ feeCurrencyID: this.defaultCurrencyID });
+      }
+    } else if (feeTypeName.includes('percentage')) {
       feePercentageControl?.setValidators([Validators.required, Validators.min(0), Validators.max(100)]);
-    } else if (feeType === 'multiplier') {
+    } else if (feeTypeName.includes('multiplier')) {
       feeMultiplierControl?.setValidators([Validators.required, Validators.min(0)]);
     }
 
     // Update validity
     feeAmountControl?.updateValueAndValidity();
+    feeCurrencyIDControl?.updateValueAndValidity();
     feePercentageControl?.updateValueAndValidity();
     feeMultiplierControl?.updateValueAndValidity();
   }
-  
+
   /**
    * Handle extra fee type ID change (admin, cancel, none, etc.)
    */
-  onExtraFeeTypeIDChange(positionIndex: number, extraFeeTypeID: number): void {
+  onExtraFeeTypeIDChange(positionIndex: number, extraFeeTypeID: any): void {
     const position = this.positions.at(positionIndex);
-    const extraFeeTypeName = this.getExtraFeeTypeName(extraFeeTypeID);
     
+    // Parse the ID - Angular select with [ngValue] may return 'index: value' string
+    let parsedID: number;
+    if (typeof extraFeeTypeID === 'string' && extraFeeTypeID.includes(':')) {
+      // Extract value after colon: '0: 1' -> 1
+      parsedID = parseInt(extraFeeTypeID.split(':')[1].trim(), 10);
+    } else {
+      parsedID = typeof extraFeeTypeID === 'string' ? parseInt(extraFeeTypeID, 10) : extraFeeTypeID;
+    }
+    
+    const extraFeeTypeName = this.getExtraFeeTypeName(parsedID);
+
     // If NONE is selected, clear all extra fee fields and remove validators
     if (extraFeeTypeName === 'NONE') {
-      
+
       position.patchValue({
         extraFeeType: 'fixed',
         extraFeeAmount: null,
@@ -399,18 +497,18 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
         extraFeeMultiplier: null,
         extraFeeCurrencyID: this.defaultCurrencyID
       });
-      
+
       // Clear validators for extra fee fields
       const extraFeeAmountControl = position.get('extraFeeAmount');
       const extraFeePercentageControl = position.get('extraFeePercentage');
       const extraFeeMultiplierControl = position.get('extraFeeMultiplier');
       const extraFeeCurrencyIDControl = position.get('extraFeeCurrencyID');
-      
+
       extraFeeAmountControl?.clearValidators();
       extraFeePercentageControl?.clearValidators();
       extraFeeMultiplierControl?.clearValidators();
       extraFeeCurrencyIDControl?.clearValidators();
-      
+
       extraFeeAmountControl?.updateValueAndValidity();
       extraFeePercentageControl?.updateValueAndValidity();
       extraFeeMultiplierControl?.updateValueAndValidity();
@@ -423,7 +521,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   onExtraFeeTypeChange(positionIndex: number, feeType: string): void {
     const position = this.positions.at(positionIndex);
-    
+
     // Reset extra fee-related fields
     position.patchValue({
       extraFeeAmount: null,
@@ -466,23 +564,21 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       this.orderCreating.emit(true);
 
       const formData = this.prepareFormData();
-      console.log('Creating recruiting order with data:', formData);
 
       this.rest.createRecruitingOrder(formData).subscribe({
         next: (res) => {
           if (res.status === 200 || res.status === 201) {
-            console.log('Recruiting order created successfully:', res.data);
-            this.orderCreated.emit(res.data);
-            this.dialogService.showSnackBar('Recruiting order created successfully!', '', 3000);
+            this.orderCreated.emit(res.data.recruitingOrder);
+            this.orderCreating.emit(false);
+            this.isSubmitting = false;
+            this.dialogService.showSnackBar(`Recruiting order created with ${res.data.positions?.length || 0} position(s)!`, '', 3000);
           }
         },
         error: (err) => {
           console.error('Error creating recruiting order:', err);
           this.dialogService.showMsgDialog('Error creating recruiting order: ' + (err.error?.message || err.message));
-          this.orderCreating.emit(false);
-        },
-        complete: () => {
           this.isSubmitting = false;
+          this.orderCreating.emit(false);
         }
       });
     } else {
@@ -506,24 +602,54 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       positions: formValue.positions.map((pos: any) => {
         const extraFeeTypeName = this.getExtraFeeTypeName(pos.extraFeeTypeID);
         const isExtraFeeNone = extraFeeTypeName === 'NONE';
-        
+        const feeTypeName = this.getFeeTypeName(pos.feeTypesId).toLowerCase();
+
+        // Helper to convert string to number or null
+        const toNumber = (val: any) => {
+          if (val === null || val === undefined || val === '' || val === 'undefined') return null;
+          const num = typeof val === 'string' ? parseFloat(val) : val;
+          return isNaN(num) ? null : num;
+        };
+
+        // Map percentage/multiplier to feeAmount field (backend expects feeAmount for all types)
+        let feeAmountValue = null;
+        if (feeTypeName.includes('fixed')) {
+          feeAmountValue = toNumber(pos.feeAmount);
+        } else if (feeTypeName.includes('percentage')) {
+          feeAmountValue = toNumber(pos.feePercentage);
+        } else if (feeTypeName.includes('multiplier')) {
+          feeAmountValue = toNumber(pos.feeMultiplier);
+        }
+
+        // Map extra fee percentage/multiplier to extraFeeAmount field
+        let extraFeeAmountValue = null;
+        let extraFeeCalculationType = null;
+        if (!isExtraFeeNone) {
+          if (pos.extraFeeType === 'fixed') {
+            extraFeeAmountValue = toNumber(pos.extraFeeAmount);
+            extraFeeCalculationType = 3; // Fixed
+          } else if (pos.extraFeeType === 'percentage') {
+            extraFeeAmountValue = toNumber(pos.extraFeePercentage);
+            extraFeeCalculationType = 1; // Percentage
+          } else if (pos.extraFeeType === 'multiplier') {
+            extraFeeAmountValue = toNumber(pos.extraFeeMultiplier);
+            extraFeeCalculationType = 2; // Multiplier
+          }
+        }
+
         return {
           jobTitle: pos.jobTitle,
-          expectedSalary: pos.expectedSalary,
-          expectedSalaryType: pos.expectedSalaryType,
-          currencyID: pos.currencyID,
-          feeType: pos.feeType,
-          feeAmount: pos.feeType === 'fixed' ? pos.feeAmount : null,
-          feeCurrencyID: pos.feeType === 'fixed' ? pos.feeCurrencyID : null,
-          feePercentage: pos.feeType === 'percentage' ? pos.feePercentage : null,
-          feeMultiplier: pos.feeType === 'multiplier' ? pos.feeMultiplier : null,
-          feeSalaryType: (pos.feeType === 'percentage' || pos.feeType === 'multiplier') ? pos.feeSalaryType : null,
-          extraFeeTypeID: pos.extraFeeTypeID,
-          extraFeeType: !isExtraFeeNone ? pos.extraFeeType : null,
-          extraFeeAmount: (!isExtraFeeNone && pos.extraFeeType === 'fixed') ? pos.extraFeeAmount : null,
-          extraFeeCurrencyID: (!isExtraFeeNone && pos.extraFeeType === 'fixed') ? pos.extraFeeCurrencyID : null,
-          extraFeePercentage: (!isExtraFeeNone && pos.extraFeeType === 'percentage') ? pos.extraFeePercentage : null,
-          extraFeeMultiplier: (!isExtraFeeNone && pos.extraFeeType === 'multiplier') ? pos.extraFeeMultiplier : null,
+          location: pos.location,
+          expectedSalary: toNumber(pos.expectedSalary),
+          expectedSalaryType: toNumber(pos.expectedSalaryType),
+          currencyID: toNumber(pos.currencyID),
+          feeTypesId: toNumber(pos.feeTypesId),
+          feeAmount: feeAmountValue,
+          feeCurrencyID: feeTypeName.includes('fixed') ? toNumber(pos.feeCurrencyID) : null,
+          extraFeeTypeID: toNumber(pos.extraFeeTypeID),
+          extraFeeAmount: extraFeeAmountValue,
+          extraFeeCurrencyID: (!isExtraFeeNone && pos.extraFeeType === 'fixed') ? toNumber(pos.extraFeeCurrencyID) : null,
+          extraFeeCalculationType: extraFeeCalculationType,
           notes: pos.notes
         };
       })

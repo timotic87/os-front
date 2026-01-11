@@ -1,7 +1,7 @@
 <div class="pb-3">
   <ui-button
     (onClick)="openFileExplorer(fileInput)"
-    [disabled]="documentService.activeDocument"
+    [disabled]="documentService.activeDocument || !canAddNewDocument()"
     *ngIf="deal.flowStatus.ID >= statusIDShow"
     variant="default"
     size="default"

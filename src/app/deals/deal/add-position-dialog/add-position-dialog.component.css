@@ -1,0 +1,113 @@
+.add-position-dialog {
+  max-width: 900px;
+  width: 100%;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s;
+  color: #000;
+}
+
+.close-button:hover {
+  background-color: #f0f0f0;
+}
+
+.dialog-content {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  color: #000;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Dark mode using .dark class like recruiting-order-details dialog */
+.dark :host ::ng-deep .mat-mdc-dialog-container {
+  background-color: rgb(39 39 42) !important;
+  border: 1px solid rgb(63 63 70) !important;
+}
+
+.dark :host .add-position-dialog {
+  background-color: rgb(39 39 42) !important;
+}
+
+.dark :host .dialog-header {
+  background-color: rgb(39 39 42) !important;
+  border-bottom: 1px solid rgb(63 63 70) !important;
+}
+
+.dark :host .dialog-header h2 {
+  color: rgb(244 244 245) !important;
+}
+
+.dark :host .close-button {
+  color: rgb(244 244 245) !important;
+}
+
+.dark :host .close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark :host .dialog-content {
+  background-color: rgb(39 39 42) !important;
+  color: rgb(244 244 245) !important;
+}
+
+.dark :host .dialog-actions {
+  background-color: rgb(39 39 42) !important;
+  border-top: 1px solid rgb(63 63 70) !important;
+}
+
+/* Dark mode for inputs and selects - matching CDCM styling */
+.dark :host ::ng-deep input[type="number"],
+.dark :host ::ng-deep input[type="text"],
+.dark :host ::ng-deep input,
+.dark :host ::ng-deep select,
+.dark :host ::ng-deep textarea {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+.dark :host input[type="number"],
+.dark :host input[type="text"],
+.dark :host input,
+.dark :host select,
+.dark :host textarea {
+  background-color: rgb(31, 41, 55) !important;
+  border-color: rgb(75, 85, 99) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+.dark :host input:focus,
+.dark :host select:focus,
+.dark :host textarea:focus {
+  border-color: #3b82f6 !important;
+  outline: none;
+}

@@ -1,0 +1,164 @@
+<div class="recruiting-order-details-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="text-xl font-semibold">Recruiting Order Details</h2>
+    <button class="close-button" (click)="close()" aria-label="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <!-- Order Information -->
+    <div class="section">
+      <h3 class="section-title">Order Information</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Order Number:</span>
+          <span class="info-value">{{ data.order.order_number }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Status:</span>
+          <ui-badge [variant]="'outline'" class="text-xs">
+            {{ data.order.status?.name || 'Active' }}
+          </ui-badge>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Client:</span>
+          <span class="info-value">{{ data.order.deal?.client?.name || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Created:</span>
+          <span class="info-value">{{ data.order.created_at | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Positions -->
+    <div class="section" *ngIf="data.order.positions && data.order.positions.length > 0">
+      <h3 class="section-title">Positions ({{ data.order.positions.length }})</h3>
+      
+      <div class="positions-list">
+        <div *ngFor="let position of data.order.positions; let i = index" class="position-card">
+          <div class="position-header">
+            <div class="position-title">
+              <span class="position-number">{{ position.position_number }}</span>
+              <span class="position-name">{{ position.position_name }}</span>
+            </div>
+            <ui-badge [variant]="'secondary'" class="text-xs">
+              {{ position.status?.name || 'Active' }}
+            </ui-badge>
+          </div>
+
+          <div class="position-details">
+            <!-- Location & People -->
+            <div class="detail-row" *ngIf="position.location">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>{{ position.location }}</span>
+            </div>
+
+            <div class="detail-row">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span>{{ position.number_of_people }} {{ position.number_of_people === 1 ? 'person' : 'people' }} ({{ position.number_filled }} filled)</span>
+            </div>
+
+            <!-- Expected Salary -->
+            <div class="detail-row" *ngIf="position.expected_salary">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>
+                <strong>Expected Salary:</strong> 
+                {{ position.expected_salary | number:'1.0-2' }} {{ position.expectedSalaryCurrency?.name || getCurrencySymbol(position.expected_salary_currency_id) }}
+                <span class="text-muted"> ({{ position.expectedSalaryType?.name || getSalaryTypeName(position.expected_salary_type_id) }})</span>
+              </span>
+            </div>
+
+            <!-- Fee Information - Fixed -->
+            <div class="detail-row" *ngIf="position.fee_amount && position.fee_types_id === 3">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
+              </svg>
+              <span>
+                <strong>Fee:</strong> 
+                {{ position.fee_amount | number:'1.0-2' }} {{ position.feeCurrency?.name || getCurrencySymbol(position.fee_currency_id) }}
+                <span class="text-muted"> (Fixed fee)</span>
+              </span>
+            </div>
+
+            <!-- Fee Information - Percentage -->
+            <div class="detail-row" *ngIf="position.fee_types_id === 1">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
+              </svg>
+              <span>
+                <strong>Fee:</strong> {{ position.fee_percentage || position.fee_amount }}% of {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
+              </span>
+            </div>
+
+            <!-- Fee Information - Multiplier -->
+            <div class="detail-row" *ngIf="position.fee_types_id === 2">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
+              </svg>
+              <span>
+                <strong>Fee:</strong> {{ position.fee_multiplier || position.fee_amount }}x {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
+              </span>
+            </div>
+
+            <!-- Extra Fee - Fixed -->
+            <div class="detail-row" *ngIf="position.extra_fee_amount && position.extra_fee_calculation_type === 3">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span>
+                <strong>Extra Fee:</strong> 
+                {{ position.extra_fee_amount | number:'1.0-2' }} {{ position.extraFeeCurrency?.name || getCurrencySymbol(position.extra_fee_currency_id) }}
+                <span class="text-muted"> ({{ position.extraFeeType?.name || 'Fixed' }})</span>
+              </span>
+            </div>
+
+            <!-- Extra Fee - Percentage -->
+            <div class="detail-row" *ngIf="position.extra_fee_amount && position.extra_fee_calculation_type === 1">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span>
+                <strong>Extra Fee:</strong> {{ position.extra_fee_amount }}% of expected fee
+                <span class="text-muted"> ({{ position.extraFeeType?.name || 'Extra' }})</span>
+              </span>
+            </div>
+
+            <!-- Extra Fee - Multiplier -->
+            <div class="detail-row" *ngIf="position.extra_fee_amount && position.extra_fee_calculation_type === 2">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="detail-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span>
+                <strong>Extra Fee:</strong> {{ position.extra_fee_amount }}x expected fee
+                <span class="text-muted"> ({{ position.extraFeeType?.name || 'Extra' }})</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!data.order.positions || data.order.positions.length === 0" class="empty-state">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-icon">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+      </svg>
+      <p>No positions added yet</p>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <ui-button variant="outline" (onClick)="close()">Close</ui-button>
+  </mat-dialog-actions>
+</div>

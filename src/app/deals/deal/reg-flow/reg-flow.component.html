@@ -216,23 +216,24 @@
       <div *ngIf="deal.flowStatus.ID >= 14; else stepNotActiveYet">
 
         <!-- Show form if no order exists yet -->
-        <div *ngIf="!recruitingOrder && !isCreatingOrder">
-          <app-recruiting-order-form
-            [deal]="deal"
-            [isActionsDisabled]="isActionsDisabled()"
-            (orderCreated)="onOrderCreated($event)"
-            (orderCreating)="onOrderCreating($event)">
-          </app-recruiting-order-form>
-        </div>
-
-        <!-- Show loading state while creating -->
-        <div *ngIf="isCreatingOrder" class="text-center py-8">
-          <div class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:!bg-blue-950/30 border border-blue-200 dark:!border-blue-800">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Creating recruiting order...
+        <div [style.display]="recruitingOrder ? 'none' : 'block'">
+          <div *ngIf="isCreatingOrder" class="text-center py-8 mb-6">
+            <div class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:!bg-blue-950/30 border border-blue-200 dark:!border-blue-800">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Creating recruiting order...
+            </div>
+          </div>
+          
+          <div [style.display]="isCreatingOrder ? 'none' : 'block'">
+            <app-recruiting-order-form
+              [deal]="deal"
+              [isActionsDisabled]="isActionsDisabled()"
+              (orderCreated)="onOrderCreated($event)"
+              (orderCreating)="onOrderCreating($event)">
+            </app-recruiting-order-form>
           </div>
         </div>
 
@@ -248,7 +249,7 @@
               <div class="flex-1">
                 <h4 class="text-sm font-medium text-green-900 dark:!text-green-100 mb-1">Recruiting Order Created</h4>
                 <p class="text-sm text-green-700 dark:!text-green-300">
-                  Order <strong>{{ recruitingOrder.orderNumber }}</strong> has been created successfully with {{ recruitingOrder.positions?.length || 0 }} position(s).
+                  Order has been created successfully with {{ recruitingOrder.positions?.length || 0 }} position(s).
                 </p>
               </div>
             </div>
@@ -260,7 +261,7 @@
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span class="text-muted-foreground">Order Number:</span>
-                <span class="ml-2 font-medium">{{ recruitingOrder.orderNumber }}</span>
+                <span class="ml-2 font-medium">{{ recruitingOrder.order_number }}</span>
               </div>
               <div>
                 <span class="text-muted-foreground">Status:</span>
@@ -272,41 +273,7 @@
               </div>
               <div>
                 <span class="text-muted-foreground">Client:</span>
-                <span class="ml-2 font-medium">{{ recruitingOrder.clientName }}</span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Total Positions:</span>
-                <span class="ml-2 font-medium">{{ recruitingOrder.positions?.length || 0 }}</span>
-              </div>
-            </div>
-
-            <!-- Positions List -->
-            <div *ngIf="recruitingOrder.positions?.length > 0" class="mt-4">
-              <h5 class="text-md font-semibold mb-2">Positions</h5>
-              <div class="space-y-2">
-                <div *ngFor="let position of recruitingOrder.positions"
-                     class="bg-muted/50 rounded-lg p-3 text-sm">
-                  <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                      <div class="font-medium">{{ position.positionNumber }} - {{ position.jobTitle }}</div>
-                      <div class="text-muted-foreground mt-1">
-                        {{ position.jobDescription | slice:0:100 }}{{ position.jobDescription?.length > 100 ? '...' : '' }}
-                      </div>
-                      <div class="flex gap-4 mt-2">
-                        <span *ngIf="position.expectedSalaryFrom">
-                          <strong>Salary:</strong> {{ position.expectedSalaryFrom | currency:'RSD':'symbol':'1.0-0' }}
-                          <span *ngIf="position.expectedSalaryTo">- {{ position.expectedSalaryTo | currency:'RSD':'symbol':'1.0-0' }}</span>
-                        </span>
-                        <span *ngIf="position.feeAmount">
-                          <strong>Fee:</strong> {{ position.feeAmount | currency:'RSD':'symbol':'1.0-0' }}
-                        </span>
-                      </div>
-                    </div>
-                    <ui-badge [variant]="'secondary'" class="text-xs">
-                      {{ position.status?.name || 'Active' }}
-                    </ui-badge>
-                  </div>
-                </div>
+                <span class="ml-2 font-medium">{{ recruitingOrder.deal?.client?.name || 'N/A' }}</span>
               </div>
             </div>
           </div>
@@ -320,7 +287,7 @@
               </svg>
               View Order Details
             </ui-button>
-            <ui-button variant="outline" size="sm" (onClick)="addPosition()" [disabled]="isActionsDisabled()">
+            <ui-button variant="outline" size="sm" (click)="addPosition()" [disabled]="isActionsDisabled()">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>

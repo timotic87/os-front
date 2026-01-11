@@ -36,6 +36,26 @@ export class DokumentApprovalComponent implements OnInit {
   @Input() type: 'offer' | 'contract' = 'offer';
   @Input() approvalID = 2;
 
+  /**
+   * Check if user can add a new document based on current flow status
+   * For offer documents (type 1): allow only during flowStatus 1-6
+   * For contract documents (type 2): allow only during flowStatus 9-11
+   */
+  canAddNewDocument(): boolean {
+    const flowStatusID = this.deal?.flowStatus?.ID || 0;
+    
+    // Check if we're dealing with offer (1) or contract (2) document
+    if (this.docTypeID === 1) {
+      // Offer documents: allow during initial offer phase (1-6)
+      return flowStatusID >= 1 && flowStatusID <= 6;
+    } else if (this.docTypeID === 2) {
+      // Contract documents: allow during initial contract phase (9-11)
+      return flowStatusID >= 9 && flowStatusID <= 11;
+    }
+    
+    return false;
+  }
+
   docApproval: any;
   
   private preservedScrollPosition = 0;
@@ -72,8 +92,7 @@ export class DokumentApprovalComponent implements OnInit {
   ngOnInit(): void {
     this.getActiveOffer();
     this.getInaciveOfferDocs();
-
-    }
+  }
 
 
   async openFileExplorer(fileInput: HTMLInputElement) {

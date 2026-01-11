@@ -131,7 +131,7 @@
             </div>
 
             <!-- Basic Position Information -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
               <!-- Job Title -->
               <div>
                 <ui-label [for]="'jobTitle' + i" class="block text-sm font-medium mb-2">Job Title *</ui-label>
@@ -143,6 +143,20 @@
                 </ui-input>
                 <div *ngIf="hasError('jobTitle', i)" class="text-red-500 text-sm mt-1">
                   {{ getErrorMessage('jobTitle', i) }}
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <ui-label [for]="'location' + i" class="block text-sm font-medium mb-2">Location *</ui-label>
+                <ui-input
+                  [id]="'location' + i"
+                  formControlName="location"
+                  placeholder="e.g. Belgrade, Serbia"
+                  [class.border-red-500]="hasError('location', i)">
+                </ui-input>
+                <div *ngIf="hasError('location', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('location', i) }}
                 </div>
               </div>
 
@@ -168,7 +182,7 @@
                   [id]="'expectedSalaryType' + i"
                   formControlName="expectedSalaryType"
                   class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
-                  <option *ngFor="let salaryType of salaryTypes" [ngValue]="salaryType.ID">
+                  <option *ngFor="let salaryType of salaryTypes" [value]="salaryType.ID">
                     {{ salaryType.name }}
                   </option>
                 </select>
@@ -185,7 +199,7 @@
                   formControlName="currencyID"
                   class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
                   <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
-                    {{ currency.code }} {{ currency.name }}
+                    {{ currency.name }}
                   </option>
                 </select>
                 <div *ngIf="hasError('currencyID', i)" class="text-red-500 text-sm mt-1">
@@ -201,20 +215,20 @@
               <!-- Fee Type -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
-                  <ui-label [for]="'feeType' + i" class="block text-sm font-medium mb-2">Fee Type *</ui-label>
+                  <ui-label [for]="'feeTypesId' + i" class="block text-sm font-medium mb-2">Fee Type *</ui-label>
                   <select 
-                    [id]="'feeType' + i"
-                    formControlName="feeType"
+                    [id]="'feeTypesId' + i"
+                    formControlName="feeTypesId"
                     (change)="onFeeTypeChange(i, $any($event.target).value)"
                     class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
-                    <option value="fixed">Fixed Amount</option>
-                    <option value="percentage">Percentage</option>
-                    <option value="multiplier">Multiplier</option>
+                    <option *ngFor="let feeType of feeTypes" [value]="feeType.ID">
+                      {{ feeType.name }}
+                    </option>
                   </select>
                 </div>
 
                 <!-- Fee Amount (for fixed type) -->
-                <div *ngIf="position.get('feeType')?.value === 'fixed'">
+                <div *ngIf="getFeeTypeName(position.get('feeTypesId')?.value).toLowerCase().includes('fixed')">
                   <ui-label [for]="'feeAmount' + i" class="block text-sm font-medium mb-2">Fee Amount *</ui-label>
                   <ui-input
                     [id]="'feeAmount' + i"
@@ -229,14 +243,14 @@
                 </div>
 
                 <!-- Fee Currency (for fixed type) -->
-                <div *ngIf="position.get('feeType')?.value === 'fixed'">
+                <div *ngIf="getFeeTypeName(position.get('feeTypesId')?.value).toLowerCase().includes('fixed')">
                   <ui-label [for]="'feeCurrencyID' + i" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
                   <select 
                     [id]="'feeCurrencyID' + i"
                     formControlName="feeCurrencyID"
                     class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
                     <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
-                      {{ currency.code }} {{ currency.name }}
+                      {{ currency.name }}
                     </option>
                   </select>
                   <div *ngIf="hasError('feeCurrencyID', i)" class="text-red-500 text-sm mt-1">
@@ -245,7 +259,7 @@
                 </div>
 
                 <!-- Fee Percentage (for percentage type) -->
-                <div *ngIf="position.get('feeType')?.value === 'percentage'">
+                <div *ngIf="getFeeTypeName(position.get('feeTypesId')?.value).toLowerCase() === 'percentage'">
                   <ui-label [for]="'feePercentage' + i" class="block text-sm font-medium mb-2">Fee Percentage *</ui-label>
                   <ui-input
                     [id]="'feePercentage' + i"
@@ -260,13 +274,13 @@
                 </div>
 
                 <!-- Fee Salary Type (for percentage/multiplier type) -->
-                <div *ngIf="position.get('feeType')?.value === 'percentage' || position.get('feeType')?.value === 'multiplier'">
+                <div *ngIf="getFeeTypeName(position.get('feeTypesId')?.value).toLowerCase() === 'percentage' || getFeeTypeName(position.get('feeTypesId')?.value).toLowerCase() === 'multiplier'">
                   <ui-label [for]="'feeSalaryType' + i" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
                   <select 
                     [id]="'feeSalaryType' + i"
                     formControlName="feeSalaryType"
                     class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
-                    <option *ngFor="let salaryType of salaryTypes" [ngValue]="salaryType.ID">
+                    <option *ngFor="let salaryType of salaryTypes" [value]="salaryType.ID">
                       {{ salaryType.name }}
                     </option>
                   </select>
@@ -276,7 +290,7 @@
                 </div>
 
                 <!-- Fee Multiplier (for multiplier type) -->
-                <div *ngIf="position.get('feeType')?.value === 'multiplier'">
+                <div *ngIf="getFeeTypeName(position.get('feeTypesId')?.value).toLowerCase() === 'multiplier'">
                   <ui-label [for]="'feeMultiplier' + i" class="block text-sm font-medium mb-2">Fee Multiplier *</ui-label>
                   <ui-input
                     [id]="'feeMultiplier' + i"
@@ -300,7 +314,7 @@
                   formControlName="extraFeeTypeID"
                   (change)="onExtraFeeTypeIDChange(i, $any($event.target).value)"
                   class="w-full md:w-1/3 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
-                  <option *ngFor="let extraFeeType of extraFeeTypes" [ngValue]="extraFeeType.ID">
+                  <option *ngFor="let extraFeeType of extraFeeTypes" [value]="extraFeeType.ID">
                     {{ extraFeeType.name }}
                   </option>
                 </select>
@@ -347,7 +361,7 @@
                     formControlName="extraFeeCurrencyID"
                     class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
                     <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
-                      {{ currency.code }} {{ currency.name }}
+                      {{ currency.name }}
                     </option>
                   </select>
                   <div *ngIf="hasError('extraFeeCurrencyID', i)" class="text-red-500 text-sm mt-1">
@@ -426,19 +440,4 @@
       </ui-button>
     </div>
   </form>
-
-  <!-- Debug Info (temporary) -->
-  <div *ngIf="orderForm" class="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded text-sm">
-    <p><strong>Deal ID:</strong> {{ deal?.ID }}</p>
-    <p><strong>Deal Status:</strong> {{ deal?.flowStatus?.ID }}</p>
-    <p><strong>Form Valid:</strong> {{ orderForm?.valid }}</p>
-    <p><strong>Basic Form Valid:</strong> {{ isBasicFormValid }}</p>
-    <p><strong>All Positions Valid:</strong> {{ areAllPositionsValid }}</p>
-    <p><strong>Entire Form Valid:</strong> {{ isEntireFormValid }}</p>
-    <p><strong>Actions Disabled:</strong> {{ isActionsDisabled }}</p>
-    <p><strong>Number of Positions:</strong> {{ orderForm?.get('numberOfPositions')?.value }}</p>
-    <p><strong>Currencies Loaded:</strong> {{ currencies.length }}</p>
-    <p><strong>Salary Types Loaded:</strong> {{ salaryTypes.length }}</p>
-    <p><strong>Extra Fee Types Loaded:</strong> {{ extraFeeTypes.length }}</p>
-  </div>
 </div>
