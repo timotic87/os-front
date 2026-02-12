@@ -440,4 +440,8 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getExtraFeeTypes`, { headers: this.headers() }) as Observable<any>;
   }
 
+  searchPostCodes(search: string) {
+    return this.http.get(`${this.baseUrl}/postCodes/${search}`, { headers: this.headers() }) as Observable<any>;
+  }
+
 }

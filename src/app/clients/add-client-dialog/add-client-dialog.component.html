@@ -7,80 +7,99 @@
     <div class="flex flex-row">
 
       <div class="basis-2/4">
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Name:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="text" id="nameId" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="addClientForm.get('name').touched && !addClientForm.get('name').valid ? 'border-red-500':''" formControlName="name" autocomplete="new-name">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Customer Name:</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="isInvalid('customerName') ? 'border-red-500':''" formControlName="customerName" autocomplete="new-name">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('name').touched && !addClientForm.get('name').valid">Name needs to be minimum 3 characters long.</label>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('customerName')">Customer name is required (min. 3 characters).</label>
 
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Company number:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="addClientForm.get('mb').touched && !addClientForm.get('mb').valid ? 'border-red-500':''" formControlName="mb" autocomplete="new-mb">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Registration No. (Company No.):</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="isInvalid('registrationNo') ? 'border-red-500':''" formControlName="registrationNo" autocomplete="new-mb">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('mb').touched && !addClientForm.get('mb').valid">{{validationTextes.mb}}</label>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('registrationNo')">Registration number is required (min. 6 characters).</label>
 
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">TIN:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="addClientForm.get('pib').touched && !addClientForm.get('pib').valid ? 'border-red-500':''" formControlName="pib" autocomplete="new-pib">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">VAT Registration No. (TIN):</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="isInvalid('vatRegistrationNo') ? 'border-red-500':''" formControlName="vatRegistrationNo" autocomplete="new-pib">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('pib').touched && !addClientForm.get('pib').valid">{{validationTextes.pib}}</label>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('vatRegistrationNo')">VAT registration number must be exactly 9 digits.</label>
 
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Mail:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Email:</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
           <input type="email" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="addClientForm.get('mail').touched && !addClientForm.get('mail').valid ? 'border-red-500':''" formControlName="mail" autocomplete="new-mail">
+                 [ngClass]="isInvalid('email') ? 'border-red-500':''" formControlName="email" autocomplete="new-mail">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('mail').touched && !addClientForm.get('mail').valid">Needs to have valid e-mail format.</label>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('email')">Valid email address is required.</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Email in Finance:</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
+          <input type="email" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 [ngClass]="isInvalid('emailInFinance') ? 'border-red-500':''" formControlName="emailInFinance" autocomplete="new-email-finance">
+        </div>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('emailInFinance')">Must be a valid email format.</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Phone in Finance:</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                 formControlName="phoneInFinance" autocomplete="new-phone-finance">
+        </div>
 
       </div>
       <div class="basis-2/4">
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Country</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="text" formControlName="country" [matAutocomplete]="autoCountry" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
-                 [ngClass]="addClientForm.get('country').touched && !addClientForm.get('country').valid ? 'border-red-500':''" autocomplete="new-country">
-          <mat-autocomplete #autoCountry="matAutocomplete">
-            @for (country of listOfCountry; track country){
-              <mat-option [value]="country.name" (click)="onCountryClick(country)" class="bg-white dark:bg-gray-600">{{country.name}}</mat-option>
-            }
-          </mat-autocomplete>
-
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Zip Code:</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100 relative">
+          <div class="w-3/4 relative">
+            <input type="text" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
+                   [ngClass]="isInvalid('zipCode') ? 'border-red-500':''" formControlName="zipCode" autocomplete="new-zipCode"
+                   [matAutocomplete]="autoZip">
+            <mat-autocomplete #autoZip="matAutocomplete">
+              @for (pc of postCodeResults; track pc.id) {
+                <mat-option [value]="pc.zipCode" (click)="onPostCodeSelect(pc)" class="bg-white dark:bg-gray-600">
+                  {{pc.zipCode}} - {{pc.city}} ({{pc.country}})
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </div>
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('country').touched && !addClientForm.get('country').valid">Must select country.</label>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('zipCode')">Zip code is required (min. 4 characters).</label>
+
         <div class="flex justify-center text-gray-600 dark:text-gray-300">City:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
           <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="city" autocomplete="new-city"
-                 [ngClass]="addClientForm.get('city').touched && !addClientForm.get('city').valid ? 'border-red-500':''">
+                 [ngClass]="isInvalid('city') ? 'border-red-500':''">
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('city').touched && !addClientForm.get('city').valid">City needs to be minimum 5 characters long.</label>
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">Address:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="address" autocomplete="new-address"
-                 [ngClass]="addClientForm.get('address').touched && !addClientForm.get('address').valid ? 'border-red-500':''">
-        </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('address').touched && !addClientForm.get('address').valid">Address is mandatory field</label>
-        <div class="flex justify-center text-gray-600 dark:text-gray-300">zipCode:</div>
-        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <input type="number" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="zipCode" autocomplete="new-zipCpde"
-                 [ngClass]="addClientForm.get('zipCode').touched && !addClientForm.get('zipCode').valid ? 'border-red-500':''">
-        </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('zipCode').touched && !addClientForm.get('zipCode').valid">{{validationTextes.zip}}</label>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('city')">City is required (min. 2 characters).</label>
 
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Country (ISO code):</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600 uppercase" formControlName="country" autocomplete="new-country"
+                 [ngClass]="isInvalid('country') ? 'border-red-500':''" maxlength="10" placeholder="e.g. RS, DE, AT">
+        </div>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('country')">Country ISO code is required (e.g. RS, DE, AT).</label>
+
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Address:</div>
+        <div class="flex justify-center text-gray-400 mb-1 dark:text-neutral-100">
+          <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600" formControlName="address" autocomplete="new-address"
+                 [ngClass]="isInvalid('address') ? 'border-red-500':''">
+        </div>
+        <label class="text-xs text-red-500 block text-center mb-2" *ngIf="isInvalid('address')">Address is required (min. 5 characters).</label>
+
+        <!-- currencyId - zakomentarisano, lako se vraca -->
+        <!--
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Invoice currency:</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
-          <select formControlName="currencyId" type="text" class="dark:hover:border-[#56BDED] hover:border-[#386097]ng  rounded border
-    block appearance-none w-3/4 bg-white border-gray-400  text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8
-    leading-tight focus:outline-none focus:bg-white  dark:focus:border-[#56BDED] focus:border-[#386097]
-    dark:bg-gray-600 dark:hover:bg-gray-600 dark:focus:bg-gray-600"
-                  [ngClass]="addClientForm.get('currencyId').touched && !addClientForm.get('currencyId').valid ? 'border-red-500':''">
+          <select formControlName="currencyId" type="text" class="rounded border block appearance-none w-3/4 bg-white border-gray-400 text-gray-400 mb-3 dark:text-neutral-100 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white dark:bg-gray-600">
             @for(currency of currencyService.getCurrencyList(); track currency){
               <option [value]="currency.id">{{ currency.name }}</option>
             }
           </select>
         </div>
-        <label class="text-xs text-red-500 block text-center" for="nameId" *ngIf="addClientForm.get('currencyId').touched && !addClientForm.get('currencyId').valid">Must select currency.</label>
+        <label class="text-xs text-red-500 block text-center" *ngIf="isInvalid('currencyId')">Must select currency.</label>
+        -->
       </div>
     </div>
     <hr class="my-9 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />

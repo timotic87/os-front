@@ -169,11 +169,11 @@
       <div class="grid gap-6 md:grid-cols-3">
         <!-- Client Basic Info -->
         <div class="col-span-2">
-          <h3 class="text-lg font-semibold text-foreground mb-4">{{ deal.client.name }}</h3>
+          <h3 class="text-lg font-semibold text-foreground mb-4">{{ deal.client.customerName }}</h3>
           <div class="grid gap-4 md:grid-cols-2">
             <div>
               <label class="text-sm font-medium text-muted-foreground">Country</label>
-              <p class="text-sm text-foreground mt-1">{{ deal.client.country.name }}</p>
+              <p class="text-sm text-foreground mt-1">{{ deal.client.country }}</p>
             </div>
             <div>
               <label class="text-sm font-medium text-muted-foreground">City</label>
@@ -185,7 +185,7 @@
             </div>
             <div>
               <label class="text-sm font-medium text-muted-foreground">Email</label>
-              <p class="text-sm text-foreground mt-1">{{ deal.client.mail || 'Not provided' }}</p>
+              <p class="text-sm text-foreground mt-1">{{ deal.client.email || 'Not provided' }}</p>
             </div>
             <div>
               <label class="text-sm font-medium text-muted-foreground">Phone</label>

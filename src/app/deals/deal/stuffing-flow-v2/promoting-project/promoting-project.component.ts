@@ -150,7 +150,7 @@ export class PromotingProjectComponent implements OnInit{
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
     formParams.set('dealID', this.deal.ID);
-    formParams.set('filePath', this.deal.client.name);
+    formParams.set('filePath', this.deal.client.customerName);
     formParams.set('fileName', this.createDealForm.get('contract_file_name').value);
     formParams.set('typeName', 'Contract');
     formParams.set('subTypeName', 'Staffing and payroll');

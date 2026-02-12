@@ -1,114 +1,75 @@
-import {CurrencyModel} from "./currencyModel";
-import {CountryModel} from "./countryModel";
 export class ClientModel {
   private _id: number;
-  private _name: string;
+  private _customerNo: string;
+  private _customerName: string;
   private _address: string;
   private _city: string;
-  private _country: CountryModel;
-  private _pib: string;
-  private _mb: string;
+  private _country: string;
+  private _vatRegistrationNo: string;
+  private _registrationNo: string;
   private _zipCode: string;
-  private _mail: string;
-  private _currency: CurrencyModel;
+  private _email: string;
+  private _emailInFinance: string;
+  private _phoneInFinance: string;
 
-  constructor(id: number, name: string, address: string, city: string, country: CountryModel, pib: string, mb: string, zipCode: string, mail: string, currency: CurrencyModel) {
+  constructor(id: number, customerNo: string, customerName: string, address: string, city: string,
+              country: string, vatRegistrationNo: string, registrationNo: string,
+              zipCode: string, email: string, emailInFinance: string, phoneInFinance: string) {
     this._id = id;
-    this._name = name;
+    this._customerNo = customerNo;
+    this._customerName = customerName;
     this._address = address;
     this._city = city;
     this._country = country;
-    this._pib = pib;
-    this._mb = mb;
+    this._vatRegistrationNo = vatRegistrationNo;
+    this._registrationNo = registrationNo;
     this._zipCode = zipCode;
-    this._mail = mail;
-    this._currency = currency;
+    this._email = email;
+    this._emailInFinance = emailInFinance;
+    this._phoneInFinance = phoneInFinance;
   }
 
+  get id(): number { return this._id; }
+  set id(value: number) { this._id = value; }
 
-  public get id(): number {
-    return this._id;
-  }
+  get customerNo(): string { return this._customerNo; }
+  set customerNo(value: string) { this._customerNo = value; }
 
-  public get name(): string {
-    return this._name;
-  }
+  get customerName(): string { return this._customerName; }
+  set customerName(value: string) { this._customerName = value; }
 
-  public get address(): string {
-    return this._address;
-  }
+  get address(): string { return this._address; }
+  set address(value: string) { this._address = value; }
 
-  public get city(): string {
-    return this._city;
-  }
+  get city(): string { return this._city; }
+  set city(value: string) { this._city = value; }
 
-  public get country(): CountryModel {
-    return this._country;
-  }
+  get country(): string { return this._country; }
+  set country(value: string) { this._country = value; }
 
-  public get pib(): string {
-    return this._pib;
-  }
+  get vatRegistrationNo(): string { return this._vatRegistrationNo; }
+  set vatRegistrationNo(value: string) { this._vatRegistrationNo = value; }
 
-  public get mb(): string {
-    return this._mb;
-  }
+  get registrationNo(): string { return this._registrationNo; }
+  set registrationNo(value: string) { this._registrationNo = value; }
 
-  public get zipCode(): string {
-    return this._zipCode;
-  }
+  get zipCode(): string { return this._zipCode; }
+  set zipCode(value: string) { this._zipCode = value; }
 
-  public get mail(): string {
-    return this._mail;
-  }
+  get email(): string { return this._email; }
+  set email(value: string) { this._email = value; }
 
-  public get currency(): CurrencyModel {
-    return this._currency;
-  }
+  get emailInFinance(): string { return this._emailInFinance; }
+  set emailInFinance(value: string) { this._emailInFinance = value; }
 
-  set id(value: number) {
-    this._id = value;
-  }
+  get phoneInFinance(): string { return this._phoneInFinance; }
+  set phoneInFinance(value: string) { this._phoneInFinance = value; }
 
-  set name(value: string) {
-    this._name = value;
-  }
-
-  set address(value: string) {
-    this._address = value;
-  }
-
-  set city(value: string) {
-    this._city = value;
-  }
-
-  set country(value: CountryModel) {
-    this._country = value;
-  }
-
-  set pib(value: string) {
-    this._pib = value;
-  }
-
-  set mb(value: string) {
-    this._mb = value;
-  }
-
-  set zipCode(value: string) {
-    this._zipCode = value;
-  }
-
-  set mail(value: string) {
-    this._mail = value;
-  }
-
-  set currency(value: CurrencyModel) {
-    this._currency = value;
-  }
-
-  public static createClientModel(data: any){
-    const currency: CurrencyModel = CurrencyModel.createCurrencyModel({id: data.currencyId, name: data.currencyName, nbsCode: data.nbsCode});
-    const country: CountryModel = CountryModel.createCountryModel({id: data.countryId, name: data.countryName});
-    return new ClientModel(data.id, data.name, data.address, data.city, country, data.pib, data.mb, data.zipCode, data.mail, currency);
+  public static createClientModel(data: any): ClientModel {
+    return new ClientModel(
+      data.id, data.customerNo, data.customerName, data.address, data.city,
+      data.country, data.vatRegistrationNo, data.registrationNo,
+      data.zipCode, data.email, data.emailInFinance, data.phoneInFinance
+    );
   }
 }

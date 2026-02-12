@@ -2,13 +2,13 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {NgClass, NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {CurrencyService} from "../../services/currency.service";
 import {ClientsService} from "../../services/clients.service";
 import {ClientModel} from "../../models/clientModel";
-import {CountryService} from "../../services/country.service";
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
 import {DialogService} from "../../services/dialog.service";
 import {UserService} from "../../services/user.service";
+import {RestService} from "../../services/rest.service";
+import {debounceTime, distinctUntilChanged, filter, switchMap} from "rxjs";
 
 // shadCN UI Components
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
@@ -20,11 +20,11 @@ import { SelectComponent } from '../../shared/components/ui/select/select.compon
   selector: 'app-client-view-dialog',
   standalone: true,
   imports: [
-    NgIf, 
-    ReactiveFormsModule, 
-    NgClass, 
-    MatAutocompleteTrigger, 
-    MatAutocomplete, 
+    NgIf,
+    ReactiveFormsModule,
+    NgClass,
+    MatAutocompleteTrigger,
+    MatAutocomplete,
     MatOption,
     // shadCN UI Components
     ButtonComponent,
@@ -45,32 +45,52 @@ export class ClientViewDialogComponent implements OnInit {
   isEditable: boolean = false;
   isSaving: boolean = false;
   editClientForm: FormGroup;
-  listOfCountry;
-  currentCountry;
+  postCodeResults: any[] = [];
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<ClientViewDialogComponent>,
-              public currencyService: CurrencyService, private clientService: ClientsService, public countryService: CountryService,
-              private dialogService: DialogService, public userService: UserService) {
-    currencyService.getCurrencyList()
-    this.listOfCountry = countryService.getCountryList();
+              private clientService: ClientsService,
+              private dialogService: DialogService, public userService: UserService, private rest: RestService) {
   }
 
 
   ngOnInit() {
     this.editClientForm = new FormGroup({
-      name: new FormControl(this.data.name,[Validators.required, Validators.minLength(3)]),
-      mb: new FormControl(this.data.mb, [Validators.required, Validators.pattern("^[0-9]{8}$")]),
-      pib: new FormControl(this.data.pib, [Validators.required, Validators.pattern("^[0-9]{8}$")]),
-      mail: new FormControl(this.data.mail, [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
-      country: new FormControl(this.data.country.name, [Validators.required]),
-      city: new FormControl(this.data.city,[Validators.required, Validators.minLength(2)]),
-      address: new FormControl(this.data.address, Validators.required),
-      zipCode: new FormControl(this.data.zipCode,[Validators.required, Validators.pattern("^[0-9]{5}$")]),
-      currencyId: new FormControl(this.data.currency.id, Validators.required),
+      customerName: new FormControl(this.data.customerName, [Validators.required, Validators.minLength(3)]),
+      registrationNo: new FormControl(this.data.registrationNo, [Validators.required, Validators.minLength(6)]),
+      vatRegistrationNo: new FormControl(this.data.vatRegistrationNo, [Validators.required, Validators.pattern("^[0-9]{9}$")]),
+      email: new FormControl(this.data.email, [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
+      emailInFinance: new FormControl(this.data.emailInFinance, [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
+      phoneInFinance: new FormControl(this.data.phoneInFinance),
+      zipCode: new FormControl(this.data.zipCode, [Validators.required, Validators.minLength(4)]),
+      city: new FormControl(this.data.city, [Validators.required, Validators.minLength(2)]),
+      country: new FormControl(this.data.country, [Validators.required, Validators.minLength(2), Validators.maxLength(10)]),
+      address: new FormControl(this.data.address, [Validators.required, Validators.minLength(5)]),
+      // currencyId: new FormControl(null, Validators.required),
     });
-    this.editClientForm.controls['country'].valueChanges.subscribe(value=>{
-      this.listOfCountry = this.countryService.getCountryList().filter(country=>country.name.toLowerCase().includes(value.toLowerCase()))
-    })
+
+    this.setupZipCodeAutocomplete();
+  }
+
+  setupZipCodeAutocomplete() {
+    this.editClientForm.get('zipCode')?.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter(value => value && value.length >= 2),
+      switchMap(value => this.rest.searchPostCodes(value))
+    ).subscribe(res => {
+      if (res.status === 200) {
+        this.postCodeResults = res.data;
+      }
+    });
+  }
+
+  onPostCodeSelect(postCode: any) {
+    this.editClientForm.patchValue({
+      zipCode: postCode.zipCode,
+      city: postCode.city,
+      country: postCode.country || ''
+    });
+    this.postCodeResults = [];
   }
 
   closeDialog(){
@@ -92,84 +112,44 @@ export class ClientViewDialogComponent implements OnInit {
   }
 
   sendEdit(){
-    console.log('Form validity:', this.editClientForm.valid);
-    console.log('Form errors:', this.editClientForm.errors);
-    console.log('Form status:', this.editClientForm.status);
-    
-    // Check each field's validity
+    // Mark all fields as touched to show validation
     Object.keys(this.editClientForm.controls).forEach(key => {
       const control = this.editClientForm.get(key);
       if (control && control.invalid) {
-        console.log(`${key} is invalid:`, control.errors);
-        control.markAsTouched(); // Mark as touched to show error
+        control.markAsTouched();
       }
     });
-    
+
     if (this.editClientForm.valid){
-      // Prevent multiple save attempts
       if (this.isSaving) {
         return;
       }
-      
+
       this.isSaving = true;
-      
+
       let newData = this.editClientForm.value;
       newData.id = this.data.id;
-      newData.currencyName = this.currencyService.getCurrencyList()[this.editClientForm.value.currencyId-1].name;
-      newData.nbsCode = this.currencyService.getCurrencyList()[this.editClientForm.value.currencyId-1].nbsCode;
-      newData.currencyId = this.currencyService.getCurrencyList()[this.editClientForm.value.currencyId-1].id;
-      if (this.currentCountry){
-        newData.countryName = this.currentCountry.name;
-        newData.countryId = this.currentCountry.id;
-      }else {
-        newData.countryId = this.data.country.id;
-        newData.countryName = this.data.country.name;
-      }
-      
-      console.log('Starting edit request...');
-      
-      // Call edit with direct Observable handling
+
       this.clientService.editClientById(newData).subscribe({
         next: (result) => {
-          console.log('Edit result received:', result);
-          console.log('Force closing loader immediately...');
-          
-          // Reset saving state immediately
           this.isSaving = false;
-          
-          // Force close loader immediately - this will close all dialogs if needed
           this.dialogService.forceCloseLoader();
-          
+
           if (result.success) {
-            // Update local data
-            this.data = ClientModel.createClientModel(newData);
-            if (this.currentCountry) {
-              this.data.country = this.currentCountry;
-            }
-            // Exit edit mode
+            // Update local data with new values
+            Object.assign(this.data, newData);
             this.isEditable = false;
-            console.log('Edit completed successfully');
           } else {
-            console.error('Edit failed:', (result as any).error || (result as any).data);
-            // Show error dialog
             this.dialogService.showMsgDialog('Failed to save changes. Please try again.');
           }
         },
         error: (err) => {
-          console.error('Edit error:', err);
-          
-          // Reset saving state immediately
           this.isSaving = false;
-          
-          // Force close loader immediately
           this.dialogService.forceCloseLoader();
-          
-          // Show error dialog
           this.dialogService.showMsgDialog('An error occurred while saving. Please try again.');
         }
       });
     } else {
-      // Show specific field errors
       const invalidFields = Object.keys(this.editClientForm.controls)
         .filter(key => this.editClientForm.get(key)?.invalid)
         .map(key => {
@@ -181,17 +161,18 @@ export class ClientViewDialogComponent implements OnInit {
           if (errors?.['pattern']) return `${fieldName} format is invalid`;
           return `${fieldName} is invalid`;
         });
-      
-      const errorMessage = invalidFields.length > 0 
-        ? `Please fix the following fields:\n• ${invalidFields.join('\n• ')}`
+
+      const errorMessage = invalidFields.length > 0
+        ? `Please fix the following fields:\n${invalidFields.join('\n')}`
         : 'You must enter all mandatory fields!';
-        
+
       this.dialogService.showMsgDialog(errorMessage);
     }
 
   }
 
-  onCountryClick(country: any) {
-    this.currentCountry = country;
+  isInvalid(field: string): boolean {
+    const control = this.editClientForm.get(field);
+    return control?.touched && !control?.valid;
   }
 }

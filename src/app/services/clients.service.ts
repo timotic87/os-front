@@ -84,9 +84,9 @@ export class ClientsService {
     this.rest.createClient(data).subscribe({
       next: res => {
         if (res.status === 201) {
-          this.isListChange.next(true);
           this.dialogService.closeLoader()
           this.dialogService.showSnackBar("You are succesfuly create Client", 'Close', 2500)
+          this.isListChange.next(true);
         }
       },
       error: err => {

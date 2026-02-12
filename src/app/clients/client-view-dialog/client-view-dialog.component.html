@@ -4,7 +4,7 @@
   <ui-card-header>
     <ui-card-title>Client Details</ui-card-title>
     <ui-card-description>View and edit client information</ui-card-description>
-    
+
     <!-- Client ID Badge -->
     <div class="mt-4 flex justify-center">
       <div class="inline-flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-lg">
@@ -20,71 +20,71 @@
       <div class="grid md:grid-cols-2 gap-6">
         <!-- Left Column -->
         <div class="space-y-4">
-          <!-- Name Field -->
+          <!-- Customer Name Field -->
           <div class="space-y-2">
-            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Name</label>
-            <input 
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Customer Name</label>
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.name" 
+              type="text"
+              [value]="data.customerName"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="name" 
+              <input
+                type="text"
+                formControlName="customerName"
                 placeholder="Enter client name"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('name')?.touched && !editClientForm.get('name')?.valid">
-              <p *ngIf="editClientForm.get('name')?.touched && !editClientForm.get('name')?.valid" 
+                [class.border-destructive]="isInvalid('customerName')">
+              <p *ngIf="isInvalid('customerName')"
                  class="text-xs text-destructive mt-1">
-                Name needs to be minimum 3 characters long.
+                Customer name is required (min. 3 characters).
               </p>
             </div>
           </div>
 
-          <!-- Company Number Field -->
+          <!-- Registration No. Field -->
           <div class="space-y-2">
-            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Company Number</label>
-            <input 
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Registration No. (Company No.)</label>
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.mb" 
+              type="text"
+              [value]="data.registrationNo"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="mb" 
-                placeholder="Enter company number"
+              <input
+                type="text"
+                formControlName="registrationNo"
+                placeholder="Enter registration number"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('mb')?.touched && !editClientForm.get('mb')?.valid">
-              <p *ngIf="editClientForm.get('mb')?.touched && !editClientForm.get('mb')?.valid" 
+                [class.border-destructive]="isInvalid('registrationNo')">
+              <p *ngIf="isInvalid('registrationNo')"
                  class="text-xs text-destructive mt-1">
-                Must have 8 characters and only numbers.
+                Registration number is required (min. 6 characters).
               </p>
             </div>
           </div>
 
-          <!-- TIN Field -->
+          <!-- VAT Registration No. Field -->
           <div class="space-y-2">
-            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">TIN</label>
-            <input 
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">VAT Registration No. (TIN)</label>
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.pib" 
+              type="text"
+              [value]="data.vatRegistrationNo"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="pib" 
-                placeholder="Enter TIN"
+              <input
+                type="text"
+                formControlName="vatRegistrationNo"
+                placeholder="Enter VAT registration number"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('pib')?.touched && !editClientForm.get('pib')?.valid">
-              <p *ngIf="editClientForm.get('pib')?.touched && !editClientForm.get('pib')?.valid" 
+                [class.border-destructive]="isInvalid('vatRegistrationNo')">
+              <p *ngIf="isInvalid('vatRegistrationNo')"
                  class="text-xs text-destructive mt-1">
-                Must have 8 characters and only numbers.
+                VAT registration number must be exactly 9 digits.
               </p>
             </div>
           </div>
@@ -92,54 +92,97 @@
           <!-- Email Field -->
           <div class="space-y-2">
             <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
-            <input 
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.mail || 'Not provided'" 
+              type="text"
+              [value]="data.email || 'Not provided'"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="email" 
-                formControlName="mail" 
+              <input
+                type="email"
+                formControlName="email"
                 placeholder="Enter email address"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('mail')?.touched && !editClientForm.get('mail')?.valid">
-              <p *ngIf="editClientForm.get('mail')?.touched && !editClientForm.get('mail')?.valid && editClientForm.get('mail')?.value" 
+                [class.border-destructive]="isInvalid('email')">
+              <p *ngIf="isInvalid('email')"
                  class="text-xs text-destructive mt-1">
-                Please enter a valid email address.
+                Valid email address is required.
               </p>
+            </div>
+          </div>
+
+          <!-- Email in Finance Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email in Finance</label>
+            <input
+              *ngIf="!isEditable"
+              type="text"
+              [value]="data.emailInFinance || 'Not provided'"
+              readonly
+              class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
+            <div *ngIf="isEditable">
+              <input
+                type="email"
+                formControlName="emailInFinance"
+                placeholder="Enter finance email"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                [class.border-destructive]="isInvalid('emailInFinance')">
+              <p *ngIf="isInvalid('emailInFinance')"
+                 class="text-xs text-destructive mt-1">
+                Must be a valid email format.
+              </p>
+            </div>
+          </div>
+
+          <!-- Phone in Finance Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Phone in Finance</label>
+            <input
+              *ngIf="!isEditable"
+              type="text"
+              [value]="data.phoneInFinance || 'Not provided'"
+              readonly
+              class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
+            <div *ngIf="isEditable">
+              <input
+                type="text"
+                formControlName="phoneInFinance"
+                placeholder="Enter finance phone number"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
             </div>
           </div>
         </div>
 
         <!-- Right Column -->
         <div class="space-y-4">
-          <!-- Country Field -->
+          <!-- Zip Code Field with Autocomplete -->
           <div class="space-y-2">
-            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Country</label>
-            <input 
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Zip Code</label>
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.country.name" 
+              type="text"
+              [value]="data.zipCode"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="country" 
-                [matAutocomplete]="autoCountry" 
-                placeholder="Select country"
-                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('country')?.touched && !editClientForm.get('country')?.valid">
-              <mat-autocomplete #autoCountry="matAutocomplete">
-                @for (country of listOfCountry; track country){
-                  <mat-option [value]="country.name" (click)="onCountryClick(country)">{{country.name}}</mat-option>
+              <input
+                type="text"
+                formControlName="zipCode"
+                placeholder="Enter zip code"
+                [matAutocomplete]="autoZip"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                [class.border-destructive]="isInvalid('zipCode')">
+              <mat-autocomplete #autoZip="matAutocomplete">
+                @for (pc of postCodeResults; track pc.id) {
+                  <mat-option [value]="pc.zipCode" (click)="onPostCodeSelect(pc)">
+                    {{pc.zipCode}} - {{pc.city}} ({{pc.country}})
+                  </mat-option>
                 }
               </mat-autocomplete>
-              <p *ngIf="editClientForm.get('country')?.touched && !editClientForm.get('country')?.valid" 
+              <p *ngIf="isInvalid('zipCode')"
                  class="text-xs text-destructive mt-1">
-                Must select a country.
+                Zip code is required (min. 4 characters).
               </p>
             </div>
           </div>
@@ -147,22 +190,46 @@
           <!-- City Field -->
           <div class="space-y-2">
             <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">City</label>
-            <input 
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.city" 
+              type="text"
+              [value]="data.city"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="city" 
+              <input
+                type="text"
+                formControlName="city"
                 placeholder="Enter city"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('city')?.touched && !editClientForm.get('city')?.valid">
-              <p *ngIf="editClientForm.get('city')?.touched && !editClientForm.get('city')?.valid" 
+                [class.border-destructive]="isInvalid('city')">
+              <p *ngIf="isInvalid('city')"
                  class="text-xs text-destructive mt-1">
-                City needs to be minimum 2 characters long.
+                City is required (min. 2 characters).
+              </p>
+            </div>
+          </div>
+
+          <!-- Country Field (ISO Code) -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Country (ISO code)</label>
+            <input
+              *ngIf="!isEditable"
+              type="text"
+              [value]="data.country"
+              readonly
+              class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm uppercase ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
+            <div *ngIf="isEditable">
+              <input
+                type="text"
+                formControlName="country"
+                placeholder="e.g. RS, DE, AT"
+                maxlength="10"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm uppercase ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                [class.border-destructive]="isInvalid('country')">
+              <p *ngIf="isInvalid('country')"
+                 class="text-xs text-destructive mt-1">
+                Country ISO code is required (e.g. RS, DE, AT).
               </p>
             </div>
           </div>
@@ -170,73 +237,47 @@
           <!-- Address Field -->
           <div class="space-y-2">
             <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Address</label>
-            <input 
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.address" 
+              type="text"
+              [value]="data.address"
               readonly
               class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
             <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="address" 
+              <input
+                type="text"
+                formControlName="address"
                 placeholder="Enter address"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('address')?.touched && !editClientForm.get('address')?.valid">
-              <p *ngIf="editClientForm.get('address')?.touched && !editClientForm.get('address')?.valid" 
+                [class.border-destructive]="isInvalid('address')">
+              <p *ngIf="isInvalid('address')"
                  class="text-xs text-destructive mt-1">
-                Address is a mandatory field.
+                Address is required (min. 5 characters).
               </p>
             </div>
           </div>
 
-          <!-- Zip Code Field -->
-          <div class="space-y-2">
-            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Zip Code</label>
-            <input 
-              *ngIf="!isEditable"
-              type="text" 
-              [value]="data.zipCode" 
-              readonly
-              class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pointer-events-none cursor-default">
-            <div *ngIf="isEditable">
-              <input 
-                type="text" 
-                formControlName="zipCode" 
-                placeholder="Enter zip code"
-                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('zipCode')?.touched && !editClientForm.get('zipCode')?.valid">
-              <p *ngIf="editClientForm.get('zipCode')?.touched && !editClientForm.get('zipCode')?.valid" 
-                 class="text-xs text-destructive mt-1">
-                Must have 5 characters and only numbers.
-              </p>
-            </div>
-          </div>
-
-          <!-- Currency Field -->
+          <!-- currencyId - commented out, easy to restore -->
+          <!--
           <div class="space-y-2">
             <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Invoice Currency</label>
-            <input 
+            <input
               *ngIf="!isEditable"
-              type="text" 
-              [value]="data.currency.name" 
+              type="text"
+              [value]="data.currency?.name"
               readonly
-              class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+              class="flex h-10 w-full rounded-md border border-input bg-muted/20 px-3 py-2 text-sm ring-offset-background">
             <div *ngIf="isEditable">
-              <select 
-                formControlName="currencyId" 
-                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                [class.border-destructive]="editClientForm.get('currencyId')?.touched && !editClientForm.get('currencyId')?.valid">
+              <select
+                formControlName="currencyId"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                 @for(currency of currencyService.getCurrencyList(); track currency){
                   <option [value]="currency.id">{{ currency.name }}</option>
                 }
               </select>
-              <p *ngIf="editClientForm.get('currencyId')?.touched && !editClientForm.get('currencyId')?.valid" 
-                 class="text-xs text-destructive mt-1">
-                Must select a currency.
-              </p>
             </div>
           </div>
+          -->
         </div>
       </div>
     </form>
@@ -250,7 +291,7 @@
       </svg>
       Close
     </ui-button>
-    
+
     @if(!isEditable){
       <ui-button class="ml-3" (onClick)="editClient()">
         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

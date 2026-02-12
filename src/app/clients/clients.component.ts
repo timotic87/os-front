@@ -149,7 +149,7 @@ export class ClientsComponent implements OnInit{
     this.dialogService.showChooseDialog("Da li ste sigurni da zelite da obrisete ovog klijenta").afterClosed().subscribe(isYes=>{
       if (isYes){
         let data = {clientId: client.id, socketData: undefined}
-        data.socketData = {userId: this.userService.getUser().id, userName: this.userService.getUser().fullName ,clientName: client.name}
+        data.socketData = {userId: this.userService.getUser().id, userName: this.userService.getUser().fullName ,clientName: client.customerName}
         this.clientService.deleteClientById(data);
       }
     })

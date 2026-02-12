@@ -69,7 +69,7 @@ export class DocumentatonComponent {
   send(){
     let formParams = new FormData();
     formParams.append('file', this.file as File);
-    formParams.set('filePath', this.client.name);
+    formParams.set('filePath', this.client.customerName);
     formParams.set('fileName', this.formGroup.get('fileName').value);
     formParams.set('startDate', this.formGroup.get('startDate').value);
     formParams.set('endDate', this.formGroup.get('endDate').value);

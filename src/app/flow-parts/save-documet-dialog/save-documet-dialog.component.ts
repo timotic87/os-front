@@ -88,7 +88,7 @@ export class SaveDocumetDialogComponent implements OnInit, OnDestroy {
     
     let formParams = new FormData();
     formParams.append('file', file as File);
-    formParams.set('filePath', deal.client.name);
+    formParams.set('filePath', deal.client.customerName);
     formParams.set('fileName', finalFileName);
     formParams.set('clientId', (deal.client.id).toString());
     formParams.set('dealID', (deal.ID).toString());

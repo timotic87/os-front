@@ -43,7 +43,7 @@
                  [ngClass]="createDealForm.get('client').touched && !createDealForm.get('client').valid ? 'border-red-500':''" autocomplete="new-country" placeholder="Type for search...">
           <mat-autocomplete #autoClient="matAutocomplete">
             @for (client of currentClientList; track client){
-              <mat-option [value]="client.name" (click)="onClientClick(client)">{{client.name}}</mat-option>
+              <mat-option [value]="client.customerName" (click)="onClientClick(client)">{{client.customerName}}</mat-option>
             }
           </mat-autocomplete>
         </div>

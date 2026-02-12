@@ -116,10 +116,10 @@
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary flex-shrink-0">
-                      {{ client.name.charAt(0).toUpperCase() }}
+                      {{ client.customerName.charAt(0).toUpperCase() }}
                     </div>
                     <div class="flex flex-col min-w-0 flex-1">
-                      <span class="font-medium text-foreground truncate">{{ client.name }}</span>
+                      <span class="font-medium text-foreground truncate">{{ client.customerName }}</span>
                       <span class="text-xs text-muted-foreground">ID: {{ client.id }}</span>
                     </div>
                   </div>
@@ -131,8 +131,8 @@
                   <span class="truncate block">{{ client.address || 'Not provided' }}</span>
                 </td>
                 <td class="px-6 py-4">
-                  <span *ngIf="client.mail" class="truncate block text-foreground">{{ client.mail }}</span>
-                  <span *ngIf="!client.mail" class="text-muted-foreground text-sm">Not provided</span>
+                  <span *ngIf="client.email" class="truncate block text-foreground">{{ client.email }}</span>
+                  <span *ngIf="!client.email" class="text-muted-foreground text-sm">Not provided</span>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center justify-end gap-0.5">

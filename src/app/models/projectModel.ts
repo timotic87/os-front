@@ -4,8 +4,9 @@ import {ServiceModel} from "./serviceModel";
 import {SubserviceModel} from "./subserviceModel";
 import {UserModel} from "./userModel";
 import {ErCred} from "./erCred";
-import {CountryModel} from "./countryModel";
-import {CurrencyModel} from "./currencyModel";
+// CountryModel and CurrencyModel no longer used for Client - country is now ISO code string
+// import {CountryModel} from "./countryModel";
+// import {CurrencyModel} from "./currencyModel";
 
 export class ProjectModel {
   private _ID: number;
@@ -103,10 +104,9 @@ export class ProjectModel {
   public static createProjectModel(data: any){
     const erc = new ErCred(data.ercID, data.ercUserName, data.ercMDPASS)
     const le = new LegalEntityModel(data.legalEntityID, data.leName, erc, data.leToken, data.leShortName, data.franchise_fee)
-    const country = new CountryModel(data.countryID, data.countryName);
-    const currencyClient = new CurrencyModel(data.currencyId, data.currencyName, data.nbsCode);
-    const client = new ClientModel(data.clientID, data.clientName, data.clientAddress,
-      data.clientCity, country, data.clientPib, data.clientMb, data.clientZipCode, data.clientMail, currencyClient)
+    const client = new ClientModel(data.clientID, data.customerNo || '', data.clientName, data.clientAddress,
+      data.clientCity, data.clientCountry || '', data.clientPib, data.clientMb, data.clientZipCode, data.clientMail,
+      data.clientEmailInFinance || '', data.clientPhoneInFinance || '')
     const service = new ServiceModel(data.serviceID, data.serviceName)
     const subservice = new SubserviceModel(data.subserviceID, data.subserviceName, data.serviceID, data.serviceName, data.subserviceTypeID)
     const creatorUser = UserModel.createUserModelDva({unitID: data.CUnitID, unitName: data.cUnitName, departmentID: data.cDepartmentID, departmentName: data.cDepartmentName,
