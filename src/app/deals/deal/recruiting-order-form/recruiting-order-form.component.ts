@@ -197,15 +197,11 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    * Initialize the reactive form
    */
   private initializeForm(): void {
-    // Generate auto order number with timestamp
-    const autoOrderNumber = `RO-${Date.now()}`;
-
     this.orderForm = this.fb.group({
       // Order details
-      orderNumber: [autoOrderNumber, [Validators.required, Validators.minLength(1)]],
       clientName: [{value: this.deal?.client?.customerName || '', disabled: true}],
-      description: [''], // Remove maxLength validator as it's optional
-      numberOfPositions: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
+      isUmbrella: [false],
+      description: [''],
 
       // Positions array
       positions: this.fb.array([])
@@ -235,7 +231,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   private updateFormDisabledState(): void {
     if (!this.orderForm) return;
 
-    const controls = ['orderNumber', 'description', 'numberOfPositions'];
+    const controls = ['isUmbrella', 'description'];
 
     controls.forEach(controlName => {
       const control = this.orderForm.get(controlName);
@@ -257,7 +253,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   private updatePositionDisabledState(positionForm: FormGroup): void {
     const positionControls = [
-      'jobTitle', 'location', 'expectedSalary', 'expectedSalaryType', 'currencyID',
+      'jobTitle', 'location', 'numberOfPeople', 'expectedSalary', 'expectedSalaryType', 'currencyID',
       'feeTypesId', 'feeAmount', 'feeCurrencyID', 'feePercentage', 'feeMultiplier', 'feeSalaryType',
       'extraFeeTypeID', 'extraFeeType', 'extraFeeAmount', 'extraFeeCurrencyID',
       'extraFeePercentage', 'extraFeeMultiplier', 'notes'
@@ -285,12 +281,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   get isBasicFormValid(): boolean {
     if (!this.orderForm) return false;
-    const orderNumberValid = this.orderForm.get('orderNumber')?.valid ?? false;
-    const numberOfPositionsValid = this.orderForm.get('numberOfPositions')?.valid ?? false;
-    const descriptionValid = this.orderForm.get('description')?.valid ?? false;
-    // Skip clientName validation since it's disabled
-
-    return orderNumberValid && numberOfPositionsValid && descriptionValid;
+    return true;
   }
 
   /**
@@ -346,6 +337,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     return this.fb.group({
       jobTitle: ['', [Validators.required, Validators.minLength(2)]],
       location: ['', [Validators.required, Validators.minLength(2)]],
+      numberOfPeople: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
       expectedSalary: [0, [Validators.required, Validators.min(0)]],
       expectedSalaryType: [this.defaultSalaryTypeID, [Validators.required]],
       currencyID: [this.defaultCurrencyID, [Validators.required]],
@@ -595,10 +587,9 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     
     return {
       dealID: this.deal.ID,
-      orderNumber: formValue.orderNumber,
-      clientName: this.deal?.client?.customerName || '', // Get from deal since field is disabled
+      isUmbrella: formValue.isUmbrella || false,
+      clientName: this.deal?.client?.customerName || '',
       description: formValue.description,
-      numberOfPositions: formValue.numberOfPositions,
       positions: formValue.positions.map((pos: any) => {
         const extraFeeTypeName = this.getExtraFeeTypeName(pos.extraFeeTypeID);
         const isExtraFeeNone = extraFeeTypeName === 'NONE';
@@ -630,6 +621,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
         return {
           jobTitle: pos.jobTitle,
           location: pos.location,
+          numberOfPeople: toNumber(pos.numberOfPeople) || 1,
           expectedSalary: toNumber(pos.expectedSalary),
           expectedSalaryType: toNumber(pos.expectedSalaryType),
           currencyID: toNumber(pos.currencyID),

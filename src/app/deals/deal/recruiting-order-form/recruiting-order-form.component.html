@@ -15,21 +15,7 @@
         </ui-card-description>
       </ui-card-header>
       <ui-card-content class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Order Number -->
-          <div class="space-y-2">
-            <ui-label for="orderNumber">Order Number *</ui-label>
-            <ui-input
-              id="orderNumber"
-              formControlName="orderNumber"
-              placeholder="Will be auto-generated"
-              [class.border-red-500]="hasError('orderNumber')">
-            </ui-input>
-            <div *ngIf="hasError('orderNumber')" class="text-red-500 text-sm">
-              {{ getErrorMessage('orderNumber') }}
-            </div>
-          </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Client Name -->
           <div class="space-y-2">
             <ui-label for="clientName">Client Name</ui-label>
@@ -39,20 +25,15 @@
               placeholder="Client name">
             </ui-input>
           </div>
-          
-          <!-- Number of Positions -->
-          <div class="space-y-2">
-            <ui-label for="numberOfPositions">Number of Positions *</ui-label>
-            <ui-input
-              id="numberOfPositions"
-              type="number"
-              formControlName="numberOfPositions"
-              placeholder="e.g. 1"
-              [class.border-red-500]="hasError('numberOfPositions')">
-            </ui-input>
-            <div *ngIf="hasError('numberOfPositions')" class="text-red-500 text-sm">
-              {{ getErrorMessage('numberOfPositions') }}
-            </div>
+
+          <!-- Umbrella Order -->
+          <div class="space-y-2 flex items-center gap-3 pt-6">
+            <input
+              type="checkbox"
+              id="isUmbrella"
+              formControlName="isUmbrella"
+              class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <ui-label for="isUmbrella" class="cursor-pointer">Umbrella Order</ui-label>
           </div>
         </div>
 
@@ -131,7 +112,7 @@
             </div>
 
             <!-- Basic Position Information -->
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
               <!-- Job Title -->
               <div>
                 <ui-label [for]="'jobTitle' + i" class="block text-sm font-medium mb-2">Job Title *</ui-label>
@@ -157,6 +138,21 @@
                 </ui-input>
                 <div *ngIf="hasError('location', i)" class="text-red-500 text-sm mt-1">
                   {{ getErrorMessage('location', i) }}
+                </div>
+              </div>
+
+              <!-- Headcount -->
+              <div>
+                <ui-label [for]="'numberOfPeople' + i" class="block text-sm font-medium mb-2">Headcount *</ui-label>
+                <ui-input
+                  [id]="'numberOfPeople' + i"
+                  type="number"
+                  formControlName="numberOfPeople"
+                  placeholder="e.g. 1"
+                  [class.border-red-500]="hasError('numberOfPeople', i)">
+                </ui-input>
+                <div *ngIf="hasError('numberOfPeople', i)" class="text-red-500 text-sm mt-1">
+                  {{ getErrorMessage('numberOfPeople', i) }}
                 </div>
               </div>
 
@@ -306,9 +302,9 @@
                 </div>
               </div>
 
-              <!-- Extra Fee Type Selection -->
+              <!-- Additional Fee Type Selection -->
               <div class="mb-4">
-                <ui-label [for]="'extraFeeTypeID' + i" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+                <ui-label [for]="'extraFeeTypeID' + i" class="block text-sm font-medium mb-2">Additional Fee Type</ui-label>
                 <select 
                   [id]="'extraFeeTypeID' + i"
                   formControlName="extraFeeTypeID"
@@ -323,10 +319,10 @@
                 </div>
               </div>
 
-              <!-- Extra Fee Configuration -->
+              <!-- Additional Fee Configuration -->
               <div *ngIf="position.get('extraFeeTypeID')?.value && getExtraFeeTypeName(position.get('extraFeeTypeID')?.value) !== 'NONE'" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
-                  <ui-label [for]="'extraFeeType' + i" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+                  <ui-label [for]="'extraFeeType' + i" class="block text-sm font-medium mb-2">Additional Fee Type</ui-label>
                   <select 
                     [id]="'extraFeeType' + i"
                     formControlName="extraFeeType"
@@ -338,9 +334,9 @@
                   </select>
                 </div>
 
-                <!-- Extra Fee Amount (for fixed type) -->
+                <!-- Additional Fee Amount (for fixed type) -->
                 <div *ngIf="position.get('extraFeeType')?.value === 'fixed'">
-                  <ui-label [for]="'extraFeeAmount' + i" class="block text-sm font-medium mb-2">Extra Fee Amount</ui-label>
+                  <ui-label [for]="'extraFeeAmount' + i" class="block text-sm font-medium mb-2">Additional Fee Amount</ui-label>
                   <ui-input
                     [id]="'extraFeeAmount' + i"
                     type="number"
@@ -353,9 +349,9 @@
                   </div>
                 </div>
 
-                <!-- Extra Fee Currency (for fixed type) -->
+                <!-- Additional Fee Currency (for fixed type) -->
                 <div *ngIf="position.get('extraFeeType')?.value === 'fixed'">
-                  <ui-label [for]="'extraFeeCurrencyID' + i" class="block text-sm font-medium mb-2">Extra Fee Currency</ui-label>
+                  <ui-label [for]="'extraFeeCurrencyID' + i" class="block text-sm font-medium mb-2">Additional Fee Currency</ui-label>
                   <select 
                     [id]="'extraFeeCurrencyID' + i"
                     formControlName="extraFeeCurrencyID"
@@ -369,9 +365,9 @@
                   </div>
                 </div>
 
-                <!-- Extra Fee Percentage (for percentage type) -->
+                <!-- Additional Fee Percentage (for percentage type) -->
                 <div *ngIf="position.get('extraFeeType')?.value === 'percentage'">
-                  <ui-label [for]="'extraFeePercentage' + i" class="block text-sm font-medium mb-2">Extra Fee Percentage</ui-label>
+                  <ui-label [for]="'extraFeePercentage' + i" class="block text-sm font-medium mb-2">Additional Fee Percentage</ui-label>
                   <ui-input
                     [id]="'extraFeePercentage' + i"
                     type="number"
@@ -385,9 +381,9 @@
                 </div>
 
 
-                <!-- Extra Fee Multiplier (for multiplier type) -->
+                <!-- Additional Fee Multiplier (for multiplier type) -->
                 <div *ngIf="position.get('extraFeeType')?.value === 'multiplier'">
-                  <ui-label [for]="'extraFeeMultiplier' + i" class="block text-sm font-medium mb-2">Extra Fee Multiplier</ui-label>
+                  <ui-label [for]="'extraFeeMultiplier' + i" class="block text-sm font-medium mb-2">Additional Fee Multiplier</ui-label>
                   <ui-input
                     [id]="'extraFeeMultiplier' + i"
                     type="number"

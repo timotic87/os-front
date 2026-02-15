@@ -22,6 +22,9 @@
           <ui-badge [variant]="'outline'" class="text-xs">
             {{ data.order.status?.name || 'Active' }}
           </ui-badge>
+          <ui-badge *ngIf="data.order.is_umbrella" [variant]="'secondary'" class="text-xs ml-2">
+            Umbrella
+          </ui-badge>
         </div>
         <div class="info-item">
           <span class="info-label">Client:</span>
@@ -117,7 +120,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               <span>
-                <strong>Extra Fee:</strong> 
+                <strong>Additional Fee:</strong> 
                 {{ position.extra_fee_amount | number:'1.0-2' }} {{ position.extraFeeCurrency?.name || getCurrencySymbol(position.extra_fee_currency_id) }}
                 <span class="text-muted"> ({{ position.extraFeeType?.name || 'Fixed' }})</span>
               </span>
@@ -129,7 +132,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               <span>
-                <strong>Extra Fee:</strong> {{ position.extra_fee_amount }}% of expected fee
+                <strong>Additional Fee:</strong> {{ position.extra_fee_amount }}% of expected fee
                 <span class="text-muted"> ({{ position.extraFeeType?.name || 'Extra' }})</span>
               </span>
             </div>
@@ -140,7 +143,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               <span>
-                <strong>Extra Fee:</strong> {{ position.extra_fee_amount }}x expected fee
+                <strong>Additional Fee:</strong> {{ position.extra_fee_amount }}x expected fee
                 <span class="text-muted"> ({{ position.extraFeeType?.name || 'Extra' }})</span>
               </span>
             </div>
