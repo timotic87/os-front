@@ -16,14 +16,14 @@
         <div class="info-item">
           <span class="info-label">Order Number:</span>
           <span class="info-value">{{ data.order.order_number }}</span>
+          <ui-badge *ngIf="data.order.is_umbrella" [variant]="'secondary'" class="text-xs ml-2">
+            Umbrella
+          </ui-badge>
         </div>
         <div class="info-item">
           <span class="info-label">Status:</span>
           <ui-badge [variant]="'outline'" class="text-xs">
             {{ data.order.status?.name || 'Active' }}
-          </ui-badge>
-          <ui-badge *ngIf="data.order.is_umbrella" [variant]="'secondary'" class="text-xs ml-2">
-            Umbrella
           </ui-badge>
         </div>
         <div class="info-item">

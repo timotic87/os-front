@@ -262,6 +262,9 @@
               <div>
                 <span class="text-muted-foreground">Order Number:</span>
                 <span class="ml-2 font-medium">{{ recruitingOrder.order_number }}</span>
+                <ui-badge *ngIf="recruitingOrder.is_umbrella" [variant]="'secondary'" class="text-xs ml-2">
+                  Umbrella
+                </ui-badge>
               </div>
               <div>
                 <span class="text-muted-foreground">Status:</span>
@@ -273,7 +276,7 @@
               </div>
               <div>
                 <span class="text-muted-foreground">Client:</span>
-                <span class="ml-2 font-medium">{{ recruitingOrder.deal?.client?.name || 'N/A' }}</span>
+                <span class="ml-2 font-medium">{{ recruitingOrder.deal?.client?.customerName || 'N/A' }}</span>
               </div>
             </div>
           </div>
