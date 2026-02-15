@@ -203,7 +203,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     this.orderForm = this.fb.group({
       // Order details
       orderNumber: [autoOrderNumber, [Validators.required, Validators.minLength(1)]],
-      clientName: [{value: this.deal?.client?.name || '', disabled: true}], // Remove required validator for disabled field
+      clientName: [{value: this.deal?.client?.customerName || '', disabled: true}],
       description: [''], // Remove maxLength validator as it's optional
       numberOfPositions: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
 
@@ -596,7 +596,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     return {
       dealID: this.deal.ID,
       orderNumber: formValue.orderNumber,
-      clientName: this.deal?.client?.name || '', // Get from deal since field is disabled
+      clientName: this.deal?.client?.customerName || '', // Get from deal since field is disabled
       description: formValue.description,
       numberOfPositions: formValue.numberOfPositions,
       positions: formValue.positions.map((pos: any) => {
@@ -611,17 +611,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
           return isNaN(num) ? null : num;
         };
 
-        // Map percentage/multiplier to feeAmount field (backend expects feeAmount for all types)
-        let feeAmountValue = null;
-        if (feeTypeName.includes('fixed')) {
-          feeAmountValue = toNumber(pos.feeAmount);
-        } else if (feeTypeName.includes('percentage')) {
-          feeAmountValue = toNumber(pos.feePercentage);
-        } else if (feeTypeName.includes('multiplier')) {
-          feeAmountValue = toNumber(pos.feeMultiplier);
-        }
-
-        // Map extra fee percentage/multiplier to extraFeeAmount field
+        // Map extra fee fields
         let extraFeeAmountValue = null;
         let extraFeeCalculationType = null;
         if (!isExtraFeeNone) {
@@ -644,8 +634,10 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
           expectedSalaryType: toNumber(pos.expectedSalaryType),
           currencyID: toNumber(pos.currencyID),
           feeTypesId: toNumber(pos.feeTypesId),
-          feeAmount: feeAmountValue,
+          feeAmount: feeTypeName.includes('fixed') ? toNumber(pos.feeAmount) : null,
           feeCurrencyID: feeTypeName.includes('fixed') ? toNumber(pos.feeCurrencyID) : null,
+          feePercentage: feeTypeName.includes('percentage') ? toNumber(pos.feePercentage) : null,
+          feeMultiplier: feeTypeName.includes('multiplier') ? toNumber(pos.feeMultiplier) : null,
           extraFeeTypeID: toNumber(pos.extraFeeTypeID),
           extraFeeAmount: extraFeeAmountValue,
           extraFeeCurrencyID: (!isExtraFeeNone && pos.extraFeeType === 'fixed') ? toNumber(pos.extraFeeCurrencyID) : null,

@@ -25,7 +25,7 @@
         </div>
         <div class="info-item">
           <span class="info-label">Client:</span>
-          <span class="info-value">{{ data.order.deal?.client?.name || 'N/A' }}</span>
+          <span class="info-value">{{ data.order.deal?.client?.customerName || 'N/A' }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Created:</span>
@@ -97,7 +97,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
               </svg>
               <span>
-                <strong>Fee:</strong> {{ position.fee_percentage || position.fee_amount }}% of {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
+                <strong>Fee:</strong> {{ position.fee_percentage }}% of {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
               </span>
             </div>
 
@@ -107,7 +107,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
               </svg>
               <span>
-                <strong>Fee:</strong> {{ position.fee_multiplier || position.fee_amount }}x {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
+                <strong>Fee:</strong> {{ position.fee_multiplier }}x {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
               </span>
             </div>
 
