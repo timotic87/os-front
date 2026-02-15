@@ -104,8 +104,8 @@ export class CreateDealDialogComponent implements OnInit {
           this.dialogRef.close(res.status);
         }
       });
-
-
+      } else {
+        this.createDealForm.markAllAsTouched();
       }
 
   }
