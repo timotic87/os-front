@@ -56,9 +56,9 @@ export class DocumentRegrutingCardComponent {
   }
 
   submitDocument(){
-    this.dialogService.showChooseDialog("Da li je ovo krovna ponuda?").afterClosed().subscribe(isYes=>{
+    this.dialogService.showChooseDialog("Is this an umbrella offer?").afterClosed().subscribe(isYes=>{
       if (isYes){
-        this.dialogService.showChooseDialog('Da li siguran da zelis da pokrenes approval').afterClosed().subscribe(isYes=>{
+        this.dialogService.showChooseDialog('Are you sure you want to start the approval process?').afterClosed().subscribe(isYes=>{
           if (isYes){
             this.documentService.startApproval(this.documentService.activeDocument.ID, this.approvalID, this.documentService.activeDocument.dealID);
             return;

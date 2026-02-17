@@ -6,14 +6,21 @@ import {Router} from "@angular/router";
 import { Storage, ref, uploadBytesResumable, getDownloadURL } from '@angular/fire/storage';
 import {Observable} from "rxjs";
 import {RestService} from "../services/rest.service";
-import {DatePipe} from "@angular/common";
 
+import { ButtonComponent } from '../shared/components/ui/button/button.component';
+import { CardComponent, CardHeaderComponent, CardTitleComponent, CardContentComponent } from '../shared/components/ui/card/card.component';
+import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [
-    DatePipe
+    ButtonComponent,
+    CardComponent,
+    CardHeaderComponent,
+    CardTitleComponent,
+    CardContentComponent,
+    BadgeComponent
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -21,29 +28,31 @@ import {DatePipe} from "@angular/common";
 export class ProfileComponent {
 
   uploadProgress$: Observable<number | undefined> | undefined;
-
   urlPic = null;
+  progress = 0;
 
-  progress = 0
-
-  dealList;
-
-  constructor(private dialogService: DialogService, public userService: UserService, private cookieService: CookieService, private router: Router, private storage: Storage, private rest: RestService) {
-    this.urlPic=userService.getUser().picUrl
-    this.getMyDeals();
+  constructor(
+    private dialogService: DialogService,
+    public userService: UserService,
+    private cookieService: CookieService,
+    private router: Router,
+    private storage: Storage,
+    private rest: RestService
+  ) {
+    this.urlPic = userService.getUser().picUrl;
   }
 
-onChangePassClick(){
-    this.dialogService.showMsgDialog('Coming soon!')
+  onChangePassClick() {
+    this.dialogService.showMsgDialog('Coming soon!');
   }
 
-  onLogoutClick(){
+  onLogoutClick() {
     this.cookieService.delete('jwt');
-    this.router.navigate(['login'])
+    this.router.navigate(['login']);
   }
 
   uploadFile(event: any): void {
-    this.dialogService.showLoader()
+    this.dialogService.showLoader();
     const file = event.target.files[0];
     const user = this.userService.getUser();
     const filePath = `uploads/${user.fullName}`;
@@ -60,19 +69,18 @@ onChangePassClick(){
           if (this.progress === 100) {
             getDownloadURL(fileRef).then(url => {
               this.rest.changePicUrl({ picUrl: url, userId: user.id }).subscribe(res => {
-                console.log(res);
                 if (res.status !== 201) {
                   this.dialogService.errorDialog(res);
                 } else {
                   this.userService.updatePicUrl(url);
                   this.urlPic = this.userService.getUser().picUrl;
-                  this.dialogService.closeLoader()
+                  this.dialogService.closeLoader();
                   window.location.reload();
                 }
               });
             }).catch(error => {
               observer.error(error);
-              this.dialogService.closeLoader()
+              this.dialogService.closeLoader();
               this.dialogService.errorDialog(error);
             });
           }
@@ -81,35 +89,13 @@ onChangePassClick(){
           observer.error(error);
           this.dialogService.errorDialog(error);
         },
-        () => {
-          observer.complete();
-        }
+        () => { observer.complete(); }
       );
     });
 
     this.uploadProgress$.subscribe({
-      next: (progress) => console.log(`Upload progress: ${progress}%`),
       error: (error) => console.error('Upload failed', error),
-      complete: () => console.log('Upload complete')
+      complete: () => {}
     });
   }
-
-  getMyDeals(){
-    this.dialogService.showLoader();
-    this.rest.getDealsByEntityAccess().subscribe({
-      next: res=>{
-        this.dialogService.closeLoader();
-        this.dealList = res.data;
-      },
-      error: err=>{
-        this.dialogService.closeLoader();
-        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
-      }
-    })
-  }
-
-  onDealClick(deal){
-      this.router.navigate([`/deal/${deal.ID}`]);
-  }
-
 }

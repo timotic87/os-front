@@ -1,0 +1,160 @@
+<div class="invoice-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="text-xl font-semibold">{{ getTitle() }}</h2>
+    <button class="close-button" (click)="close()" aria-label="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Position Info Bar -->
+    <div class="position-info-bar">
+      <div class="flex items-center gap-3 text-sm">
+        <span class="font-mono text-muted-foreground">{{ position.position_number }}</span>
+        <span class="font-semibold text-foreground">{{ position.position_name }}</span>
+        <ui-badge variant="outline" class="text-xs">{{ getFeeConfigLabel() }}</ui-badge>
+      </div>
+      <div class="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+        <span>Filled: {{ position.number_filled || 0 }} / {{ position.number_of_people }}</span>
+        <span *ngIf="position.expected_salary">Expected Salary: {{ position.expected_salary | number:'1.0-2' }}</span>
+      </div>
+    </div>
+
+    <form [formGroup]="invoiceForm" *ngIf="invoiceForm">
+
+      <!-- Candidate Name (only for placement) -->
+      <div *ngIf="mode === 'placement'" class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <ui-label for="candidate_first_name" class="block text-sm font-medium mb-2">Candidate First Name *</ui-label>
+          <ui-input
+            id="candidate_first_name"
+            formControlName="candidate_first_name"
+            placeholder="First name"
+            [class.border-red-500]="hasError('candidate_first_name')">
+          </ui-input>
+          <div *ngIf="hasError('candidate_first_name')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('candidate_first_name') }}
+          </div>
+        </div>
+        <div>
+          <ui-label for="candidate_last_name" class="block text-sm font-medium mb-2">Candidate Last Name *</ui-label>
+          <ui-input
+            id="candidate_last_name"
+            formControlName="candidate_last_name"
+            placeholder="Last name"
+            [class.border-red-500]="hasError('candidate_last_name')">
+          </ui-input>
+          <div *ngIf="hasError('candidate_last_name')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('candidate_last_name') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Salary Section -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <ui-label for="salary_amount" class="block text-sm font-medium mb-2">
+            {{ mode === 'cancel_fee' ? 'Predicted Salary *' : 'Salary Amount *' }}
+          </ui-label>
+          <ui-input
+            id="salary_amount"
+            type="number"
+            formControlName="salary_amount"
+            placeholder="0.00"
+            [class.border-red-500]="hasError('salary_amount')">
+          </ui-input>
+          <div *ngIf="hasError('salary_amount')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('salary_amount') }}
+          </div>
+        </div>
+
+        <div>
+          <ui-label for="salary_type_id" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+          <select
+            id="salary_type_id"
+            formControlName="salary_type_id"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <option [ngValue]="null" disabled>Select salary type</option>
+            <option *ngFor="let st of salaryTypes" [ngValue]="st.ID">{{ st.name }}</option>
+          </select>
+          <div *ngIf="hasError('salary_type_id')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('salary_type_id') }}
+          </div>
+        </div>
+
+        <div>
+          <ui-label for="salary_currency_id" class="block text-sm font-medium mb-2">Currency *</ui-label>
+          <select
+            id="salary_currency_id"
+            formControlName="salary_currency_id"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <option [ngValue]="null" disabled>Select currency</option>
+            <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.name }}</option>
+          </select>
+          <div *ngIf="hasError('salary_currency_id')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('salary_currency_id') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Fee Section -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <ui-label for="final_fee_amount" class="block text-sm font-medium mb-2">Fee Amount *</ui-label>
+          <ui-input
+            id="final_fee_amount"
+            type="number"
+            formControlName="final_fee_amount"
+            placeholder="0.00"
+            (input)="onFeeManualChange()"
+            [class.border-red-500]="hasError('final_fee_amount')">
+          </ui-input>
+          <div *ngIf="hasError('final_fee_amount')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('final_fee_amount') }}
+          </div>
+          <div *ngIf="feeOverridden" class="override-info">
+            <span class="text-amber-500">Overridden</span>
+            <span>(calculated: {{ calculatedFee | number:'1.0-2' }})</span>
+            <button type="button" class="text-primary hover:underline text-xs cursor-pointer" (click)="resetFee()">Reset</button>
+          </div>
+        </div>
+
+        <div>
+          <ui-label for="fee_currency_id" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
+          <select
+            id="fee_currency_id"
+            formControlName="fee_currency_id"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <option [ngValue]="null" disabled>Select currency</option>
+            <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.name }}</option>
+          </select>
+          <div *ngIf="hasError('fee_currency_id')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('fee_currency_id') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="mb-4">
+        <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
+        <ui-textarea
+          id="notes"
+          formControlName="notes"
+          placeholder="Optional notes..."
+          rows="3">
+        </ui-textarea>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <div class="dialog-actions">
+    <ui-button variant="outline" (onClick)="close()">Cancel</ui-button>
+    <ui-button variant="default" (onClick)="submit()" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Saving...' : 'Save Invoice' }}
+    </ui-button>
+  </div>
+</div>

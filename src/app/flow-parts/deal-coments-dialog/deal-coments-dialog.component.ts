@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {DatePipe, NgForOf} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {RestService} from "../../services/rest.service";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {DialogService} from "../../services/dialog.service";
@@ -14,7 +14,6 @@ import {NotificationSocketService} from "../../services/notification-socket.serv
   standalone: true,
   imports: [
     DatePipe,
-    NgForOf,
     ReactiveFormsModule
   ],
   templateUrl: './deal-coments-dialog.component.html',
@@ -29,6 +28,7 @@ export class DealComentsDialogComponent implements OnInit{
   commentArr=[]
 
   createCommentPerm: boolean = false;
+  commentAdded: boolean = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public dealID, private rest: RestService, private dialogService: DialogService,
               private userService: UserService, private dialogRef: MatDialogRef<DealComentsDialogComponent>,
@@ -58,12 +58,14 @@ export class DealComentsDialogComponent implements OnInit{
       this.rest.createDealComment(data).subscribe({
         next: () => {
           this.dialogService.closeLoader();
+          this.commentForm.reset();
+          this.getAllComments();
+          this.commentAdded = true;
         },
         error: err => {
           this.dialogService.closeLoader();
           this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
         }
-
       });
     }else {
 

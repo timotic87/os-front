@@ -14,8 +14,12 @@ import {ApprovalsComponent} from "./admin/adminPages/approvals/approvals.compone
 import {DealsComponent} from "./deals/deals.component";
 import {DealComponent} from "./deals/deal/deal.component";
 import {DocumentsComponent} from "./admin/adminPages/documents/documents.component";
+import {PermissionTemplatesComponent} from "./admin/adminPages/permission-templates/permission-templates.component";
+import {SalaryParamsComponent} from "./admin/adminPages/salary-params/salary-params.component";
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
+import {RecruitingOrderComponent} from "./recruiting-orders/recruiting-order/recruiting-order.component";
+import {RecruitingOrdersComponent} from "./recruiting-orders/recruiting-orders.component";
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -48,6 +52,8 @@ export const routes: Routes = [
       {path: 'services', component: ServicesAndSubservicesComponent, outlet: 'admin'},
       {path: 'approvals', component: ApprovalsComponent, outlet: 'admin'},
       {path: 'documents', component: DocumentsComponent, outlet: 'admin'},
+      {path: 'templates', component: PermissionTemplatesComponent, outlet: 'admin'},
+      {path: 'salary-params', component: SalaryParamsComponent, outlet: 'admin'},
     ]
 
   },
@@ -87,7 +93,33 @@ export const routes: Routes = [
       dialogService.showMsgDialog('You dont have permission');
       return false;
     }]},
-  { path: 'documentview/:id', component: DocumentViewComponent, canActivate: [authGuard] }
+  { path: 'documentview/:id', component: DocumentViewComponent, canActivate: [authGuard] },
+  {path: 'recruiting-orders', component: RecruitingOrdersComponent, canActivate: [authGuard, ()=>{
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+
+      if (userService.can('view_list_recruiting_orders')) {
+        return true;
+      }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
+    }]},
+  {path: 'recruiting-order/:id', component: RecruitingOrderComponent, canActivate: [authGuard, async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+      const id = Number(route.paramMap.get('id'));
+
+      const hasGlobal = userService.can('view_recruiting_order');
+      const hasEntity = await userService.hasEntityAccess('recruiting_order', id);
+
+      if (hasGlobal || hasEntity) {
+        return true;
+      }
+
+      dialogService.showMsgDialog("You don't have permission");
+      return false;
+    }]
+  }
 
 ];
 

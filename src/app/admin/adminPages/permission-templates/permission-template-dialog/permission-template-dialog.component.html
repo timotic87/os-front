@@ -1,0 +1,74 @@
+<div class="w-full bg-background text-foreground p-6 rounded-lg">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+      <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+      </svg>
+    </div>
+    <div>
+      <h2 class="text-xl font-semibold text-foreground">{{ isEdit ? 'Edit Template' : 'Create Template' }}</h2>
+      <p class="text-sm text-muted-foreground">Define a reusable set of permissions</p>
+    </div>
+  </div>
+
+  <div class="border-t border-border mb-6"></div>
+
+  <!-- Name & Description -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div>
+      <label class="block text-sm font-medium text-foreground mb-1.5">Template Name *</label>
+      <input type="text" [(ngModel)]="name" placeholder="e.g. Recruiter, Sales, Manager"
+             class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-foreground mb-1.5">Description</label>
+      <input type="text" [(ngModel)]="description" placeholder="Optional description"
+             class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
+    </div>
+  </div>
+
+  <!-- Permissions Grid -->
+  <div class="max-h-[400px] overflow-y-auto pr-1">
+    <div *ngFor="let section of sections" class="mb-6">
+      <!-- Section Header with toggle all -->
+      <h3 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+        <input type="checkbox"
+               [checked]="isAllChecked(section)"
+               (change)="toggleAll(section, $event)"
+               class="h-4 w-4 rounded border-input text-primary focus:ring-ring cursor-pointer accent-primary">
+        <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+        </svg>
+        {{ section.sectionName }}
+      </h3>
+      <!-- Permissions -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 ml-6">
+        <div *ngFor="let perm of section.permissions" class="flex items-center gap-2.5 py-1.5">
+          <input type="checkbox"
+                 [(ngModel)]="perm.checked"
+                 class="h-4 w-4 rounded border-input text-primary focus:ring-ring focus:ring-offset-background cursor-pointer accent-primary">
+          <label class="text-sm text-foreground cursor-pointer select-none">
+            {{ perm.name }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="border-t border-border mt-6 pt-4">
+    <div class="flex justify-end gap-3">
+      <ui-button variant="outline" (onClick)="closeDialog()">
+        Cancel
+      </ui-button>
+      <ui-button variant="default" (onClick)="onSubmit()">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        {{ isEdit ? 'Update Template' : 'Create Template' }}
+      </ui-button>
+    </div>
+  </div>
+</div>

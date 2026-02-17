@@ -37,30 +37,18 @@ app-notification-side-bar{
   position: fixed;
   right: -400px;
   top: 0;
-  align-items: center;
-  justify-content: start;
   width: 400px;
   height: 100vh;
   z-index: 950;
   transition: right 0.3s ease;
   overflow: hidden;
 }
+
 .sidenav.show {
   right: 0;
 }
 
 .sidenav:hover {
-  overflow: auto; /* Omogućava skrolovanje kada je miš iznad */
-}
-
-.side-header{
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.title{
-  margin: auto;
+  overflow: auto;
 }
 

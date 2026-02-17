@@ -11,6 +11,7 @@ import {PositionModel} from "../../../../models/positionModel";
 import {UnitService} from "../../../../services/unit.service";
 import {PositionService} from "../../../../services/position.service";
 import {DialogService} from "../../../../services/dialog.service";
+import {ButtonComponent} from '../../../../shared/components/ui/button/button.component';
 
 @Component({
   selector: 'app-edit-user',
@@ -22,7 +23,8 @@ import {DialogService} from "../../../../services/dialog.service";
     MatOption,
     NgIf,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    ButtonComponent
   ],
   templateUrl: './edit-user.component.html',
   styleUrl: './edit-user.component.css'

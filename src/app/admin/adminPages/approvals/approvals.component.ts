@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
 import {RestService} from "../../../services/rest.service";
-import {DatePipe} from "@angular/common";
 import {MatDialog} from "@angular/material/dialog";
 import {ApprovalViewEditDialogComponent} from "./approval-view-edit-dialog/approval-view-edit-dialog.component";
 import {ApprovalService} from "../../../services/approval.service";
-import {Subject} from "rxjs";
+import {CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent} from '../../../shared/components/ui/card/card.component';
 
 @Component({
   selector: 'app-approvals',
   standalone: true,
   imports: [
-    DatePipe
+    CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent
   ],
   templateUrl: './approvals.component.html',
   styleUrl: './approvals.component.css'

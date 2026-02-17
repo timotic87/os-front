@@ -3,8 +3,8 @@
   <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-foreground">Projekti</h1>
-        <p class="text-muted-foreground">Upravljanje projektima i njihovim statusom</p>
+        <h1 class="text-3xl font-bold text-foreground">Projects</h1>
+        <p class="text-muted-foreground">Manage projects and their statuses</p>
       </div>
     </div>
   </div>
@@ -13,53 +13,53 @@
   <div class="grid gap-4 md:grid-cols-4">
     <ui-card>
       <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <ui-card-title className="text-sm font-medium">Ukupno projekata</ui-card-title>
+        <ui-card-title className="text-sm font-medium">Total Projects</ui-card-title>
         <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
         </svg>
       </ui-card-header>
       <ui-card-content>
         <div class="text-2xl font-bold">{{ deals?.length || 0 }}</div>
-        <p class="text-xs text-muted-foreground">aktivnih projekata</p>
+        <p class="text-xs text-muted-foreground">active projects</p>
       </ui-card-content>
     </ui-card>
-    
+
     <ui-card>
       <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <ui-card-title className="text-sm font-medium">Dodeljeni</ui-card-title>
+        <ui-card-title className="text-sm font-medium">Assigned</ui-card-title>
         <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </ui-card-header>
       <ui-card-content>
         <div class="text-2xl font-bold text-green-600">{{ getAssignedProjectsCount() }}</div>
-        <p class="text-xs text-muted-foreground">sa dodeljenim administratorom</p>
+        <p class="text-xs text-muted-foreground">with assigned administrator</p>
       </ui-card-content>
     </ui-card>
-    
+
     <ui-card>
       <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <ui-card-title className="text-sm font-medium">Istekli</ui-card-title>
+        <ui-card-title className="text-sm font-medium">Expired</ui-card-title>
         <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </ui-card-header>
       <ui-card-content>
         <div class="text-2xl font-bold text-red-600">{{ getExpiredProjectsCount() }}</div>
-        <p class="text-xs text-muted-foreground">projekata sa isteklim datumom</p>
+        <p class="text-xs text-muted-foreground">projects with expired date</p>
       </ui-card-content>
     </ui-card>
-    
+
     <ui-card>
       <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <ui-card-title className="text-sm font-medium">Nedodeljeni</ui-card-title>
+        <ui-card-title className="text-sm font-medium">Unassigned</ui-card-title>
         <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </ui-card-header>
       <ui-card-content>
         <div class="text-2xl font-bold text-yellow-600">{{ getUnassignedProjectsCount() }}</div>
-        <p class="text-xs text-muted-foreground">bez dodeljenog administratora</p>
+        <p class="text-xs text-muted-foreground">without assigned administrator</p>
       </ui-card-content>
     </ui-card>
   </div>
@@ -67,75 +67,75 @@
   <!-- Filters Section -->
   <ui-card>
     <ui-card-header>
-      <ui-card-title>Filteri za pretraživanje</ui-card-title>
-      <ui-card-description>Filtrirajte projekte po različitim kriterijumima</ui-card-description>
+      <ui-card-title>Search Filters</ui-card-title>
+      <ui-card-description>Filter projects by different criteria</ui-card-description>
     </ui-card-header>
     <ui-card-content>
       <form [formGroup]="filterForm">
         <div class="grid gap-4 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
           <ui-input
-            label="Ime klijenta"
+            label="Client Name"
             type="text"
-            placeholder="Unesite ime klijenta..."
+            placeholder="Enter client name..."
             formControlName="clientName">
           </ui-input>
-          
+
           <ui-input
-            label="Početni datum"
+            label="Start Date"
             type="date"
             formControlName="startDate">
           </ui-input>
-          
+
           <ui-input
-            label="Krajnji datum"
+            label="End Date"
             type="date"
             formControlName="endDate">
           </ui-input>
-          
+
           <ui-input
-            label="BD konsultant"
+            label="BD Consultant"
             type="text"
-            placeholder="Unesite ime konsultanta..."
+            placeholder="Enter consultant name..."
             formControlName="bdConsultant">
           </ui-input>
-          
+
           <ui-input
             label="Administrator"
             type="text"
-            placeholder="Unesite ime administratora..."
+            placeholder="Enter administrator name..."
             formControlName="hrAdmin">
           </ui-input>
-          
+
           <ui-select
-            label="Isteklo"
+            label="Expired"
             formControlName="isExpired">
-            <option value="">Svi</option>
-            <option [value]="true">Da</option>
-            <option [value]="false">Ne</option>
+            <option value="">All</option>
+            <option [value]="true">Yes</option>
+            <option [value]="false">No</option>
           </ui-select>
-          
+
           <ui-select
-            label="Dodeljeno"
+            label="Assigned"
             formControlName="isAssigned">
-            <option value="">Svi</option>
-            <option [value]="true">Da</option>
-            <option [value]="false">Ne</option>
+            <option value="">All</option>
+            <option [value]="true">Yes</option>
+            <option [value]="false">No</option>
           </ui-select>
         </div>
-        
+
         <div class="flex items-center gap-4 mt-6">
           <ui-button type="button" (onClick)="clearFilters()" variant="outline">
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
-            Obriši filtere
+            Clear Filters
           </ui-button>
-          
+
           <ui-button type="button" (onClick)="applyFilters()">
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            Pretraži
+            Search
           </ui-button>
         </div>
       </form>
@@ -145,21 +145,21 @@
   <!-- Projects Table -->
   <ui-card>
     <ui-card-header>
-      <ui-card-title>Lista projekata</ui-card-title>
-      <ui-card-description>Svi aktivni projekti sa osnovnim informacijama</ui-card-description>
+      <ui-card-title>Project List</ui-card-title>
+      <ui-card-description>All active projects with basic information</ui-card-description>
     </ui-card-header>
     <ui-card-content className="p-0">
       <ui-table>
         <ui-table-header>
           <ui-table-row>
             <ui-table-head>ID</ui-table-head>
-            <ui-table-head>Ime klijenta</ui-table-head>
-            <ui-table-head>Početni datum</ui-table-head>
-            <ui-table-head>Krajnji datum</ui-table-head>
-            <ui-table-head>BD konsultant</ui-table-head>
+            <ui-table-head>Client Name</ui-table-head>
+            <ui-table-head>Start Date</ui-table-head>
+            <ui-table-head>End Date</ui-table-head>
+            <ui-table-head>BD Consultant</ui-table-head>
             <ui-table-head>Administrator</ui-table-head>
             <ui-table-head>Status</ui-table-head>
-            <ui-table-head className="text-right">Akcije</ui-table-head>
+            <ui-table-head className="text-right">Actions</ui-table-head>
           </ui-table-row>
         </ui-table-header>
         <ui-table-body>
@@ -178,7 +178,7 @@
                 @if (deal.isExpired) {
                   <span class="text-red-500">{{ deal.endDate | date: "dd.MM.yyyy" }}</span>
                 } @else {
-                  <ui-badge variant="success">Aktivno</ui-badge>
+                  <ui-badge variant="success">Active</ui-badge>
                 }
               </ui-table-cell>
               <ui-table-cell>{{ deal.bdFirstName + ' ' + deal.bdLastName }}</ui-table-cell>
@@ -191,18 +191,18 @@
                     {{ deal.hraFirstName + ' ' + deal.hraLastName }}
                   </div>
                 } @else {
-                  <ui-badge variant="destructive">Nedodeljeno</ui-badge>
+                  <ui-badge variant="destructive">Unassigned</ui-badge>
                 }
               </ui-table-cell>
               <ui-table-cell>
-                <ui-badge variant="success">Aktivan</ui-badge>
+                <ui-badge variant="success">Active</ui-badge>
               </ui-table-cell>
               <ui-table-cell className="text-right">
                 <ui-button variant="ghost" size="sm" (onClick)="addAdmin(deal, $event)">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                   </svg>
-                  <span class="sr-only">Dodeli administratora</span>
+                  <span class="sr-only">Assign Administrator</span>
                 </ui-button>
               </ui-table-cell>
             </ui-table-row>
@@ -214,8 +214,8 @@
                   <svg class="h-12 w-12 mb-4 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                   </svg>
-                  <p class="text-lg font-medium">Nema projekata</p>
-                  <p class="text-sm">Promenite filtere ili dodajte novi projekat</p>
+                  <p class="text-lg font-medium">No projects found</p>
+                  <p class="text-sm">Change filters or add a new project</p>
                 </div>
               </ui-table-cell>
             </ui-table-row>

@@ -1,65 +1,54 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {ColorLabelComponent} from "../color-label/color-label.component";
-import {DatePipe, NgIf} from "@angular/common";
+import {Component, Input} from '@angular/core';
+import {DatePipe} from "@angular/common";
+import {Router} from "@angular/router";
 import {RestService} from "../../services/rest.service";
-import {DialogService} from "../../services/dialog.service";
 import {NotificationStoreService} from "../../services/notification-store-service.service";
 
 @Component({
   selector: 'app-notification-card',
   standalone: true,
-  imports: [
-    ColorLabelComponent,
-    DatePipe,
-    NgIf
-  ],
+  imports: [DatePipe],
   templateUrl: './notification-card.component.html',
   styleUrl: './notification-card.component.css'
 })
-export class NotificationCardComponent implements OnInit {
+export class NotificationCardComponent {
 
   @Input() notification: any;
 
-  constructor(private rest: RestService, private dialogService: DialogService, private notificationStoreService: NotificationStoreService) {
-
-  }
+  constructor(private rest: RestService, private notificationStoreService: NotificationStoreService, private router: Router) {}
 
   changeIsRead(id) {
     this.rest.markAsRead({id}).subscribe({
-      next: res=>{
-        this.notification.isRead=true;
-        this.notificationStoreService.markNotificationAsRead(id)
+      next: () => {
+        this.notification.isRead = true;
+        this.notificationStoreService.markNotificationAsRead(id);
       },
-      error: err => {
-        console.log(err)
-      }
-    })
-
+      error: err => { console.error(err); }
+    });
   }
 
-  flaggedChange(id){
+  flaggedChange(id) {
     this.rest.changeNotificationFlaggedStatus({id}).subscribe({
-      next: res=>{
-        this.notification.flagged = res.data
+      next: res => {
+        this.notification.flagged = res.data;
+        this.notificationStoreService.resortNotifications();
       },
-      error: err => {
-        console.log(err)
-      }
-    })
+      error: err => { console.error(err); }
+    });
   }
 
   deleteNotification() {
     this.rest.deleteNotificationById(this.notification.id).subscribe({
-      next: ()=>{
-        this.notificationStoreService.removeNotification(this.notification.id)
-      },
-      error: err => {
-        console.log(err);
-      }
-    })
+      next: () => { this.notificationStoreService.removeNotification(this.notification.id); },
+      error: err => { console.error(err); }
+    });
   }
 
-  ngOnInit(): void {
+  navigateToLink() {
+    if (this.notification.link) {
+      this.notificationStoreService.toggleValue = false;
+      this.notificationStoreService.toggleNotificationBar.next(false);
+      this.router.navigateByUrl(this.notification.link);
+    }
   }
-
 }

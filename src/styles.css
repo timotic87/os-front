@@ -281,3 +281,99 @@ app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator:hove
   color: rgb(156, 163, 175) !important;
 }
 
+/* Dark mode for Material mat-menu panels (rendered in CDK overlay outside .dark scope) */
+.dark .mat-mdc-menu-panel {
+  background-color: hsl(222.2 84% 4.9%) !important;
+  color: hsl(210 40% 98%) !important;
+  border: 1px solid hsl(217.2 32.6% 17.5%);
+}
+
+.dark .mat-mdc-menu-item {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mat-mdc-menu-item:hover:not([disabled]) {
+  background-color: hsl(217.2 32.6% 17.5%) !important;
+}
+
+.dark .mat-mdc-menu-item[disabled] {
+  color: hsl(215 20.2% 65.1%) !important;
+  opacity: 0.5;
+}
+
+.dark .mat-mdc-menu-item .mat-mdc-menu-item-text {
+  color: inherit !important;
+}
+
+.dark .mat-divider {
+  border-top-color: hsl(217.2 32.6% 17.5%) !important;
+}
+
+/* Dark mode for Material select panels */
+.dark .mat-mdc-select-panel {
+  background-color: hsl(222.2 84% 4.9%) !important;
+}
+
+.dark .mat-mdc-option {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mat-mdc-option:hover:not(.mdc-list-item--disabled),
+.dark .mat-mdc-option:focus:not(.mdc-list-item--disabled) {
+  background-color: hsl(217.2 32.6% 17.5%) !important;
+}
+
+.dark .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background-color: hsl(217.2 32.6% 20%) !important;
+}
+
+.dark .mat-mdc-option.mdc-list-item--disabled .mdc-list-item__primary-text {
+  color: hsl(215 20.2% 65.1%) !important;
+  opacity: 0.5;
+}
+
+/* Dark mode for Material autocomplete panels */
+.dark .mat-mdc-autocomplete-panel {
+  background-color: hsl(222.2 84% 4.9%) !important;
+}
+
+/* Dark mode for Material dialog containers */
+.dark .mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: hsl(222.2 84% 4.9%) !important;
+  color: hsl(210 40% 98%) !important;
+}
+
+/* Dark mode for Material form fields */
+.dark .mat-mdc-form-field {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: hsl(217.2 32.6% 12%) !important;
+}
+
+.dark .mat-mdc-select-value-text,
+.dark .mat-mdc-select-placeholder {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mat-mdc-form-field-label,
+.dark .mdc-floating-label {
+  color: hsl(215 20.2% 65.1%) !important;
+}
+
+/* Dark mode for Material input */
+.dark .mat-mdc-input-element {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mdc-line-ripple::before {
+  border-bottom-color: hsl(217.2 32.6% 30%) !important;
+}
+
+/* Dark mode for Material snackbar */
+.dark .mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  background-color: hsl(217.2 32.6% 17.5%) !important;
+  color: hsl(210 40% 98%) !important;
+}
+

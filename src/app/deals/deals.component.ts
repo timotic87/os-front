@@ -42,37 +42,34 @@ import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 export class DealsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
-  
+
   dealsArr: any[] = [];
   totalDeals = 0;
   pageSize = 30;
   offset = 0;
 
-// Filteri
   filterStatusId?: number;
   filterLegalEntityId?: number;
   filterServiceId?: number;
 
   legalEntities = [];
   services = [];
-  subservices = [];
   statuses = [];
+
+  stats = { total: 0, active: 0, pending: 0, completed: 0, cancelled: 0 };
+  activeStatCard: string | null = null;
 
   clientName: string = '';
 
   createDealDisable = true;
   openDealPage = false;
 
-  // Socket connection is handled by NotificationSocketService
-
   constructor(private matDialog: MatDialog, private router: Router, private rest: RestService, private userService: UserService,
               private dialogService: DialogService, private dealService: DealService, private notService: NotificationSocketService) {
-
     this.checkPermission();
-
   }
 
-  createDeal(){
+  createDeal() {
     const refDialog = this.matDialog.open(CreateDealDialogComponent, {
       minWidth: '900px',
       maxWidth: '1200px',
@@ -80,47 +77,56 @@ export class DealsComponent implements OnInit, OnDestroy {
     });
     refDialog.afterClosed().subscribe(status => {
       if (status == 200) {
-
-        //todo bolja obrada novog deal... treba odradioti socket da se svima update i da se pokrene notifikacija ovde
+        // Deal created via socket event
       }
-    })
+    });
   }
 
-  onDealClick(deal){
+  onDealClick(deal) {
     if (this.openDealPage) {
       this.router.navigate([`/deal/${deal.ID}`]);
-    }else {
-      this.dialogService.showMsgDialog('You dont have permission for deal view')
+    } else {
+      this.dialogService.showMsgDialog('You dont have permission for deal view');
     }
-
   }
 
-
   async checkPermission() {
-    // 🚩 Odmah blokiraj dok traje proveravanje
     this.createDealDisable = true;
-
     try {
       const res = await firstValueFrom(this.rest.getUserPermissions(this.userService.getUser().id));
       const perm = res.data.find(permission => permission.name === 'create_deal');
-
-      if (!perm.userId) {
-        // createDealDisable ostaje true
-      } else {
+      if (perm?.userId) {
         this.createDealDisable = false;
       }
-
       const permOpenDealPage = res.data.find(permission => permission.name === 'view_deal');
-
-      if (!permOpenDealPage.userId) {
-      } else {
+      if (permOpenDealPage?.userId) {
         this.openDealPage = true;
       }
     } catch (error) {
-      console.error('❌ Error while checking permissions:', error);
       this.dialogService.showMsgDialog('Error while checking permissions');
-      // createDealDisable ostaje true
     }
+  }
+
+  loadStats(): void {
+    this.dealService.getDealStats().subscribe({
+      next: res => {
+        this.stats = res.data;
+      }
+    });
+  }
+
+  onStatCardClick(statusName: string): void {
+    if (this.activeStatCard === statusName) {
+      // Deselect - clear filter
+      this.activeStatCard = null;
+      this.filterStatusId = undefined;
+    } else {
+      this.activeStatCard = statusName;
+      const status = this.statuses.find((s: any) => s.name.toLowerCase() === statusName.toLowerCase());
+      this.filterStatusId = status?.ID;
+    }
+    this.offset = 0;
+    this.reloadDeals();
   }
 
   reloadDeals(): void {
@@ -134,14 +140,12 @@ export class DealsComponent implements OnInit, OnDestroy {
       clientName: this.clientName.trim() !== '' ? this.clientName.trim() : undefined
     }).subscribe({
       next: res => {
-        console.log(res)
         this.dealsArr = res.data;
         this.totalDeals = res.totalCount;
       },
       error: err => {
-        console.log(err)
         this.dialogService.closeLoader();
-        this.dialogService.showMsgDialog('❌ Greška prilikom učitavanja deals: ' + err.status);
+        this.dialogService.showMsgDialog('Error loading deals: ' + err.status);
       },
       complete: () => {
         this.dialogService.closeLoader();
@@ -154,36 +158,28 @@ export class DealsComponent implements OnInit, OnDestroy {
     this.rest.getServices().subscribe(res => this.services = res.data);
     this.rest.getDealStatuses().subscribe(res => this.statuses = res.data);
 
+    this.loadStats();
     this.reloadDeals();
 
-    this.notService.dealCreated$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+    this.notService.dealCreated$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.reloadDeals();
-    })
+      this.loadStats();
+    });
 
-    // Listen for deal status updates
     this.notService.dealStatusUpdated$.pipe(takeUntil(this.destroy$)).subscribe(data => {
-      console.log('🔄 Deal status updated:', data);
-      
-      // If we have deal ID in the data, try to update just that deal
-      if (data && data.dealId) {
+      if (data?.dealId) {
         const dealIndex = this.dealsArr.findIndex(deal => deal.ID == data.dealId);
         if (dealIndex !== -1 && data.newStatus && data.newFlowStatus) {
-          // Update just this deal's status in the array
           this.dealsArr[dealIndex].status = data.newStatus;
           this.dealsArr[dealIndex].flowStatus = data.newFlowStatus;
-          console.log('🔄 Updated deal in list without full reload');
         } else {
-          // Deal not found in current page or missing status data, reload all
-          console.log('🔄 Deal not in current page or missing data, reloading all');
           this.reloadDeals();
         }
       } else {
-        // No specific deal info, reload all
-        console.log('🔄 No deal ID provided, reloading all deals');
         this.reloadDeals();
       }
+      this.loadStats();
     });
-
   }
 
   goToPage(pageIndex: number): void {
@@ -201,8 +197,7 @@ export class DealsComponent implements OnInit, OnDestroy {
   }
 
   goToNextPage(): void {
-    const totalPages = Math.ceil(this.totalDeals / this.pageSize);
-    if (this.offset < totalPages - 1) {
+    if (this.offset < this.totalPages() - 1) {
       this.offset++;
       this.reloadDeals();
     }
@@ -216,7 +211,6 @@ export class DealsComponent implements OnInit, OnDestroy {
     const pagesCount = this.totalPages();
     const range: number[] = [];
 
-    // Ako ima manje od 10 stranica, prikaži sve
     if (pagesCount <= 10) {
       for (let i = 0; i < pagesCount; i++) {
         range.push(i);
@@ -241,14 +235,13 @@ export class DealsComponent implements OnInit, OnDestroy {
 
   protected readonly Math = Math;
 
-  // Utility methods for UI
   getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' {
     const lowerStatus = status.toLowerCase();
-    if (lowerStatus.includes('active') || lowerStatus.includes('completed') || lowerStatus.includes('završen')) {
+    if (lowerStatus.includes('active') || lowerStatus.includes('completed')) {
       return 'success';
-    } else if (lowerStatus.includes('pending') || lowerStatus.includes('čeka')) {
+    } else if (lowerStatus.includes('pending')) {
       return 'warning';
-    } else if (lowerStatus.includes('cancelled') || lowerStatus.includes('otkazan')) {
+    } else if (lowerStatus.includes('cancelled')) {
       return 'destructive';
     } else {
       return 'outline';
@@ -257,65 +250,30 @@ export class DealsComponent implements OnInit, OnDestroy {
 
   getFlowStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' {
     const lowerStatus = status.toLowerCase();
-    if (lowerStatus.includes('in progress') || lowerStatus.includes('u toku')) {
+    if (lowerStatus.includes('in progress')) {
       return 'info';
-    } else if (lowerStatus.includes('completed') || lowerStatus.includes('završen')) {
+    } else if (lowerStatus.includes('completed')) {
       return 'success';
-    } else if (lowerStatus.includes('review') || lowerStatus.includes('revizija')) {
+    } else if (lowerStatus.includes('review')) {
       return 'warning';
     } else {
       return 'secondary';
     }
   }
 
-  // Statistics methods
-  getActiveDealsCount(): number {
-    return this.dealsArr.filter(deal => 
-      deal.status.name.toLowerCase().includes('active') || 
-      deal.status.name.toLowerCase().includes('u toku')
-    ).length;
-  }
-
-  getPendingDealsCount(): number {
-    return this.dealsArr.filter(deal => 
-      deal.status.name.toLowerCase().includes('pending') ||
-      deal.status.name.toLowerCase().includes('čeka') ||
-      deal.flowStatus.name.toLowerCase().includes('review')
-    ).length;
-  }
-
-  getCompletedDealsCount(): number {
-    return this.dealsArr.filter(deal => 
-      deal.status.name.toLowerCase().includes('completed') ||
-      deal.status.name.toLowerCase().includes('završen')
-    ).length;
-  }
-
-  // Clear all filters
   clearFilters(): void {
     this.filterStatusId = undefined;
     this.filterLegalEntityId = undefined;
     this.filterServiceId = undefined;
     this.clientName = '';
+    this.activeStatCard = null;
     this.offset = 0;
     this.reloadDeals();
-  }
-
-  get maxPages(): number {
-    return Math.ceil(this.totalDeals / this.pageSize);
   }
 
   onPageSizeChange(): void {
     this.offset = 0;
     this.reloadDeals();
-  }
-
-  leftArrow(): void {
-    this.goToPreviousPage();
-  }
-
-  rightArrow(): void {
-    this.goToNextPage();
   }
 
   ngOnDestroy(): void {

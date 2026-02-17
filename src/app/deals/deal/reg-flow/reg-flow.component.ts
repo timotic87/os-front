@@ -1,4 +1,5 @@
 import {Component, Input, OnInit, ChangeDetectorRef, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
 import {ClientContractDocumentStatusComponent} from "../../../flow-parts/client-contract-document-status/client-contract-document-status.component";
 import {ClientDocumentStatusComponent} from "../../../flow-parts/client-document-status/client-document-status.component";
 import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/dokument-approval.component";
@@ -56,7 +57,8 @@ export class RegFlowComponent implements OnInit {
     private dialogService: DialogService,
     private cdr: ChangeDetectorRef,
     private documentService: DocumentService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) {
     // Listen for document approval events to refresh UI without page reload
     documentService.approvalStart.subscribe(data => {
@@ -591,26 +593,11 @@ export class RegFlowComponent implements OnInit {
   }
   
   /**
-   * View recruiting order details in a dialog
+   * Navigate to recruiting order detail page
    */
   viewRecruitingOrder(): void {
     if (this.recruitingOrder?.ID) {
-      // Fetch full order details with positions
-      this.rest.getRecruitingOrderByID(this.recruitingOrder.ID).subscribe({
-        next: (res) => {
-          if (res.status === 200 && res.data) {
-            this.dialog.open(RecruitingOrderDetailsDialogComponent, {
-              width: '800px',
-              maxWidth: '95vw',
-              data: { order: res.data }
-            });
-          }
-        },
-        error: (err) => {
-          console.error('Error fetching order details:', err);
-          this.dialogService.showMsgDialog('Error loading order details: ' + (err.error?.message || err.message));
-        }
-      });
+      this.router.navigate(['/recruiting-order', this.recruitingOrder.ID]);
     }
   }
   

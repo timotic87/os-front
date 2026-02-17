@@ -104,7 +104,7 @@ export class ClientsComponent implements OnInit{
       },
       error: err => {
         this.dialogService.closeLoader();
-        this.dialogService.showMsgDialog('❌ Greška prilikom učitavanja klijenata: ' + (err.error?.message || err.status));
+        this.dialogService.showMsgDialog('Error loading clients: ' + (err.error?.message || err.status));
       },
       complete: () => {
         this.dialogService.closeLoader();
@@ -146,7 +146,7 @@ export class ClientsComponent implements OnInit{
       return;
     }
 
-    this.dialogService.showChooseDialog("Da li ste sigurni da zelite da obrisete ovog klijenta").afterClosed().subscribe(isYes=>{
+    this.dialogService.showChooseDialog("Are you sure you want to delete this client?").afterClosed().subscribe(isYes=>{
       if (isYes){
         let data = {clientId: client.id, socketData: undefined}
         data.socketData = {userId: this.userService.getUser().id, userName: this.userService.getUser().fullName ,clientName: client.customerName}

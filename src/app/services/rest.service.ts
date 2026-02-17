@@ -144,6 +144,10 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/markAsRead`,data , {headers: this.headers()}) as Observable<any>;
   }
 
+  markAllAsRead(){
+    return this.http.put(`${this.baseUrl}/markAllAsRead`, {}, {headers: this.headers()}) as Observable<any>;
+  }
+
   changeNotificationFlaggedStatus(data){
     return this.http.put(`${this.baseUrl}/changeFlaggedStatus`,data , {headers: this.headers()}) as Observable<any>;
   }
@@ -386,6 +390,10 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/entityaccess/${data.entityType}/${data.entityId}`, {headers: this.headers()}) as Observable<any>;
   }
 
+  getDealStats() {
+    return this.http.get(`${this.baseUrl}/getDealStats`, { headers: this.headers() }) as Observable<any>;
+  }
+
   getDealStatuses() {
     return this.http.get(`${this.baseUrl}/dealStatuses`, { headers: this.headers() }) as Observable<any>;
   }
@@ -419,6 +427,10 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getRecruitingOrderStatuses`, { headers: this.headers() }) as Observable<any>;
   }
 
+  getRecruitingOrderStats() {
+    return this.http.get(`${this.baseUrl}/getRecruitingOrderStats`, { headers: this.headers() }) as Observable<any>;
+  }
+
   promoteDealToRecruitingOrder(data: any) {
     return this.http.post(`${this.baseUrl}/promoteDealToRecruitingOrder`, data, { headers: this.headers() }) as Observable<any>;
   }
@@ -442,6 +454,69 @@ export class RestService {
 
   searchPostCodes(search: string) {
     return this.http.get(`${this.baseUrl}/postCodes/${search}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Recruiter assignment methods
+  assignRecruiter(data: any) {
+    return this.http.post(`${this.baseUrl}/assignRecruiter`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  unassignRecruiter(data: any) {
+    return this.http.post(`${this.baseUrl}/unassignRecruiter`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Recruiting Invoices
+  createRecruitingInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/createRecruitingInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getInvoicesByOrderID(orderID: number) {
+    return this.http.get(`${this.baseUrl}/getInvoicesByOrderID/${orderID}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deleteRecruitingInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/deleteRecruitingInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // NBS Exchange Rate
+  getNbsMiddleRate(currency: string, date?: string) {
+    let url = `${this.baseUrl}/nbs/middle-rate?currency=${currency}`;
+    if (date) url += `&date=${date}`;
+    return this.http.get(url, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Salary Params
+  getSalaryParams() {
+    return this.http.get(`${this.baseUrl}/salary-params`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateSalaryParams(data: any) {
+    return this.http.put(`${this.baseUrl}/salary-params`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Permission Templates
+  getPermissionTemplates() {
+    return this.http.get(`${this.baseUrl}/permission-templates`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getPermissionTemplateById(id: number) {
+    return this.http.get(`${this.baseUrl}/permission-templates/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  createPermissionTemplate(data: any) {
+    return this.http.post(`${this.baseUrl}/permission-templates`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updatePermissionTemplate(id: number, data: any) {
+    return this.http.put(`${this.baseUrl}/permission-templates/${id}`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deletePermissionTemplate(id: number) {
+    return this.http.delete(`${this.baseUrl}/permission-templates/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  applyPermissionTemplate(templateId: number, userId: number) {
+    return this.http.post(`${this.baseUrl}/permission-templates/${templateId}/apply`, { userId }, { headers: this.headers() }) as Observable<any>;
   }
 
 }

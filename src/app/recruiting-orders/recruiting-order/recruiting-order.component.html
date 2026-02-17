@@ -1,0 +1,430 @@
+<div class="container mx-auto px-4 py-6 pt-24 space-y-8 max-w-7xl">
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="text-muted-foreground">Loading...</div>
+  </div>
+
+  <!-- Header Section -->
+  <div class="flex flex-col gap-6" *ngIf="order && !loading">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <button (click)="goBack()" class="text-muted-foreground hover:text-foreground transition-colors">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+          </button>
+          <h1 class="text-3xl font-bold text-foreground">{{ order.order_number }}</h1>
+          <ui-badge *ngIf="order.is_umbrella" [variant]="'secondary'" class="text-xs">
+            Umbrella
+          </ui-badge>
+          <ui-badge [variant]="getStatusVariant(order.statusID)" class="text-xs">
+            {{ order.status?.name || 'Active' }}
+          </ui-badge>
+        </div>
+        <p class="text-muted-foreground">
+          Created by {{ order.creator?.firstName }} {{ order.creator?.lastName }} &bull;
+          {{ order.created_at | date: 'MMM d, y' }} at {{ order.created_at | date: 'h:mm a' }}
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Order Information Card -->
+  <div class="mt-6"></div>
+  <ui-card *ngIf="order && !loading">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+        </svg>
+        Order Information
+      </ui-card-title>
+      <ui-card-description>Details about this recruiting order</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+
+        <!-- Client -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            Client
+          </div>
+          <div class="font-semibold text-foreground">
+            {{ order.deal?.client?.customerName || 'N/A' }}
+          </div>
+        </div>
+
+        <!-- Order Number -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+            </svg>
+            Order Number
+          </div>
+          <div class="font-semibold text-foreground">{{ order.order_number }}</div>
+        </div>
+
+        <!-- Status -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Status
+          </div>
+          <div>
+            <ui-badge [variant]="getStatusVariant(order.statusID)" class="text-xs">
+              {{ order.status?.name || 'Active' }}
+            </ui-badge>
+          </div>
+        </div>
+
+        <!-- Creator -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            Creator
+          </div>
+          <div class="flex items-center gap-2">
+            @if(order.creator?.profilePicUrl) {
+              <img class="w-6 h-6 rounded-full flex-shrink-0" [src]="order.creator.profilePicUrl" alt="Avatar" style="object-fit: cover;">
+            } @else {
+              <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+                {{ order.creator?.firstName?.charAt(0) }}{{ order.creator?.lastName?.charAt(0) }}
+              </div>
+            }
+            <span class="text-sm font-medium text-foreground">{{ order.creator?.firstName }} {{ order.creator?.lastName }}</span>
+          </div>
+        </div>
+
+        <!-- Deal Link -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+            Deal
+          </div>
+          <div>
+            <a (click)="goToDeal()" class="text-sm font-medium text-primary hover:underline cursor-pointer">
+              Deal #{{ order.dealID }}
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Positions Card -->
+  <div class="mt-6"></div>
+  <ui-card *ngIf="order && !loading">
+    <ui-card-header>
+      <div class="flex items-center justify-between w-full">
+        <div>
+          <ui-card-title class="flex items-center gap-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            Positions ({{ order.positions?.length || 0 }})
+          </ui-card-title>
+          <ui-card-description>Manage positions and recruiter assignments</ui-card-description>
+        </div>
+        <ui-button *ngIf="canEditOrder()" variant="default" size="sm" (onClick)="addPosition()">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Add Position
+        </ui-button>
+      </div>
+    </ui-card-header>
+    <ui-card-content>
+
+      <!-- Empty State -->
+      <div *ngIf="!order.positions || order.positions.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        </svg>
+        <p class="mt-4 text-sm text-muted-foreground">No positions added yet</p>
+      </div>
+
+      <!-- Position Cards -->
+      <div class="space-y-4" *ngIf="order.positions && order.positions.length > 0">
+        <div *ngFor="let position of order.positions" class="border border-border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+
+          <!-- Position Header -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-mono text-muted-foreground">{{ position.position_number }}</span>
+              <h4 class="font-semibold text-foreground">{{ position.position_name }}</h4>
+              <ui-badge [variant]="getStatusVariant(position.status_id)" class="text-xs">
+                {{ position.status?.name || 'Active' }}
+              </ui-badge>
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Position Status Menu -->
+              <ui-button *ngIf="canEditPosition(position)" [matMenuTriggerFor]="posStatusMenu" variant="ghost" size="sm">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                </svg>
+              </ui-button>
+              <mat-menu #posStatusMenu="matMenu">
+                <div class="px-3 py-2 text-xs font-medium text-muted-foreground">Change Status</div>
+                <button mat-menu-item *ngFor="let status of statuses"
+                        [disabled]="status.ID === position.status_id"
+                        (click)="changePositionStatus(position.ID, status.ID)">
+                  {{ status.name }}
+                </button>
+                <div class="border-t border-border my-1"></div>
+                <div class="px-3 py-2 text-xs font-medium text-muted-foreground">Invoices</div>
+                <button mat-menu-item
+                        [disabled]="!canClosePosition(position)"
+                        (click)="openInvoiceDialog(position, 'placement')">
+                  Close Position
+                </button>
+                <button mat-menu-item (click)="openInvoiceDialog(position, 'admin_fee')">
+                  Admin Fee
+                </button>
+                <button mat-menu-item (click)="openInvoiceDialog(position, 'cancel_fee')">
+                  Cancel Fee
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <!-- Position Details Grid -->
+          <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4 text-sm">
+
+            <!-- Location -->
+            <div class="flex items-center gap-2 text-muted-foreground" *ngIf="position.location">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>{{ position.location }}</span>
+            </div>
+
+            <!-- Headcount -->
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              <span>{{ position.number_filled || 0 }} / {{ position.number_of_people }} filled</span>
+            </div>
+
+            <!-- Expected Salary -->
+            <div class="flex items-center gap-2 text-muted-foreground" *ngIf="position.expected_salary">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>
+                Salary: {{ position.expected_salary | number:'1.0-2' }}
+                {{ position.expectedSalaryCurrency?.name || getCurrencySymbol(position.expected_salary_currency_id) }}
+                <span class="text-muted-foreground/70">({{ position.expectedSalaryType?.name || getSalaryTypeName(position.expected_salary_type_id) }})</span>
+              </span>
+            </div>
+
+            <!-- Fee -->
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+              </svg>
+              <span *ngIf="position.fee_types_id === 3 && position.fee_amount">
+                Fee: {{ position.fee_amount | number:'1.0-2' }} {{ position.feeCurrency?.name || getCurrencySymbol(position.fee_currency_id) }} (Fixed)
+              </span>
+              <span *ngIf="position.fee_types_id === 1">
+                Fee: {{ position.fee_percentage != null ? (position.fee_percentage | number:'1.0-2') + '%' : 'N/A' }} of {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
+              </span>
+              <span *ngIf="position.fee_types_id === 2">
+                Fee: {{ position.fee_multiplier != null ? (position.fee_multiplier | number:'1.0-2') + 'x' : 'N/A' }} {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Additional Fee -->
+          <div class="mt-2 text-sm text-muted-foreground" *ngIf="position.extra_fee_amount && position.extra_fee_type_id">
+            <span class="flex items-center gap-2">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <span *ngIf="position.extra_fee_calculation_type === 3">
+                Additional Fee: {{ position.extra_fee_amount | number:'1.0-2' }} {{ position.extraFeeCurrency?.name || getCurrencySymbol(position.extra_fee_currency_id) }}
+                ({{ position.extraFeeType?.name || 'Fixed' }})
+              </span>
+              <span *ngIf="position.extra_fee_calculation_type === 1">
+                Additional Fee: {{ position.extra_fee_amount }}%
+                ({{ position.extraFeeType?.name || 'Percentage' }})
+              </span>
+              <span *ngIf="position.extra_fee_calculation_type === 2">
+                Additional Fee: {{ position.extra_fee_amount }}x
+                ({{ position.extraFeeType?.name || 'Multiplier' }})
+              </span>
+            </span>
+          </div>
+
+          <!-- Notes -->
+          <div class="mt-2 text-sm text-muted-foreground italic" *ngIf="position.notes">
+            {{ position.notes }}
+          </div>
+
+          <!-- Assigned Recruiters Section -->
+          <div class="mt-4 pt-3 border-t border-border">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                Assigned Recruiters
+              </div>
+              <!-- Assign Button -->
+              <ui-button *ngIf="canEditOrder()" [matMenuTriggerFor]="assignMenu" variant="ghost" size="sm">
+                <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Assign
+              </ui-button>
+              <mat-menu #assignMenu="matMenu" class="assign-menu">
+                <div class="px-3 py-2" (click)="$event.stopPropagation()">
+                  <input type="text" placeholder="Search users..." class="w-full px-2 py-1 text-sm border border-border rounded bg-background text-foreground"
+                         [(ngModel)]="userSearch" (input)="filterUsers(userSearch)">
+                </div>
+                <button mat-menu-item *ngFor="let user of filteredUsers"
+                        [disabled]="isUserAssigned(position, user.id)"
+                        (click)="assignRecruiter(position.ID, user.id)">
+                  <div class="flex items-center gap-2">
+                    @if(user.profilePicUrl) {
+                      <img class="w-5 h-5 rounded-full" [src]="user.profilePicUrl" alt="" style="object-fit: cover;">
+                    } @else {
+                      <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                        {{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}
+                      </div>
+                    }
+                    <span>{{ user.firstName }} {{ user.lastName }}</span>
+                    <span *ngIf="isUserAssigned(position, user.id)" class="text-xs text-muted-foreground ml-auto">(assigned)</span>
+                  </div>
+                </button>
+                <div *ngIf="filteredUsers.length === 0" class="px-3 py-2 text-sm text-muted-foreground">
+                  No users found
+                </div>
+              </mat-menu>
+            </div>
+
+            <!-- Recruiter List -->
+            <div class="flex flex-wrap gap-2" *ngIf="position.assignments && position.assignments.length > 0">
+              <div *ngFor="let assignment of position.assignments"
+                   class="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1 text-sm">
+                @if(assignment.recruiter?.profilePicUrl) {
+                  <img class="w-5 h-5 rounded-full" [src]="assignment.recruiter.profilePicUrl" alt="" style="object-fit: cover;">
+                } @else {
+                  <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                    {{ assignment.recruiter?.firstName?.charAt(0) }}{{ assignment.recruiter?.lastName?.charAt(0) }}
+                  </div>
+                }
+                <span class="text-foreground">{{ assignment.recruiter?.firstName }} {{ assignment.recruiter?.lastName }}</span>
+                <button *ngIf="canEditOrder()" (click)="unassignRecruiter(position.ID, assignment.user_id)"
+                        class="text-muted-foreground hover:text-destructive transition-colors ml-1" title="Remove">
+                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="!position.assignments || position.assignments.length === 0" class="text-xs text-muted-foreground/70">
+              No recruiters assigned
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Invoices Card -->
+  <div class="mt-6"></div>
+  <ui-card *ngIf="order && !loading">
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+        </svg>
+        Invoices ({{ invoices.length }})
+      </ui-card-title>
+      <ui-card-description>Placement, admin fee, and cancel fee invoices</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+
+      <!-- Empty State -->
+      <div *ngIf="invoices.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+        </svg>
+        <p class="mt-4 text-sm text-muted-foreground">No invoices yet</p>
+      </div>
+
+      <!-- Invoices Table -->
+      <div *ngIf="invoices.length > 0" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Position #</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Candidate</th>
+              <th class="text-right py-3 px-4 font-medium text-muted-foreground">Salary</th>
+              <th class="text-right py-3 px-4 font-medium text-muted-foreground">Fee Amount</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Created By</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inv of invoices" class="border-b border-border/50 hover:bg-muted/30 transition-colors">
+              <td class="py-3 px-4 font-mono text-muted-foreground">{{ inv.position?.position_number }}</td>
+              <td class="py-3 px-4">
+                <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
+                  {{ getInvoiceTypeLabel(inv.invoice_type) }}
+                </ui-badge>
+              </td>
+              <td class="py-3 px-4 text-foreground">
+                <span *ngIf="inv.candidate_first_name">{{ inv.candidate_first_name }} {{ inv.candidate_last_name }}</span>
+                <span *ngIf="!inv.candidate_first_name" class="text-muted-foreground">-</span>
+              </td>
+              <td class="py-3 px-4 text-right text-foreground">
+                {{ inv.salary_amount | number:'1.0-2' }}
+                {{ inv.salaryCurrency?.name || '' }}
+              </td>
+              <td class="py-3 px-4 text-right font-semibold text-foreground">
+                {{ inv.final_fee_amount | number:'1.0-2' }}
+                {{ inv.feeCurrency?.name || '' }}
+                <span *ngIf="inv.fee_was_overridden" class="text-amber-500 text-xs ml-1" title="Fee was manually overridden">*</span>
+              </td>
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2">
+                  @if(inv.creator?.profilePicUrl) {
+                    <img class="w-5 h-5 rounded-full" [src]="inv.creator.profilePicUrl" alt="" style="object-fit: cover;">
+                  } @else {
+                    <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                      {{ inv.creator?.firstName?.charAt(0) }}{{ inv.creator?.lastName?.charAt(0) }}
+                    </div>
+                  }
+                  <span class="text-foreground">{{ inv.creator?.firstName }} {{ inv.creator?.lastName }}</span>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-muted-foreground">{{ inv.created_at | date:'MMM d, y' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </ui-card-content>
+  </ui-card>
+
+</div>

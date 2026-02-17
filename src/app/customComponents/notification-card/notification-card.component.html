@@ -1,30 +1,59 @@
-<div class="h-40 w-full bg-white dark:bg-gray-600 p-3 shadow-lg dark:shadow-[0_4px_9px_-4px_rgba(220,76,100,0.5)] rounded">
-  <div class="flex items-center justify-start">
-    <app-color-label color="orange">{{notification.creationDate | date:'dd/MM/yyyy HH:mm'}}</app-color-label>
-    <span class="block text-gray-400 dark:text-neutral-400 font-semibold">{{ notification.creator.firstname+' '+notification.creator.lastName }}</span>
-    <div class="w-4 mx-3 hover:text-[#386097] dark:hover:text-[#56BDED]" *ngIf="notification.flagged" (click)="flaggedChange(notification.id);">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M23.903,0H3C1.346,0,0,1.346,0,3V24H2V15H23.903l-5.651-7.5L23.903,0Z" fill="currentColor"/></svg>
+<div
+  class="group rounded-lg border px-4 py-3 transition-colors"
+  [class]="notification.isRead ? 'border-border bg-background' : 'border-primary/20 bg-primary/5'">
+
+  <!-- Top row: creator + date + actions -->
+  <div class="flex items-center justify-between gap-2 mb-1.5">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="text-sm font-medium text-foreground truncate">{{ notification.creator?.firstname }} {{ notification.creator?.lastName }}</span>
+      <span class="text-xs text-muted-foreground shrink-0">{{ notification.creationDate | date:'dd.MM.yyyy HH:mm' }}</span>
     </div>
-    <div class="w-4 mx-3 transform hover:text-[#386097] dark:hover:text-[#56BDED]" *ngIf="!notification.flagged" (click)="flaggedChange(notification.id);">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M24.008,0H3.5C1.57,0,0,1.57,0,3.5V24H3v-8H24.008l-6.028-8L24.008,0Zm-6.017,13H3V3.5c0-.275,.224-.5,.5-.5h14.492l-3.767,5,3.767,5Z " fill="currentColor"/></svg>
+    <div class="flex items-center gap-1 shrink-0">
+      <!-- Flag toggle -->
+      <button
+        (click)="flaggedChange(notification.id); $event.stopPropagation()"
+        class="p-1 rounded hover:bg-muted transition-colors"
+        [class.text-amber-500]="notification.flagged"
+        [class.text-muted-foreground]="!notification.flagged">
+        @if (notification.flagged) {
+          <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h2V13h14l-4-5 4-5H5V3H3z"/></svg>
+        } @else {
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-14h13l-3 4 3 4H5"/></svg>
+        }
+      </button>
+      <!-- Mark as read -->
+      @if (!notification.isRead) {
+        <button
+          (click)="changeIsRead(notification.id); $event.stopPropagation()"
+          class="p-1 rounded text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+          title="Mark as read">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </button>
+      }
+      <!-- Delete -->
+      <button
+        (click)="deleteNotification(); $event.stopPropagation()"
+        class="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+        title="Delete">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
   </div>
-  <span class="block h-9 text-sm mt-3">{{notification.msg}}</span>
-  <a [href]="notification.link" class="block h-9 text-sm">{{notification.link}}</a>
-  <div class="flex items-center justify-end mt-2">
-    <div class="w-5 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" *ngIf="!notification.isRead" (click)="changeIsRead(notification.id)">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+
+  <!-- Message -->
+  <p class="text-sm text-foreground/90 leading-relaxed">{{ notification.msg }}</p>
+
+  <!-- Link (if exists) -->
+  @if (notification.link) {
+    <a (click)="navigateToLink()" class="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5 cursor-pointer">
+      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
       </svg>
-    </div>
-    <div class="w-5 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="deleteNotification()">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-      </svg>
-    </div>
-  </div>
+      View details
+    </a>
+  }
 </div>

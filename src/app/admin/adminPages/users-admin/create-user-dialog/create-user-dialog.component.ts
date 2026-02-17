@@ -11,6 +11,7 @@ import {UnitService} from "../../../../services/unit.service";
 import {PositionModel} from "../../../../models/positionModel";
 import {PositionService} from "../../../../services/position.service";
 import {DialogService} from "../../../../services/dialog.service";
+import {ButtonComponent} from '../../../../shared/components/ui/button/button.component';
 
 @Component({
   selector: 'app-create-user-dialog',
@@ -22,7 +23,8 @@ import {DialogService} from "../../../../services/dialog.service";
     MatOption,
     NgIf,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    ButtonComponent
   ],
   templateUrl: './create-user-dialog.component.html',
   styleUrl: './create-user-dialog.component.css'

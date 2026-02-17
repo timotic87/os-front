@@ -2,15 +2,15 @@ import { Component } from '@angular/core';
 import {RestService} from "../../../services/rest.service";
 import {MatDialog} from "@angular/material/dialog";
 import {AddDocumentTypeComponent} from "./add-document-type/add-document-type.component";
-import {NgIf} from "@angular/common";
 import {AddDocumentSubTypeComponent} from "./add-document-sub-type/add-document-sub-type.component";
 import {DialogService} from "../../../services/dialog.service";
+import {CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent} from '../../../shared/components/ui/card/card.component';
 
 @Component({
   selector: 'app-documents',
   standalone: true,
   imports: [
-    NgIf
+    CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent
   ],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.css'

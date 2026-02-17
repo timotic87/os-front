@@ -50,10 +50,10 @@ export class LoginComponent implements OnInit {
       password: new FormControl(null, Validators.required)
     });
 
-    // ✅ Ako je već ulogovan korisnik
+    // If user is already logged in
     if (this.tokenService.isTokenExist() && !this.tokenService.isTokenExp()) {
-      this.userService.setUser(); // ← Postavi user-a u memoriju
-      this.notificationSocketService.connectSocket(); // ← Konektuj socket
+      this.userService.setUser();
+      this.notificationSocketService.connectSocket();
 
       this.rest.getNotifications().subscribe({
         next: res=>{
@@ -112,12 +112,12 @@ export class LoginComponent implements OnInit {
           const redirectUrl = this.returnUrl || this.userService.getUser().defpage;
           this.router.navigateByUrl(redirectUrl);
         } else {
-          this.loginError = res.msg || 'Neispravni podaci za prijavu';
+          this.loginError = res.msg || 'Invalid login credentials';
         }
       },
       error: err => {
         this.isLoading = false;
-        this.loginError = 'Greška prilikom povezivanja sa serverom. Pokušajte ponovo.';
+        this.loginError = 'Error connecting to the server. Please try again.';
         console.error('Login error:', err);
       }
     });
@@ -127,7 +127,7 @@ export class LoginComponent implements OnInit {
     const field = this.loginForm.get(fieldName);
     if (field?.errors && field?.touched) {
       if (field.errors['required']) {
-        return fieldName === 'username' ? 'Korisničko ime je obavezno' : 'Lozinka je obavezna';
+        return fieldName === 'username' ? 'Username is required' : 'Password is required';
       }
     }
     return '';

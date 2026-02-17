@@ -84,6 +84,7 @@ export class AddPositionDialogComponent implements OnInit {
     this.positionForm = this.fb.group({
       jobTitle: ['', Validators.required],
       location: ['', Validators.required],
+      numberOfPeople: [1, [Validators.required, Validators.min(1)]],
       expectedSalary: ['', [Validators.required, Validators.min(0)]],
       expectedSalaryType: ['', Validators.required],
       currencyID: ['', Validators.required],
@@ -218,7 +219,7 @@ export class AddPositionDialogComponent implements OnInit {
       order_id: this.data.orderID,
       position_name: formValue.jobTitle,
       location: formValue.location,
-      number_of_people: 1, // Default to 1
+      number_of_people: formValue.numberOfPeople || 1,
       expected_salary: formValue.expectedSalary,
       expected_salary_type_id: formValue.expectedSalaryType,
       expected_salary_currency_id: formValue.currencyID,
@@ -227,16 +228,15 @@ export class AddPositionDialogComponent implements OnInit {
     };
 
     // Add fee-related fields based on fee type
-    // Backend expects feeAmount for ALL types (percentage/multiplier values go in fee_amount field)
     const feeTypeName = this.getFeeTypeName(formValue.feeTypesId)?.toLowerCase();
     if (feeTypeName?.includes('fixed')) {
       positionData.fee_amount = formValue.feeAmount;
       positionData.fee_currency_id = formValue.feeCurrencyID;
     } else if (feeTypeName === 'percentage') {
-      positionData.fee_amount = formValue.feePercentage; // Map percentage to fee_amount
+      positionData.fee_percentage = formValue.feePercentage;
       positionData.salary_type_id = formValue.feeSalaryType;
     } else if (feeTypeName === 'multiplier') {
-      positionData.fee_amount = formValue.feeMultiplier; // Map multiplier to fee_amount
+      positionData.fee_multiplier = formValue.feeMultiplier;
       positionData.salary_type_id = formValue.feeSalaryType;
     }
 

@@ -1,11 +1,11 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {DatePipe, NgIf} from "@angular/common";
 import {MatDialog} from "@angular/material/dialog";
 import {ApprovalModel} from "../../models/approval/approvalModel";
 import {RestService} from "../../services/rest.service";
 import {DialogService} from "../../services/dialog.service";
-import {FormGroup} from "@angular/forms";
+import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ColorLabelComponent} from "../../customComponents/color-label/color-label.component";
 import {DealComentsDialogComponent} from "../../flow-parts/deal-coments-dialog/deal-coments-dialog.component";
 import {UserService} from "../../services/user.service";
@@ -30,6 +30,7 @@ import { BadgeComponent } from '../../shared/components/ui/badge/badge.component
   imports: [
     NgIf,
     DatePipe,
+    ReactiveFormsModule,
     ColorLabelComponent,
     MatMenu,
     MatMenuTrigger,
@@ -59,19 +60,24 @@ export class DealComponent implements OnInit, OnDestroy {
   deal: any;
   cdcm:any[];
   lastComment;
+  recentComments: any[] = [];
+  totalCommentsCount: number = 0;
+  newCommentText = new FormControl('');
+  recruitingOrder: any = null;
 
   approval: ApprovalModel;
 
   formGroup: FormGroup;
 
 
-  constructor(private route: ActivatedRoute, private matDialog: MatDialog, public userService: UserService,
+  constructor(private route: ActivatedRoute, private router: Router, private matDialog: MatDialog, public userService: UserService,
               private rest: RestService, private dialogService: DialogService,
               private notificationSocketService: NotificationSocketService) {
     this.dealID = +this.route.snapshot.paramMap.get('id');
     // TODO: Replace socket handling with NotificationSocketService
     this.getDealFunc(this.dealID);
     this.getLastComment(this.dealID);
+    this.loadRecentComments();
   }
 
   async ngOnInit() {
@@ -80,10 +86,14 @@ export class DealComponent implements OnInit, OnDestroy {
   }
 
   openComment(){
-    this.matDialog.open(DealComentsDialogComponent, {
+    const dialogRef = this.matDialog.open(DealComentsDialogComponent, {
       width: '70vh',
       maxHeight: '90vh',
       data: this.dealID
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.getLastComment(this.dealID);
+      this.loadRecentComments();
     });
   }
 
@@ -94,6 +104,7 @@ export class DealComponent implements OnInit, OnDestroy {
         this.dialogService.closeLoader()
         if (res.status === 200){
           this.deal = res.data;
+          this.loadRecruitingOrder();
         }
       },
       error: err => {
@@ -102,6 +113,25 @@ export class DealComponent implements OnInit, OnDestroy {
       }
 
     });
+  }
+
+  private loadRecruitingOrder(): void {
+    if (this.deal?.flowStatus?.ID >= 14) {
+      this.rest.getRecruitingOrderByDealId(this.deal.ID).subscribe({
+        next: (res) => {
+          if (res.status === 200 && res.data) {
+            this.recruitingOrder = res.data;
+          }
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  goToRecruitingOrder(): void {
+    if (this.recruitingOrder?.ID) {
+      this.router.navigate(['/recruiting-order', this.recruitingOrder.ID]);
+    }
   }
 
   // Reload deal data without showing additional loader (used after status changes)
@@ -126,20 +156,36 @@ export class DealComponent implements OnInit, OnDestroy {
       if (res.status === 200){
         this.lastComment = res.data.dealComment;
       }
-    })
-
+    });
   }
 
-  // TODO: Implement proper socket handling through NotificationSocketService
-  // sockets(){
-  //   this.socket = io(environment.SERVER_URL);
-  //   // @ts-ignore
-  //   this.socket.on(socketEnum.CREATE_DEAL_COMMENT, data=>{
-  //     if(data.success && data.dealComment.dealID===this.dealID){
-  //       this.getLastComment(this.dealID);
-  //     }
-  //   });
-  // }
+  loadRecentComments() {
+    this.rest.getDealComments(this.dealID).subscribe(res => {
+      if (res.status === 200) {
+        this.totalCommentsCount = res.data.dealComments?.length || 0;
+        this.recentComments = (res.data.dealComments || []).slice(0, 3);
+      }
+    });
+  }
+
+  sendQuickComment() {
+    const text = this.newCommentText.value?.trim();
+    if (!text) return;
+    if (!this.userService.can('create_all_comments')) {
+      this.dialogService.showMsgDialog("You don't have permission to send comments");
+      return;
+    }
+    this.rest.createDealComment({dealID: this.dealID, comment: text}).subscribe({
+      next: () => {
+        this.newCommentText.reset();
+        this.getLastComment(this.dealID);
+        this.loadRecentComments();
+      },
+      error: err => {
+        this.dialogService.showMsgDialog('Error sending comment: ' + (err.error?.message || err.status));
+      }
+    });
+  }
 
   changeDealStatus(statusID){
 

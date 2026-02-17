@@ -16,7 +16,7 @@
         <h4 class="text-lg font-semibold mb-4">Position 1</h4>
 
         <!-- Basic Position Information -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
           <!-- Job Title -->
           <div>
             <ui-label for="jobTitle" class="block text-sm font-medium mb-2">Job Title *</ui-label>
@@ -42,6 +42,21 @@
             </ui-input>
             <div *ngIf="hasError('location')" class="text-red-500 text-sm mt-1">
               {{ getErrorMessage('location') }}
+            </div>
+          </div>
+
+          <!-- Number of People -->
+          <div>
+            <ui-label for="numberOfPeople" class="block text-sm font-medium mb-2">Headcount *</ui-label>
+            <ui-input
+              id="numberOfPeople"
+              type="number"
+              formControlName="numberOfPeople"
+              placeholder="e.g. 3"
+              [class.border-red-500]="hasError('numberOfPeople')">
+            </ui-input>
+            <div *ngIf="hasError('numberOfPeople')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('numberOfPeople') }}
             </div>
           </div>
 

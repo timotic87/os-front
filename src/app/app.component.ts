@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {NavigationStart, Router, RouterOutlet} from '@angular/router';
 import {NavbarComponent} from "./navbar/navbar.component";
-import {Socket} from "socket.io-client";
 import {UserService} from "./services/user.service";
 import {NotificationSocketService} from "./services/notification-socket.service";
 import {RestService} from "./services/rest.service";
@@ -20,17 +19,15 @@ import {DialogService} from "./services/dialog.service";
 export class AppComponent implements OnInit {
   title = 'OneSpot';
   link: string;
-  socket: Socket;
 
   shownotBar = false;
-
   notificationList = [];
+  unreadCount = 0;
 
   constructor(private router: Router, private userService: UserService, private notificationSocketService: NotificationSocketService,
               private rest: RestService, public notificationStoreService: NotificationStoreService, private dialogService: DialogService) {
-    // Inicijalizuj link sa trenutnom rutom
     this.link = this.router.url;
-    
+
     router.events.forEach((event) => {
       if(event instanceof NavigationStart) {
         this.link = event.url;
@@ -43,6 +40,10 @@ export class AppComponent implements OnInit {
     this.notificationStoreService.notifications$.subscribe(list => {
       this.notificationList = list;
     });
+
+    this.notificationStoreService.unreadCount$.subscribe(count => {
+      this.unreadCount = count;
+    });
   }
 
   ngOnInit(): void {
@@ -52,16 +53,19 @@ export class AppComponent implements OnInit {
 
     const user = this.userService.getUser();
 
-
-    // 🟢 Ako postoji validan korisnik, konektuj socket
     if (user && user.id) {
+      this.notificationStoreService.initForUser(user.id);
       this.notificationSocketService.connectSocket();
     }
   }
 
   closeNotifications(){
     this.notificationStoreService.toggleValue = false;
-    this.notificationStoreService.toggleNotificationBar.next(false)
+    this.notificationStoreService.toggleNotificationBar.next(false);
+  }
+
+  markAllAsRead() {
+    this.notificationStoreService.markAllAsRead();
   }
 
   deleteAllNotification(){
@@ -72,16 +76,13 @@ export class AppComponent implements OnInit {
           next: res=>{
             this.dialogService.closeLoader();
             this.notificationStoreService.clearNotifications();
-
           },
           error: err=>{
             this.dialogService.closeLoader();
-            this.dialogService.showMsgDialog('❌ Greška prilikom brisanja notifikacija: ' + (err.error?.message || err.status));
+            this.dialogService.showMsgDialog('Error deleting notifications: ' + (err.error?.message || err.status));
           }
         });
       }
-
     });
   }
-
 }

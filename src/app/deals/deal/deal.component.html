@@ -149,6 +149,21 @@
           </div>
         </div>
 
+        <!-- Recruiting Order Link -->
+        <div class="space-y-2" *ngIf="recruitingOrder">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            Recruiting Order
+          </div>
+          <div>
+            <a (click)="goToRecruitingOrder()" class="text-sm font-medium text-primary hover:underline cursor-pointer">
+              {{ recruitingOrder.order_number }}
+            </a>
+          </div>
+        </div>
+
       </div>
     </ui-card-content>
   </ui-card>
@@ -166,99 +181,76 @@
       <ui-card-description>Detailed client information and contact details</ui-card-description>
     </ui-card-header>
     <ui-card-content>
-      <div class="grid gap-6 md:grid-cols-3">
-        <!-- Client Basic Info -->
-        <div class="col-span-2">
-          <h3 class="text-lg font-semibold text-foreground mb-4">{{ deal.client.customerName }}</h3>
-          <div class="grid gap-4 md:grid-cols-2">
-            <div>
-              <label class="text-sm font-medium text-muted-foreground">Country</label>
-              <p class="text-sm text-foreground mt-1">{{ deal.client.country }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-muted-foreground">City</label>
-              <p class="text-sm text-foreground mt-1">{{ deal.client.city || 'Not provided' }}</p>
-            </div>
-            <div class="md:col-span-2">
-              <label class="text-sm font-medium text-muted-foreground">Address</label>
-              <p class="text-sm text-foreground mt-1">{{ deal.client.address || 'Not provided' }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-muted-foreground">Email</label>
-              <p class="text-sm text-foreground mt-1">{{ deal.client.email || 'Not provided' }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-muted-foreground">Phone</label>
-              <p class="text-sm text-foreground mt-1">Not provided</p>
-            </div>
-          </div>
+      <h3 class="text-lg font-semibold text-foreground mb-4">{{ deal.client.customerName }}</h3>
+      <div class="grid gap-4 md:grid-cols-4">
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Country</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.country }}</p>
         </div>
-        
-        <!-- Comments Section -->
-        <div class="border-l pl-6">
-          <h4 class="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-            Latest Comment
-          </h4>
-          
-          @if (lastComment && userService.can('view_all_comments')) {
-            <div class="space-y-3">
-              <div class="flex items-start gap-3">
-                @if (lastComment.creator.profilePicUrl) {
-                  <img class="w-8 h-8 rounded-full flex-shrink-0" [src]="lastComment.creator.profilePicUrl" alt="user img" style="object-fit: cover;">
-                } @else {
-                  <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
-                    {{ lastComment.creator.firstName.charAt(0) }}{{ lastComment.creator.lastName.charAt(0) }}
-                  </div>
-                }
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <span class="font-medium">{{ lastComment.creator.firstName }} {{ lastComment.creator.lastName }}</span>
-                    <span>{{ lastComment.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
-                  </div>
-                  <div class="text-sm text-foreground bg-muted p-3 rounded-md">
-                    {{ lastComment.comment }}
-                  </div>
-                </div>
-              </div>
-              <div class="mt-4">
-                <ui-button 
-                  variant="outline" 
-                  size="sm" 
-                  (onClick)="openComment()" 
-                  [disabled]="!userService.can('create_all_comments') || !userService.can('view_all_comments')">
-                  <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                  </svg>
-                  Add Comment
-                </ui-button>
-              </div>
-            </div>
-          } @else {
-            <div class="text-center py-6">
-              @if (!userService.can('view_all_comments')) {
-                <p class="text-sm text-muted-foreground mb-4">You don't have permission to see comments!</p>
-              } @else {
-                <p class="text-sm text-muted-foreground mb-4">No comments yet!</p>
-              }
-              <ui-button 
-                variant="outline" 
-                size="sm" 
-                (onClick)="openComment()" 
-                [disabled]="!userService.can('create_all_comments') || !userService.can('view_all_comments')">
-                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-                Add New Comment
-              </ui-button>
-            </div>
-          }
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">City</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.city || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Zip Code</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.zipCode || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Address</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.address || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Registration No.</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.registrationNo || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">VAT No.</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.vatRegistrationNo || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Email</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.email || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Financial Email</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.emailInFinance || '-' }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-muted-foreground">Phone (Finance)</label>
+          <p class="text-sm text-foreground mt-1">{{ deal.client.phoneInFinance || '-' }}</p>
         </div>
       </div>
     </ui-card-content>
   </ui-card>
+
+  <!-- Comments Bar (compact) -->
+  <div class="mt-4" *ngIf="deal && userService.can('view_all_comments')">
+    <div class="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-2.5">
+      <button (click)="openComment()" class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        {{ totalCommentsCount }} comment{{ totalCommentsCount !== 1 ? 's' : '' }}
+      </button>
+      <div class="h-4 w-px bg-border shrink-0"></div>
+      @if (userService.can('create_all_comments')) {
+        <input
+          [formControl]="newCommentText"
+          placeholder="Add a comment..."
+          (keydown.enter)="sendQuickComment()"
+          class="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0">
+        <button
+          (click)="sendQuickComment()"
+          [disabled]="!newCommentText.value?.trim()"
+          class="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none transition-colors shrink-0">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12zm0 0h7.5"/>
+          </svg>
+          Send
+        </button>
+      }
+    </div>
+  </div>
 
   <!-- Deal Flow Section -->
   <div class="mt-8"></div>
