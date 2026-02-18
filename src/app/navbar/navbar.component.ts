@@ -7,6 +7,8 @@ import {CookieService} from "ngx-cookie-service";
 import {Subscription} from "rxjs";
 import {MatDialog} from "@angular/material/dialog";
 import {ChangePasswordDialogComponent} from "../admin/adminPages/users-admin/change-password-dialog/change-password-dialog.component";
+import {SalaryCalculatorDialogComponent} from "../utils-dialogs/salary-calculator-dialog.component";
+import {NbsRateDialogComponent} from "../utils-dialogs/nbs-rate-dialog.component";
 import {NgIf} from "@angular/common";
 import {NotificationStoreService} from "../services/notification-store-service.service";
 import {NotificationSocketService} from "../services/notification-socket.service";
@@ -69,5 +71,19 @@ export class NavbarComponent implements OnDestroy {
   notiClick() {
     this.notificationStoreService.toggleValue = !this.notificationStoreService.toggleValue;
     this.notificationStoreService.toggleNotificationBar.next(this.notificationStoreService.toggleValue);
+  }
+
+  openSalaryCalculator() {
+    this.dialog.open(SalaryCalculatorDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh'
+    });
+  }
+
+  openNbsRate() {
+    this.dialog.open(NbsRateDialogComponent, {
+      width: '550px',
+      maxHeight: '90vh'
+    });
   }
 }
