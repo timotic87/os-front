@@ -40,8 +40,17 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getClients/${name}`,{headers: this.headers()}) as Observable<any>;
   }
 
-  getCurrencyList(){
-    return this.http.get(`${this.baseUrl}/currencyList`, {headers: this.headers()}) as Observable<any>;
+  getCurrencyList(activeOnly = true){
+    const url = activeOnly ? `${this.baseUrl}/currencyList` : `${this.baseUrl}/currencyList?active=false`;
+    return this.http.get(url, {headers: this.headers()}) as Observable<any>;
+  }
+
+  toggleCurrencyActive(id: number, active: boolean){
+    return this.http.post(`${this.baseUrl}/toggleCurrencyActive`, {id, active}, {headers: this.headers()}) as Observable<any>;
+  }
+
+  addCurrency(data: {code: string, name: string, nbsCode: number}){
+    return this.http.post(`${this.baseUrl}/addCurrency`, data, {headers: this.headers()}) as Observable<any>;
   }
 
   editClient(data){
@@ -494,6 +503,27 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/salary-params`, data, { headers: this.headers() }) as Observable<any>;
   }
 
+  calculateSalary(data: { amount: number, salaryTypeId: number, currency: string }) {
+    return this.http.post(`${this.baseUrl}/salary/calculate`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Sales Invoices
+  getSalesInvoices(data: any) {
+    return this.http.post(`${this.baseUrl}/getSalesInvoices`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  createSalesInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/createSalesInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  sendSalesInvoiceToBC(data: any) {
+    return this.http.post(`${this.baseUrl}/sendSalesInvoiceToBC`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getSalesInvoiceByID(id: number) {
+    return this.http.get(`${this.baseUrl}/getSalesInvoiceByID/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
   // Permission Templates
   getPermissionTemplates() {
     return this.http.get(`${this.baseUrl}/permission-templates`, { headers: this.headers() }) as Observable<any>;
@@ -517,6 +547,23 @@ export class RestService {
 
   applyPermissionTemplate(templateId: number, userId: number) {
     return this.http.post(`${this.baseUrl}/permission-templates/${templateId}/apply`, { userId }, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Entity Access
+  getEntityAccessUsers(entityType: string, entityId: number) {
+    return this.http.get(`${this.baseUrl}/entityaccess/${entityType}/${entityId}/users`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getUserEntityAccesses(userId: number) {
+    return this.http.get(`${this.baseUrl}/userentityaccess/${userId}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  grantEntityAccess(data: { userId: number, entityType: string, entityId: number, accessLevel: string }) {
+    return this.http.post(`${this.baseUrl}/grantAccess`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  revokeEntityAccess(data: { userId: number, entityType: string, entityId: number }) {
+    return this.http.post(`${this.baseUrl}/revokeAccess`, data, { headers: this.headers() }) as Observable<any>;
   }
 
 }

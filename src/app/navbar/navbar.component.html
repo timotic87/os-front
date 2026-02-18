@@ -18,15 +18,20 @@
          class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
         Clients
       </a>
-      <a *ngIf="userService.can('view_list_deals')"
+      <a *ngIf="userService.can('view_list_deals') || userService.hasAnyEntityAccess('deal')"
          routerLinkActive="bg-muted text-foreground" [routerLink]="['deals']"
          class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
         Deals
       </a>
-      <a *ngIf="userService.can('view_list_recruiting_orders')"
+      <a *ngIf="userService.can('view_list_recruiting_orders') || userService.hasAnyEntityAccess('recruiting_order')"
          routerLinkActive="bg-muted text-foreground" [routerLink]="['recruiting-orders']"
          class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
         Recruiting
+      </a>
+      <a *ngIf="userService.can('view_list_invoices')"
+         routerLinkActive="bg-muted text-foreground" [routerLink]="['invoices']"
+         class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+        Invoices
       </a>
     </div>
   </div>

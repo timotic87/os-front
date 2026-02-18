@@ -16,11 +16,13 @@ import {DealComponent} from "./deals/deal/deal.component";
 import {DocumentsComponent} from "./admin/adminPages/documents/documents.component";
 import {PermissionTemplatesComponent} from "./admin/adminPages/permission-templates/permission-templates.component";
 import {SalaryParamsComponent} from "./admin/adminPages/salary-params/salary-params.component";
+import {EntityAccessComponent} from "./admin/adminPages/entity-access/entity-access.component";
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
 import {RecruitingOrderComponent} from "./recruiting-orders/recruiting-order/recruiting-order.component";
 import {RecruitingOrdersComponent} from "./recruiting-orders/recruiting-orders.component";
 import { authGuard } from './guards/auth.guard';
+import {InvoicesComponent} from "./invoices/invoices.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -54,6 +56,7 @@ export const routes: Routes = [
       {path: 'documents', component: DocumentsComponent, outlet: 'admin'},
       {path: 'templates', component: PermissionTemplatesComponent, outlet: 'admin'},
       {path: 'salary-params', component: SalaryParamsComponent, outlet: 'admin'},
+      {path: 'entity-access', component: EntityAccessComponent, outlet: 'admin'},
     ]
 
   },
@@ -61,7 +64,7 @@ export const routes: Routes = [
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
 
-      if (userService.can('view_list_deals')) {
+      if (userService.can('view_list_deals') || userService.hasAnyEntityAccess('deal')) {
         return true;
       }
 
@@ -98,7 +101,7 @@ export const routes: Routes = [
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
 
-      if (userService.can('view_list_recruiting_orders')) {
+      if (userService.can('view_list_recruiting_orders') || userService.hasAnyEntityAccess('recruiting_order')) {
         return true;
       }
       dialogService.showMsgDialog('You dont have permission');
@@ -119,7 +122,17 @@ export const routes: Routes = [
       dialogService.showMsgDialog("You don't have permission");
       return false;
     }]
-  }
+  },
+  {path: 'invoices', component: InvoicesComponent, canActivate: [authGuard, ()=>{
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+
+      if (userService.can('view_list_invoices')) {
+        return true;
+      }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
+    }]},
 
 ];
 

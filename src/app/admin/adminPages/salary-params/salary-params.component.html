@@ -89,6 +89,293 @@
   </ui-card-content>
 </ui-card>
 
+<!-- Currencies -->
+<ui-card class="mt-6">
+  <ui-card-header>
+    <div class="flex items-center justify-between w-full">
+      <div>
+        <ui-card-title class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          Currencies
+        </ui-card-title>
+        <ui-card-description>Manage active currencies shown in the application. Toggle to show/hide.</ui-card-description>
+      </div>
+      <button (click)="showAddCurrency = !showAddCurrency"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Currency
+      </button>
+    </div>
+  </ui-card-header>
+  <ui-card-content>
+    <!-- Add Currency Form -->
+    @if (showAddCurrency) {
+      <div class="mb-4 p-4 rounded-lg border border-border bg-muted/50">
+        <div class="flex items-end gap-3 flex-wrap">
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">ISO Code</label>
+            <input type="text" [(ngModel)]="newCurrency.code" maxlength="10" placeholder="e.g. BAM"
+                   class="w-24 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground uppercase placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Name</label>
+            <input type="text" [(ngModel)]="newCurrency.name" placeholder="e.g. Bosanska marka"
+                   class="w-60 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">NBS Code</label>
+            <input type="number" [(ngModel)]="newCurrency.nbsCode" placeholder="e.g. 977"
+                   class="w-24 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+          </div>
+          <button (click)="addCurrency()" [disabled]="addingCurrency || !newCurrency.code || !newCurrency.name"
+                  class="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
+            @if (addingCurrency) {
+              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            } @else {
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            }
+            Add
+          </button>
+          <button (click)="showAddCurrency = false"
+                  class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (currenciesLoading) {
+      <div class="flex items-center justify-center py-8 text-muted-foreground">
+        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading...
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+        @for (currency of currencies; track currency.ID) {
+          <div class="flex items-center justify-between p-2.5 rounded-lg border transition-colors"
+               [class]="currency.active ? 'border-border bg-background' : 'border-border/50 bg-muted/30 opacity-60'">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-sm font-semibold text-foreground">{{ currency.code }}</span>
+              <span class="text-xs text-muted-foreground truncate">{{ currency.name }}</span>
+            </div>
+            <button (click)="toggleActive(currency)"
+                    class="ml-2 relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                    [class]="currency.active ? 'bg-primary' : 'bg-muted-foreground/30'">
+              <span class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                    [class]="currency.active ? 'translate-x-4' : 'translate-x-0'">
+              </span>
+            </button>
+          </div>
+        }
+      </div>
+      <div class="mt-3 text-xs text-muted-foreground">
+        {{ activeCurrencies.length }} of {{ currencies.length }} currencies active
+      </div>
+    }
+  </ui-card-content>
+</ui-card>
+
+<!-- Salary Calculator -->
+<ui-card class="mt-6">
+  <ui-card-header>
+    <ui-card-title class="flex items-center gap-2">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+      </svg>
+      Salary Calculator
+    </ui-card-title>
+    <ui-card-description>Convert between Net, Gross, and Grand Gross salary amounts using current parameters and NBS exchange rates</ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+    <div class="flex items-end gap-4 flex-wrap">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Salary Type</label>
+        <select [(ngModel)]="calcSalaryTypeId"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          @for (st of salaryTypes; track st.ID) {
+            <option [ngValue]="st.ID">{{ st.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Amount</label>
+        <input type="number" [(ngModel)]="calcAmount" placeholder="e.g. 100000" step="0.01"
+               class="w-44 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Currency</label>
+        <select [(ngModel)]="calcCurrency"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          @for (c of calcCurrencies; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+      <button (click)="calculateSalary()" [disabled]="calcLoading || !calcAmount"
+              class="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
+        @if (calcLoading) {
+          <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        } @else {
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        }
+        Calculate
+      </button>
+    </div>
+
+    @if (calcError) {
+      <div class="mt-4 px-3 py-2 rounded-md bg-destructive/10 text-destructive text-sm">
+        {{ calcError }}
+      </div>
+    }
+
+    @if (calcResult) {
+      <!-- Results Table -->
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full text-sm border border-border rounded-lg overflow-hidden">
+          <thead>
+            <tr class="bg-muted/50">
+              <th class="text-left px-4 py-2.5 font-medium text-muted-foreground border-b border-border">Salary Type</th>
+              @for (cur of calcCurrencies; track cur) {
+                <th class="text-right px-4 py-2.5 font-medium text-muted-foreground border-b border-border">{{ cur }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border hover:bg-muted/30">
+              <td class="px-4 py-2 text-foreground">Monthly Net</td>
+              @for (cur of calcCurrencies; track cur) {
+                <td class="text-right px-4 py-2 font-mono text-foreground">{{ calcResult.results[cur].monthlyNet | number:'1.2-2' }}</td>
+              }
+            </tr>
+            <tr class="border-b border-border hover:bg-muted/30">
+              <td class="px-4 py-2 text-foreground">Monthly Base Gross</td>
+              @for (cur of calcCurrencies; track cur) {
+                <td class="text-right px-4 py-2 font-mono text-foreground">{{ calcResult.results[cur].monthlyGross | number:'1.2-2' }}</td>
+              }
+            </tr>
+            <tr class="border-b border-border hover:bg-muted/30">
+              <td class="px-4 py-2 text-foreground font-medium">Monthly Grand Gross (Gross II)</td>
+              @for (cur of calcCurrencies; track cur) {
+                <td class="text-right px-4 py-2 font-mono text-foreground font-medium">{{ calcResult.results[cur].monthlyGrandGross | number:'1.2-2' }}</td>
+              }
+            </tr>
+            <tr class="border-b border-border bg-muted/20 hover:bg-muted/30">
+              <td class="px-4 py-2 text-foreground">Annual Net</td>
+              @for (cur of calcCurrencies; track cur) {
+                <td class="text-right px-4 py-2 font-mono text-foreground">{{ calcResult.results[cur].annualNet | number:'1.2-2' }}</td>
+              }
+            </tr>
+            <tr class="border-b border-border bg-muted/20 hover:bg-muted/30">
+              <td class="px-4 py-2 text-foreground">Annual Base Gross</td>
+              @for (cur of calcCurrencies; track cur) {
+                <td class="text-right px-4 py-2 font-mono text-foreground">{{ calcResult.results[cur].annualGross | number:'1.2-2' }}</td>
+              }
+            </tr>
+            <tr class="bg-muted/20 hover:bg-muted/30">
+              <td class="px-4 py-2 text-foreground font-medium">Annual Grand Gross (Gross II)</td>
+              @for (cur of calcCurrencies; track cur) {
+                <td class="text-right px-4 py-2 font-mono text-foreground font-medium">{{ calcResult.results[cur].annualGrandGross | number:'1.2-2' }}</td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 rounded-lg border border-border bg-muted/30">
+          <h4 class="text-sm font-medium text-foreground mb-3">Monthly Breakdown (RSD)</h4>
+          <div class="space-y-1.5 text-sm">
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">Gross Salary</span>
+              <span class="font-mono text-foreground">{{ calcResult.breakdown.monthlyGross | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-destructive/80">
+              <span>- Income Tax ({{ calcResult.params.incomeTax }}%)</span>
+              <span class="font-mono">{{ calcResult.breakdown.tax | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-destructive/80">
+              <span>- PIO Employee ({{ calcResult.params.pensionContributionEmployee }}%)</span>
+              <span class="font-mono">{{ calcResult.breakdown.pioEmployee | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-destructive/80">
+              <span>- Health Employee ({{ calcResult.params.healthContributionEmployee }}%)</span>
+              <span class="font-mono">{{ calcResult.breakdown.healthEmployee | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-destructive/80">
+              <span>- Unemployment ({{ calcResult.params.unemploymentContributionEmployee }}%)</span>
+              <span class="font-mono">{{ calcResult.breakdown.unemploymentEmployee | number:'1.2-2' }}</span>
+            </div>
+            <div class="border-t border-border pt-1.5 flex justify-between font-medium">
+              <span class="text-foreground">= Net Salary</span>
+              <span class="font-mono text-foreground">{{ calcResult.breakdown.monthlyNet | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 rounded-lg border border-border bg-muted/30">
+          <h4 class="text-sm font-medium text-foreground mb-3">Employer Cost (RSD)</h4>
+          <div class="space-y-1.5 text-sm">
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">Gross Salary</span>
+              <span class="font-mono text-foreground">{{ calcResult.breakdown.monthlyGross | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-blue-500">
+              <span>+ PIO Employer ({{ calcResult.params.pensionOnBehalfOfEmployer }}%)</span>
+              <span class="font-mono">{{ calcResult.breakdown.pioEmployer | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-blue-500">
+              <span>+ Health Employer ({{ calcResult.params.healthOnBehalfOfEmployer }}%)</span>
+              <span class="font-mono">{{ calcResult.breakdown.healthEmployer | number:'1.2-2' }}</span>
+            </div>
+            <div class="border-t border-border pt-1.5 flex justify-between font-medium">
+              <span class="text-foreground">= Grand Gross (Gross II)</span>
+              <span class="font-mono text-foreground">{{ calcResult.breakdown.monthlyGrandGross | number:'1.2-2' }}</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-border text-xs text-muted-foreground">
+              <div>Contribution base: {{ calcResult.breakdown.contributionBase | number:'1.2-2' }} RSD</div>
+              <div>Tax reimburse: {{ calcResult.params.taxReimburse | number:'1.2-2' }} RSD</div>
+              <div>Max base for contributions: {{ calcResult.params.maximumBaseForTax | number:'1.2-2' }} RSD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exchange Rates + Export -->
+      <div class="mt-4 flex items-center justify-between">
+        <div class="flex items-center gap-4 text-xs text-muted-foreground">
+          <span>Exchange rates used:</span>
+          <span class="font-mono">1 EUR = {{ calcResult.exchangeRates.EUR }} RSD</span>
+          <span class="font-mono">1 USD = {{ calcResult.exchangeRates.USD }} RSD</span>
+        </div>
+        <button (click)="exportToExcel()"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Export Excel
+        </button>
+      </div>
+    }
+  </ui-card-content>
+</ui-card>
+
 <!-- NBS Exchange Rate -->
 <ui-card class="mt-6">
   <ui-card-header>
@@ -106,8 +393,11 @@
         <label class="block text-xs font-medium text-muted-foreground mb-1">Currency</label>
         <select [(ngModel)]="nbsCurrency"
                 class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
-          <option value="EUR">EUR</option>
-          <option value="USD">USD</option>
+          @for (c of activeCurrencies; track c.ID) {
+            @if (c.code !== 'RSD') {
+              <option [value]="c.code">{{ c.code }} - {{ c.name }}</option>
+            }
+          }
         </select>
       </div>
       <div>

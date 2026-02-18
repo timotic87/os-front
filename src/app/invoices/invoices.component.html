@@ -1,0 +1,137 @@
+<ui-card>
+  <ui-card-header>
+    <div class="flex items-center justify-between w-full">
+      <div>
+        <ui-card-title class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Sales Invoices
+        </ui-card-title>
+        <ui-card-description>Manage sales invoices and send to Business Central</ui-card-description>
+      </div>
+      <div class="text-sm text-muted-foreground">
+        {{ totalCount }} invoice{{ totalCount !== 1 ? 's' : '' }}
+      </div>
+    </div>
+  </ui-card-header>
+  <ui-card-content>
+    <!-- Filters -->
+    <div class="flex items-end gap-3 flex-wrap mb-6">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Status</label>
+        <select [(ngModel)]="filterStatus" (change)="applyFilters()"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          @for (s of statusOptions; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity</label>
+        <select [(ngModel)]="filterLegalEntityId" (change)="applyFilters()"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          <option [ngValue]="null">All</option>
+          @for (le of legalEntities; track le.id) {
+            <option [ngValue]="le.id">{{ le.shortName || le.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
+        <input type="text" [(ngModel)]="filterSearch" placeholder="Customer, Invoice No..."
+               (keyup.enter)="applyFilters()"
+               class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <button (click)="applyFilters()"
+              class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Search
+      </button>
+      @if (filterStatus || filterLegalEntityId || filterSearch) {
+        <button (click)="clearFilters()"
+                class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Clear
+        </button>
+      }
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-12 text-muted-foreground">
+        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading invoices...
+      </div>
+    } @else if (invoices.length === 0) {
+      <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-sm">No invoices found</p>
+      </div>
+    } @else {
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice No</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Customer</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Issue Date</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Due Date</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Currency</th>
+              <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
+              <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inv of invoices; track inv.id) {
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer">
+                <td class="px-3 py-2.5 font-mono text-sm font-medium text-foreground">{{ inv.invoiceNo }}</td>
+                <td class="px-3 py-2.5">
+                  <div class="text-sm text-foreground">{{ inv.customerName || '-' }}</div>
+                  @if (inv.customerNo) {
+                    <div class="text-xs text-muted-foreground">{{ inv.customerNo }}</div>
+                  }
+                </td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.legalEntity?.shortName || inv.legalEntity?.name || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.issueDate | date:'dd.MM.yyyy' }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.dueDate | date:'dd.MM.yyyy' }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.currencyCode || 'RSD' }}</td>
+                <td class="px-3 py-2.5 text-right font-mono text-sm text-foreground">{{ inv.totalAmount | number:'1.2-2' }}</td>
+                <td class="px-3 py-2.5 text-center">
+                  <ui-badge [variant]="getStatusClass(inv.status)">{{ inv.status }}</ui-badge>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalCount > pageSize) {
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
+          </div>
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" [disabled]="offset === 0"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Previous
+            </button>
+            <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </ui-card-content>
+</ui-card>
