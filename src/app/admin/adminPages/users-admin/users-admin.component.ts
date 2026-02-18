@@ -140,7 +140,7 @@ export class UsersAdminComponent {
         user.permissions = res.data;
         this.dialog.open(UserPermissionsDialogComponent, {
           width: '70vw',
-          minHeight: '80vh',
+          maxHeight: '90vh',
           data: user
         });
       }
