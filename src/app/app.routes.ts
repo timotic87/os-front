@@ -23,6 +23,7 @@ import {RecruitingOrderComponent} from "./recruiting-orders/recruiting-order/rec
 import {RecruitingOrdersComponent} from "./recruiting-orders/recruiting-orders.component";
 import { authGuard } from './guards/auth.guard';
 import {InvoicesComponent} from "./invoices/invoices.component";
+import {AuditLogComponent} from "./audit-log/audit-log.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -128,6 +129,16 @@ export const routes: Routes = [
       const dialogService = inject(DialogService);
 
       if (userService.can('view_list_invoices')) {
+        return true;
+      }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
+    }]},
+  {path: 'audit-log', component: AuditLogComponent, canActivate: [authGuard, ()=>{
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+
+      if (userService.can('view_audit_log')) {
         return true;
       }
       dialogService.showMsgDialog('You dont have permission');

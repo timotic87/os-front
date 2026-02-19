@@ -10,6 +10,7 @@ import { UserService } from '../../services/user.service';
 import { AddPositionDialogComponent } from '../../deals/deal/add-position-dialog/add-position-dialog.component';
 import { RecruitingInvoiceDialogComponent } from '../recruiting-invoice-dialog/recruiting-invoice-dialog.component';
 import { ApprovalCardComponent } from '../../customComponents/approval-card/approval-card.component';
+import { HistoryDialogComponent } from '../../customComponents/history-dialog/history-dialog.component';
 import * as XLSX from 'xlsx';
 // ShadCN UI Components
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
@@ -189,6 +190,19 @@ export class RecruitingOrderComponent implements OnInit {
 
   goBack(): void {
     this.goToDeal();
+  }
+
+  openHistory(): void {
+    if (!this.userService.can('view_deal_history') && !this.userService.can('view_entity_history')) {
+      this.dialogService.showMsgDialog("You don't have the right to see the history.");
+      return;
+    }
+
+    this.dialog.open(HistoryDialogComponent, {
+      width: '75vw',
+      maxHeight: '90vh',
+      data: { entity: 'RecruitingOrder', entityID: this.orderId, title: 'Recruiting Order History' },
+    });
   }
 
   filterUsers(search: string): void {

@@ -387,6 +387,21 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getAuditLogsByEntityAndEntityID/${data.entity}/${data.entityID}`, {headers: this.headers()}) as Observable<any>;
   }
 
+  getAuditLogs(params: any){
+    const queryParts: string[] = [];
+    for (const key of Object.keys(params)) {
+      if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+        queryParts.push(`${key}=${encodeURIComponent(params[key])}`);
+      }
+    }
+    const qs = queryParts.length ? '?' + queryParts.join('&') : '';
+    return this.http.get(`${this.baseUrl}/audit-logs${qs}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getAuditLogFilterOptions(){
+    return this.http.get(`${this.baseUrl}/audit-logs/filter-options`, {headers: this.headers()}) as Observable<any>;
+  }
+
   promotingToProject(data: any){
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);

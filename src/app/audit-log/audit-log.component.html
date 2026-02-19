@@ -1,0 +1,208 @@
+<div class="container mx-auto px-4 py-6 pt-24 max-w-7xl">
+
+<ui-card>
+  <ui-card-header>
+    <div class="flex items-center justify-between w-full">
+      <div>
+        <ui-card-title class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+          </svg>
+          Audit Log
+        </ui-card-title>
+        <ui-card-description>System-wide activity log with all tracked changes and actions</ui-card-description>
+      </div>
+      <div class="text-sm text-muted-foreground">
+        {{ totalCount }} record{{ totalCount !== 1 ? 's' : '' }}
+      </div>
+    </div>
+  </ui-card-header>
+  <ui-card-content>
+    <!-- Filters -->
+    <div class="flex items-end gap-3 flex-wrap mb-6">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Entity</label>
+        <select [(ngModel)]="filterEntity" (change)="applyFilters()"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          <option value="">All</option>
+          @for (e of entityOptions; track e) {
+            <option [value]="e">{{ e }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Action</label>
+        <select [(ngModel)]="filterAction" (change)="applyFilters()"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          <option value="">All</option>
+          @for (a of actionOptions; track a) {
+            <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">From</label>
+        <input type="date" [(ngModel)]="filterDateFrom" (change)="applyFilters()"
+               class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">To</label>
+        <input type="date" [(ngModel)]="filterDateTo" (change)="applyFilters()"
+               class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
+        <input type="text" [(ngModel)]="filterSearch" placeholder="Description, user..."
+               (keyup.enter)="applyFilters()"
+               class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <button (click)="applyFilters()"
+              class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Search
+      </button>
+      @if (hasFilters) {
+        <button (click)="clearFilters()"
+                class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Clear
+        </button>
+      }
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-12 text-muted-foreground">
+        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading audit logs...
+      </div>
+    } @else if (logs.length === 0) {
+      <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <p class="text-sm">No audit logs found</p>
+      </div>
+    } @else {
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">User</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Action</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Entity</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Entity ID</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs; track log.ID) {
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors"
+                  [ngClass]="{'bg-muted/30': expandedRow === log.ID}"
+                  [class.cursor-pointer]="hasExpandableData(log)"
+                  (click)="hasExpandableData(log) && toggleRow(log.ID)">
+                <td class="px-3 py-2.5 text-center">
+                  @if (hasExpandableData(log)) {
+                    <svg class="h-4 w-4 text-muted-foreground transition-transform" [class.rotate-90]="expandedRow === log.ID" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  }
+                </td>
+                <td class="px-3 py-2.5 text-sm text-foreground whitespace-nowrap">{{ log.created | date:'dd.MM.yyyy HH:mm' }}</td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-2">
+                    @if (log.user?.profilePicUrl) {
+                      <img class="w-6 h-6 rounded-full object-cover" [src]="log.user.profilePicUrl" alt="">
+                    } @else {
+                      <img class="w-6 h-6 rounded-full object-cover" src="./assets/profile.png" alt="">
+                    }
+                    <span class="text-sm text-foreground">{{ log.user?.firstName }} {{ log.user?.lastName }}</span>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-foreground">
+                    {{ log.action }}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ log.entity || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm font-mono text-foreground">{{ log.entityID || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-muted-foreground max-w-xs truncate">{{ log.description || '-' }}</td>
+              </tr>
+
+              <!-- Expanded diff row -->
+              @if (expandedRow === log.ID && hasExpandableData(log)) {
+                <tr class="bg-muted/20">
+                  <td colspan="7" class="px-6 py-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-medium text-muted-foreground">
+                        @if (getChangedFields(log).length > 0) { Changed Fields }
+                        @else { Data }
+                      </span>
+                      <button (click)="copyJson(log); $event.stopPropagation()"
+                              class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              title="Copy JSON">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        {{ copiedLogId === log.ID ? 'Copied!' : 'Copy JSON' }}
+                      </button>
+                    </div>
+                    @if (getChangedFields(log).length > 0) {
+                      <table class="w-full text-xs">
+                        <thead>
+                          <tr class="border-b border-border">
+                            <th class="text-left px-2 py-1 font-medium text-muted-foreground">Field</th>
+                            <th class="text-left px-2 py-1 font-medium text-muted-foreground">Previous</th>
+                            <th class="text-left px-2 py-1 font-medium text-muted-foreground">New</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (change of getChangedFields(log); track change.field) {
+                            <tr class="border-b border-border/50">
+                              <td class="px-2 py-1 font-medium text-foreground">{{ change.field }}</td>
+                              <td class="px-2 py-1 text-red-500/80">{{ change.from }}</td>
+                              <td class="px-2 py-1 text-green-500/80">{{ change.to }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <pre class="bg-muted p-2 rounded text-xs overflow-x-auto max-h-40 text-muted-foreground">{{ formatJson(log.newData || log.previousData) }}</pre>
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalCount > pageSize) {
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
+          </div>
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" [disabled]="offset === 0"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Previous
+            </button>
+            <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </ui-card-content>
+</ui-card>
+</div>

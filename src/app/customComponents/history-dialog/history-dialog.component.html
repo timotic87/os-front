@@ -1,37 +1,165 @@
-<div class="h-full w-full dark:bg-gray-600 py-9  text-gray-600 dark:text-gray-300">
-  <div class="pb-9 flex justify-center text-gray-400 dark:text-neutral-100">
-    <h2 class="text-center text-2xl mt-3">Deal log history</h2>
+<div class="bg-background text-foreground max-h-[90vh] flex flex-col">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+    <h2 class="text-lg font-semibold text-foreground">{{ data.title || 'History' }}</h2>
+    <button (click)="close()" class="text-muted-foreground hover:text-foreground transition-colors">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
   </div>
 
-  <div class="p-3">
-    <div class="historyCard rounded border shadow-sm p-2 border-gray-200 dark:border-gray-700 my-2 grid grid-cols-5 gap-4" *ngFor="let history of histories">
-      <div>
-        <span class="flex">@if (history.user.profilePicUrl){
-          <img class="w-8 h-8 rounded-full" [src]=history.user.profilePicUrl alt="user img" style="object-fit: cover;">
-          <p class="ml-2 mt-1">{{history.user.firstName+' '+history.user.lastName}}</p>
-        } @else {
-          <img class="w-8 h-8 rounded-full" src='./assets/profile.png' alt="user img" style="object-fit: cover;">
-          <p class="ml-2 mt-1">{{history.user.firstName+' '+history.user.lastName}}</p>
+  <!-- Filters -->
+  <div class="flex items-end gap-3 flex-wrap px-6 py-3 border-b border-border bg-muted/30">
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1">Action</label>
+      <select [(ngModel)]="filterAction" (change)="applyFilters()"
+              class="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+        <option value="">All</option>
+        @for (action of actionOptions; track action) {
+          <option [value]="action">{{ action }}</option>
         }
-      </span>
-      </div>
-
-      <div class="col-span-3 mt-1">
-        <div>
-          <span class="font-semibold mr-2">Log ID:</span><span class="mr-3">{{history.ID}}</span>
-          <span class="font-semibold mr-2">Action:</span><span class="mr-3">{{history.action}}</span>
-          <span class="font-semibold mr-2">Entity:</span> <span class="mr-3">{{history.entity}}</span>
-        </div>
-         <div *ngIf="history.description">
-           <span class="mr-3">{{history.description}}</span>
-         </div>
-      </div>
-
-      <div>
-        <p class="mt-1">{{history.created | date: "dd.MMM.yyyy HH:ss"}}</p>
-      </div>
-
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1">User</label>
+      <select [(ngModel)]="filterUser" (change)="applyFilters()"
+              class="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+        <option value="">All</option>
+        @for (u of userOptions; track u.id) {
+          <option [value]="u.id">{{ u.name }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1">From</label>
+      <input type="date" [(ngModel)]="filterDateFrom" (change)="applyFilters()"
+             class="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1">To</label>
+      <input type="date" [(ngModel)]="filterDateTo" (change)="applyFilters()"
+             class="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+    </div>
+    @if (hasFilters) {
+      <button (click)="clearFilters()"
+              class="inline-flex items-center h-8 px-3 rounded-md text-xs text-muted-foreground hover:text-foreground transition-colors">
+        Clear
+      </button>
+    }
+    <div class="ml-auto text-xs text-muted-foreground">
+      {{ filteredLogs.length }} record{{ filteredLogs.length !== 1 ? 's' : '' }}
     </div>
   </div>
 
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto px-6 py-3">
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-12 text-muted-foreground">
+        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading history...
+      </div>
+    } @else if (filteredLogs.length === 0) {
+      <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <svg class="h-10 w-10 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-sm">No history records found</p>
+      </div>
+    } @else {
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
+            <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">User</th>
+            <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Action</th>
+            <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+            <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of filteredLogs; track log.ID) {
+            <tr class="border-b border-border hover:bg-muted/50 transition-colors"
+                [ngClass]="{'bg-muted/30': expandedRow === log.ID}"
+                [class.cursor-pointer]="hasExpandableData(log)"
+                (click)="hasExpandableData(log) && toggleRow(log.ID)">
+              <td class="px-3 py-2 text-center">
+                @if (hasExpandableData(log)) {
+                  <svg class="h-4 w-4 text-muted-foreground transition-transform" [class.rotate-90]="expandedRow === log.ID" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                }
+              </td>
+              <td class="px-3 py-2">
+                <div class="flex items-center gap-2">
+                  @if (log.user?.profilePicUrl) {
+                    <img class="w-6 h-6 rounded-full object-cover" [src]="log.user.profilePicUrl" alt="">
+                  } @else {
+                    <img class="w-6 h-6 rounded-full object-cover" src="./assets/profile.png" alt="">
+                  }
+                  <span class="text-sm text-foreground">{{ log.user?.firstName }} {{ log.user?.lastName }}</span>
+                </div>
+              </td>
+              <td class="px-3 py-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-foreground">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td class="px-3 py-2 text-sm text-muted-foreground max-w-xs truncate">{{ log.description || '-' }}</td>
+              <td class="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">{{ log.created | date: 'dd.MM.yyyy HH:mm' }}</td>
+            </tr>
+
+            <!-- Expanded diff row -->
+            @if (expandedRow === log.ID && hasExpandableData(log)) {
+              <tr class="bg-muted/20">
+                <td colspan="5" class="px-6 py-3">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-medium text-muted-foreground">
+                      @if (getChangedFields(log).length > 0) { Changed Fields }
+                      @else { Data }
+                    </span>
+                    <button (click)="copyJson(log); $event.stopPropagation()"
+                            class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            title="Copy JSON">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                      </svg>
+                      {{ copiedLogId === log.ID ? 'Copied!' : 'Copy JSON' }}
+                    </button>
+                  </div>
+                  @if (getChangedFields(log).length > 0) {
+                    <table class="w-full text-xs">
+                      <thead>
+                        <tr class="border-b border-border">
+                          <th class="text-left px-2 py-1 font-medium text-muted-foreground">Field</th>
+                          <th class="text-left px-2 py-1 font-medium text-muted-foreground">Previous</th>
+                          <th class="text-left px-2 py-1 font-medium text-muted-foreground">New</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (change of getChangedFields(log); track change.field) {
+                          <tr class="border-b border-border/50">
+                            <td class="px-2 py-1 font-medium text-foreground">{{ change.field }}</td>
+                            <td class="px-2 py-1 text-red-500/80">{{ change.from }}</td>
+                            <td class="px-2 py-1 text-green-500/80">{{ change.to }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  } @else {
+                    <pre class="bg-muted p-2 rounded text-xs overflow-x-auto max-h-40 text-muted-foreground">{{ formatJson(log.newData || log.previousData) }}</pre>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+  </div>
 </div>

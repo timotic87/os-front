@@ -215,26 +215,15 @@ export class DealComponent implements OnInit, OnDestroy {
 
   openHistory(){
 
-    if (!this.userService.can('view_deal_history')){
+    if (!this.userService.can('view_deal_history') && !this.userService.can('view_entity_history')){
       this.dialogService.showMsgDialog("You don't have the right to see the deal history.");
       return
     }
 
-    this.dialogService.showLoader();
-
-    this.rest.getAuditLogsByEntityAndEntityID({entity: 'Deal', entityID: this.dealID}).subscribe({
-      next: (res)=>{
-        this.dialogService.closeLoader();
-        this.matDialog.open(HistoryDialogComponent, {
-          width: '70vw',
-          maxHeight: '90vh',
-          data: res.data,
-        })
-      },
-      error: (err)=>{
-        this.dialogService.closeLoader();
-        this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
-      }
+    this.matDialog.open(HistoryDialogComponent, {
+      width: '75vw',
+      maxHeight: '90vh',
+      data: { entity: 'Deal', entityID: this.dealID, title: 'Deal History' },
     });
   }
 
