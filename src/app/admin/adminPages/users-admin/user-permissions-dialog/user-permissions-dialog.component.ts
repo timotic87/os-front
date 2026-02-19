@@ -2,6 +2,8 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {RestService} from "../../../../services/rest.service";
 import {DialogService} from "../../../../services/dialog.service";
+import {UserService} from "../../../../services/user.service";
+import {CookieService} from "ngx-cookie-service";
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
 import {ButtonComponent} from '../../../../shared/components/ui/button/button.component';
@@ -34,11 +36,14 @@ export class UserPermissionsDialogComponent implements OnInit {
 
   form: FormGroup;
 
-  constructor(private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPermissionsDialogComponent>, private dialogService: DialogService) {
+  constructor(private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public user: any, private rest: RestService, private dialogRef: MatDialogRef<UserPermissionsDialogComponent>, private dialogService: DialogService, private userService: UserService, private cookieService: CookieService) {
     this.initPermissions();
   }
 
   private initPermissions() {
+    // Assign flat index to each permission so the template can bind to the correct FormArray control
+    this.user.permissions.forEach((p, i) => p._index = i);
+
     // @ts-ignore
     const groupedBySection = this.user.permissions.reduce<Record<number, any[]>>((acc, item) => {
       if (!acc[item.sectionID]) {
@@ -130,6 +135,7 @@ export class UserPermissionsDialogComponent implements OnInit {
                   if (permRes.status === 200) {
                     this.user.permissions = permRes.data;
                     this.initPermissions();
+                    this.refreshCurrentUserToken();
                     this.dialogService.showSnackBar('Template applied successfully!', '', 3000);
                   }
                 });
@@ -149,10 +155,25 @@ export class UserPermissionsDialogComponent implements OnInit {
     this.rest.changeUserPermissions(this.user.permissions).subscribe(res => {
       this.dialogService.closeLoader();
       if (res.status === 200 || res.status === 201) {
+        this.refreshCurrentUserToken();
         this.dialogService.showSnackBar('Permissions updated successfully!', '', 3000);
         this.dialogRef.close(true);
       }
     });
+  }
+
+  private refreshCurrentUserToken() {
+    const currentUser = this.userService.getUser();
+    if (currentUser && currentUser.id === this.user.id) {
+      this.rest.refreshToken().subscribe({
+        next: (res: any) => {
+          if (res.status === 200 && res.token) {
+            this.cookieService.set('jwt', res.token, { path: '/' });
+            this.userService.setUser();
+          }
+        }
+      });
+    }
   }
 
   closeDialog(): void {

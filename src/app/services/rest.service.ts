@@ -31,6 +31,10 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/login`, data) as Observable<any>;
   }
 
+  refreshToken(){
+    return this.http.get(`${this.baseUrl}/refreshToken`, {headers: this.headers()}) as Observable<any>;
+  }
+
   // @ts-ignore
   getClients(data) {
     return this.http.post(`${this.baseUrl}/getClients`, data,{headers: this.headers()}) as Observable<any>;

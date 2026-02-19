@@ -45,7 +45,7 @@
           <div *ngFor="let perm of permArr" class="flex items-center gap-2.5 py-1.5">
             <input
               type="checkbox"
-              [formControlName]="perm.id-1"
+              [formControlName]="perm._index"
               (change)="onChange(perm)"
               class="h-4 w-4 rounded border-input text-primary focus:ring-ring focus:ring-offset-background cursor-pointer accent-primary">
             <label class="text-sm text-foreground cursor-pointer select-none">

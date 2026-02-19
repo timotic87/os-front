@@ -73,7 +73,7 @@ export class InvoicesComponent implements OnInit {
 
   switchTab(tab: 'sales' | 'recruiting') {
     this.activeTab = tab;
-    if (tab === 'recruiting' && this.recruitingInvoices.length === 0) {
+    if (tab === 'recruiting') {
       this.loadRecruitingInvoices();
     }
   }
