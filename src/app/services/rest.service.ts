@@ -515,7 +515,7 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getApprovalByRecruitingInvoiceID/${invoiceID}`, { headers: this.headers() }) as Observable<any>;
   }
 
-  getApprovedRecruitingInvoices(data: { offset: number, limit: number, search?: string }) {
+  getApprovedRecruitingInvoices(data: { offset: number, limit: number, search?: string, type?: string }) {
     return this.http.post(`${this.baseUrl}/getApprovedRecruitingInvoices`, data, { headers: this.headers() }) as Observable<any>;
   }
 

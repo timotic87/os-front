@@ -27,38 +27,22 @@ import * as XLSX from 'xlsx';
 })
 export class InvoicesComponent implements OnInit {
 
-  // Tab state
-  activeTab: 'sales' | 'recruiting' = 'sales';
-
-  // Sales invoices state
   invoices: any[] = [];
   totalCount = 0;
   pageSize = 20;
   offset = 0;
   loading = true;
 
-  // Filters
-  filterStatus = '';
-  filterLegalEntityId: number | null = null;
   filterSearch = '';
-
-  legalEntities: any[] = [];
+  filterType = '';
   Math = Math;
 
-  statusOptions = [
-    { value: '', label: 'All' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'sent', label: 'Sent' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'error', label: 'Error' }
+  typeOptions = [
+    { value: '', label: 'All Types' },
+    { value: 'placement', label: 'Placement' },
+    { value: 'admin_fee', label: 'Admin Fee' },
+    { value: 'cancel_fee', label: 'Cancel Fee' }
   ];
-
-  // Recruiting invoices state
-  recruitingInvoices: any[] = [];
-  recruitingTotalCount = 0;
-  recruitingOffset = 0;
-  recruitingLoading = false;
-  recruitingSearch = '';
 
   constructor(
     private rest: RestService,
@@ -67,38 +51,17 @@ export class InvoicesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadLegalEntities();
     this.loadInvoices();
-  }
-
-  switchTab(tab: 'sales' | 'recruiting') {
-    this.activeTab = tab;
-    if (tab === 'recruiting') {
-      this.loadRecruitingInvoices();
-    }
-  }
-
-  loadLegalEntities() {
-    this.rest.getLEList().subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.legalEntities = res.data;
-        }
-      }
-    });
   }
 
   loadInvoices() {
     this.loading = true;
-    const filters: any = {
+    this.rest.getApprovedRecruitingInvoices({
       offset: this.offset,
-      limit: this.pageSize
-    };
-    if (this.filterStatus) filters.status = this.filterStatus;
-    if (this.filterLegalEntityId) filters.legalEntityId = this.filterLegalEntityId;
-    if (this.filterSearch) filters.customerSearch = this.filterSearch;
-
-    this.rest.getSalesInvoices(filters).subscribe({
+      limit: this.pageSize,
+      search: this.filterSearch || undefined,
+      type: this.filterType || undefined
+    }).subscribe({
       next: (res: any) => {
         if (res.status === 200) {
           this.invoices = res.data;
@@ -119,9 +82,8 @@ export class InvoicesComponent implements OnInit {
   }
 
   clearFilters() {
-    this.filterStatus = '';
-    this.filterLegalEntityId = null;
     this.filterSearch = '';
+    this.filterType = '';
     this.offset = 0;
     this.loadInvoices();
   }
@@ -148,71 +110,6 @@ export class InvoicesComponent implements OnInit {
     return Math.ceil(this.totalCount / this.pageSize) || 1;
   }
 
-  getStatusClass(status: string): 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'secondary' {
-    switch (status) {
-      case 'draft': return 'secondary';
-      case 'sent': return 'info';
-      case 'confirmed': return 'success';
-      case 'error': return 'destructive';
-      default: return 'secondary';
-    }
-  }
-
-  // Recruiting invoices methods
-  loadRecruitingInvoices() {
-    this.recruitingLoading = true;
-    this.rest.getApprovedRecruitingInvoices({
-      offset: this.recruitingOffset,
-      limit: this.pageSize,
-      search: this.recruitingSearch || undefined
-    }).subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.recruitingInvoices = res.data;
-          this.recruitingTotalCount = res.totalCount;
-        }
-        this.recruitingLoading = false;
-      },
-      error: (err: any) => {
-        this.dialogService.errorServDialog(err);
-        this.recruitingLoading = false;
-      }
-    });
-  }
-
-  recruitingNextPage() {
-    if (this.recruitingOffset + this.pageSize < this.recruitingTotalCount) {
-      this.recruitingOffset += this.pageSize;
-      this.loadRecruitingInvoices();
-    }
-  }
-
-  recruitingPrevPage() {
-    if (this.recruitingOffset > 0) {
-      this.recruitingOffset = Math.max(0, this.recruitingOffset - this.pageSize);
-      this.loadRecruitingInvoices();
-    }
-  }
-
-  get recruitingCurrentPage(): number {
-    return Math.floor(this.recruitingOffset / this.pageSize) + 1;
-  }
-
-  get recruitingTotalPages(): number {
-    return Math.ceil(this.recruitingTotalCount / this.pageSize) || 1;
-  }
-
-  applyRecruitingSearch() {
-    this.recruitingOffset = 0;
-    this.loadRecruitingInvoices();
-  }
-
-  clearRecruitingSearch() {
-    this.recruitingSearch = '';
-    this.recruitingOffset = 0;
-    this.loadRecruitingInvoices();
-  }
-
   getInvoiceTypeLabel(type: string): string {
     switch (type) {
       case 'placement': return 'Placement';
@@ -231,7 +128,7 @@ export class InvoicesComponent implements OnInit {
     }
   }
 
-  exportRecruitingInvoice(inv: any): void {
+  exportInvoice(inv: any): void {
     this.rest.getInvoiceCalculationData(inv.ID).subscribe({
       next: (res) => {
         if (res.status === 200 && res.data) {
