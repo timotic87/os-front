@@ -15,7 +15,8 @@ export class UserService {
 
   isUserLogedIn = new Subject<boolean>();
   user: UserModel;
-  permissions: any
+  permissions: any;
+  entityAccessTypes: string[] = [];
 
   constructor(private cookieService: CookieService, private jwtDecoderService: JwtDecoderService, private rest: RestService,
               private dialogService: DialogService, private notificationSocketService: NotificationSocketService) { }
@@ -30,17 +31,29 @@ export class UserService {
     return objStr ? JSON.parse(objStr) : null;
   }
 
+  public getEntityAccessTypes(): string[] {
+    const stored = localStorage.getItem('entityAccessTypes');
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  public hasAnyEntityAccess(entityType: string): boolean {
+    return this.getEntityAccessTypes().includes(entityType);
+  }
+
   public setUser(){
     if (!this.cookieService.get('jwt')) return this.user=null;
-    this.permissions = this.jwtDecoderService.decodeToken(this.cookieService.get('jwt')).permissions
-    this.user = UserModel.createUserModel(this.jwtDecoderService.decodeToken(this.cookieService.get('jwt')).user);
+    const decoded = this.jwtDecoderService.decodeToken(this.cookieService.get('jwt'));
+    this.permissions = decoded.permissions;
+    this.entityAccessTypes = decoded.entityAccessTypes || [];
+    this.user = UserModel.createUserModel(decoded.user);
 
     localStorage.setItem('user', JSON.stringify(this.user));
     localStorage.setItem('permissions', JSON.stringify(this.permissions));
-    
+    localStorage.setItem('entityAccessTypes', JSON.stringify(this.entityAccessTypes));
+
     // Reset socket connection with new user data
     this.notificationSocketService.resetConnection();
-    
+
     return
   }
 
@@ -55,11 +68,13 @@ export class UserService {
   public deleteUser(){
     // Disconnect socket before clearing user data
     this.notificationSocketService.disconnectSocket();
-    
+
     this.user = null;
     this.permissions = null;
+    this.entityAccessTypes = [];
     localStorage.removeItem('user');
     localStorage.removeItem('permissions');
+    localStorage.removeItem('entityAccessTypes');
   }
 
   public can(permissionName: string): boolean {

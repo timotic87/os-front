@@ -379,10 +379,11 @@
               <th class="text-left py-3 px-4 font-medium text-muted-foreground">Position #</th>
               <th class="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
               <th class="text-left py-3 px-4 font-medium text-muted-foreground">Candidate</th>
-              <th class="text-right py-3 px-4 font-medium text-muted-foreground">Salary</th>
               <th class="text-right py-3 px-4 font-medium text-muted-foreground">Fee Amount</th>
-              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Created By</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Approval</th>
               <th class="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+              <th class="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -397,28 +398,48 @@
                 <span *ngIf="inv.candidate_first_name">{{ inv.candidate_first_name }} {{ inv.candidate_last_name }}</span>
                 <span *ngIf="!inv.candidate_first_name" class="text-muted-foreground">-</span>
               </td>
-              <td class="py-3 px-4 text-right text-foreground">
-                {{ inv.salary_amount | number:'1.0-2' }}
-                {{ inv.salaryCurrency?.name || '' }}
-              </td>
               <td class="py-3 px-4 text-right font-semibold text-foreground">
                 {{ inv.final_fee_amount | number:'1.0-2' }}
                 {{ inv.feeCurrency?.name || '' }}
                 <span *ngIf="inv.fee_was_overridden" class="text-amber-500 text-xs ml-1" title="Fee was manually overridden">*</span>
               </td>
               <td class="py-3 px-4">
-                <div class="flex items-center gap-2">
-                  @if(inv.creator?.profilePicUrl) {
-                    <img class="w-5 h-5 rounded-full" [src]="inv.creator.profilePicUrl" alt="" style="object-fit: cover;">
-                  } @else {
-                    <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
-                      {{ inv.creator?.firstName?.charAt(0) }}{{ inv.creator?.lastName?.charAt(0) }}
-                    </div>
-                  }
-                  <span class="text-foreground">{{ inv.creator?.firstName }} {{ inv.creator?.lastName }}</span>
-                </div>
+                <ui-badge [variant]="getStatusBadgeVariant(inv.status)" class="text-xs">
+                  {{ getStatusLabel(inv.status) }}
+                </ui-badge>
+              </td>
+              <td class="py-3 px-4">
+                <app-approval-card
+                  *ngIf="inv.approval"
+                  [approval]="inv.approval"
+                  [inlineMode]="true"
+                  (approvalUpdated)="onApprovalUpdated($event)"
+                  (allApprovalsCompleted)="onAllApprovalsCompleted($event)">
+                </app-approval-card>
+                <span *ngIf="!inv.approval && inv.status === 'approved'" class="text-xs text-muted-foreground">-</span>
               </td>
               <td class="py-3 px-4 text-muted-foreground">{{ inv.created_at | date:'MMM d, y' }}</td>
+              <td class="py-3 px-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <!-- Export button -->
+                  <button (click)="exportInvoiceCalculation(inv)"
+                          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                          title="Export calculation to Excel">
+                    <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                  </button>
+                  <!-- Delete button (only for non-approved) -->
+                  <button *ngIf="inv.status !== 'approved' && canEditOrder()"
+                          (click)="deleteInvoice(inv)"
+                          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-destructive/10 transition-colors"
+                          title="Delete invoice">
+                    <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

@@ -9,6 +9,8 @@ import { DialogService } from '../../services/dialog.service';
 import { UserService } from '../../services/user.service';
 import { AddPositionDialogComponent } from '../../deals/deal/add-position-dialog/add-position-dialog.component';
 import { RecruitingInvoiceDialogComponent } from '../recruiting-invoice-dialog/recruiting-invoice-dialog.component';
+import { ApprovalCardComponent } from '../../customComponents/approval-card/approval-card.component';
+import * as XLSX from 'xlsx';
 // ShadCN UI Components
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent } from '../../shared/components/ui/card/card.component';
@@ -27,7 +29,8 @@ import { BadgeComponent } from '../../shared/components/ui/badge/badge.component
     CardTitleComponent,
     CardDescriptionComponent,
     CardContentComponent,
-    BadgeComponent
+    BadgeComponent,
+    ApprovalCardComponent
   ],
   templateUrl: './recruiting-order.component.html'
 })
@@ -247,10 +250,17 @@ export class RecruitingOrderComponent implements OnInit {
   }
 
   openInvoiceDialog(position: any, mode: 'placement' | 'admin_fee' | 'cancel_fee'): void {
+    const positionInvoices = (this.invoices || []).filter(
+      (inv: any) => inv.position_id === position.ID && !inv.deleted
+    );
     const dialogRef = this.dialog.open(RecruitingInvoiceDialogComponent, {
       width: '700px',
       maxWidth: '95vw',
-      data: { mode, position, orderID: this.order.ID }
+      data: {
+        mode, position, orderID: this.order.ID,
+        existingInvoices: positionInvoices,
+        clientCurrency: this.order?.deal?.client?.currency || null
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -281,5 +291,133 @@ export class RecruitingOrderComponent implements OnInit {
       case 'cancel_fee': return 'warning';
       default: return 'outline';
     }
+  }
+
+  getStatusBadgeVariant(status: string): 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'secondary' {
+    switch (status) {
+      case 'pending_approval': return 'warning';
+      case 'approved': return 'success';
+      case 'rejected': return 'destructive';
+      default: return 'outline';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'pending_approval': return 'Pending Approval';
+      case 'approved': return 'Approved';
+      case 'rejected': return 'Rejected';
+      default: return status;
+    }
+  }
+
+  onApprovalUpdated(event: any): void {
+    this.loadInvoices();
+  }
+
+  onAllApprovalsCompleted(event: any): void {
+    this.loadInvoices();
+    this.loadOrder();
+  }
+
+  exportInvoiceCalculation(inv: any): void {
+    this.rest.getInvoiceCalculationData(inv.ID).subscribe({
+      next: (res) => {
+        if (res.status === 200 && res.data) {
+          const { invoice, calculationData } = res.data;
+          this.buildAndExportExcel(invoice, calculationData);
+        }
+      },
+      error: (err) => {
+        this.dialogService.showMsgDialog('Error loading calculation data: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  private buildAndExportExcel(invoice: any, calcData: any): void {
+    if (!calcData) {
+      this.dialogService.showSnackBar('No calculation data available for this invoice', '', 3000);
+      return;
+    }
+
+    const pos = calcData.position || {};
+    const cur = calcData.feeCurrencyCode || 'EUR';
+    const date = new Date(invoice.created_at).toLocaleDateString('sr-RS');
+    const rows: any[][] = [];
+
+    const typeLabel = invoice.invoice_type === 'admin_fee' ? 'Admin Fee' :
+                      invoice.invoice_type === 'placement' ? 'Placement Fee' : 'Cancel Fee';
+
+    rows.push(
+      [`${typeLabel} Calculation`, ''],
+      ['', ''],
+      ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+      ['Date', date],
+      ['', '']
+    );
+
+    if (invoice.invoice_type === 'admin_fee') {
+      rows.push(
+        ['Expected Salary', pos.expected_salary],
+        ['Derived Salary for Fee', `${calcData.derivedSalaryForFee || ''} ${cur}`],
+        ['Calculated Fee', `${calcData.calculatedFee} ${cur}`],
+        ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
+      );
+    } else {
+      rows.push(
+        ['Entered Salary', calcData.salaryInput?.amount],
+        ['Derived Salary for Fee', `${calcData.derivedSalaryForFee || ''} ${cur}`],
+        ['Fee Formula', this.getFeeFormulaLabel(calcData.feeSnapshot)],
+        ['', ''],
+        ['Calculated Fee', `${calcData.calculatedFee} ${cur}`],
+        ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
+      );
+    }
+
+    if (invoice.candidate_first_name) {
+      rows.push(['', ''], ['Candidate', `${invoice.candidate_first_name} ${invoice.candidate_last_name}`]);
+    }
+
+    if (calcData.feeWasOverridden) {
+      rows.push(['', ''], ['Note', 'Fee was manually overridden']);
+    }
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 40 }, { wch: 20 }, { wch: 16 }, { wch: 16 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Fee Calculation');
+
+    const typeSlug = invoice.invoice_type === 'admin_fee' ? 'AdminFee' :
+                     invoice.invoice_type === 'placement' ? 'Placement' : 'CancelFee';
+    XLSX.writeFile(wb, `${typeSlug}_${pos.position_number || invoice.ID}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  private getFeeFormulaLabel(feeSnapshot: any): string {
+    if (!feeSnapshot) return 'N/A';
+    switch (feeSnapshot.fee_types_id) {
+      case 1: return `${feeSnapshot.fee_percentage}%`;
+      case 2: return `${feeSnapshot.fee_multiplier}x`;
+      case 3: return `Fixed: ${feeSnapshot.fee_fixed_amount}`;
+      default: return 'N/A';
+    }
+  }
+
+  deleteInvoice(inv: any): void {
+    if (inv.status === 'approved') {
+      this.dialogService.showMsgDialog('Cannot delete an approved invoice.');
+      return;
+    }
+    this.rest.deleteRecruitingInvoice({ invoiceID: inv.ID }).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Invoice deleted', '', 3000);
+          this.loadInvoices();
+          this.loadOrder();
+        }
+      },
+      error: (err) => {
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
   }
 }

@@ -1,24 +1,177 @@
-<div class="listContainer text-gray-600">
-  <div *ngFor="let file of fileList" class="documet-card block rounded-md p-3 dark:bg-gray-600 border-2 dark:border-white/70 dark:text-white border-gray-300 my-3">
-    <div class="w-4/5">
-      <span class="text-xs dark:text-gray-400">Attached by {{ file.creatorFirstName+' '+file.creatorLastName }} <app-color-label color="green">{{file.cretedDate | date:'dd/MM/yyyy'}}</app-color-label></span>
-      <p [ngClass]="file.typeID===2? 'text-red-500 dark:text-red-400':''">{{ file.fileName }}</p>
-    </div>
-    <div class="carAction w-1/5">
-      <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="showFile(file.ID)">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-        </svg>
-      </div>
-      <div class="w-4 mr-2 transform hover:text-[#386097] dark:hover:text-[#56BDED] hover:scale-110" (click)="delete(file.ID, file.fileName)">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-      </div>
-    </div>
+@if (loading) {
+  <div class="flex items-center justify-center py-12 text-muted-foreground">
+    <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+    </svg>
+    Loading documents...
   </div>
-</div>
+} @else if (fileList.length === 0) {
+  <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+    <svg class="h-12 w-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <p class="text-sm">No documents found</p>
+  </div>
+} @else {
+  <div class="max-h-[450px] overflow-y-auto space-y-1.5 pr-1">
+    <!-- System Documents -->
+    @if (systemDocs.length > 0) {
+      <div class="mb-3">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">System Documents</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{{ systemDocs.length }}</span>
+        </div>
+        @for (file of systemDocs; track file.ID) {
+          <ng-container *ngTemplateOutlet="docRow; context: { $implicit: file }"></ng-container>
+        }
+      </div>
+    }
+
+    <!-- Custom Documents -->
+    @if (customDocs.length > 0) {
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Custom Documents</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{{ customDocs.length }}</span>
+        </div>
+        @for (file of customDocs; track file.ID) {
+          <ng-container *ngTemplateOutlet="docRow; context: { $implicit: file }"></ng-container>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Document Row Template -->
+<ng-template #docRow let-file>
+  <div class="rounded-lg border border-border bg-background mb-1.5 transition-colors hover:bg-muted/30">
+    <div class="flex items-center gap-3 p-3">
+      <!-- PDF Icon -->
+      <div class="flex-shrink-0 h-9 w-9 rounded-md flex items-center justify-center"
+           [ngClass]="file.isSystem ? 'bg-blue-500/10 text-blue-500' : 'bg-muted text-muted-foreground'">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-0.5">
+          <span class="text-sm font-medium text-foreground truncate">{{ file.fileName }}</span>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Type badge -->
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{{ file.typeName || 'Unknown' }}</span>
+          <!-- Subtype -->
+          @if (file.subTypeName) {
+            <span class="text-[10px] text-muted-foreground">/ {{ file.subTypeName }}</span>
+          }
+          <!-- Status badge -->
+          @if (file.statusName) {
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" [ngClass]="getStatusColor(file.statusID)">
+              {{ file.statusName }}
+            </span>
+          }
+          <!-- Deal link -->
+          @if (file.dealID) {
+            <button (click)="goToDeal(file.dealID)" class="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer">
+              Deal #{{ file.dealID }}
+            </button>
+          }
+          <!-- Dates -->
+          @if (file.startDate || file.endDate) {
+            <span class="text-[10px] text-muted-foreground">
+              {{ file.startDate | date:'dd.MM.yyyy' }}{{ file.endDate ? ' - ' + (file.endDate | date:'dd.MM.yyyy') : '' }}
+            </span>
+          }
+        </div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">
+          {{ file.creatorFirstName }} {{ file.creatorLastName }} &middot; {{ file.cretedDate | date:'dd.MM.yyyy HH:mm' }}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <!-- Approval button (system docs only) -->
+        @if (file.approvalID) {
+          <button (click)="toggleApproval(file)" title="View Approval"
+                  class="h-8 w-8 rounded-md flex items-center justify-center transition-colors"
+                  [ngClass]="expandedApprovalDocId === file.ID ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted'">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </button>
+        }
+        <!-- View -->
+        <button (click)="showFile(file.ID)" title="View Document"
+                class="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+        </button>
+        <!-- Download -->
+        <button (click)="downloadFile(file.ID, file.fileName)" title="Download"
+                class="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+        </button>
+        <!-- Delete -->
+        <button (click)="delete(file.ID, file.fileName)" title="Delete"
+                class="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Approval Steps (expandable) -->
+    @if (expandedApprovalDocId === file.ID) {
+      <div class="border-t border-border px-3 py-2 bg-muted/20">
+        @if (approvalLoading) {
+          <div class="flex items-center gap-2 py-2 text-muted-foreground text-xs">
+            <svg class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Loading approval...
+          </div>
+        } @else if (approvalSteps.length === 0) {
+          <p class="text-xs text-muted-foreground py-2">No approval steps found.</p>
+        } @else {
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Approval Steps</span>
+            <!-- Overall approval status -->
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                  [ngClass]="getStatusColor(file.approvalStatusID)">
+              {{ file.approvalStatusName || 'Pending' }}
+            </span>
+          </div>
+          <div class="flex items-center gap-1">
+            @for (step of approvalSteps; track step.ID; let i = $index) {
+              <div class="flex items-center gap-1">
+                <!-- Step circle -->
+                <div class="flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs"
+                     [ngClass]="getApprovalStepColor(step.status?.ID || step.statusID)">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getApprovalStepIcon(step.status?.ID || step.statusID)"/>
+                  </svg>
+                  <span>{{ step.user?.firstName || '' }} {{ step.user?.lastName || '' }}</span>
+                </div>
+                <!-- Arrow between steps -->
+                @if (i < approvalSteps.length - 1) {
+                  <svg class="h-3 w-3 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

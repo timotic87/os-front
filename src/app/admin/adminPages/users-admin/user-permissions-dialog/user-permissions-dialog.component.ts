@@ -3,7 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {RestService} from "../../../../services/rest.service";
 import {DialogService} from "../../../../services/dialog.service";
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 import {ButtonComponent} from '../../../../shared/components/ui/button/button.component';
 import {FormsModule} from "@angular/forms";
 
@@ -13,6 +13,7 @@ import {FormsModule} from "@angular/forms";
   imports: [
     ReactiveFormsModule,
     NgForOf,
+    NgIf,
     ButtonComponent,
     FormsModule
   ],
@@ -24,6 +25,12 @@ export class UserPermissionsDialogComponent implements OnInit {
   arrayOfArrays = [];
   templates: any[] = [];
   selectedTemplateId: number | null = null;
+
+  // Entity Access
+  entityAccesses: any[] = [];
+  newAccess = { entityType: 'deal', entityId: null as number | null, accessLevel: 'view' };
+  entityTypes = ['deal', 'recruiting_order', 'client'];
+  accessLevels = ['view', 'edit'];
 
   form: FormGroup;
 
@@ -53,6 +60,50 @@ export class UserPermissionsDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTemplates();
+    this.loadEntityAccesses();
+  }
+
+  loadEntityAccesses() {
+    this.rest.getUserEntityAccesses(this.user.id).subscribe(res => {
+      if (res.status === 200) {
+        this.entityAccesses = res.data;
+      }
+    });
+  }
+
+  grantAccess() {
+    if (!this.newAccess.entityId) return;
+    this.rest.grantEntityAccess({
+      userId: this.user.id,
+      entityType: this.newAccess.entityType,
+      entityId: this.newAccess.entityId,
+      accessLevel: this.newAccess.accessLevel
+    }).subscribe({
+      next: res => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Entity access granted!', '', 3000);
+          this.loadEntityAccesses();
+          this.newAccess.entityId = null;
+        }
+      },
+      error: err => this.dialogService.errorServDialog(err)
+    });
+  }
+
+  revokeAccess(access: any) {
+    this.rest.revokeEntityAccess({
+      userId: this.user.id,
+      entityType: access.entityType,
+      entityId: access.entityId
+    }).subscribe({
+      next: res => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Entity access revoked!', '', 3000);
+          this.loadEntityAccesses();
+        }
+      },
+      error: err => this.dialogService.errorServDialog(err)
+    });
   }
 
   loadTemplates() {

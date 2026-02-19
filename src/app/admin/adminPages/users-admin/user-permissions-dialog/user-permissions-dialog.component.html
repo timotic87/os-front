@@ -71,4 +71,77 @@
       </div>
     </div>
   </form>
+
+  <!-- Entity Access Section -->
+  <div class="border-t border-border mt-6 pt-6">
+    <h3 class="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+      <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+      </svg>
+      Entity Access
+    </h3>
+
+    <!-- Existing entity accesses table -->
+    <div *ngIf="entityAccesses.length > 0" class="mb-4 overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Entity Type</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Entity ID</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Access Level</th>
+            <th class="text-right py-2 px-3 text-muted-foreground font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let access of entityAccesses" class="border-b border-border/50 hover:bg-muted/50">
+            <td class="py-2 px-3">{{ access.entityType }}</td>
+            <td class="py-2 px-3">{{ access.entityId }}</td>
+            <td class="py-2 px-3">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                    [class]="access.accessLevel === 'edit' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'">
+                {{ access.accessLevel }}
+              </span>
+            </td>
+            <td class="py-2 px-3 text-right">
+              <button (click)="revokeAccess(access)"
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Revoke
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p *ngIf="entityAccesses.length === 0" class="text-sm text-muted-foreground mb-4">No entity access records for this user.</p>
+
+    <!-- Grant access form -->
+    <div class="flex items-end gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+      <div class="flex-1">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Entity Type</label>
+        <select [(ngModel)]="newAccess.entityType"
+                class="w-full h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <option *ngFor="let t of entityTypes" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Entity ID</label>
+        <input type="number" [(ngModel)]="newAccess.entityId" placeholder="ID"
+               class="w-full h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+      </div>
+      <div class="flex-1">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Access Level</label>
+        <select [(ngModel)]="newAccess.accessLevel"
+                class="w-full h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <option *ngFor="let l of accessLevels" [value]="l">{{ l }}</option>
+        </select>
+      </div>
+      <button (click)="grantAccess()" [disabled]="!newAccess.entityId"
+              class="inline-flex items-center gap-1.5 px-3 h-8 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none">
+        Grant
+      </button>
+    </div>
+  </div>
 </div>

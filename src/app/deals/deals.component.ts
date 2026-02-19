@@ -83,7 +83,7 @@ export class DealsComponent implements OnInit, OnDestroy {
   }
 
   onDealClick(deal) {
-    if (this.openDealPage) {
+    if (this.openDealPage || this.userService.hasAnyEntityAccess('deal')) {
       this.router.navigate([`/deal/${deal.ID}`]);
     } else {
       this.dialogService.showMsgDialog('You dont have permission for deal view');

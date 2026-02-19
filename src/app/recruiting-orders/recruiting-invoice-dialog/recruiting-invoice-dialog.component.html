@@ -10,14 +10,35 @@
 
   <mat-dialog-content class="dialog-content">
 
+    <!-- Admin Fee Already Exists Warning -->
+    <div *ngIf="adminFeeAlreadyExists" class="warning-banner">
+      <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+      </svg>
+      <span class="text-amber-700 text-sm">Admin fee has already been invoiced for this position.</span>
+    </div>
+
+    <!-- Placement: Admin Fee Deduction Warning -->
+    <div *ngIf="mode === 'placement' && adminFeePerPersonForDeduction" class="info-banner">
+      <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="text-blue-700 text-sm">
+        Admin fee of <strong>{{ existingAdminFeeAmount | number:'1.2-2' }}</strong> was charged for this position.
+        Consider reducing this invoice by <strong>{{ adminFeePerPersonForDeduction | number:'1.2-2' }}</strong> (per person).
+      </span>
+    </div>
+
     <!-- Position Info Bar -->
     <div class="position-info-bar">
       <div class="flex items-center gap-3 text-sm">
         <span class="font-mono text-muted-foreground">{{ position.position_number }}</span>
         <span class="font-semibold text-foreground">{{ position.position_name }}</span>
-        <ui-badge variant="outline" class="text-xs">{{ getFeeConfigLabel() }}</ui-badge>
+        <ui-badge variant="outline" class="text-xs">{{ mode === 'admin_fee' ? getMainFeeConfigLabel() : getFeeConfigLabel() }}</ui-badge>
+        <ui-badge *ngIf="mode === 'admin_fee'" variant="outline" class="text-xs">{{ getFeeConfigLabel() }}</ui-badge>
       </div>
       <div class="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+        <span>Headcount: {{ position.number_of_people }}</span>
         <span>Filled: {{ position.number_filled || 0 }} / {{ position.number_of_people }}</span>
         <span *ngIf="position.expected_salary">Expected Salary: {{ position.expected_salary | number:'1.0-2' }}</span>
       </div>
@@ -53,50 +74,141 @@
         </div>
       </div>
 
-      <!-- Salary Section -->
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <ui-label for="salary_amount" class="block text-sm font-medium mb-2">
-            {{ mode === 'cancel_fee' ? 'Predicted Salary *' : 'Salary Amount *' }}
-          </ui-label>
-          <ui-input
-            id="salary_amount"
-            type="number"
-            formControlName="salary_amount"
-            placeholder="0.00"
-            [class.border-red-500]="hasError('salary_amount')">
-          </ui-input>
-          <div *ngIf="hasError('salary_amount')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('salary_amount') }}
+      <!-- Salary Section (placement/cancel_fee - needs manual input) -->
+      <div *ngIf="needsSalaryInput" class="mb-4">
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <ui-label for="salary_amount" class="block text-sm font-medium mb-2">
+              {{ mode === 'cancel_fee' ? 'Predicted Salary *' : 'Salary Amount *' }}
+            </ui-label>
+            <ui-input
+              id="salary_amount"
+              type="number"
+              formControlName="salary_amount"
+              placeholder="0.00"
+              [class.border-red-500]="hasError('salary_amount')">
+            </ui-input>
+            <div *ngIf="hasError('salary_amount')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('salary_amount') }}
+            </div>
+          </div>
+
+          <div>
+            <ui-label for="salary_type_id" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+            <select
+              id="salary_type_id"
+              formControlName="salary_type_id"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <option [ngValue]="null" disabled>Select salary type</option>
+              <option *ngFor="let st of salaryTypes" [ngValue]="st.ID">{{ st.name }}</option>
+            </select>
+            <div *ngIf="hasError('salary_type_id')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('salary_type_id') }}
+            </div>
+          </div>
+
+          <div>
+            <ui-label for="salary_currency_id" class="block text-sm font-medium mb-2">Currency *</ui-label>
+            <select
+              id="salary_currency_id"
+              formControlName="salary_currency_id"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <option [ngValue]="null" disabled>Select currency</option>
+              <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
+            </select>
+            <div *ngIf="hasError('salary_currency_id')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('salary_currency_id') }}
+            </div>
           </div>
         </div>
 
-        <div>
-          <ui-label for="salary_type_id" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
-          <select
-            id="salary_type_id"
-            formControlName="salary_type_id"
-            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <option [ngValue]="null" disabled>Select salary type</option>
-            <option *ngFor="let st of salaryTypes" [ngValue]="st.ID">{{ st.name }}</option>
-          </select>
-          <div *ngIf="hasError('salary_type_id')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('salary_type_id') }}
-          </div>
+        <!-- Calculate Button -->
+        <div class="mt-3">
+          <ui-button
+            variant="outline"
+            size="sm"
+            (onClick)="calculateFee()"
+            [disabled]="isCalculating">
+            {{ isCalculating ? 'Calculating...' : 'Calculate Fee' }}
+          </ui-button>
+        </div>
+      </div>
+
+      <!-- Admin Fee: auto-calculated breakdown -->
+      <div *ngIf="mode === 'admin_fee'" class="mb-4">
+        <div *ngIf="isCalculating" class="text-sm text-muted-foreground py-4 text-center">
+          Calculating admin fee...
         </div>
 
-        <div>
-          <ui-label for="salary_currency_id" class="block text-sm font-medium mb-2">Currency *</ui-label>
-          <select
-            id="salary_currency_id"
-            formControlName="salary_currency_id"
-            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <option [ngValue]="null" disabled>Select currency</option>
-            <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.name }}</option>
-          </select>
-          <div *ngIf="hasError('salary_currency_id')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('salary_currency_id') }}
+        <div *ngIf="feeBreakdown && !isCalculating" class="fee-breakdown">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-xs font-medium text-muted-foreground">Admin Fee Calculation Breakdown</div>
+            <button type="button" class="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer" (click)="exportCalculation()">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Export
+            </button>
           </div>
+          <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+            <div class="text-muted-foreground">Expected Salary:</div>
+            <div class="font-medium">{{ position.expected_salary | number:'1.2-2' }}</div>
+
+            <div class="text-muted-foreground">Derived Salary ({{ getDerivedSalaryLabel() }}):</div>
+            <div class="font-medium">{{ derivedSalaryForFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+
+            <div class="text-muted-foreground">Projected Fee per Person ({{ getMainFeeConfigLabel() }}):</div>
+            <div class="font-medium">{{ projectedFeePerPerson | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+
+            <div class="text-muted-foreground">Admin Fee per Person ({{ getFeeConfigLabel() }}):</div>
+            <div class="font-medium">{{ adminFeePerPerson | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+
+            <div class="text-muted-foreground">Headcount:</div>
+            <div class="font-medium">{{ adminHeadcount }}</div>
+
+            <div class="text-muted-foreground font-semibold border-t border-border pt-2 mt-1">Total Admin Fee:</div>
+            <div class="font-bold text-primary border-t border-border pt-2 mt-1">{{ calculatedFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placement/Cancel Fee Calculation Breakdown -->
+      <div *ngIf="feeBreakdown && needsSalaryInput" class="fee-breakdown">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-xs font-medium text-muted-foreground">Fee Calculation Breakdown</div>
+          <button type="button" class="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer" (click)="exportCalculation()">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Export
+          </button>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-sm">
+          <div>
+            <span class="text-muted-foreground">Derived Salary:</span>
+            <div class="font-semibold">{{ derivedSalaryForFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+            <div class="text-xs text-muted-foreground">{{ getDerivedSalaryLabel() }}</div>
+          </div>
+          <div>
+            <span class="text-muted-foreground">Fee Formula:</span>
+            <div class="font-semibold">{{ getFeeConfigLabel() }}</div>
+          </div>
+          <div>
+            <span class="text-muted-foreground">Calculated Fee:</span>
+            <div class="font-semibold text-primary">{{ calculatedFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+          </div>
+        </div>
+        <!-- Deduct Admin Fee Button (placement only, when admin fee exists) -->
+        <div *ngIf="mode === 'placement' && adminFeePerPersonForDeduction" class="mt-3 pt-3 border-t border-border flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">
+            Admin fee per person: <strong>{{ adminFeePerPersonForDeduction | number:'1.2-2' }}</strong>
+          </span>
+          <ui-button
+            variant="outline"
+            size="sm"
+            (onClick)="deductAdminFee()">
+            Deduct Admin Fee
+          </ui-button>
         </div>
       </div>
 
@@ -129,7 +241,7 @@
             formControlName="fee_currency_id"
             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <option [ngValue]="null" disabled>Select currency</option>
-            <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.name }}</option>
+            <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
           </select>
           <div *ngIf="hasError('fee_currency_id')" class="text-red-500 text-sm mt-1">
             {{ getErrorMessage('fee_currency_id') }}

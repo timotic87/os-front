@@ -1,19 +1,32 @@
-<div class="h-full w-full dark:bg-gray-600 p-6" style="overflow: hidden">
-  <div class="text-gray-400 dark:text-neutral-100">
-    <h2 class="text-md ms-3">{{ client.customerName+' - Documentations' }}</h2>
-  </div>
-  <hr class="my-5 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
-  <div class="mb-3">
-    <nav class="flex flex-col sm:flex-row">
-      <button [disabled]="disableAddDocPage" class="py-4 px-6 block hover:text-blue-500 focus:outline-none" [ngClass]="isListDocumentsPage? 'text-blue-500 border-blue-500 border-b-2 font-medium':'dark:text-white'" (click)="togglePage();">
-        Documents
-      </button>
-      <button [disabled]="disableAddDocPage" class="py-4 px-6 block hover:text-blue-500 focus:outline-none disabled:hover:text-gray-500 disabled:text-gray-500" [ngClass]="!isListDocumentsPage? 'text-blue-500 border-blue-500 border-b-2 font-medium':'dark:text-white'" (click)="togglePage();">
-      Add document
+<div class="p-6 bg-background text-foreground" style="overflow: hidden">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h2 class="text-lg font-semibold">{{ client.customerName }}</h2>
+      <p class="text-sm text-muted-foreground">Documentation</p>
+    </div>
+    <button (click)="close()" class="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
     </button>
-    </nav>
   </div>
-  @if (isListDocumentsPage){
+
+  <!-- Tabs -->
+  <div class="flex gap-1 border-b border-border mb-4">
+    <button class="px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px"
+            [class]="isListDocumentsPage ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
+            (click)="isListDocumentsPage || togglePage()">
+      Documents
+    </button>
+    <button [disabled]="disableAddDocPage"
+            class="px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px disabled:opacity-40 disabled:cursor-not-allowed"
+            [class]="!isListDocumentsPage ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
+            (click)="!isListDocumentsPage || togglePage()">
+      Add Document
+    </button>
+  </div>
+
+  @if (isListDocumentsPage) {
     <app-document-list [clientId]="client.id"></app-document-list>
   } @else {
     <app-choose-document-type (isValid)="typesValid($event)" (types)="getTypes($event)"></app-choose-document-type>
@@ -21,10 +34,14 @@
       <app-contract-document-form (formGroupp)="getFormGroup($event)"></app-contract-document-form>
       <app-pick-file (onFileSelected)="itemSelected($event)"></app-pick-file>
     </div>
+    <div class="flex gap-2 mt-4">
+      <button (click)="send();" [disabled]="!formGroup || !formGroup.valid || !file || !isTypeValid"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Upload Document
+      </button>
+    </div>
   }
-  <div class="w-full flex flex-row mt-3">
-    <button (click)="send();" [disabled]="!formGroup || !formGroup.valid || !file || !isTypeValid" class="mr-3 bg-[#386097] dark:bg-[#56BDED] hover:bg-[#4576ba] dark:hover:bg-[#75c9f0] text-white font-semibold rounded-md py-2 px-4 w-1/4 disabled:bg-gray-400 disabled:hover:bg-gray-400 dark:disabled:hover:bg-gray-400" *ngIf="!isListDocumentsPage">Send</button>
-    <button (click)="close();" class="bg-red-500 hover:bg-red-400 text-white font-semibold rounded-md py-2 px-4 w-1/4">Close</button>
-  </div>
 </div>
-

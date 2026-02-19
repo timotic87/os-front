@@ -33,7 +33,11 @@ export class ChangePasswordDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.changePassForm = new FormGroup({
-      password: new FormControl(null, [Validators.required, Validators.minLength(6)])
+      password: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+      ])
     });
   }
 
@@ -42,10 +46,16 @@ export class ChangePasswordDialogComponent implements OnInit {
       this.dialogService.showLoader();
       let data = this.changePassForm.value;
       data.userID = this.user.id;
-      this.rest.resetUserPass(data).subscribe(res => {
-        this.dialogService.closeLoader();
-        if (res.status === 201) {
-          this.dialogRef.close(res.status);
+      this.rest.resetUserPass(data).subscribe({
+        next: res => {
+          this.dialogService.closeLoader();
+          if (res.status === 201) {
+            this.dialogRef.close(res.status);
+          }
+        },
+        error: err => {
+          this.dialogService.closeLoader();
+          this.dialogService.errorServDialog(err);
         }
       });
     } else {

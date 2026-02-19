@@ -34,7 +34,7 @@ const buttonVariants = cva(
   standalone: true,
   imports: [CommonModule],
   template: `
-    <button 
+    <button
       [class]="computedClass"
       [disabled]="disabled"
       [type]="type"
@@ -42,6 +42,7 @@ const buttonVariants = cva(
       <ng-content></ng-content>
     </button>
   `,
+  styles: [`:host { display: inline-block; }`],
   encapsulation: ViewEncapsulation.None
 })
 export class ButtonComponent implements VariantProps<typeof buttonVariants> {

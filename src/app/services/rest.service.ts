@@ -229,7 +229,8 @@ export class RestService {
     flowStatusId?: number,
     legalEntityId?: number,
     serviceId?: number,
-    subserviceId?: number
+    subserviceId?: number,
+    clientName?: string
   }) {
     return this.http.post(`${this.baseUrl}/getDeals`, data, { headers: this.headers() }) as Observable<{ data: any[], totalCount: number }>;
   }
@@ -479,12 +480,28 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/createRecruitingInvoice`, data, { headers: this.headers() }) as Observable<any>;
   }
 
+  calculateRecruitingFee(data: { salary: number, salaryInputTypeId: number, positionId: number, currencyCode: string, feeCurrencyCode?: string, invoiceType?: string }) {
+    return this.http.post(`${this.baseUrl}/calculateRecruitingFee`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
   getInvoicesByOrderID(orderID: number) {
     return this.http.get(`${this.baseUrl}/getInvoicesByOrderID/${orderID}`, { headers: this.headers() }) as Observable<any>;
   }
 
   deleteRecruitingInvoice(data: any) {
     return this.http.post(`${this.baseUrl}/deleteRecruitingInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getApprovalByRecruitingInvoiceID(invoiceID: number) {
+    return this.http.get(`${this.baseUrl}/getApprovalByRecruitingInvoiceID/${invoiceID}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getApprovedRecruitingInvoices(data: { offset: number, limit: number, search?: string }) {
+    return this.http.post(`${this.baseUrl}/getApprovedRecruitingInvoices`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getInvoiceCalculationData(invoiceID: number) {
+    return this.http.get(`${this.baseUrl}/getInvoiceCalculationData/${invoiceID}`, { headers: this.headers() }) as Observable<any>;
   }
 
   // NBS Exchange Rate

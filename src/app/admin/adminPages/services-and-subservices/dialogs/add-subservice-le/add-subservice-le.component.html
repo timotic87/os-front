@@ -21,7 +21,7 @@
           <input type="text" formControlName="le" [matAutocomplete]="autoLe" class="customNumberInput w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="subserviceLEForm.get('le').touched && !subserviceLEForm.get('le').valid ? 'border-red-500':''" autocomplete="new-country">
           <mat-autocomplete #autoLe="matAutocomplete" class="bg-white dark:bg-gray-600">
-            @for (le of leService.getLEList(); track le){
+            @for (le of legalEntities; track le){
               <mat-option [value]="le.shortName" (click)="leClick(le)">{{le.shortName}}</mat-option>
             }
           </mat-autocomplete>

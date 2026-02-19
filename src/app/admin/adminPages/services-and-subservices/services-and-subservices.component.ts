@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {ServicesAndSubservicesService} from "../../../services/services-and-subservices.service";
 import {MatDialog} from "@angular/material/dialog";
 import {AddServicesComponent} from "./dialogs/add-services/add-services.component";
@@ -18,7 +18,7 @@ import {CardComponent, CardContentComponent, CardHeaderComponent, CardTitleCompo
   templateUrl: './services-and-subservices.component.html',
   styleUrl: './services-and-subservices.component.css'
 })
-export class ServicesAndSubservicesComponent {
+export class ServicesAndSubservicesComponent implements OnInit {
 
   selectedService: any = null;
 
@@ -33,6 +33,10 @@ export class ServicesAndSubservicesComponent {
   }
 
   constructor(public SANDS: ServicesAndSubservicesService, private matDialog: MatDialog) {
+  }
+
+  ngOnInit() {
+    this.SANDS.ensureLoaded();
   }
 
   selectService(service: any) {

@@ -19,14 +19,26 @@ export class ServicesAndSubservicesService {
 
   subservicelegalEntity: SubserviceLegalentityModel[] = [];
 
+  private _servicesLoading = false;
+  private _subservicesLoading = false;
+  private _subserviceLELoading = false;
+
   constructor(private rest: RestService, private dialogService: DialogService) {
     this.createListOfServices();
     this.createListOfSubervices();
     this.createListOfSubserviceLE();
   }
 
+  ensureLoaded() {
+    if (this.services.length === 0 && !this._servicesLoading) this.createListOfServices();
+    if (this.subservices.length === 0 && !this._subservicesLoading) this.createListOfSubervices();
+    if (this.subservicelegalEntity.length === 0 && !this._subserviceLELoading) this.createListOfSubserviceLE();
+  }
+
   createListOfServices(){
+    this._servicesLoading = true;
     this.rest.getServices().subscribe(res=>{
+      this._servicesLoading = false;
       if (res.status == 200){
         this.services = [];
         for (let item of res.data) {
@@ -37,7 +49,7 @@ export class ServicesAndSubservicesService {
       }else {
         this.dialogService.errorDialog(res)
       }
-    });
+    }, () => { this._servicesLoading = false; });
   }
 
   public createListOfServicesForLe(leID): Promise<void>{
@@ -56,7 +68,9 @@ export class ServicesAndSubservicesService {
   }
 
   createListOfSubervices(){
+    this._subservicesLoading = true;
     this.rest.getSubservices().subscribe(res=>{
+      this._subservicesLoading = false;
       if (res.status == 200){
         this.subservices = [];
         for (let item of res.data) {
@@ -68,7 +82,7 @@ export class ServicesAndSubservicesService {
       else {
         this.dialogService.errorDialog(res)
       }
-    });
+    }, () => { this._subservicesLoading = false; });
   }
   createListOfSubervicesForLE(leID, serviceID):Promise<void>{
     return new Promise((resolve, reject) => {
@@ -86,7 +100,9 @@ export class ServicesAndSubservicesService {
     })
   }
   createListOfSubserviceLE(){
+    this._subserviceLELoading = true;
     this.rest.getSubservicesLE().subscribe(res=>{
+      this._subserviceLELoading = false;
       if (res.status == 200){
         this.subservicelegalEntity = [];
         for (let item of res.data) {
@@ -97,7 +113,7 @@ export class ServicesAndSubservicesService {
       }else {
         this.dialogService.errorDialog(res)
       }
-    });
+    }, () => { this._subserviceLELoading = false; });
   }
 
   deleteService(id: number) {

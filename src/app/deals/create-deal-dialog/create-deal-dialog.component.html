@@ -8,8 +8,8 @@
       </svg>
     </div>
     <div>
-      <h2 class="text-xl font-semibold text-foreground">Create Project</h2>
-      <p class="text-sm text-muted-foreground">Fill in the details to create a new project</p>
+      <h2 class="text-xl font-semibold text-foreground">Create Deal</h2>
+      <p class="text-sm text-muted-foreground">Fill in the details to create a new deal</p>
     </div>
   </div>
 
@@ -29,6 +29,7 @@
           <select formControlName="legalEntity"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none pr-8 cursor-pointer"
                   [ngClass]="createDealForm.get('legalEntity').touched && !createDealForm.get('legalEntity').valid ? 'border-destructive' : ''">
+            <option [ngValue]="null" disabled>Select Legal Entity...</option>
             @for(le of listLe; track le){
               <option [ngValue]="le">{{ le.name }}</option>
             }
@@ -72,6 +73,7 @@
           <select formControlName="service"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none pr-8 cursor-pointer"
                   [ngClass]="createDealForm.get('service').touched && !createDealForm.get('service').valid ? 'border-destructive' : ''">
+            <option [ngValue]="null" disabled>Select Service...</option>
             @for(service of SANDS.servicesForLe; track service){
               <option [ngValue]="service">{{ service.name }}</option>
             }
@@ -96,6 +98,7 @@
           <select formControlName="subservice"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none pr-8 cursor-pointer"
                   [ngClass]="createDealForm.get('subservice').touched && !createDealForm.get('subservice').valid ? 'border-destructive' : ''">
+            <option [ngValue]="null" disabled>Select Subservice...</option>
             @for(subservice of SANDS.subservicesForLe; track subservice){
               <option [ngValue]="subservice">{{ subservice.name }}</option>
             }
@@ -190,7 +193,7 @@
           <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
-          Create Project
+          Create Deal
         </ui-button>
       </div>
     </div>

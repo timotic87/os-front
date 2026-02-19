@@ -1,0 +1,99 @@
+<ui-card>
+  <ui-card-header>
+    <ui-card-title>Entity Access Management</ui-card-title>
+    <ui-card-description>Search for an entity to view and manage user access</ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+
+    <!-- Search Bar -->
+    <div class="flex items-end gap-3 mb-6 p-4 rounded-lg bg-muted/50 border border-border">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Entity Type</label>
+        <select [(ngModel)]="searchEntityType"
+                class="h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <option *ngFor="let t of entityTypes" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Entity ID</label>
+        <input type="number" [(ngModel)]="searchEntityId" placeholder="Enter ID"
+               class="h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring w-32">
+      </div>
+      <ui-button variant="default" (onClick)="search()" [disabled]="!searchEntityId">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Search
+      </ui-button>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="searched">
+      <h3 class="text-sm font-semibold text-foreground mb-3">
+        Users with access to {{ searchEntityType }} #{{ searchEntityId }}
+      </h3>
+
+      <div *ngIf="accessList.length > 0" class="overflow-x-auto mb-6">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left py-2 px-3 text-muted-foreground font-medium">User</th>
+              <th class="text-left py-2 px-3 text-muted-foreground font-medium">Access Level</th>
+              <th class="text-right py-2 px-3 text-muted-foreground font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let access of accessList" class="border-b border-border/50 hover:bg-muted/50">
+              <td class="py-2 px-3">
+                <span *ngIf="access.user">{{ access.user.firstName }} {{ access.user.lastName }}</span>
+                <span *ngIf="!access.user" class="text-muted-foreground">User #{{ access.userId }}</span>
+              </td>
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                      [class]="access.accessLevel === 'edit' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'">
+                  {{ access.accessLevel }}
+                </span>
+              </td>
+              <td class="py-2 px-3 text-right">
+                <button (click)="revoke(access)"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Revoke
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="accessList.length === 0" class="text-sm text-muted-foreground mb-6">No users have access to this entity.</p>
+
+      <!-- Grant Access Form -->
+      <div class="p-4 rounded-lg bg-muted/50 border border-border">
+        <h4 class="text-sm font-medium text-foreground mb-3">Grant Access</h4>
+        <div class="flex items-end gap-3">
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-muted-foreground mb-1">User</label>
+            <select [(ngModel)]="grantUserId"
+                    class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              <option [ngValue]="null">Select user...</option>
+              <option *ngFor="let u of allUsers" [ngValue]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Access Level</label>
+            <select [(ngModel)]="grantAccessLevel"
+                    class="h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              <option *ngFor="let l of accessLevels" [value]="l">{{ l }}</option>
+            </select>
+          </div>
+          <ui-button variant="default" (onClick)="grant()" [disabled]="!grantUserId">
+            Grant Access
+          </ui-button>
+        </div>
+      </div>
+    </div>
+
+  </ui-card-content>
+</ui-card>

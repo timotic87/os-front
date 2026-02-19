@@ -10,10 +10,11 @@ import {TokenService} from "./token.service";
 export class LegalEntityService {
 
   private _legalEntitiyList: LegalEntityModel[];
+  private _loading = false;
 
   constructor(private rest: RestService, private cookieService: CookieService, private tokenService: TokenService) { }
   getLEList(): LegalEntityModel[]{
-    if (!this._legalEntitiyList || this._legalEntitiyList.length<0){
+    if (!this._legalEntitiyList || (this._legalEntitiyList.length === 0 && !this._loading)){
       this.factoryLEFromRest();
       return this._legalEntitiyList
     }else {
@@ -23,17 +24,20 @@ export class LegalEntityService {
 
   private factoryLEFromRest(){
     this._legalEntitiyList = [];
+    this._loading = true;
     if (this.tokenService.isTokenOk()){
       this.rest.getLEList().subscribe(res=>{
+        this._loading = false;
         if (res.status===200){
           for(let i of res.data){
             this._legalEntitiyList.push(LegalEntityModel.createLegalEntity(i));
           }
-          return this._legalEntitiyList
-        }else {
-          return this._legalEntitiyList;
         }
+      }, () => {
+        this._loading = false;
       })
+    } else {
+      this._loading = false;
     }
   }
 }
