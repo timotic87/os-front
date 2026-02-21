@@ -9,6 +9,7 @@ import {UserService} from "../services/user.service";
 import { NotificationSocketService } from '../services/notification-socket.service';
 import {DialogService} from "../services/dialog.service";
 import {NotificationStoreService} from "../services/notification-store-service.service";
+import {ThemeService} from "../services/theme.service";
 import { InputComponent } from '../shared/components/ui/input/input.component';
 import { ButtonComponent } from '../shared/components/ui/button/button.component';
 import { AlertComponent, AlertDescriptionComponent } from '../shared/components/ui/alert/alert.component';
@@ -38,7 +39,8 @@ export class LoginComponent implements OnInit {
     private userService: UserService,
     private notificationSocketService: NotificationSocketService,
     private dialogService: DialogService,
-    private notificationStoreService: NotificationStoreService
+    private notificationStoreService: NotificationStoreService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit() {

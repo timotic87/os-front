@@ -74,12 +74,11 @@
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">ID</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Order #</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Position</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Candidate</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
               <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Fee Amount</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Currency</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Approved</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</th>
               <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Export</th>
             </tr>
           </thead>
@@ -88,23 +87,24 @@
               <tr class="border-b border-border hover:bg-muted/50 transition-colors">
                 <td class="px-3 py-2.5 font-mono text-sm text-muted-foreground">{{ inv.ID }}</td>
                 <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.order?.order_number || '-' }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.position?.position_number }} - {{ inv.position?.position_name }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.position?.position_number }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.client?.customerName || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.legalEntity?.shortName || inv.order?.deal?.legalEntity?.name || '-' }}</td>
                 <td class="px-3 py-2.5">
                   <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
                     {{ getInvoiceTypeLabel(inv.invoice_type) }}
                   </ui-badge>
                 </td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.client?.customerName || '-' }}</td>
+                <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
+                  {{ inv.final_fee_amount | number:'1.2-2' }} {{ inv.feeCurrency?.code || '' }}
+                </td>
                 <td class="px-3 py-2.5 text-sm text-foreground">
-                  @if (inv.candidate_first_name) {
-                    {{ inv.candidate_first_name }} {{ inv.candidate_last_name }}
+                  @if (inv.creator) {
+                    {{ inv.creator.firstName }} {{ inv.creator.lastName }}
                   } @else {
                     <span class="text-muted-foreground">-</span>
                   }
                 </td>
-                <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">{{ inv.final_fee_amount | number:'1.2-2' }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.feeCurrency?.name || '' }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.approved_at | date:'dd.MM.yyyy' }}</td>
                 <td class="px-3 py-2.5 text-center">
                   <button (click)="exportInvoice(inv)"
                           class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"

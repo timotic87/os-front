@@ -201,11 +201,29 @@
                         (click)="openInvoiceDialog(position, 'placement')">
                   Close Position
                 </button>
-                <button mat-menu-item (click)="openInvoiceDialog(position, 'admin_fee')">
+                <button mat-menu-item
+                        [disabled]="hasAdminFeeInvoice(position) || hasCancelFeeInvoice(position)"
+                        (click)="openInvoiceDialog(position, 'admin_fee')">
                   Admin Fee
                 </button>
-                <button mat-menu-item (click)="openInvoiceDialog(position, 'cancel_fee')">
+                <button mat-menu-item
+                        [disabled]="hasCancelFeeInvoice(position) || hasAdminFeeInvoice(position)"
+                        (click)="openInvoiceDialog(position, 'cancel_fee')">
                   Cancel Fee
+                </button>
+                <!-- Position Management -->
+                <div *ngIf="userService.can('edit_position') || userService.can('delete_position')" class="border-t border-border my-1"></div>
+                <div *ngIf="userService.can('edit_position') || userService.can('delete_position')" class="px-3 py-2 text-xs font-medium text-muted-foreground">Position Management</div>
+                <button mat-menu-item
+                        *ngIf="userService.can('edit_position')"
+                        (click)="editPosition(position)">
+                  Edit Position
+                </button>
+                <button mat-menu-item
+                        *ngIf="userService.can('delete_position')"
+                        [disabled]="hasNonRejectedInvoices(position)"
+                        (click)="deletePosition(position)">
+                  <span class="text-destructive">Delete Position</span>
                 </button>
               </mat-menu>
             </div>
@@ -238,7 +256,7 @@
               </svg>
               <span>
                 Salary: {{ position.expected_salary | number:'1.0-2' }}
-                {{ position.expectedSalaryCurrency?.name || getCurrencySymbol(position.expected_salary_currency_id) }}
+                {{ position.expectedSalaryCurrency?.code || getCurrencySymbol(position.expected_salary_currency_id) }}
                 <span class="text-muted-foreground/70">({{ position.expectedSalaryType?.name || getSalaryTypeName(position.expected_salary_type_id) }})</span>
               </span>
             </div>
@@ -249,7 +267,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
               </svg>
               <span *ngIf="position.fee_types_id === 3 && position.fee_amount">
-                Fee: {{ position.fee_amount | number:'1.0-2' }} {{ position.feeCurrency?.name || getCurrencySymbol(position.fee_currency_id) }} (Fixed)
+                Fee: {{ position.fee_amount | number:'1.0-2' }} {{ position.feeCurrency?.code || getCurrencySymbol(position.fee_currency_id) }} (Fixed)
               </span>
               <span *ngIf="position.fee_types_id === 1">
                 Fee: {{ position.fee_percentage != null ? (position.fee_percentage | number:'1.0-2') + '%' : 'N/A' }} of {{ position.salaryType?.name || getSalaryTypeName(position.salary_type_id) || 'salary' }}
@@ -267,7 +285,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
               </svg>
               <span *ngIf="position.extra_fee_calculation_type === 3">
-                Additional Fee: {{ position.extra_fee_amount | number:'1.0-2' }} {{ position.extraFeeCurrency?.name || getCurrencySymbol(position.extra_fee_currency_id) }}
+                Additional Fee: {{ position.extra_fee_amount | number:'1.0-2' }} {{ position.extraFeeCurrency?.code || getCurrencySymbol(position.extra_fee_currency_id) }}
                 ({{ position.extraFeeType?.name || 'Fixed' }})
               </span>
               <span *ngIf="position.extra_fee_calculation_type === 1">
@@ -410,7 +428,7 @@
               </td>
               <td class="py-3 px-4 text-right font-semibold text-foreground">
                 {{ inv.final_fee_amount | number:'1.0-2' }}
-                {{ inv.feeCurrency?.name || '' }}
+                {{ inv.feeCurrency?.code || '' }}
                 <span *ngIf="inv.fee_was_overridden" class="text-amber-500 text-xs ml-1" title="Fee was manually overridden">*</span>
               </td>
               <td class="py-3 px-4">

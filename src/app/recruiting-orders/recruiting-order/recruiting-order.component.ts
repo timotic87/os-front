@@ -8,6 +8,7 @@ import { RestService } from '../../services/rest.service';
 import { DialogService } from '../../services/dialog.service';
 import { UserService } from '../../services/user.service';
 import { AddPositionDialogComponent } from '../../deals/deal/add-position-dialog/add-position-dialog.component';
+import { EditPositionDialogComponent } from '../edit-position-dialog/edit-position-dialog.component';
 import { RecruitingInvoiceDialogComponent } from '../recruiting-invoice-dialog/recruiting-invoice-dialog.component';
 import { ApprovalCardComponent } from '../../customComponents/approval-card/approval-card.component';
 import { HistoryDialogComponent } from '../../customComponents/history-dialog/history-dialog.component';
@@ -142,6 +143,52 @@ export class RecruitingOrderComponent implements OnInit {
         this.loadOrder();
       }
     });
+  }
+
+  editPosition(position: any): void {
+    const dialogRef = this.dialog.open(EditPositionDialogComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      data: { position, invoices: this.invoices }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadOrder();
+        this.loadInvoices();
+      }
+    });
+  }
+
+  deletePosition(position: any): void {
+    if (this.hasNonRejectedInvoices(position)) {
+      this.dialogService.showMsgDialog('Cannot delete a position that has non-rejected invoices.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete position "${position.position_number} - ${position.position_name}"?`
+    );
+    if (!confirmed) return;
+
+    this.rest.deletePosition({ positionID: position.ID }).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Position deleted', '', 3000);
+          this.loadOrder();
+          this.loadInvoices();
+        }
+      },
+      error: (err) => {
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  hasNonRejectedInvoices(position: any): boolean {
+    return (this.invoices || []).some(
+      (inv: any) => inv.position_id === position.ID && inv.status !== 'rejected' && !inv.deleted
+    );
   }
 
   assignRecruiter(positionID: number, userID: number): void {
@@ -289,6 +336,20 @@ export class RecruitingOrderComponent implements OnInit {
     return (position.number_filled || 0) < position.number_of_people;
   }
 
+  /** Check if a non-rejected admin_fee invoice exists for this position */
+  hasAdminFeeInvoice(position: any): boolean {
+    return (this.invoices || []).some(
+      (inv: any) => inv.position_id === position.ID && inv.invoice_type === 'admin_fee' && inv.status !== 'rejected'
+    );
+  }
+
+  /** Check if a non-rejected cancel_fee invoice exists for this position */
+  hasCancelFeeInvoice(position: any): boolean {
+    return (this.invoices || []).some(
+      (inv: any) => inv.position_id === position.ID && inv.invoice_type === 'cancel_fee' && inv.status !== 'rejected'
+    );
+  }
+
   getInvoiceTypeLabel(type: string): string {
     switch (type) {
       case 'placement': return 'Placement';
@@ -327,6 +388,7 @@ export class RecruitingOrderComponent implements OnInit {
 
   onApprovalUpdated(event: any): void {
     this.loadInvoices();
+    this.loadOrder();
   }
 
   onAllApprovalsCompleted(event: any): void {
@@ -358,29 +420,42 @@ export class RecruitingOrderComponent implements OnInit {
     const cur = calcData.feeCurrencyCode || 'EUR';
     const date = new Date(invoice.created_at).toLocaleDateString('sr-RS');
     const rows: any[][] = [];
+    const invoiceType = invoice.invoice_type;
 
-    const typeLabel = invoice.invoice_type === 'admin_fee' ? 'Admin Fee' :
-                      invoice.invoice_type === 'placement' ? 'Placement Fee' : 'Cancel Fee';
-
-    rows.push(
-      [`${typeLabel} Calculation`, ''],
-      ['', ''],
-      ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
-      ['Date', date],
-      ['', '']
-    );
-
-    if (invoice.invoice_type === 'admin_fee') {
+    if (invoiceType === 'admin_fee') {
       rows.push(
+        ['Admin Fee Calculation', ''],
+        ['', ''],
+        ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+        ['Date', date],
+        ['', ''],
         ['Expected Salary', pos.expected_salary],
-        ['Derived Salary for Fee', `${calcData.derivedSalaryForFee || ''} ${cur}`],
-        ['Calculated Fee', `${calcData.calculatedFee} ${cur}`],
+        [`Derived Salary (${this.getDerivedSalaryLabel(calcData.derivedSalaryType, pos.salary_type_id)})`, `${calcData.derivedSalaryForFee} ${cur}`],
+        [`Projected Fee per Person (${this.getMainFeeConfigLabel(pos)})`, `${calcData.projectedFeePerPerson} ${cur}`],
+        [`Admin Fee per Person (${this.getExtraFeeConfigLabel(pos)})`, `${calcData.adminFeePerPerson} ${cur}`],
+        ['Headcount', calcData.headcount || pos.number_of_people],
+        ['', ''],
+        ['Total Admin Fee', `${calcData.calculatedFee} ${cur}`],
         ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
       );
     } else {
+      const typeLabel = invoiceType === 'placement' ? 'Placement Fee' : 'Cancel Fee';
       rows.push(
+        [`${typeLabel} Calculation`, ''],
+        ['', ''],
+        ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+        ['Date', date],
+      );
+
+      if (invoice.candidate_first_name) {
+        rows.push(['Candidate', `${invoice.candidate_first_name} ${invoice.candidate_last_name}`]);
+      }
+
+      rows.push(
+        ['', ''],
         ['Entered Salary', calcData.salaryInput?.amount],
-        ['Derived Salary for Fee', `${calcData.derivedSalaryForFee || ''} ${cur}`],
+        ['Salary Type', invoice.salaryType?.name || ''],
+        [`Derived Salary (${this.getDerivedSalaryLabel(calcData.derivedSalaryType, pos.salary_type_id)})`, `${calcData.derivedSalaryForFee} ${cur}`],
         ['Fee Formula', this.getFeeFormulaLabel(calcData.feeSnapshot)],
         ['', ''],
         ['Calculated Fee', `${calcData.calculatedFee} ${cur}`],
@@ -388,22 +463,64 @@ export class RecruitingOrderComponent implements OnInit {
       );
     }
 
-    if (invoice.candidate_first_name) {
-      rows.push(['', ''], ['Candidate', `${invoice.candidate_first_name} ${invoice.candidate_last_name}`]);
+    if (calcData.feeWasOverridden) {
+      rows.push(['Fee Override', 'Yes (manually adjusted)']);
     }
 
-    if (calcData.feeWasOverridden) {
-      rows.push(['', ''], ['Note', 'Fee was manually overridden']);
+    // Salary calculator breakdown
+    const calcResults = calcData.calculatorResults;
+    if (calcResults) {
+      rows.push(['', ''], ['Salary Calculator Results', ''], ['', 'RSD', 'EUR', 'USD']);
+      const labels: Record<string, string> = {
+        monthlyNet: 'Monthly Net', monthlyGross: 'Monthly Base Gross', monthlyGrandGross: 'Monthly Grand Gross',
+        annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
+      };
+      for (const [key, label] of Object.entries(labels)) {
+        rows.push([
+          label,
+          calcResults['RSD']?.[key] || '',
+          calcResults['EUR']?.[key] || '',
+          calcResults['USD']?.[key] || ''
+        ]);
+      }
+    }
+
+    // Exchange rates
+    if (calcData.exchangeRates) {
+      rows.push(['', ''], ['Exchange Rates', '']);
+      if (calcData.exchangeRates.EUR) {
+        rows.push(['1 EUR', `${calcData.exchangeRates.EUR} RSD`]);
+      }
+      if (calcData.exchangeRates.USD) {
+        rows.push(['1 USD', `${calcData.exchangeRates.USD} RSD`]);
+      }
     }
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch: 40 }, { wch: 20 }, { wch: 16 }, { wch: 16 }];
+    ws['!cols'] = [{ wch: 45 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Fee Calculation');
 
-    const typeSlug = invoice.invoice_type === 'admin_fee' ? 'AdminFee' :
-                     invoice.invoice_type === 'placement' ? 'Placement' : 'CancelFee';
+    const typeSlug = invoiceType === 'admin_fee' ? 'AdminFee' :
+                     invoiceType === 'placement' ? 'Placement' : 'CancelFee';
     XLSX.writeFile(wb, `${typeSlug}_${pos.position_number || invoice.ID}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  private getDerivedSalaryLabel(key: string | null, salaryTypeId?: number): string {
+    const map: Record<string, string> = {
+      monthlyNet: 'Monthly Net', monthlyGross: 'Monthly Gross', monthlyGrandGross: 'Monthly Grand Gross',
+      annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
+    };
+    if (key && map[key]) return map[key];
+    if (salaryTypeId) {
+      const typeMap: Record<number, string> = {
+        1: 'monthlyGrandGross', 2: 'monthlyGross', 3: 'monthlyNet',
+        4: 'annualGross', 5: 'annualGrandGross', 6: 'annualNet'
+      };
+      const derived = typeMap[salaryTypeId];
+      if (derived && map[derived]) return map[derived];
+    }
+    return key || '';
   }
 
   private getFeeFormulaLabel(feeSnapshot: any): string {
@@ -412,6 +529,24 @@ export class RecruitingOrderComponent implements OnInit {
       case 1: return `${feeSnapshot.fee_percentage}%`;
       case 2: return `${feeSnapshot.fee_multiplier}x`;
       case 3: return `Fixed: ${feeSnapshot.fee_fixed_amount}`;
+      default: return 'N/A';
+    }
+  }
+
+  private getMainFeeConfigLabel(pos: any): string {
+    switch (pos.fee_types_id) {
+      case 1: return `${pos.fee_percentage}%`;
+      case 2: return `${pos.fee_multiplier}x`;
+      case 3: return `Fixed: ${pos.fee_amount}`;
+      default: return 'N/A';
+    }
+  }
+
+  private getExtraFeeConfigLabel(pos: any): string {
+    switch (pos.extra_fee_calculation_type) {
+      case 1: return `${pos.extra_fee_amount}%`;
+      case 2: return `${pos.extra_fee_amount}x`;
+      case 3: return `Fixed: ${pos.extra_fee_amount}`;
       default: return 'N/A';
     }
   }

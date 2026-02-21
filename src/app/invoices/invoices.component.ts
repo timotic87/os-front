@@ -152,31 +152,135 @@ export class InvoicesComponent implements OnInit {
     const cur = calcData.feeCurrencyCode || 'EUR';
     const date = new Date(invoice.created_at).toLocaleDateString('sr-RS');
     const rows: any[][] = [];
+    const invoiceType = invoice.invoice_type;
 
-    const typeLabel = invoice.invoice_type === 'admin_fee' ? 'Admin Fee' :
-                      invoice.invoice_type === 'placement' ? 'Placement Fee' : 'Cancel Fee';
+    if (invoiceType === 'admin_fee') {
+      rows.push(
+        ['Admin Fee Calculation', ''],
+        ['', ''],
+        ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+        ['Date', date],
+        ['', ''],
+        ['Expected Salary', pos.expected_salary],
+        [`Derived Salary (${this.getDerivedSalaryLabel(calcData.derivedSalaryType, pos.salary_type_id)})`, `${calcData.derivedSalaryForFee} ${cur}`],
+        [`Projected Fee per Person (${this.getMainFeeConfigLabel(pos)})`, `${calcData.projectedFeePerPerson} ${cur}`],
+        [`Admin Fee per Person (${this.getExtraFeeConfigLabel(pos)})`, `${calcData.adminFeePerPerson} ${cur}`],
+        ['Headcount', calcData.headcount || pos.number_of_people],
+        ['', ''],
+        ['Total Admin Fee', `${calcData.calculatedFee} ${cur}`],
+        ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
+      );
+    } else {
+      const typeLabel = invoiceType === 'placement' ? 'Placement Fee' : 'Cancel Fee';
+      rows.push(
+        [`${typeLabel} Calculation`, ''],
+        ['', ''],
+        ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+        ['Date', date],
+      );
 
-    rows.push(
-      [`${typeLabel} Calculation`, ''],
-      ['', ''],
-      ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
-      ['Date', date],
-      ['', ''],
-      ['Calculated Fee', `${calcData.calculatedFee} ${cur}`],
-      ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
-    );
+      if (invoice.candidate_first_name) {
+        rows.push(['Candidate', `${invoice.candidate_first_name} ${invoice.candidate_last_name}`]);
+      }
 
-    if (invoice.candidate_first_name) {
-      rows.push(['Candidate', `${invoice.candidate_first_name} ${invoice.candidate_last_name}`]);
+      rows.push(
+        ['', ''],
+        ['Entered Salary', calcData.salaryInput?.amount],
+        ['Salary Type', invoice.salaryType?.name || ''],
+        [`Derived Salary (${this.getDerivedSalaryLabel(calcData.derivedSalaryType, pos.salary_type_id)})`, `${calcData.derivedSalaryForFee} ${cur}`],
+        ['Fee Formula', this.getFeeConfigLabel(calcData.feeSnapshot)],
+        ['', ''],
+        ['Calculated Fee', `${calcData.calculatedFee} ${cur}`],
+        ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
+      );
+    }
+
+    if (calcData.feeWasOverridden) {
+      rows.push(['Fee Override', 'Yes (manually adjusted)']);
+    }
+
+    // Salary calculator breakdown
+    const calcResults = calcData.calculatorResults;
+    if (calcResults) {
+      rows.push(['', ''], ['Salary Calculator Results', ''], ['', 'RSD', 'EUR', 'USD']);
+      const labels: Record<string, string> = {
+        monthlyNet: 'Monthly Net', monthlyGross: 'Monthly Base Gross', monthlyGrandGross: 'Monthly Grand Gross',
+        annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
+      };
+      for (const [key, label] of Object.entries(labels)) {
+        rows.push([
+          label,
+          calcResults['RSD']?.[key] || '',
+          calcResults['EUR']?.[key] || '',
+          calcResults['USD']?.[key] || ''
+        ]);
+      }
+    }
+
+    // Exchange rates
+    if (calcData.exchangeRates) {
+      rows.push(['', ''], ['Exchange Rates', '']);
+      if (calcData.exchangeRates.EUR) {
+        rows.push(['1 EUR', `${calcData.exchangeRates.EUR} RSD`]);
+      }
+      if (calcData.exchangeRates.USD) {
+        rows.push(['1 USD', `${calcData.exchangeRates.USD} RSD`]);
+      }
     }
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch: 40 }, { wch: 20 }];
+    ws['!cols'] = [{ wch: 45 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Fee Calculation');
 
-    const typeSlug = invoice.invoice_type === 'admin_fee' ? 'AdminFee' :
-                     invoice.invoice_type === 'placement' ? 'Placement' : 'CancelFee';
+    const typeSlug = invoiceType === 'admin_fee' ? 'AdminFee' :
+                     invoiceType === 'placement' ? 'Placement' : 'CancelFee';
     XLSX.writeFile(wb, `${typeSlug}_${pos.position_number || invoice.ID}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  private getDerivedSalaryLabel(key: string | null, salaryTypeId?: number): string {
+    const map: Record<string, string> = {
+      monthlyNet: 'Monthly Net', monthlyGross: 'Monthly Gross', monthlyGrandGross: 'Monthly Grand Gross',
+      annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
+    };
+    if (key && map[key]) return map[key];
+    // Fallback: derive from salary_type_id for old invoices
+    if (salaryTypeId) {
+      const typeMap: Record<number, string> = {
+        1: 'monthlyGrandGross', 2: 'monthlyGross', 3: 'monthlyNet',
+        4: 'annualGross', 5: 'annualGrandGross', 6: 'annualNet'
+      };
+      const derived = typeMap[salaryTypeId];
+      if (derived && map[derived]) return map[derived];
+    }
+    return key || '';
+  }
+
+  private getFeeConfigLabel(feeSnapshot: any): string {
+    if (!feeSnapshot) return 'N/A';
+    switch (feeSnapshot.fee_types_id) {
+      case 1: return `${feeSnapshot.fee_percentage}%`;
+      case 2: return `${feeSnapshot.fee_multiplier}x`;
+      case 3: return `Fixed: ${feeSnapshot.fee_fixed_amount}`;
+      default: return 'N/A';
+    }
+  }
+
+  private getMainFeeConfigLabel(pos: any): string {
+    switch (pos.fee_types_id) {
+      case 1: return `${pos.fee_percentage}%`;
+      case 2: return `${pos.fee_multiplier}x`;
+      case 3: return `Fixed: ${pos.fee_amount}`;
+      default: return 'N/A';
+    }
+  }
+
+  private getExtraFeeConfigLabel(pos: any): string {
+    switch (pos.extra_fee_calculation_type) {
+      case 1: return `${pos.extra_fee_amount}%`;
+      case 2: return `${pos.extra_fee_amount}x`;
+      case 3: return `Fixed: ${pos.extra_fee_amount}`;
+      default: return 'N/A';
+    }
   }
 }

@@ -1,0 +1,327 @@
+<div class="add-position-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="text-xl font-semibold">Edit Position</h2>
+    <button class="close-button" (click)="close()" aria-label="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Fee locked warning -->
+    <div *ngIf="hasFeeLockedInvoices" class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
+      <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+      </svg>
+      Fee and salary fields are locked because this position has approved invoices.
+    </div>
+
+    <form [formGroup]="positionForm" *ngIf="positionForm">
+
+      <div class="border dark:!border-gray-700 rounded-lg p-4">
+        <!-- Position Header -->
+        <h4 class="text-lg font-semibold mb-4">{{ data.position.position_number }}</h4>
+
+        <!-- Basic Position Information -->
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
+          <!-- Job Title -->
+          <div>
+            <ui-label for="jobTitle" class="block text-sm font-medium mb-2">Job Title *</ui-label>
+            <ui-input
+              id="jobTitle"
+              formControlName="jobTitle"
+              placeholder="e.g. Senior Developer"
+              [class.border-red-500]="hasError('jobTitle')">
+            </ui-input>
+            <div *ngIf="hasError('jobTitle')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('jobTitle') }}
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <ui-label for="location" class="block text-sm font-medium mb-2">Location *</ui-label>
+            <ui-input
+              id="location"
+              formControlName="location"
+              placeholder="e.g. Belgrade, Serbia"
+              [class.border-red-500]="hasError('location')">
+            </ui-input>
+            <div *ngIf="hasError('location')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('location') }}
+            </div>
+          </div>
+
+          <!-- Number of People -->
+          <div>
+            <ui-label for="numberOfPeople" class="block text-sm font-medium mb-2">Headcount *</ui-label>
+            <ui-input
+              id="numberOfPeople"
+              type="number"
+              formControlName="numberOfPeople"
+              placeholder="e.g. 3"
+              [class.border-red-500]="hasError('numberOfPeople')">
+            </ui-input>
+            <div *ngIf="hasError('numberOfPeople')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('numberOfPeople') }}
+            </div>
+          </div>
+
+          <!-- Expected Salary -->
+          <div [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+            <ui-label for="expectedSalary" class="block text-sm font-medium mb-2">Expected Salary *</ui-label>
+            <ui-input
+              id="expectedSalary"
+              type="number"
+              formControlName="expectedSalary"
+              placeholder="e.g. 120000"
+              [class.border-red-500]="hasError('expectedSalary')">
+            </ui-input>
+            <div *ngIf="hasError('expectedSalary')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('expectedSalary') }}
+            </div>
+          </div>
+
+          <!-- Expected Salary Type -->
+          <div [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+            <ui-label for="expectedSalaryType" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+            <select
+              id="expectedSalaryType"
+              formControlName="expectedSalaryType"
+              class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+              <option *ngFor="let salaryType of salaryTypes" [value]="salaryType.ID">
+                {{ salaryType.name }}
+              </option>
+            </select>
+            <div *ngIf="hasError('expectedSalaryType')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('expectedSalaryType') }}
+            </div>
+          </div>
+
+          <!-- Currency -->
+          <div [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+            <ui-label for="currencyID" class="block text-sm font-medium mb-2">Currency *</ui-label>
+            <select
+              id="currencyID"
+              formControlName="currencyID"
+              class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+              <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
+                {{ currency.name }}
+              </option>
+            </select>
+            <div *ngIf="hasError('currencyID')" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage('currencyID') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Fee Configuration -->
+        <div class="border-t dark:!border-gray-700 pt-4">
+          <h5 class="text-md font-semibold mb-3">Fee Configuration</h5>
+
+          <!-- Fee Type -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="feeTypesId" class="block text-sm font-medium mb-2">Fee Type *</ui-label>
+              <select
+                id="feeTypesId"
+                formControlName="feeTypesId"
+                (change)="onFeeTypeChange()"
+                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                <option *ngFor="let feeType of feeTypes" [value]="feeType.ID">
+                  {{ feeType.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Fee Amount (for fixed type) -->
+            <div *ngIf="getFeeTypeName(positionForm.get('feeTypesId')?.value)?.toLowerCase().includes('fixed')"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="feeAmount" class="block text-sm font-medium mb-2">Fee Amount *</ui-label>
+              <ui-input
+                id="feeAmount"
+                type="number"
+                formControlName="feeAmount"
+                placeholder="e.g. 50000"
+                [class.border-red-500]="hasError('feeAmount')">
+              </ui-input>
+              <div *ngIf="hasError('feeAmount')" class="text-red-500 text-sm mt-1">
+                {{ getErrorMessage('feeAmount') }}
+              </div>
+            </div>
+
+            <!-- Fee Currency (for fixed type) -->
+            <div *ngIf="getFeeTypeName(positionForm.get('feeTypesId')?.value)?.toLowerCase().includes('fixed')"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="feeCurrencyID" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
+              <select
+                id="feeCurrencyID"
+                formControlName="feeCurrencyID"
+                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
+                  {{ currency.name }}
+                </option>
+              </select>
+              <div *ngIf="hasError('feeCurrencyID')" class="text-red-500 text-sm mt-1">
+                {{ getErrorMessage('feeCurrencyID') }}
+              </div>
+            </div>
+
+            <!-- Fee Percentage (for percentage type) -->
+            <div *ngIf="getFeeTypeName(positionForm.get('feeTypesId')?.value)?.toLowerCase() === 'percentage'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="feePercentage" class="block text-sm font-medium mb-2">Fee Percentage *</ui-label>
+              <ui-input
+                id="feePercentage"
+                type="number"
+                formControlName="feePercentage"
+                placeholder="e.g. 15"
+                [class.border-red-500]="hasError('feePercentage')">
+              </ui-input>
+              <div *ngIf="hasError('feePercentage')" class="text-red-500 text-sm mt-1">
+                {{ getErrorMessage('feePercentage') }}
+              </div>
+            </div>
+
+            <!-- Fee Salary Type (for percentage/multiplier type) -->
+            <div *ngIf="getFeeTypeName(positionForm.get('feeTypesId')?.value)?.toLowerCase() === 'percentage' || getFeeTypeName(positionForm.get('feeTypesId')?.value)?.toLowerCase() === 'multiplier'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="feeSalaryType" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+              <select
+                id="feeSalaryType"
+                formControlName="feeSalaryType"
+                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                <option *ngFor="let salaryType of salaryTypes" [value]="salaryType.ID">
+                  {{ salaryType.name }}
+                </option>
+              </select>
+              <div *ngIf="hasError('feeSalaryType')" class="text-red-500 text-sm mt-1">
+                {{ getErrorMessage('feeSalaryType') }}
+              </div>
+            </div>
+
+            <!-- Fee Multiplier (for multiplier type) -->
+            <div *ngIf="getFeeTypeName(positionForm.get('feeTypesId')?.value)?.toLowerCase() === 'multiplier'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="feeMultiplier" class="block text-sm font-medium mb-2">Fee Multiplier *</ui-label>
+              <ui-input
+                id="feeMultiplier"
+                type="number"
+                formControlName="feeMultiplier"
+                placeholder="e.g. 1.5"
+                step="0.1"
+                [class.border-red-500]="hasError('feeMultiplier')">
+              </ui-input>
+              <div *ngIf="hasError('feeMultiplier')" class="text-red-500 text-sm mt-1">
+                {{ getErrorMessage('feeMultiplier') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Extra Fee Type Selection -->
+          <div class="mb-4" [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+            <ui-label for="extraFeeTypeID" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+            <select
+              id="extraFeeTypeID"
+              formControlName="extraFeeTypeID"
+              (change)="onExtraFeeTypeIDChange()"
+              class="w-full md:w-1/3 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+              <option [value]="null">None</option>
+              <option *ngFor="let extraFeeType of extraFeeTypes" [value]="extraFeeType.ID">
+                {{ extraFeeType.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Extra Fee Configuration -->
+          <div *ngIf="positionForm.get('extraFeeTypeID')?.value && getExtraFeeTypeName(positionForm.get('extraFeeTypeID')?.value) !== 'NONE'" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="extraFeeType" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+              <select
+                id="extraFeeType"
+                formControlName="extraFeeType"
+                (change)="onExtraFeeTypeChange()"
+                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                <option value="fixed">Fixed Amount</option>
+                <option value="percentage">Percentage</option>
+                <option value="multiplier">Multiplier</option>
+              </select>
+            </div>
+
+            <!-- Extra Fee Amount (for fixed type) -->
+            <div *ngIf="positionForm.get('extraFeeType')?.value === 'fixed'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="extraFeeAmount" class="block text-sm font-medium mb-2">Extra Fee Amount</ui-label>
+              <ui-input
+                id="extraFeeAmount"
+                type="number"
+                formControlName="extraFeeAmount"
+                placeholder="e.g. 10000">
+              </ui-input>
+            </div>
+
+            <!-- Extra Fee Currency (for fixed type) -->
+            <div *ngIf="positionForm.get('extraFeeType')?.value === 'fixed'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="extraFeeCurrencyID" class="block text-sm font-medium mb-2">Extra Fee Currency</ui-label>
+              <select
+                id="extraFeeCurrencyID"
+                formControlName="extraFeeCurrencyID"
+                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
+                  {{ currency.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Extra Fee Percentage (for percentage type) -->
+            <div *ngIf="positionForm.get('extraFeeType')?.value === 'percentage'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="extraFeePercentage" class="block text-sm font-medium mb-2">Extra Fee Percentage</ui-label>
+              <ui-input
+                id="extraFeePercentage"
+                type="number"
+                formControlName="extraFeePercentage"
+                placeholder="e.g. 10">
+              </ui-input>
+            </div>
+
+            <!-- Extra Fee Multiplier (for multiplier type) -->
+            <div *ngIf="positionForm.get('extraFeeType')?.value === 'multiplier'"
+                 [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
+              <ui-label for="extraFeeMultiplier" class="block text-sm font-medium mb-2">Extra Fee Multiplier</ui-label>
+              <ui-input
+                id="extraFeeMultiplier"
+                type="number"
+                formControlName="extraFeeMultiplier"
+                placeholder="e.g. 0.5"
+                step="0.1">
+              </ui-input>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mt-4">
+          <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
+          <ui-textarea
+            id="notes"
+            formControlName="notes"
+            placeholder="Additional notes for this position (optional)"
+            rows="2">
+          </ui-textarea>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <ui-button variant="outline" (onClick)="close()">Cancel</ui-button>
+    <ui-button [disabled]="positionForm?.invalid || isSubmitting" (onClick)="onSubmit()">
+      {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+    </ui-button>
+  </mat-dialog-actions>
+</div>

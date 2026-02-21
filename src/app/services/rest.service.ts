@@ -477,6 +477,14 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/changePositionStatus`, data, { headers: this.headers() }) as Observable<any>;
   }
 
+  updatePosition(data: any) {
+    return this.http.put(`${this.baseUrl}/updatePosition`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deletePosition(data: any) {
+    return this.http.post(`${this.baseUrl}/deletePosition`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
   getExtraFeeTypes() {
     return this.http.get(`${this.baseUrl}/getExtraFeeTypes`, { headers: this.headers() }) as Observable<any>;
   }
