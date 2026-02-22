@@ -245,10 +245,27 @@ export class RecruitingOrderComponent implements OnInit {
       return;
     }
 
+    // Collect all related entity IDs for comprehensive history
+    const positionIDs = (this.order?.positions || []).map((p: any) => p.ID).filter(Boolean);
+    const invoiceIDs = (this.invoices || []).map((i: any) => i.ID).filter(Boolean);
+    const assignmentIDs = (this.order?.positions || [])
+      .flatMap((p: any) => (p.assignments || []).map((a: any) => a.ID))
+      .filter(Boolean);
+
+    const additionalEntities: { entity: string; entityIDs: number[] }[] = [];
+    if (positionIDs.length) additionalEntities.push({ entity: 'RecruitingPosition', entityIDs: positionIDs });
+    if (invoiceIDs.length) additionalEntities.push({ entity: 'RecruitingInvoice', entityIDs: invoiceIDs });
+    if (assignmentIDs.length) additionalEntities.push({ entity: 'RecruitingPositionAssignment', entityIDs: assignmentIDs });
+
     this.dialog.open(HistoryDialogComponent, {
       width: '75vw',
       maxHeight: '90vh',
-      data: { entity: 'RecruitingOrder', entityID: this.orderId, title: 'Recruiting Order History' },
+      data: {
+        entity: 'RecruitingOrder',
+        entityID: this.orderId,
+        title: 'Recruiting Order History',
+        additionalEntities
+      },
     });
   }
 

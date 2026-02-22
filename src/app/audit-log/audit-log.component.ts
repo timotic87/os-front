@@ -30,6 +30,7 @@ export class AuditLogComponent implements OnInit {
 
   // Filters
   filterEntity = '';
+  filterEntityId = '';
   filterAction = '';
   filterDateFrom = '';
   filterDateTo = '';
@@ -74,6 +75,7 @@ export class AuditLogComponent implements OnInit {
       limit: this.pageSize
     };
     if (this.filterEntity) params.entity = this.filterEntity;
+    if (this.filterEntityId) params.entityID = this.filterEntityId;
     if (this.filterAction) params.action = this.filterAction;
     if (this.filterDateFrom) params.dateFrom = this.filterDateFrom;
     if (this.filterDateTo) params.dateTo = this.filterDateTo;
@@ -102,6 +104,7 @@ export class AuditLogComponent implements OnInit {
 
   clearFilters() {
     this.filterEntity = '';
+    this.filterEntityId = '';
     this.filterAction = '';
     this.filterDateFrom = '';
     this.filterDateTo = '';
@@ -112,7 +115,7 @@ export class AuditLogComponent implements OnInit {
   }
 
   get hasFilters(): boolean {
-    return !!(this.filterEntity || this.filterAction || this.filterDateFrom || this.filterDateTo || this.filterSearch);
+    return !!(this.filterEntity || this.filterEntityId || this.filterAction || this.filterDateFrom || this.filterDateTo || this.filterSearch);
   }
 
   nextPage() {

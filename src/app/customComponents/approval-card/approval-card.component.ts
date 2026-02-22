@@ -39,7 +39,15 @@ export class ApprovalCardComponent implements OnInit{
     // Auto-expand for CDCM context or when autoExpand is true
     if (this.autoExpand || this.context === 'cdcm') {
       this.isExpanded = true;
+    } else if (this.isApprovalCompleted()) {
+      // Collapse by default when approval is fully resolved (all approved or rejected)
+      this.isExpanded = false;
     }
+  }
+
+  isApprovalCompleted(): boolean {
+    if (!this.approval?.steps || this.approval.steps.length === 0) return false;
+    return this.approval.steps.every((step: any) => step.statusID === 2 || step.statusID === 3);
   }
 
   toggleExpanded(): void {

@@ -391,6 +391,10 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getAuditLogsByEntityAndEntityID/${data.entity}/${data.entityID}`, {headers: this.headers()}) as Observable<any>;
   }
 
+  getAuditLogsByMultipleEntities(queries: {entity: string, entityIDs: number[]}[]){
+    return this.http.post(`${this.baseUrl}/getAuditLogsByMultipleEntities`, { queries }, {headers: this.headers()}) as Observable<any>;
+  }
+
   getAuditLogs(params: any){
     const queryParts: string[] = [];
     for (const key of Object.keys(params)) {

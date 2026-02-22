@@ -8,6 +8,7 @@ export interface HistoryDialogData {
   entity: string;
   entityID: number;
   title: string;
+  additionalEntities?: { entity: string; entityIDs: number[] }[];
 }
 
 @Component({
@@ -46,17 +47,37 @@ export class HistoryDialogComponent implements OnInit {
 
   loadLogs() {
     this.loading = true;
-    this.rest.getAuditLogsByEntityAndEntityID({ entity: this.data.entity, entityID: this.data.entityID }).subscribe({
-      next: (res: any) => {
-        this.logs = res.data || [];
-        this.buildFilterOptions();
-        this.applyFilters();
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
+
+    if (this.data.additionalEntities && this.data.additionalEntities.length > 0) {
+      // Multi-entity query: combine main entity + additional entities
+      const queries = [
+        { entity: this.data.entity, entityIDs: [this.data.entityID] },
+        ...this.data.additionalEntities.filter(e => e.entityIDs.length > 0)
+      ];
+      this.rest.getAuditLogsByMultipleEntities(queries).subscribe({
+        next: (res: any) => {
+          this.logs = res.data || [];
+          this.buildFilterOptions();
+          this.applyFilters();
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
+    } else {
+      this.rest.getAuditLogsByEntityAndEntityID({ entity: this.data.entity, entityID: this.data.entityID }).subscribe({
+        next: (res: any) => {
+          this.logs = res.data || [];
+          this.buildFilterOptions();
+          this.applyFilters();
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
+    }
   }
 
   buildFilterOptions() {
@@ -167,6 +188,12 @@ export class HistoryDialogComponent implements OnInit {
     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
     this.copiedLogId = log.ID;
     setTimeout(() => this.copiedLogId = null, 2000);
+  }
+
+  formatEntityName(entity: string): string {
+    if (!entity) return '-';
+    // Convert e.g. "RecruitingPosition" → "Position", "RecruitingOrder" → "Order"
+    return entity.replace('Recruiting', '').replace('Assignment', ' Assignment');
   }
 
   close() {

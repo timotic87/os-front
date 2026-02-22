@@ -64,16 +64,16 @@
         </div>
       </div>
 
-      <!-- Service -->
+      <!-- Business Line -->
       <div class="space-y-2">
         <label class="text-sm font-medium text-foreground">
-          Service <span class="text-destructive">*</span>
+          Business Line <span class="text-destructive">*</span>
         </label>
         <div class="relative">
           <select formControlName="service"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none pr-8 cursor-pointer"
                   [ngClass]="createDealForm.get('service').touched && !createDealForm.get('service').valid ? 'border-destructive' : ''">
-            <option [ngValue]="null" disabled>Select Service...</option>
+            <option [ngValue]="null" disabled>Select Business Line...</option>
             @for(service of SANDS.servicesForLe; track service){
               <option [ngValue]="service">{{ service.name }}</option>
             }
@@ -85,20 +85,20 @@
           </div>
         </div>
         <div class="text-xs text-destructive" *ngIf="createDealForm.get('service').touched && !createDealForm.get('service').valid">
-          Must select Service.
+          Must select Business Line.
         </div>
       </div>
 
-      <!-- Subservice -->
+      <!-- Sub-line -->
       <div class="space-y-2">
         <label class="text-sm font-medium text-foreground">
-          Subservice <span class="text-destructive">*</span>
+          Sub-line <span class="text-destructive">*</span>
         </label>
         <div class="relative">
           <select formControlName="subservice"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none pr-8 cursor-pointer"
                   [ngClass]="createDealForm.get('subservice').touched && !createDealForm.get('subservice').valid ? 'border-destructive' : ''">
-            <option [ngValue]="null" disabled>Select Subservice...</option>
+            <option [ngValue]="null" disabled>Select Sub-line...</option>
             @for(subservice of SANDS.subservicesForLe; track subservice){
               <option [ngValue]="subservice">{{ subservice.name }}</option>
             }
@@ -110,7 +110,7 @@
           </div>
         </div>
         <div class="text-xs text-destructive" *ngIf="createDealForm.get('subservice').touched && !createDealForm.get('subservice').valid">
-          Must select Subservice.
+          Must select Sub-line.
         </div>
       </div>
     </div>

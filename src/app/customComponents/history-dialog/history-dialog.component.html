@@ -78,6 +78,9 @@
             <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
             <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">User</th>
             <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Action</th>
+            @if (data.additionalEntities && data.additionalEntities.length > 0) {
+              <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Entity</th>
+            }
             <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
             <th class="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
           </tr>
@@ -110,6 +113,11 @@
                   {{ log.action }}
                 </span>
               </td>
+              @if (data.additionalEntities && data.additionalEntities.length > 0) {
+                <td class="px-3 py-2">
+                  <span class="text-xs text-muted-foreground">{{ formatEntityName(log.entity) }}</span>
+                </td>
+              }
               <td class="px-3 py-2 text-sm text-muted-foreground max-w-xs truncate">{{ log.description || '-' }}</td>
               <td class="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">{{ log.created | date: 'dd.MM.yyyy HH:mm' }}</td>
             </tr>
@@ -117,7 +125,7 @@
             <!-- Expanded diff row -->
             @if (expandedRow === log.ID && hasExpandableData(log)) {
               <tr class="bg-muted/20">
-                <td colspan="5" class="px-6 py-3">
+                <td [attr.colspan]="data.additionalEntities && data.additionalEntities.length > 0 ? 7 : 5" class="px-6 py-3">
                   <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-medium text-muted-foreground">
                       @if (getChangedFields(log).length > 0) { Changed Fields }

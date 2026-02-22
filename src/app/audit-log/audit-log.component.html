@@ -31,6 +31,12 @@
         </select>
       </div>
       <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Entity ID</label>
+        <input type="text" [(ngModel)]="filterEntityId" placeholder="e.g. 42"
+               (keyup.enter)="applyFilters()"
+               class="w-24 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <div>
         <label class="block text-xs font-medium text-muted-foreground mb-1">Action</label>
         <select [(ngModel)]="filterAction" (change)="applyFilters()"
                 class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
