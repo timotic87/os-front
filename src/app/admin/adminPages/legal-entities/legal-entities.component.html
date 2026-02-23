@@ -1,0 +1,106 @@
+<ui-card>
+  <ui-card-header>
+    <ui-card-title>Legal Entities</ui-card-title>
+    <ui-card-description>Manage legal entities used across deals and BC integration</ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+
+    <!-- Add Button -->
+    <div class="mb-4" *ngIf="!formMode">
+      <ui-button variant="default" (onClick)="showAddForm()">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Legal Entity
+      </ui-button>
+    </div>
+
+    <!-- Add/Edit Form -->
+    <div *ngIf="formMode" class="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
+      <h4 class="text-sm font-medium text-foreground mb-3">
+        {{ formMode === 'add' ? 'Add New Legal Entity' : 'Edit Legal Entity' }}
+      </h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Name *</label>
+          <input type="text" [(ngModel)]="form.name" placeholder="Entity name"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Short Name</label>
+          <input type="text" [(ngModel)]="form.shortName" placeholder="Short name" maxlength="8"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">BC Company ID</label>
+          <input type="text" [(ngModel)]="form.bcCompanyId" placeholder="BC Company ID"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Franchise Fee</label>
+          <input type="number" [(ngModel)]="form.franchise_fee" placeholder="0.000" step="0.001"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <ui-button variant="default" (onClick)="save()" [disabled]="!form.name.trim()">
+          {{ formMode === 'add' ? 'Create' : 'Update' }}
+        </ui-button>
+        <ui-button variant="outline" (onClick)="cancelForm()">
+          Cancel
+        </ui-button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">ID</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Name</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Short Name</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">BC Company ID</th>
+            <th class="text-right py-2 px-3 text-muted-foreground font-medium">Franchise Fee</th>
+            <th class="text-right py-2 px-3 text-muted-foreground font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entity of entities" class="border-b border-border/50 hover:bg-muted/50">
+            <td class="py-2 px-3 text-muted-foreground">{{ entity.id }}</td>
+            <td class="py-2 px-3 font-medium">{{ entity.name }}</td>
+            <td class="py-2 px-3">{{ entity.shortName || '—' }}</td>
+            <td class="py-2 px-3">
+              <span *ngIf="entity.bcCompanyId" class="font-mono text-xs">{{ entity.bcCompanyId }}</span>
+              <span *ngIf="!entity.bcCompanyId" class="text-muted-foreground">—</span>
+            </td>
+            <td class="py-2 px-3 text-right">
+              <span *ngIf="entity.franchise_fee != null">{{ entity.franchise_fee | number:'1.3-3' }}</span>
+              <span *ngIf="entity.franchise_fee == null" class="text-muted-foreground">—</span>
+            </td>
+            <td class="py-2 px-3 text-right">
+              <div class="flex justify-end gap-1">
+                <button (click)="editEntity(entity)"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-foreground hover:bg-muted transition-colors">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Edit
+                </button>
+                <button (click)="deleteEntity(entity)"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="entities.length === 0 && !loading" class="text-sm text-muted-foreground py-4 text-center">No legal entities found.</p>
+    </div>
+
+  </ui-card-content>
+</ui-card>

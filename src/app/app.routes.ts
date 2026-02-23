@@ -17,6 +17,8 @@ import {DocumentsComponent} from "./admin/adminPages/documents/documents.compone
 import {PermissionTemplatesComponent} from "./admin/adminPages/permission-templates/permission-templates.component";
 import {SalaryParamsComponent} from "./admin/adminPages/salary-params/salary-params.component";
 import {EntityAccessComponent} from "./admin/adminPages/entity-access/entity-access.component";
+import {LegalEntitiesComponent} from "./admin/adminPages/legal-entities/legal-entities.component";
+import {CostCentersComponent} from "./admin/adminPages/cost-centers/cost-centers.component";
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
 import {RecruitingOrderComponent} from "./recruiting-orders/recruiting-order/recruiting-order.component";
@@ -58,6 +60,8 @@ export const routes: Routes = [
       {path: 'templates', component: PermissionTemplatesComponent, outlet: 'admin'},
       {path: 'salary-params', component: SalaryParamsComponent, outlet: 'admin'},
       {path: 'entity-access', component: EntityAccessComponent, outlet: 'admin'},
+      {path: 'legal-entities', component: LegalEntitiesComponent, outlet: 'admin'},
+      {path: 'cost-centers', component: CostCentersComponent, outlet: 'admin'},
     ]
 
   },

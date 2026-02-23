@@ -77,6 +77,18 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getLegalEntities`, {headers: this.headers()}) as Observable<any>;
   }
 
+  createLegalEntity(data: any) {
+    return this.http.post(`${this.baseUrl}/createLegalEntity`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateLegalEntity(data: any) {
+    return this.http.put(`${this.baseUrl}/updateLegalEntity`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deleteLegalEntity(id: number) {
+    return this.http.delete(`${this.baseUrl}/deleteLegalEntity/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
   saveFile(data){
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
@@ -497,9 +509,25 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getExtraFeeTypes`, { headers: this.headers() }) as Observable<any>;
   }
 
-  getCostCenters(type?: string) {
-    const url = type ? `${this.baseUrl}/getCostCenters?type=${type}` : `${this.baseUrl}/getCostCenters`;
+  getCostCenters(type?: string, activeOnly?: boolean) {
+    let url = `${this.baseUrl}/getCostCenters`;
+    const params: string[] = [];
+    if (type) params.push(`type=${type}`);
+    if (activeOnly) params.push(`activeOnly=true`);
+    if (params.length) url += '?' + params.join('&');
     return this.http.get(url, { headers: this.headers() }) as Observable<any>;
+  }
+
+  createCostCenter(data: any) {
+    return this.http.post(`${this.baseUrl}/createCostCenter`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateCostCenter(data: any) {
+    return this.http.put(`${this.baseUrl}/updateCostCenter`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deleteCostCenter(id: number) {
+    return this.http.delete(`${this.baseUrl}/deleteCostCenter/${id}`, { headers: this.headers() }) as Observable<any>;
   }
 
   searchPostCodes(search: string) {
