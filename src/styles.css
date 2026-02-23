@@ -256,6 +256,19 @@ app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator:hove
   }
 }
 
+/* Global dark mode for all date inputs */
+.dark input[type="date"] {
+  color-scheme: dark !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') !important;
+  filter: none !important;
+  opacity: 0.9 !important;
+  cursor: pointer !important;
+}
+
 /* Ultra specific for document card elements */
 .document-card h3,
 .document-card p,
@@ -341,6 +354,55 @@ app-promoting-project input[type="date"]::-webkit-calendar-picker-indicator:hove
 .dark .mat-mdc-dialog-container .mdc-dialog__surface {
   background-color: hsl(222.2 84% 4.9%) !important;
   color: hsl(210 40% 98%) !important;
+}
+
+/* Dark mode for all dialog content: titles, labels, text, inputs, textareas, selects */
+.dark .mat-mdc-dialog-container h2,
+.dark .mat-mdc-dialog-container h3,
+.dark .mat-mdc-dialog-container label,
+.dark .mat-mdc-dialog-container p,
+.dark .mat-mdc-dialog-container span:not([class*="badge"]),
+.dark .mat-mdc-dialog-container .text-xl,
+.dark .mat-mdc-dialog-container .text-lg,
+.dark .mat-mdc-dialog-container .font-semibold {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mat-mdc-dialog-container input:not([type="checkbox"]):not([type="radio"]),
+.dark .mat-mdc-dialog-container textarea,
+.dark .mat-mdc-dialog-container select {
+  background-color: hsl(217.2 32.6% 12%) !important;
+  color: hsl(210 40% 98%) !important;
+  border-color: hsl(217.2 32.6% 25%) !important;
+}
+
+.dark .mat-mdc-dialog-container select option {
+  background-color: hsl(217.2 32.6% 12%) !important;
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .mat-mdc-dialog-container .warning-banner {
+  background: hsl(45 50% 15%) !important;
+  border-color: hsl(45 60% 35%) !important;
+}
+
+.dark .mat-mdc-dialog-container .warning-banner span {
+  color: hsl(45 90% 70%) !important;
+}
+
+.dark .mat-mdc-dialog-container .info-banner {
+  background: hsl(210 50% 15%) !important;
+  border-color: hsl(210 60% 35%) !important;
+}
+
+.dark .mat-mdc-dialog-container .info-banner span {
+  color: hsl(210 80% 75%) !important;
+}
+
+html.dark .cdk-overlay-container ui-button button,
+html.dark .cdk-overlay-container .mat-mdc-dialog-container button:not(.close-button) {
+  color: hsl(210 40% 98%) !important;
+  border-color: hsl(217.2 32.6% 25%) !important;
 }
 
 /* Dark mode for Material form fields */

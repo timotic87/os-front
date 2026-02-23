@@ -53,7 +53,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   private defaultSalaryTypeID = 1;
   private defaultCurrencyID = 1;
   private defaultFeeTypeID = 1;
-  private defaultExtraFeeTypeID = 1;
+  private defaultExtraFeeTypeID = 3; // NONE
 
   constructor(
     private fb: FormBuilder,
@@ -685,6 +685,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
           feeCurrencyID: feeTypeName.includes('fixed') ? toNumber(pos.feeCurrencyID) : null,
           feePercentage: feeTypeName.includes('percentage') ? toNumber(pos.feePercentage) : null,
           feeMultiplier: feeTypeName.includes('multiplier') ? toNumber(pos.feeMultiplier) : null,
+          salary_type_id: (feeTypeName === 'percentage' || feeTypeName === 'multiplier') ? toNumber(pos.feeSalaryType) : null,
           extraFeeTypeID: toNumber(pos.extraFeeTypeID),
           extraFeeAmount: extraFeeAmountValue,
           extraFeeCurrencyID: (!isExtraFeeNone && pos.extraFeeType === 'fixed') ? toNumber(pos.extraFeeCurrencyID) : null,
