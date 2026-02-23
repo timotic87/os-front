@@ -47,6 +47,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   salaryTypes: any[] = [];
   feeTypes: any[] = [];
   extraFeeTypes: any[] = [];
+  costCenters: any[] = [];
 
   // Default values for form fields
   private defaultSalaryTypeID = 1;
@@ -79,7 +80,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   private loadInitialData(): void {
     let loadedCount = 0;
-    const totalToLoad = 4;
+    const totalToLoad = 5;
 
     const checkAndInitialize = () => {
       loadedCount++;
@@ -91,6 +92,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     this.loadSalaryTypes(checkAndInitialize);
     this.loadFeeTypes(checkAndInitialize);
     this.loadExtraFeeTypes(checkAndInitialize);
+    this.loadCostCenters(checkAndInitialize);
   }
 
   /**
@@ -194,6 +196,24 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
 
 
   /**
+   * Load cost centers from backend
+   */
+  private loadCostCenters(onComplete?: () => void): void {
+    this.rest.getCostCenters('recruiting').subscribe({
+      next: (res) => {
+        if (res.status === 200 && res.data) {
+          this.costCenters = res.data;
+        }
+        onComplete?.();
+      },
+      error: (err) => {
+        console.error('Error loading cost centers:', err);
+        onComplete?.();
+      }
+    });
+  }
+
+  /**
    * Initialize the reactive form
    */
   private initializeForm(): void {
@@ -202,6 +222,8 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       clientName: [{value: this.deal?.client?.customerName || '', disabled: true}],
       isUmbrella: [false],
       description: [''],
+      paymentDueDaysPlacement: [null],
+      paymentDueDaysAdditional: [null],
 
       // Positions array
       positions: this.fb.array([])
@@ -231,7 +253,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   private updateFormDisabledState(): void {
     if (!this.orderForm) return;
 
-    const controls = ['isUmbrella', 'description'];
+    const controls = ['isUmbrella', 'description', 'paymentDueDaysPlacement', 'paymentDueDaysAdditional'];
 
     controls.forEach(controlName => {
       const control = this.orderForm.get(controlName);
@@ -253,7 +275,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    */
   private updatePositionDisabledState(positionForm: FormGroup): void {
     const positionControls = [
-      'jobTitle', 'location', 'numberOfPeople', 'expectedSalary', 'expectedSalaryType', 'currencyID',
+      'costCenterID', 'jobTitle', 'location', 'numberOfPeople', 'expectedSalary', 'expectedSalaryType', 'currencyID',
       'feeTypesId', 'feeAmount', 'feeCurrencyID', 'feePercentage', 'feeMultiplier', 'feeSalaryType',
       'extraFeeTypeID', 'extraFeeType', 'extraFeeAmount', 'extraFeeCurrencyID',
       'extraFeePercentage', 'extraFeeMultiplier', 'notes'
@@ -329,12 +351,42 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
     return extraFeeType ? extraFeeType.name : '';
   }
 
+  /**
+   * Get filtered extra fee types for a position.
+   * ADMIN and CANCEL are mutually exclusive across all positions in the order.
+   * If any position has ADMIN selected, CANCEL is hidden for all positions (and vice versa).
+   */
+  getFilteredExtraFeeTypes(positionIndex: number): any[] {
+    if (!this.extraFeeTypes || this.extraFeeTypes.length === 0) return this.extraFeeTypes;
+
+    // Check what other positions have selected
+    let lockedType: string | null = null;
+    for (let i = 0; i < this.positions.length; i++) {
+      const pos = this.positions.at(i);
+      const extraFeeTypeID = pos.get('extraFeeTypeID')?.value;
+      if (extraFeeTypeID) {
+        const name = this.getExtraFeeTypeName(extraFeeTypeID);
+        if (name === 'ADMIN' || name === 'CANCEL') {
+          lockedType = name;
+          break;
+        }
+      }
+    }
+
+    if (!lockedType) return this.extraFeeTypes;
+
+    // Filter: keep NONE + the locked type, exclude the opposite
+    const excludeType = lockedType === 'ADMIN' ? 'CANCEL' : 'ADMIN';
+    return this.extraFeeTypes.filter(type => type.name !== excludeType);
+  }
+
 
   /**
    * Create a new position FormGroup
    */
   private createPositionForm(): FormGroup {
     return this.fb.group({
+      costCenterID: ['', [Validators.required]],
       jobTitle: ['', [Validators.required, Validators.minLength(2)]],
       location: ['', [Validators.required, Validators.minLength(2)]],
       numberOfPeople: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
@@ -590,6 +642,8 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       isUmbrella: formValue.isUmbrella || false,
       clientName: this.deal?.client?.customerName || '',
       description: formValue.description,
+      payment_due_days_placement: formValue.paymentDueDaysPlacement || null,
+      payment_due_days_additional: formValue.paymentDueDaysAdditional || null,
       positions: formValue.positions.map((pos: any) => {
         const extraFeeTypeName = this.getExtraFeeTypeName(pos.extraFeeTypeID);
         const isExtraFeeNone = extraFeeTypeName === 'NONE';
@@ -619,6 +673,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
         }
 
         return {
+          costCenterID: toNumber(pos.costCenterID),
           jobTitle: pos.jobTitle,
           location: pos.location,
           numberOfPeople: toNumber(pos.numberOfPeople) || 1,

@@ -452,6 +452,10 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getRecruitingOrderByDealId/${dealID}`, { headers: this.headers() }) as Observable<any>;
   }
 
+  updateRecruitingOrder(data: any) {
+    return this.http.put(`${this.baseUrl}/updateRecruitingOrder`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
   changeRecruitingOrderStatus(data: any) {
     return this.http.put(`${this.baseUrl}/changeRecruitingOrderStatus`, data, { headers: this.headers() }) as Observable<any>;
   }
@@ -491,6 +495,11 @@ export class RestService {
 
   getExtraFeeTypes() {
     return this.http.get(`${this.baseUrl}/getExtraFeeTypes`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getCostCenters(type?: string) {
+    const url = type ? `${this.baseUrl}/getCostCenters?type=${type}` : `${this.baseUrl}/getCostCenters`;
+    return this.http.get(url, { headers: this.headers() }) as Observable<any>;
   }
 
   searchPostCodes(search: string) {
@@ -533,6 +542,10 @@ export class RestService {
 
   getInvoiceCalculationData(invoiceID: number) {
     return this.http.get(`${this.baseUrl}/getInvoiceCalculationData/${invoiceID}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getInvoicePreview(invoiceID: number) {
+    return this.http.get(`${this.baseUrl}/getInvoicePreview/${invoiceID}`, { headers: this.headers() }) as Observable<any>;
   }
 
   // NBS Exchange Rate

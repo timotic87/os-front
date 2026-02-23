@@ -78,8 +78,10 @@
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
               <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Fee Amount</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice Date</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Payment Date</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</th>
-              <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Export</th>
+              <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -98,6 +100,8 @@
                 <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
                   {{ inv.final_fee_amount | number:'1.2-2' }} {{ inv.feeCurrency?.code || '' }}
                 </td>
+                <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.invoice_date ? (inv.invoice_date | date:'MMM d, y') : '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.payment_date ? (inv.payment_date | date:'MMM d, y') : '-' }}</td>
                 <td class="px-3 py-2.5 text-sm text-foreground">
                   @if (inv.creator) {
                     {{ inv.creator.firstName }} {{ inv.creator.lastName }}
@@ -106,13 +110,23 @@
                   }
                 </td>
                 <td class="px-3 py-2.5 text-center">
-                  <button (click)="exportInvoice(inv)"
-                          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                          title="Export calculation to Excel">
-                    <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                  </button>
+                  <div class="flex items-center justify-center gap-1">
+                    <button (click)="openInvoicePreview(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Preview invoice">
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </button>
+                    <button (click)="exportInvoice(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Export calculation to Excel">
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             }

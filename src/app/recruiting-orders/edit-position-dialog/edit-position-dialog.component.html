@@ -24,6 +24,23 @@
         <!-- Position Header -->
         <h4 class="text-lg font-semibold mb-4">{{ data.position.position_number }}</h4>
 
+        <!-- Cost Center -->
+        <div class="mb-4">
+          <ui-label for="costCenterID" class="block text-sm font-medium mb-2">Cost Center *</ui-label>
+          <select
+            id="costCenterID"
+            formControlName="costCenterID"
+            class="w-full md:w-1/3 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+            <option value="" disabled>Select cost center</option>
+            <option *ngFor="let cc of costCenters" [ngValue]="cc.ID">
+              {{ cc.code }} - {{ cc.name }}
+            </option>
+          </select>
+          <div *ngIf="hasError('costCenterID')" class="text-red-500 text-sm mt-1">
+            {{ getErrorMessage('costCenterID') }}
+          </div>
+        </div>
+
         <!-- Basic Position Information -->
         <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
           <!-- Job Title -->
@@ -108,7 +125,7 @@
               formControlName="currencyID"
               class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
               <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
-                {{ currency.name }}
+                {{ currency.code }}
               </option>
             </select>
             <div *ngIf="hasError('currencyID')" class="text-red-500 text-sm mt-1">
@@ -161,7 +178,7 @@
                 formControlName="feeCurrencyID"
                 class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
                 <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
-                  {{ currency.name }}
+                  {{ currency.code }}
                 </option>
               </select>
               <div *ngIf="hasError('feeCurrencyID')" class="text-red-500 text-sm mt-1">
@@ -222,14 +239,14 @@
 
           <!-- Extra Fee Type Selection -->
           <div class="mb-4" [title]="hasFeeLockedInvoices ? 'Locked: position has approved invoices' : ''">
-            <ui-label for="extraFeeTypeID" class="block text-sm font-medium mb-2">Extra Fee Type</ui-label>
+            <ui-label for="extraFeeTypeID" class="block text-sm font-medium mb-2">Additional Fee Type</ui-label>
             <select
               id="extraFeeTypeID"
               formControlName="extraFeeTypeID"
               (change)="onExtraFeeTypeIDChange()"
               class="w-full md:w-1/3 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
               <option [value]="null">None</option>
-              <option *ngFor="let extraFeeType of extraFeeTypes" [value]="extraFeeType.ID">
+              <option *ngFor="let extraFeeType of getFilteredExtraFeeTypes()" [value]="extraFeeType.ID">
                 {{ extraFeeType.name }}
               </option>
             </select>
@@ -271,7 +288,7 @@
                 formControlName="extraFeeCurrencyID"
                 class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
                 <option *ngFor="let currency of currencies" [ngValue]="currency.ID">
-                  {{ currency.name }}
+                  {{ currency.code }}
                 </option>
               </select>
             </div>

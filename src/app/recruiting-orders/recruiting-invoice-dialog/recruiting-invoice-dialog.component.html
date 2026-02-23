@@ -25,7 +25,7 @@
       </svg>
       <span class="text-blue-700 text-sm">
         Admin fee of <strong>{{ existingAdminFeeAmount | number:'1.2-2' }}</strong> was charged for this position.
-        Consider reducing this invoice by <strong>{{ adminFeePerPersonForDeduction | number:'1.2-2' }}</strong> (per person).
+        Consider reducing each placement by <strong>{{ adminFeePerPersonForDeduction | number:'1.2-2' }}</strong> (per person).
       </span>
     </div>
 
@@ -40,109 +40,281 @@
       <div class="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
         <span>Headcount: {{ position.number_of_people }}</span>
         <span>Filled: {{ position.number_filled || 0 }} / {{ position.number_of_people }}</span>
+        <span *ngIf="mode === 'placement'">Available: {{ maxCandidates }}</span>
         <span *ngIf="position.expected_salary">Expected Salary: {{ position.expected_salary | number:'1.0-2' }}</span>
       </div>
     </div>
 
-    <form [formGroup]="invoiceForm" *ngIf="invoiceForm">
-
-      <!-- Candidate Name (only for placement) -->
-      <div *ngIf="mode === 'placement'" class="grid grid-cols-2 gap-4 mb-4">
+    <!-- Invoice Dates Section -->
+    <div class="mb-4">
+      <div class="text-sm font-medium text-foreground mb-3">Invoice Dates</div>
+      <div class="grid grid-cols-3 gap-4">
         <div>
-          <ui-label for="candidate_first_name" class="block text-sm font-medium mb-2">Candidate First Name *</ui-label>
-          <ui-input
-            id="candidate_first_name"
-            formControlName="candidate_first_name"
-            placeholder="First name"
-            [class.border-red-500]="hasError('candidate_first_name')">
-          </ui-input>
-          <div *ngIf="hasError('candidate_first_name')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('candidate_first_name') }}
-          </div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Invoice Date *</label>
+          <input type="date" [(ngModel)]="invoiceDate"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         </div>
         <div>
-          <ui-label for="candidate_last_name" class="block text-sm font-medium mb-2">Candidate Last Name *</ui-label>
-          <ui-input
-            id="candidate_last_name"
-            formControlName="candidate_last_name"
-            placeholder="Last name"
-            [class.border-red-500]="hasError('candidate_last_name')">
-          </ui-input>
-          <div *ngIf="hasError('candidate_last_name')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('candidate_last_name') }}
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Service Date *</label>
+          <input type="date" [(ngModel)]="serviceDate"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Payment Date</label>
+          <div class="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+            {{ paymentDate || 'N/A' }}
+          </div>
+          <div *ngIf="paymentDueDays" class="text-xs text-muted-foreground mt-1">
+            Invoice Date + {{ paymentDueDays }} days
+          </div>
+          <div *ngIf="!paymentDueDays" class="text-xs text-muted-foreground mt-1">
+            Set payment terms on order to auto-calculate
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Salary Section (placement/cancel_fee - needs manual input) -->
-      <div *ngIf="needsSalaryInput" class="mb-4">
-        <div class="grid grid-cols-3 gap-4">
-          <div>
-            <ui-label for="salary_amount" class="block text-sm font-medium mb-2">
-              {{ mode === 'cancel_fee' ? 'Predicted Salary *' : 'Salary Amount *' }}
-            </ui-label>
-            <ui-input
-              id="salary_amount"
-              type="number"
-              formControlName="salary_amount"
-              placeholder="0.00"
-              [class.border-red-500]="hasError('salary_amount')">
-            </ui-input>
-            <div *ngIf="hasError('salary_amount')" class="text-red-500 text-sm mt-1">
-              {{ getErrorMessage('salary_amount') }}
-            </div>
+    <!-- Invoice Description -->
+    <div class="mb-4">
+      <div class="text-sm font-medium text-foreground mb-2">Invoice Description</div>
+      <textarea [(ngModel)]="invoiceDescription" rows="3"
+                class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+                placeholder="Invoice description..."></textarea>
+      <div class="text-xs text-muted-foreground mt-1">Auto-generated based on invoice type. You can edit before submitting.</div>
+    </div>
+
+    <form [formGroup]="invoiceForm" *ngIf="invoiceForm">
+
+      <!-- ==================== PLACEMENT MODE: Multi-Candidate ==================== -->
+      <ng-container *ngIf="mode === 'placement'">
+
+        <!-- Candidates FormArray -->
+        <div *ngFor="let candidateGroup of candidatesArray.controls; let i = index" class="candidate-card">
+          <div class="flex items-center justify-between mb-3" [formGroupName]="'candidates'">
+            <div class="text-sm font-medium text-foreground">Candidate {{ i + 1 }}</div>
+            <button *ngIf="candidatesArray.length > 1" type="button"
+                    class="text-muted-foreground hover:text-destructive transition-colors p-1"
+                    (click)="removeCandidate(i)" title="Remove candidate">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
 
-          <div>
-            <ui-label for="salary_type_id" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
-            <select
-              id="salary_type_id"
-              formControlName="salary_type_id"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <option [ngValue]="null" disabled>Select salary type</option>
-              <option *ngFor="let st of salaryTypes" [ngValue]="st.ID">{{ st.name }}</option>
-            </select>
-            <div *ngIf="hasError('salary_type_id')" class="text-red-500 text-sm mt-1">
-              {{ getErrorMessage('salary_type_id') }}
-            </div>
-          </div>
+          <ng-container [formArrayName]="'candidates'">
+            <ng-container [formGroupName]="i">
+              <!-- Name row -->
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <ui-input formControlName="candidate_first_name" placeholder="First name"
+                            [class.border-red-500]="hasCandidateError(i, 'candidate_first_name')"></ui-input>
+                  <div *ngIf="hasCandidateError(i, 'candidate_first_name')" class="text-red-500 text-xs mt-1">Required</div>
+                </div>
+                <div>
+                  <ui-input formControlName="candidate_last_name" placeholder="Last name"
+                            [class.border-red-500]="hasCandidateError(i, 'candidate_last_name')"></ui-input>
+                  <div *ngIf="hasCandidateError(i, 'candidate_last_name')" class="text-red-500 text-xs mt-1">Required</div>
+                </div>
+              </div>
 
+              <!-- Salary + Fee row -->
+              <div *ngIf="needsSalaryInput" class="grid grid-cols-4 gap-3 mb-2">
+                <div>
+                  <ui-input type="number" formControlName="salary_amount" placeholder="Salary"
+                            [class.border-red-500]="hasCandidateError(i, 'salary_amount')"></ui-input>
+                </div>
+                <div>
+                  <select formControlName="salary_type_id"
+                          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <option [ngValue]="null" disabled>Type</option>
+                    <option *ngFor="let st of salaryTypes" [ngValue]="st.ID">{{ st.name }}</option>
+                  </select>
+                </div>
+                <div>
+                  <select formControlName="salary_currency_id"
+                          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <option [ngValue]="null" disabled>Cur.</option>
+                    <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-1">
+                  <ui-button variant="outline" size="sm" (onClick)="calculateCandidateFee(i)"
+                             [disabled]="candidateCalculating[i]" class="text-xs whitespace-nowrap">
+                    {{ candidateCalculating[i] ? '...' : 'Calc' }}
+                  </ui-button>
+                </div>
+              </div>
+
+              <!-- Fee amount row -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <ui-input type="number" formControlName="final_fee_amount" placeholder="Fee amount"
+                              [class.border-red-500]="hasCandidateError(i, 'final_fee_amount')"></ui-input>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1" *ngIf="candidateCalculations[i]">
+                    <span class="text-xs text-muted-foreground">
+                      Calc: {{ candidateCalculations[i].calculatedFee | number:'1.2-2' }}
+                    </span>
+                    <span *ngIf="isCandidateFeeOverridden(i)" class="text-xs text-amber-500">Overridden</span>
+                    <button *ngIf="isCandidateFeeOverridden(i)" type="button"
+                            class="text-primary hover:underline text-xs cursor-pointer"
+                            (click)="resetCandidateFee(i)">Reset</button>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <button *ngIf="adminFeePerPersonForDeduction && candidateCalculations[i]"
+                          type="button"
+                          class="text-xs text-primary hover:underline cursor-pointer"
+                          (click)="deductAdminFeeForCandidate(i)">
+                    Deduct Admin Fee (-{{ adminFeePerPersonForDeduction | number:'1.2-2' }})
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+
+        <!-- Add Candidate button -->
+        <div class="flex items-center justify-between mb-4">
+          <ui-button variant="outline" size="sm" (onClick)="addCandidate()"
+                     [disabled]="candidatesArray.length >= maxCandidates">
+            <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add Candidate ({{ candidatesArray.length }}/{{ maxCandidates }})
+          </ui-button>
+          <ui-button *ngIf="needsSalaryInput && candidatesArray.length > 1" variant="outline" size="sm"
+                     (onClick)="calculateAllFees()">
+            Calculate All Fees
+          </ui-button>
+        </div>
+
+        <!-- Grouping Mode (only for multi-candidate) -->
+        <div *ngIf="candidatesArray.length > 1" class="mb-4">
+          <ui-label class="block text-sm font-medium mb-2">Invoice Line Grouping</ui-label>
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="groupingMode" value="individual"
+                     [checked]="groupingMode === 'individual'"
+                     (change)="groupingMode = 'individual'"
+                     class="accent-primary">
+              <span>Individual lines</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="groupingMode" value="grouped"
+                     [checked]="groupingMode === 'grouped'"
+                     (change)="groupingMode = 'grouped'"
+                     class="accent-primary">
+              <span>Grouped (single line total)</span>
+            </label>
+          </div>
+          <div class="text-xs text-muted-foreground mt-1">
+            {{ groupingMode === 'individual' ? 'Each candidate will be a separate line item on the invoice.' : 'All candidates will be combined into a single line item.' }}
+          </div>
+        </div>
+
+        <!-- Total Fee Summary (multi-candidate) -->
+        <div *ngIf="candidatesArray.length > 1" class="fee-breakdown mb-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-muted-foreground">Total Fee ({{ candidatesArray.length }} candidates):</span>
+            <span class="font-bold text-primary text-lg">{{ totalFee | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Fee Currency (shared across all candidates) -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <ui-label for="salary_currency_id" class="block text-sm font-medium mb-2">Currency *</ui-label>
-            <select
-              id="salary_currency_id"
-              formControlName="salary_currency_id"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <ui-label for="fee_currency_id" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
+            <select id="fee_currency_id" formControlName="fee_currency_id"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <option [ngValue]="null" disabled>Select currency</option>
               <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
             </select>
-            <div *ngIf="hasError('salary_currency_id')" class="text-red-500 text-sm mt-1">
-              {{ getErrorMessage('salary_currency_id') }}
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-4">
+          <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
+          <ui-textarea id="notes" formControlName="notes" placeholder="Optional notes..." rows="3"></ui-textarea>
+        </div>
+      </ng-container>
+
+      <!-- ==================== ADMIN FEE / CANCEL FEE MODE (unchanged) ==================== -->
+      <ng-container *ngIf="mode !== 'placement'">
+
+        <!-- Salary Section (cancel_fee needs manual input) -->
+        <div *ngIf="needsSalaryInput" class="mb-4">
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <ui-label for="salary_amount" class="block text-sm font-medium mb-2">
+                {{ mode === 'cancel_fee' ? 'Predicted Salary *' : 'Salary Amount *' }}
+              </ui-label>
+              <ui-input id="salary_amount" type="number" formControlName="salary_amount" placeholder="0.00"
+                        [class.border-red-500]="hasError('salary_amount')"></ui-input>
+              <div *ngIf="hasError('salary_amount')" class="text-red-500 text-sm mt-1">{{ getErrorMessage('salary_amount') }}</div>
+            </div>
+            <div>
+              <ui-label for="salary_type_id" class="block text-sm font-medium mb-2">Salary Type *</ui-label>
+              <select id="salary_type_id" formControlName="salary_type_id"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <option [ngValue]="null" disabled>Select salary type</option>
+                <option *ngFor="let st of salaryTypes" [ngValue]="st.ID">{{ st.name }}</option>
+              </select>
+              <div *ngIf="hasError('salary_type_id')" class="text-red-500 text-sm mt-1">{{ getErrorMessage('salary_type_id') }}</div>
+            </div>
+            <div>
+              <ui-label for="salary_currency_id" class="block text-sm font-medium mb-2">Currency *</ui-label>
+              <select id="salary_currency_id" formControlName="salary_currency_id"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <option [ngValue]="null" disabled>Select currency</option>
+                <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
+              </select>
+              <div *ngIf="hasError('salary_currency_id')" class="text-red-500 text-sm mt-1">{{ getErrorMessage('salary_currency_id') }}</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <ui-button variant="outline" size="sm" (onClick)="calculateFee()" [disabled]="isCalculating">
+              {{ isCalculating ? 'Calculating...' : 'Calculate Fee' }}
+            </ui-button>
+          </div>
+        </div>
+
+        <!-- Admin Fee: auto-calculated breakdown -->
+        <div *ngIf="mode === 'admin_fee'" class="mb-4">
+          <div *ngIf="isCalculating" class="text-sm text-muted-foreground py-4 text-center">Calculating admin fee...</div>
+          <div *ngIf="feeBreakdown && !isCalculating" class="fee-breakdown">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-xs font-medium text-muted-foreground">Admin Fee Calculation Breakdown</div>
+              <button type="button" class="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer" (click)="exportCalculation()">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              <div class="text-muted-foreground">Expected Salary:</div>
+              <div class="font-medium">{{ position.expected_salary | number:'1.2-2' }}</div>
+              <div class="text-muted-foreground">Derived Salary ({{ getDerivedSalaryLabel() }}):</div>
+              <div class="font-medium">{{ derivedSalaryForFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+              <div class="text-muted-foreground">Projected Fee per Person ({{ getMainFeeConfigLabel() }}):</div>
+              <div class="font-medium">{{ projectedFeePerPerson | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+              <div class="text-muted-foreground">Admin Fee per Person ({{ getFeeConfigLabel() }}):</div>
+              <div class="font-medium">{{ adminFeePerPerson | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+              <div class="text-muted-foreground">Headcount:</div>
+              <div class="font-medium">{{ adminHeadcount }}</div>
+              <div class="text-muted-foreground font-semibold border-t border-border pt-2 mt-1">Total Admin Fee:</div>
+              <div class="font-bold text-primary border-t border-border pt-2 mt-1">{{ calculatedFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
             </div>
           </div>
         </div>
 
-        <!-- Calculate Button -->
-        <div class="mt-3">
-          <ui-button
-            variant="outline"
-            size="sm"
-            (onClick)="calculateFee()"
-            [disabled]="isCalculating">
-            {{ isCalculating ? 'Calculating...' : 'Calculate Fee' }}
-          </ui-button>
-        </div>
-      </div>
-
-      <!-- Admin Fee: auto-calculated breakdown -->
-      <div *ngIf="mode === 'admin_fee'" class="mb-4">
-        <div *ngIf="isCalculating" class="text-sm text-muted-foreground py-4 text-center">
-          Calculating admin fee...
-        </div>
-
-        <div *ngIf="feeBreakdown && !isCalculating" class="fee-breakdown">
-          <div class="flex items-center justify-between mb-3">
-            <div class="text-xs font-medium text-muted-foreground">Admin Fee Calculation Breakdown</div>
+        <!-- Placement/Cancel Fee Calculation Breakdown -->
+        <div *ngIf="feeBreakdown && needsSalaryInput" class="fee-breakdown">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-xs font-medium text-muted-foreground">Fee Calculation Breakdown</div>
             <button type="button" class="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer" (click)="exportCalculation()">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -150,115 +322,59 @@
               Export
             </button>
           </div>
-          <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            <div class="text-muted-foreground">Expected Salary:</div>
-            <div class="font-medium">{{ position.expected_salary | number:'1.2-2' }}</div>
-
-            <div class="text-muted-foreground">Derived Salary ({{ getDerivedSalaryLabel() }}):</div>
-            <div class="font-medium">{{ derivedSalaryForFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
-
-            <div class="text-muted-foreground">Projected Fee per Person ({{ getMainFeeConfigLabel() }}):</div>
-            <div class="font-medium">{{ projectedFeePerPerson | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
-
-            <div class="text-muted-foreground">Admin Fee per Person ({{ getFeeConfigLabel() }}):</div>
-            <div class="font-medium">{{ adminFeePerPerson | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
-
-            <div class="text-muted-foreground">Headcount:</div>
-            <div class="font-medium">{{ adminHeadcount }}</div>
-
-            <div class="text-muted-foreground font-semibold border-t border-border pt-2 mt-1">Total Admin Fee:</div>
-            <div class="font-bold text-primary border-t border-border pt-2 mt-1">{{ calculatedFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+          <div class="grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <span class="text-muted-foreground">Derived Salary:</span>
+              <div class="font-semibold">{{ derivedSalaryForFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+              <div class="text-xs text-muted-foreground">{{ getDerivedSalaryLabel() }}</div>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Fee Formula:</span>
+              <div class="font-semibold">{{ getFeeConfigLabel() }}</div>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Calculated Fee:</span>
+              <div class="font-semibold text-primary">{{ calculatedFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
+            </div>
+          </div>
+          <div *ngIf="mode === 'cancel_fee' && adminFeePerPersonForDeduction" class="mt-3 pt-3 border-t border-border flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">
+              Admin fee per person: <strong>{{ adminFeePerPersonForDeduction | number:'1.2-2' }}</strong>
+            </span>
+            <ui-button variant="outline" size="sm" (onClick)="deductAdminFee()">Deduct Admin Fee</ui-button>
           </div>
         </div>
-      </div>
 
-      <!-- Placement/Cancel Fee Calculation Breakdown -->
-      <div *ngIf="feeBreakdown && needsSalaryInput" class="fee-breakdown">
-        <div class="flex items-center justify-between mb-2">
-          <div class="text-xs font-medium text-muted-foreground">Fee Calculation Breakdown</div>
-          <button type="button" class="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer" (click)="exportCalculation()">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            Export
-          </button>
-        </div>
-        <div class="grid grid-cols-3 gap-3 text-sm">
+        <!-- Fee Section -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <span class="text-muted-foreground">Derived Salary:</span>
-            <div class="font-semibold">{{ derivedSalaryForFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
-            <div class="text-xs text-muted-foreground">{{ getDerivedSalaryLabel() }}</div>
+            <ui-label for="final_fee_amount" class="block text-sm font-medium mb-2">Fee Amount *</ui-label>
+            <ui-input id="final_fee_amount" type="number" formControlName="final_fee_amount" placeholder="0.00"
+                      (input)="onFeeManualChange()" [class.border-red-500]="hasError('final_fee_amount')"></ui-input>
+            <div *ngIf="hasError('final_fee_amount')" class="text-red-500 text-sm mt-1">{{ getErrorMessage('final_fee_amount') }}</div>
+            <div *ngIf="feeOverridden" class="override-info">
+              <span class="text-amber-500">Overridden</span>
+              <span>(calculated: {{ calculatedFee | number:'1.0-2' }})</span>
+              <button type="button" class="text-primary hover:underline text-xs cursor-pointer" (click)="resetFee()">Reset</button>
+            </div>
           </div>
           <div>
-            <span class="text-muted-foreground">Fee Formula:</span>
-            <div class="font-semibold">{{ getFeeConfigLabel() }}</div>
-          </div>
-          <div>
-            <span class="text-muted-foreground">Calculated Fee:</span>
-            <div class="font-semibold text-primary">{{ calculatedFee | number:'1.2-2' }} {{ feeBreakdown.feeCurrencyCode }}</div>
-          </div>
-        </div>
-        <!-- Deduct Admin Fee Button (placement only, when admin fee exists) -->
-        <div *ngIf="mode === 'placement' && adminFeePerPersonForDeduction" class="mt-3 pt-3 border-t border-border flex items-center justify-between">
-          <span class="text-xs text-muted-foreground">
-            Admin fee per person: <strong>{{ adminFeePerPersonForDeduction | number:'1.2-2' }}</strong>
-          </span>
-          <ui-button
-            variant="outline"
-            size="sm"
-            (onClick)="deductAdminFee()">
-            Deduct Admin Fee
-          </ui-button>
-        </div>
-      </div>
-
-      <!-- Fee Section -->
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <ui-label for="final_fee_amount" class="block text-sm font-medium mb-2">Fee Amount *</ui-label>
-          <ui-input
-            id="final_fee_amount"
-            type="number"
-            formControlName="final_fee_amount"
-            placeholder="0.00"
-            (input)="onFeeManualChange()"
-            [class.border-red-500]="hasError('final_fee_amount')">
-          </ui-input>
-          <div *ngIf="hasError('final_fee_amount')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('final_fee_amount') }}
-          </div>
-          <div *ngIf="feeOverridden" class="override-info">
-            <span class="text-amber-500">Overridden</span>
-            <span>(calculated: {{ calculatedFee | number:'1.0-2' }})</span>
-            <button type="button" class="text-primary hover:underline text-xs cursor-pointer" (click)="resetFee()">Reset</button>
+            <ui-label for="fee_currency_id" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
+            <select id="fee_currency_id" formControlName="fee_currency_id"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <option [ngValue]="null" disabled>Select currency</option>
+              <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
+            </select>
+            <div *ngIf="hasError('fee_currency_id')" class="text-red-500 text-sm mt-1">{{ getErrorMessage('fee_currency_id') }}</div>
           </div>
         </div>
 
-        <div>
-          <ui-label for="fee_currency_id" class="block text-sm font-medium mb-2">Fee Currency *</ui-label>
-          <select
-            id="fee_currency_id"
-            formControlName="fee_currency_id"
-            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <option [ngValue]="null" disabled>Select currency</option>
-            <option *ngFor="let c of currencies" [ngValue]="c.ID">{{ c.code }}</option>
-          </select>
-          <div *ngIf="hasError('fee_currency_id')" class="text-red-500 text-sm mt-1">
-            {{ getErrorMessage('fee_currency_id') }}
-          </div>
+        <!-- Notes -->
+        <div class="mb-4">
+          <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
+          <ui-textarea id="notes" formControlName="notes" placeholder="Optional notes..." rows="3"></ui-textarea>
         </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="mb-4">
-        <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
-        <ui-textarea
-          id="notes"
-          formControlName="notes"
-          placeholder="Optional notes..."
-          rows="3">
-        </ui-textarea>
-      </div>
+      </ng-container>
 
     </form>
   </mat-dialog-content>
@@ -266,7 +382,7 @@
   <div class="dialog-actions">
     <ui-button variant="outline" (onClick)="close()">Cancel</ui-button>
     <ui-button variant="default" (onClick)="submit()" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'Saving...' : 'Save Invoice' }}
+      {{ isSubmitting ? 'Saving...' : (isMultiCandidate ? 'Save Invoice (' + candidatesArray.length + ' candidates)' : 'Save Invoice') }}
     </ui-button>
   </div>
 </div>

@@ -31,11 +31,12 @@ export class AddPositionDialogComponent implements OnInit {
   currencies: any[] = [];
   feeTypes: any[] = [];
   extraFeeTypes: any[] = [];
+  costCenters: any[] = [];
   isSubmitting = false;
   
   constructor(
     public dialogRef: MatDialogRef<AddPositionDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { orderID: number },
+    @Inject(MAT_DIALOG_DATA) public data: { orderID: number, existingPositions?: any[] },
     private fb: FormBuilder,
     private rest: RestService,
     private dialogService: DialogService
@@ -78,10 +79,19 @@ export class AddPositionDialogComponent implements OnInit {
         }
       }
     });
+
+    this.rest.getCostCenters('recruiting').subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.costCenters = res.data;
+        }
+      }
+    });
   }
 
   initForm(): void {
     this.positionForm = this.fb.group({
+      costCenterID: ['', Validators.required],
       jobTitle: ['', Validators.required],
       location: ['', Validators.required],
       numberOfPeople: [1, [Validators.required, Validators.min(1)]],
@@ -205,6 +215,32 @@ export class AddPositionDialogComponent implements OnInit {
     return extraFeeType ? extraFeeType.name : '';
   }
 
+  /**
+   * Filter extra fee types: ADMIN and CANCEL are mutually exclusive.
+   * If existing positions in the order already use ADMIN, hide CANCEL (and vice versa).
+   */
+  getFilteredExtraFeeTypes(): any[] {
+    if (!this.extraFeeTypes || this.extraFeeTypes.length === 0) return this.extraFeeTypes;
+
+    const existingPositions = this.data.existingPositions || [];
+    let lockedType: string | null = null;
+
+    for (const pos of existingPositions) {
+      if (pos.extra_fee_type_id) {
+        const efType = this.extraFeeTypes.find(t => t.ID === pos.extra_fee_type_id);
+        if (efType && (efType.name === 'ADMIN' || efType.name === 'CANCEL')) {
+          lockedType = efType.name;
+          break;
+        }
+      }
+    }
+
+    if (!lockedType) return this.extraFeeTypes;
+
+    const excludeType = lockedType === 'ADMIN' ? 'CANCEL' : 'ADMIN';
+    return this.extraFeeTypes.filter(type => type.name !== excludeType);
+  }
+
   onSubmit(): void {
     if (this.positionForm.invalid) {
       this.positionForm.markAllAsTouched();
@@ -217,6 +253,7 @@ export class AddPositionDialogComponent implements OnInit {
 
     const positionData: any = {
       order_id: this.data.orderID,
+      cost_center_id: formValue.costCenterID || null,
       position_name: formValue.jobTitle,
       location: formValue.location,
       number_of_people: formValue.numberOfPeople || 1,

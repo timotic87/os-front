@@ -10,6 +10,7 @@ import { UserService } from '../../services/user.service';
 import { AddPositionDialogComponent } from '../../deals/deal/add-position-dialog/add-position-dialog.component';
 import { EditPositionDialogComponent } from '../edit-position-dialog/edit-position-dialog.component';
 import { RecruitingInvoiceDialogComponent } from '../recruiting-invoice-dialog/recruiting-invoice-dialog.component';
+import { InvoicePreviewDialogComponent } from '../invoice-preview-dialog/invoice-preview-dialog.component';
 import { ApprovalCardComponent } from '../../customComponents/approval-card/approval-card.component';
 import { HistoryDialogComponent } from '../../customComponents/history-dialog/history-dialog.component';
 import * as XLSX from 'xlsx';
@@ -42,10 +43,18 @@ export class RecruitingOrderComponent implements OnInit {
   statuses: any[] = [];
   users: any[] = [];
   invoices: any[] = [];
+  extraFeeTypes: any[] = [];
+  expandedInvoices: Set<number> = new Set();
   loading = true;
   orderId!: number;
   userSearch = '';
   filteredUsers: any[] = [];
+
+  // Inline edit for payment days
+  editingPaymentDays = false;
+  editPaymentDueDaysPlacement: number | null = null;
+  editPaymentDueDaysAdditional: number | null = null;
+  savingPaymentDays = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,6 +72,7 @@ export class RecruitingOrderComponent implements OnInit {
     this.loadStatuses();
     this.loadUsers();
     this.loadInvoices();
+    this.loadExtraFeeTypes();
   }
 
   loadOrder(): void {
@@ -135,7 +145,7 @@ export class RecruitingOrderComponent implements OnInit {
     const dialogRef = this.dialog.open(AddPositionDialogComponent, {
       width: '900px',
       maxWidth: '95vw',
-      data: { orderID: this.order.ID }
+      data: { orderID: this.order.ID, existingPositions: this.order.positions || [] }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -149,7 +159,7 @@ export class RecruitingOrderComponent implements OnInit {
     const dialogRef = this.dialog.open(EditPositionDialogComponent, {
       width: '900px',
       maxWidth: '95vw',
-      data: { position, invoices: this.invoices }
+      data: { position, invoices: this.invoices, existingPositions: this.order.positions || [] }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -227,6 +237,38 @@ export class RecruitingOrderComponent implements OnInit {
     if (this.userService.can('edit_recruiting_order')) return true;
     const currentUserId = this.userService.getUser()?.id;
     return position.assignments?.some((a: any) => a.user_id === currentUserId);
+  }
+
+  editPaymentDays(): void {
+    this.editingPaymentDays = true;
+    this.editPaymentDueDaysPlacement = this.order.payment_due_days_placement ?? null;
+    this.editPaymentDueDaysAdditional = this.order.payment_due_days_additional ?? null;
+  }
+
+  savePaymentDays(): void {
+    this.savingPaymentDays = true;
+    this.rest.updateRecruitingOrder({
+      orderID: this.order.ID,
+      payment_due_days_placement: this.editPaymentDueDaysPlacement,
+      payment_due_days_additional: this.editPaymentDueDaysAdditional
+    }).subscribe({
+      next: (res) => {
+        this.savingPaymentDays = false;
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Payment terms updated', '', 3000);
+          this.editingPaymentDays = false;
+          this.loadOrder();
+        }
+      },
+      error: (err) => {
+        this.savingPaymentDays = false;
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  cancelPaymentDaysEdit(): void {
+    this.editingPaymentDays = false;
   }
 
   goToDeal(): void {
@@ -332,12 +374,15 @@ export class RecruitingOrderComponent implements OnInit {
       (inv: any) => inv.position_id === position.ID && !inv.deleted
     );
     const dialogRef = this.dialog.open(RecruitingInvoiceDialogComponent, {
-      width: '700px',
+      width: '780px',
       maxWidth: '95vw',
       data: {
         mode, position, orderID: this.order.ID,
         existingInvoices: positionInvoices,
-        clientCurrency: this.order?.deal?.client?.currency || null
+        clientCurrency: this.order?.deal?.client?.currency || null,
+        clientCountry: this.order?.deal?.client?.country || null,
+        paymentDueDaysPlacement: this.order.payment_due_days_placement,
+        paymentDueDaysAdditional: this.order.payment_due_days_additional
       }
     });
 
@@ -347,6 +392,23 @@ export class RecruitingOrderComponent implements OnInit {
         this.loadInvoices();
       }
     });
+  }
+
+  loadExtraFeeTypes(): void {
+    this.rest.getExtraFeeTypes().subscribe({
+      next: (res) => {
+        if (res.status === 200 && res.data) {
+          this.extraFeeTypes = res.data;
+        }
+      }
+    });
+  }
+
+  /** Get extra fee type name for a position (ADMIN, CANCEL, NONE, or '') */
+  getPositionExtraFeeTypeName(position: any): string {
+    if (!position.extra_fee_type_id || !this.extraFeeTypes.length) return '';
+    const efType = this.extraFeeTypes.find(t => t.ID === position.extra_fee_type_id);
+    return efType ? efType.name : '';
   }
 
   canClosePosition(position: any): boolean {
@@ -455,7 +517,12 @@ export class RecruitingOrderComponent implements OnInit {
         ['Total Admin Fee', `${calcData.calculatedFee} ${cur}`],
         ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
       );
+    } else if (calcData.multiCandidate && invoice.lines?.length > 0) {
+      // Multi-candidate placement export — handled separately below
+      this.buildMultiCandidateExcel(invoice, calcData, pos, cur, date);
+      return;
     } else {
+      // Single-candidate placement / cancel fee
       const typeLabel = invoiceType === 'placement' ? 'Placement Fee' : 'Cancel Fee';
       rows.push(
         [`${typeLabel} Calculation`, ''],
@@ -480,11 +547,11 @@ export class RecruitingOrderComponent implements OnInit {
       );
     }
 
-    if (calcData.feeWasOverridden) {
+    if (calcData.feeWasOverridden && !calcData.multiCandidate) {
       rows.push(['Fee Override', 'Yes (manually adjusted)']);
     }
 
-    // Salary calculator breakdown
+    // Salary calculator breakdown (single-candidate only)
     const calcResults = calcData.calculatorResults;
     if (calcResults) {
       rows.push(['', ''], ['Salary Calculator Results', ''], ['', 'RSD', 'EUR', 'USD']);
@@ -521,6 +588,128 @@ export class RecruitingOrderComponent implements OnInit {
     const typeSlug = invoiceType === 'admin_fee' ? 'AdminFee' :
                      invoiceType === 'placement' ? 'Placement' : 'CancelFee';
     XLSX.writeFile(wb, `${typeSlug}_${pos.position_number || invoice.ID}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  /**
+   * Multi-candidate placement Excel: Summary sheet + one detail sheet per candidate
+   */
+  private buildMultiCandidateExcel(invoice: any, calcData: any, pos: any, cur: string, date: string): void {
+    const wb = XLSX.utils.book_new();
+    const feeFormula = this.getFeeFormulaLabel(calcData.feeSnapshot);
+    const lines: any[] = invoice.lines || [];
+
+    // ── Sheet 1: Summary ──
+    const summary: any[][] = [
+      ['Placement Fee Calculation', ''],
+      ['', ''],
+      ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+      ['Date', date],
+      ['Fee Formula', feeFormula],
+      ['Candidates', lines.length],
+      ['Grouping', calcData.grouping_mode === 'grouped' ? 'Grouped (single line)' : 'Individual lines'],
+      ['', ''],
+      ['', ''],
+      ['#', 'Candidate', 'Entered Salary', 'Salary Type', 'Currency', 'Derived Salary', 'Calculated Fee', 'Final Fee', 'Override'],
+    ];
+
+    for (const line of lines) {
+      let lineCalc: any = null;
+      if (line.calculation_data) {
+        try { lineCalc = typeof line.calculation_data === 'string' ? JSON.parse(line.calculation_data) : line.calculation_data; } catch {}
+      }
+      const derivedLabel = lineCalc?.derivedSalaryType
+        ? this.getDerivedSalaryLabel(lineCalc.derivedSalaryType, null as any)
+        : '';
+
+      summary.push([
+        line.line_number,
+        `${line.candidate_first_name} ${line.candidate_last_name}`,
+        line.salary_amount,
+        line.salaryType?.name || '',
+        line.salaryCurrency?.code || '',
+        line.derived_salary_for_fee != null ? `${line.derived_salary_for_fee} ${cur}` : '',
+        `${line.calculated_fee_amount} ${cur}`,
+        `${line.final_fee_amount} ${cur}`,
+        line.fee_was_overridden ? 'Yes' : '',
+      ]);
+    }
+
+    summary.push(
+      ['', ''],
+      ['Total Calculated Fee', '', '', '', '', '', `${calcData.totalCalculatedFee} ${cur}`, '', ''],
+      ['Total Final Fee', '', '', '', '', '', `${calcData.totalFinalFee} ${cur}`, '', ''],
+    );
+
+    if (calcData.feeWasOverridden) {
+      summary.push(['Fee Override', 'Yes (one or more fees manually adjusted)']);
+    }
+
+    const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+    wsSummary['!cols'] = [
+      { wch: 5 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 10 },
+      { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 10 }
+    ];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+    // ── Sheet per candidate ──
+    for (const line of lines) {
+      let lineCalc: any = null;
+      if (line.calculation_data) {
+        try { lineCalc = typeof line.calculation_data === 'string' ? JSON.parse(line.calculation_data) : line.calculation_data; } catch {}
+      }
+
+      const derivedType = lineCalc?.derivedSalaryType || null;
+      const derivedLabel = this.getDerivedSalaryLabel(derivedType, pos.salary_type_id);
+      const lineCur = lineCalc?.feeCurrencyCode || cur;
+      const cRows: any[][] = [
+        ['Placement Fee Calculation', ''],
+        ['', ''],
+        ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+        ['Date', date],
+        ['Candidate', `${line.candidate_first_name} ${line.candidate_last_name}`],
+        ['', ''],
+        ['Entered Salary', line.salary_amount],
+        ['Salary Type', line.salaryType?.name || ''],
+        ['Currency', line.salaryCurrency?.code || ''],
+        [`Derived Salary (${derivedLabel})`, line.derived_salary_for_fee != null ? `${line.derived_salary_for_fee} ${lineCur}` : 'N/A'],
+        ['Fee Formula', feeFormula],
+        ['', ''],
+        ['Calculated Fee', `${line.calculated_fee_amount} ${lineCur}`],
+        ['Final Fee Amount', `${line.final_fee_amount} ${lineCur}`],
+      ];
+
+      if (line.fee_was_overridden) {
+        cRows.push(['Fee Override', 'Yes (manually adjusted)']);
+      }
+
+      // Salary calculator breakdown from line's calculation_data
+      const calcResults = lineCalc?.calculatorResult;
+      if (calcResults) {
+        cRows.push(['', ''], ['Salary Calculator Results', ''], ['', 'RSD', 'EUR', 'USD']);
+        const labels: Record<string, string> = {
+          monthlyNet: 'Monthly Net', monthlyGross: 'Monthly Base Gross', monthlyGrandGross: 'Monthly Grand Gross',
+          annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
+        };
+        for (const [key, label] of Object.entries(labels)) {
+          cRows.push([label, calcResults['RSD']?.[key] || '', calcResults['EUR']?.[key] || '', calcResults['USD']?.[key] || '']);
+        }
+      }
+
+      const exRates = lineCalc?.exchangeRates;
+      if (exRates) {
+        cRows.push(['', ''], ['Exchange Rates', '']);
+        if (exRates.EUR) cRows.push(['1 EUR', `${exRates.EUR} RSD`]);
+        if (exRates.USD) cRows.push(['1 USD', `${exRates.USD} RSD`]);
+      }
+
+      const wsCandidate = XLSX.utils.aoa_to_sheet(cRows);
+      wsCandidate['!cols'] = [{ wch: 45 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
+
+      const sheetName = `${line.line_number}. ${line.candidate_first_name} ${line.candidate_last_name}`.substring(0, 31);
+      XLSX.utils.book_append_sheet(wb, wsCandidate, sheetName);
+    }
+
+    XLSX.writeFile(wb, `Placement_${pos.position_number || invoice.ID}_${lines.length}cand_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
   private getDerivedSalaryLabel(key: string | null, salaryTypeId?: number): string {
@@ -566,6 +755,26 @@ export class RecruitingOrderComponent implements OnInit {
       case 3: return `Fixed: ${pos.extra_fee_amount}`;
       default: return 'N/A';
     }
+  }
+
+  toggleInvoiceLines(inv: any): void {
+    if (this.expandedInvoices.has(inv.ID)) {
+      this.expandedInvoices.delete(inv.ID);
+    } else {
+      this.expandedInvoices.add(inv.ID);
+    }
+  }
+
+  isInvoiceExpanded(inv: any): boolean {
+    return this.expandedInvoices.has(inv.ID);
+  }
+
+  openInvoicePreview(inv: any): void {
+    this.dialog.open(InvoicePreviewDialogComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      data: { invoiceID: inv.ID }
+    });
   }
 
   deleteInvoice(inv: any): void {

@@ -1,0 +1,225 @@
+<div class="preview-dialog">
+  <div class="dialog-header">
+    <div class="flex items-center gap-3">
+      <h2 class="text-xl font-semibold text-foreground">Invoice Preview</h2>
+      <ng-container *ngIf="invoice">
+        <ui-badge [variant]="getInvoiceTypeBadgeVariant(invoice.invoice_type)">
+          {{ getInvoiceTypeLabel(invoice.invoice_type) }}
+        </ui-badge>
+        <ui-badge [variant]="getStatusBadgeVariant(invoice.status)">
+          {{ getStatusLabel(invoice.status) }}
+        </ui-badge>
+        <span class="text-sm text-muted-foreground font-mono">#{{ invoice.ID }}</span>
+      </ng-container>
+    </div>
+    <button class="close-button" (click)="close()" aria-label="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex items-center justify-center py-12 text-muted-foreground">
+      <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      Loading invoice...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!loading && error" class="text-center py-12 text-destructive">
+      {{ error }}
+    </div>
+
+    <!-- Invoice Content -->
+    <div *ngIf="!loading && invoice && !error" class="space-y-5">
+
+      <!-- Description -->
+      <div *ngIf="invoice.description" class="preview-section">
+        <div class="section-label">Invoice Description</div>
+        <div class="text-sm text-foreground whitespace-pre-wrap">{{ invoice.description }}</div>
+      </div>
+
+      <!-- Client & Order -->
+      <div class="preview-section">
+        <div class="section-label">Client &amp; Order</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">Client</span>
+            <span class="item-value">{{ invoice.order?.deal?.client?.customerName || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Legal Entity</span>
+            <span class="item-value">{{ invoice.order?.deal?.legalEntity?.shortName || invoice.order?.deal?.legalEntity?.name || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Order #</span>
+            <span class="item-value font-mono">{{ invoice.order?.order_number || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Business Line</span>
+            <span class="item-value">{{ invoice.order?.deal?.service?.name || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Position -->
+      <div class="preview-section">
+        <div class="section-label">Position</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">Position</span>
+            <span class="item-value">
+              <span class="font-mono text-muted-foreground">{{ invoice.position?.position_number }}</span>
+              &ndash; {{ invoice.position?.position_name }}
+            </span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Cost Center</span>
+            <span class="item-value">{{ invoice.position?.costCenter?.name || invoice.position?.costCenter?.code || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate (single) -->
+      <div *ngIf="invoice.candidate_first_name && (!invoice.lines || invoice.lines.length === 0)" class="preview-section">
+        <div class="section-label">Candidate</div>
+        <div class="text-sm font-medium text-foreground">
+          {{ invoice.candidate_first_name }} {{ invoice.candidate_last_name }}
+        </div>
+      </div>
+
+      <!-- Fee & Salary -->
+      <div class="preview-section">
+        <div class="section-label">Fee &amp; Salary</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">Fee Formula</span>
+            <span class="item-value">{{ getFeeConfigLabel() }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Final Fee Amount</span>
+            <span class="item-value font-semibold text-primary">
+              {{ invoice.final_fee_amount | number:'1.2-2' }} {{ invoice.feeCurrency?.code || '' }}
+            </span>
+          </div>
+          <div class="preview-item" *ngIf="invoice.fee_was_overridden">
+            <span class="item-label">Calculated Fee</span>
+            <span class="item-value">{{ invoice.calculated_fee_amount | number:'1.2-2' }} {{ invoice.feeCurrency?.code || '' }}
+              <span class="text-amber-500 text-xs ml-1">Overridden</span>
+            </span>
+          </div>
+          <div class="preview-item" *ngIf="invoice.salary_amount">
+            <span class="item-label">Entered Salary</span>
+            <span class="item-value">
+              {{ invoice.salary_amount | number:'1.2-2' }}
+              {{ invoice.salaryCurrency?.code || '' }}
+              <span *ngIf="invoice.salaryType" class="text-muted-foreground">({{ invoice.salaryType.name }})</span>
+            </span>
+          </div>
+          <div class="preview-item" *ngIf="invoice.derived_salary_for_fee && invoice.salary_amount != invoice.derived_salary_for_fee">
+            <span class="item-label">Derived Salary (fee basis)</span>
+            <span class="item-value">
+              {{ invoice.derived_salary_for_fee | number:'1.2-2' }}
+              {{ invoice.feeCurrency?.code || '' }}
+              <span *ngIf="invoice.position?.salaryType" class="text-muted-foreground">({{ invoice.position.salaryType.name }})</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="preview-section">
+        <div class="section-label">Dates</div>
+        <div class="preview-grid grid-cols-3">
+          <div class="preview-item">
+            <span class="item-label">Invoice Date</span>
+            <span class="item-value">{{ invoice.invoice_date ? (invoice.invoice_date | date:'MMM d, y') : '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Service Date</span>
+            <span class="item-value">{{ invoice.service_date ? (invoice.service_date | date:'MMM d, y') : '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Payment Date</span>
+            <span class="item-value">{{ invoice.payment_date ? (invoice.payment_date | date:'MMM d, y') : '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creator -->
+      <div class="preview-section">
+        <div class="section-label">Created By</div>
+        <div class="flex items-center gap-2 text-sm">
+          <ng-container *ngIf="invoice.creator?.profilePicUrl">
+            <img class="w-6 h-6 rounded-full flex-shrink-0" [src]="invoice.creator.profilePicUrl" alt="Avatar" style="object-fit: cover;">
+          </ng-container>
+          <ng-container *ngIf="!invoice.creator?.profilePicUrl">
+            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+              {{ invoice.creator?.firstName?.charAt(0) }}{{ invoice.creator?.lastName?.charAt(0) }}
+            </div>
+          </ng-container>
+          <span class="text-foreground font-medium">{{ invoice.creator?.firstName }} {{ invoice.creator?.lastName }}</span>
+          <span class="text-muted-foreground">&bull; {{ invoice.created_at | date:'MMM d, y \'at\' h:mm a' }}</span>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div *ngIf="invoice.notes" class="preview-section">
+        <div class="section-label">Notes</div>
+        <div class="text-sm text-foreground whitespace-pre-wrap">{{ invoice.notes }}</div>
+      </div>
+
+      <!-- Multi-candidate lines table -->
+      <div *ngIf="invoice.lines && invoice.lines.length > 0" class="preview-section">
+        <div class="section-label">Candidates ({{ invoice.lines.length }})</div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">#</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Candidate</th>
+                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Salary</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Type</th>
+                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Calculated Fee</th>
+                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Final Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let line of invoice.lines" class="border-b border-border/50">
+                <td class="py-2 px-3 text-muted-foreground">{{ line.line_number }}</td>
+                <td class="py-2 px-3 font-medium text-foreground">{{ line.candidate_first_name }} {{ line.candidate_last_name }}</td>
+                <td class="py-2 px-3 text-right text-foreground">
+                  {{ line.salary_amount | number:'1.0-2' }} {{ line.salaryCurrency?.code || '' }}
+                </td>
+                <td class="py-2 px-3 text-muted-foreground">{{ line.salaryType?.name || '' }}</td>
+                <td class="py-2 px-3 text-right text-muted-foreground">{{ line.calculated_fee_amount | number:'1.2-2' }}</td>
+                <td class="py-2 px-3 text-right font-medium text-foreground">
+                  {{ line.final_fee_amount | number:'1.2-2' }}
+                  <span *ngIf="line.fee_was_overridden" class="text-amber-500 text-xs">*</span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="border-t border-border">
+                <td colspan="5" class="py-2 px-3 text-right font-medium text-muted-foreground">Total:</td>
+                <td class="py-2 px-3 text-right font-bold text-primary">
+                  {{ invoice.final_fee_amount | number:'1.2-2' }} {{ invoice.feeCurrency?.code || '' }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <div class="dialog-actions">
+    <ui-button variant="outline" (onClick)="close()">Close</ui-button>
+  </div>
+</div>

@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CommonModule, DecimalPipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { RestService } from '../services/rest.service';
 import { UserService } from '../services/user.service';
 import { DialogService } from '../services/dialog.service';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent } from '../shared/components/ui/card/card.component';
 import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
+import { InvoicePreviewDialogComponent } from '../recruiting-orders/invoice-preview-dialog/invoice-preview-dialog.component';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -47,7 +49,8 @@ export class InvoicesComponent implements OnInit {
   constructor(
     private rest: RestService,
     public userService: UserService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -128,6 +131,14 @@ export class InvoicesComponent implements OnInit {
     }
   }
 
+  openInvoicePreview(inv: any): void {
+    this.dialog.open(InvoicePreviewDialogComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      data: { invoiceID: inv.ID }
+    });
+  }
+
   exportInvoice(inv: any): void {
     this.rest.getInvoiceCalculationData(inv.ID).subscribe({
       next: (res) => {
@@ -170,6 +181,9 @@ export class InvoicesComponent implements OnInit {
         ['Total Admin Fee', `${calcData.calculatedFee} ${cur}`],
         ['Final Fee Amount', `${calcData.finalFee} ${cur}`],
       );
+    } else if (calcData.multiCandidate && invoice.lines?.length > 0) {
+      this.buildMultiCandidateExcel(invoice, calcData, pos, cur, date);
+      return;
     } else {
       const typeLabel = invoiceType === 'placement' ? 'Placement Fee' : 'Cancel Fee';
       rows.push(
@@ -236,6 +250,120 @@ export class InvoicesComponent implements OnInit {
     const typeSlug = invoiceType === 'admin_fee' ? 'AdminFee' :
                      invoiceType === 'placement' ? 'Placement' : 'CancelFee';
     XLSX.writeFile(wb, `${typeSlug}_${pos.position_number || invoice.ID}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  private buildMultiCandidateExcel(invoice: any, calcData: any, pos: any, cur: string, date: string): void {
+    const wb = XLSX.utils.book_new();
+    const feeFormula = this.getFeeConfigLabel(calcData.feeSnapshot);
+    const lines: any[] = invoice.lines || [];
+
+    // Sheet 1: Summary
+    const summary: any[][] = [
+      ['Placement Fee Calculation', ''],
+      ['', ''],
+      ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+      ['Date', date],
+      ['Fee Formula', feeFormula],
+      ['Candidates', lines.length],
+      ['Grouping', calcData.grouping_mode === 'grouped' ? 'Grouped (single line)' : 'Individual lines'],
+      ['', ''],
+      ['', ''],
+      ['#', 'Candidate', 'Entered Salary', 'Salary Type', 'Currency', 'Derived Salary', 'Calculated Fee', 'Final Fee', 'Override'],
+    ];
+
+    for (const line of lines) {
+      let lineCalc: any = null;
+      if (line.calculation_data) {
+        try { lineCalc = typeof line.calculation_data === 'string' ? JSON.parse(line.calculation_data) : line.calculation_data; } catch {}
+      }
+      summary.push([
+        line.line_number,
+        `${line.candidate_first_name} ${line.candidate_last_name}`,
+        line.salary_amount,
+        line.salaryType?.name || '',
+        line.salaryCurrency?.code || '',
+        line.derived_salary_for_fee != null ? `${line.derived_salary_for_fee} ${cur}` : '',
+        `${line.calculated_fee_amount} ${cur}`,
+        `${line.final_fee_amount} ${cur}`,
+        line.fee_was_overridden ? 'Yes' : '',
+      ]);
+    }
+
+    summary.push(
+      ['', ''],
+      ['Total Calculated Fee', '', '', '', '', '', `${calcData.totalCalculatedFee} ${cur}`, '', ''],
+      ['Total Final Fee', '', '', '', '', '', `${calcData.totalFinalFee} ${cur}`, '', ''],
+    );
+
+    if (calcData.feeWasOverridden) {
+      summary.push(['Fee Override', 'Yes (one or more fees manually adjusted)']);
+    }
+
+    const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+    wsSummary['!cols'] = [
+      { wch: 5 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 10 },
+      { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 10 }
+    ];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+    // Per-candidate detail sheets
+    for (const line of lines) {
+      let lineCalc: any = null;
+      if (line.calculation_data) {
+        try { lineCalc = typeof line.calculation_data === 'string' ? JSON.parse(line.calculation_data) : line.calculation_data; } catch {}
+      }
+
+      const derivedType = lineCalc?.derivedSalaryType || null;
+      const derivedLabel = this.getDerivedSalaryLabel(derivedType, pos.salary_type_id);
+      const lineCur = lineCalc?.feeCurrencyCode || cur;
+      const cRows: any[][] = [
+        ['Placement Fee Calculation', ''],
+        ['', ''],
+        ['Position', `${pos.position_number || ''} - ${pos.position_name || ''}`],
+        ['Date', date],
+        ['Candidate', `${line.candidate_first_name} ${line.candidate_last_name}`],
+        ['', ''],
+        ['Entered Salary', line.salary_amount],
+        ['Salary Type', line.salaryType?.name || ''],
+        ['Currency', line.salaryCurrency?.code || ''],
+        [`Derived Salary (${derivedLabel})`, line.derived_salary_for_fee != null ? `${line.derived_salary_for_fee} ${lineCur}` : 'N/A'],
+        ['Fee Formula', feeFormula],
+        ['', ''],
+        ['Calculated Fee', `${line.calculated_fee_amount} ${lineCur}`],
+        ['Final Fee Amount', `${line.final_fee_amount} ${lineCur}`],
+      ];
+
+      if (line.fee_was_overridden) {
+        cRows.push(['Fee Override', 'Yes (manually adjusted)']);
+      }
+
+      const calcResults = lineCalc?.calculatorResult;
+      if (calcResults) {
+        cRows.push(['', ''], ['Salary Calculator Results', ''], ['', 'RSD', 'EUR', 'USD']);
+        const labels: Record<string, string> = {
+          monthlyNet: 'Monthly Net', monthlyGross: 'Monthly Base Gross', monthlyGrandGross: 'Monthly Grand Gross',
+          annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
+        };
+        for (const [key, label] of Object.entries(labels)) {
+          cRows.push([label, calcResults['RSD']?.[key] || '', calcResults['EUR']?.[key] || '', calcResults['USD']?.[key] || '']);
+        }
+      }
+
+      const exRates = lineCalc?.exchangeRates;
+      if (exRates) {
+        cRows.push(['', ''], ['Exchange Rates', '']);
+        if (exRates.EUR) cRows.push(['1 EUR', `${exRates.EUR} RSD`]);
+        if (exRates.USD) cRows.push(['1 USD', `${exRates.USD} RSD`]);
+      }
+
+      const wsCandidate = XLSX.utils.aoa_to_sheet(cRows);
+      wsCandidate['!cols'] = [{ wch: 45 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
+
+      const sheetName = `${line.line_number}. ${line.candidate_first_name} ${line.candidate_last_name}`.substring(0, 31);
+      XLSX.utils.book_append_sheet(wb, wsCandidate, sheetName);
+    }
+
+    XLSX.writeFile(wb, `Placement_${pos.position_number || invoice.ID}_${lines.length}cand_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
   private getDerivedSalaryLabel(key: string | null, salaryTypeId?: number): string {

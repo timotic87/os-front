@@ -132,6 +132,64 @@
         </div>
 
       </div>
+
+      <!-- Payment Terms -->
+      <div class="border-t border-border pt-4 mt-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Payment Terms
+          </div>
+          <div *ngIf="canEditOrder() && !editingPaymentDays">
+            <button (click)="editPaymentDays()"
+                    class="text-xs text-primary hover:underline cursor-pointer">
+              Edit
+            </button>
+          </div>
+        </div>
+
+        <!-- Display mode -->
+        <div *ngIf="!editingPaymentDays" class="grid gap-4 md:grid-cols-2">
+          <div class="space-y-1">
+            <div class="text-xs text-muted-foreground">Placement Payment Due</div>
+            <div class="text-sm font-medium text-foreground">
+              {{ order.payment_due_days_placement ? order.payment_due_days_placement + ' days' : 'Not set' }}
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-xs text-muted-foreground">Additional Fee Payment Due</div>
+            <div class="text-sm font-medium text-foreground">
+              {{ order.payment_due_days_additional ? order.payment_due_days_additional + ' days' : 'Not set' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit mode -->
+        <div *ngIf="editingPaymentDays" class="grid gap-4 md:grid-cols-2">
+          <div class="space-y-1">
+            <label class="text-xs text-muted-foreground">Placement Payment Due (days)</label>
+            <input type="number" [(ngModel)]="editPaymentDueDaysPlacement" placeholder="e.g. 30"
+                   class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs text-muted-foreground">Additional Fee Payment Due (days)</label>
+            <input type="number" [(ngModel)]="editPaymentDueDaysAdditional" placeholder="e.g. 30"
+                   class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div class="flex items-center gap-2 md:col-span-2">
+            <button (click)="savePaymentDays()" [disabled]="savingPaymentDays"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
+              {{ savingPaymentDays ? 'Saving...' : 'Save' }}
+            </button>
+            <button (click)="cancelPaymentDaysEdit()"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium border border-input bg-background text-foreground hover:bg-accent transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
     </ui-card-content>
   </ui-card>
 
@@ -202,12 +260,14 @@
                   Close Position
                 </button>
                 <button mat-menu-item
-                        [disabled]="hasAdminFeeInvoice(position) || hasCancelFeeInvoice(position)"
+                        *ngIf="getPositionExtraFeeTypeName(position) === 'ADMIN'"
+                        [disabled]="hasAdminFeeInvoice(position)"
                         (click)="openInvoiceDialog(position, 'admin_fee')">
                   Admin Fee
                 </button>
                 <button mat-menu-item
-                        [disabled]="hasCancelFeeInvoice(position) || hasAdminFeeInvoice(position)"
+                        *ngIf="getPositionExtraFeeTypeName(position) === 'CANCEL'"
+                        [disabled]="hasCancelFeeInvoice(position)"
                         (click)="openInvoiceDialog(position, 'cancel_fee')">
                   Cancel Fee
                 </button>
@@ -410,65 +470,128 @@
               <th class="text-right py-3 px-4 font-medium text-muted-foreground">Fee Amount</th>
               <th class="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
               <th class="text-left py-3 px-4 font-medium text-muted-foreground">Approval</th>
-              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Invoice Date</th>
+              <th class="text-left py-3 px-4 font-medium text-muted-foreground">Payment Date</th>
               <th class="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let inv of invoices" class="border-b border-border/50 hover:bg-muted/30 transition-colors">
-              <td class="py-3 px-4 font-mono text-muted-foreground">{{ inv.position?.position_number }}</td>
-              <td class="py-3 px-4">
-                <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
-                  {{ getInvoiceTypeLabel(inv.invoice_type) }}
-                </ui-badge>
-              </td>
-              <td class="py-3 px-4 text-foreground">
-                <span *ngIf="inv.candidate_first_name">{{ inv.candidate_first_name }} {{ inv.candidate_last_name }}</span>
-                <span *ngIf="!inv.candidate_first_name" class="text-muted-foreground">-</span>
-              </td>
-              <td class="py-3 px-4 text-right font-semibold text-foreground">
-                {{ inv.final_fee_amount | number:'1.0-2' }}
-                {{ inv.feeCurrency?.code || '' }}
-                <span *ngIf="inv.fee_was_overridden" class="text-amber-500 text-xs ml-1" title="Fee was manually overridden">*</span>
-              </td>
-              <td class="py-3 px-4">
-                <ui-badge [variant]="getStatusBadgeVariant(inv.status)" class="text-xs">
-                  {{ getStatusLabel(inv.status) }}
-                </ui-badge>
-              </td>
-              <td class="py-3 px-4">
-                <app-approval-card
-                  *ngIf="inv.approval"
-                  [approval]="inv.approval"
-                  [inlineMode]="true"
-                  (approvalUpdated)="onApprovalUpdated($event)"
-                  (allApprovalsCompleted)="onAllApprovalsCompleted($event)">
-                </app-approval-card>
-                <span *ngIf="!inv.approval && inv.status === 'approved'" class="text-xs text-muted-foreground">-</span>
-              </td>
-              <td class="py-3 px-4 text-muted-foreground">{{ inv.created_at | date:'MMM d, y' }}</td>
-              <td class="py-3 px-4 text-center">
-                <div class="flex items-center justify-center gap-1">
-                  <!-- Export button -->
-                  <button (click)="exportInvoiceCalculation(inv)"
-                          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                          title="Export calculation to Excel">
-                    <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <ng-container *ngFor="let inv of invoices">
+              <tr class="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                <td class="py-3 px-4 font-mono text-muted-foreground">{{ inv.position?.position_number }}</td>
+                <td class="py-3 px-4">
+                  <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
+                    {{ getInvoiceTypeLabel(inv.invoice_type) }}
+                  </ui-badge>
+                </td>
+                <td class="py-3 px-4 text-foreground">
+                  <!-- Single candidate -->
+                  <span *ngIf="inv.candidate_first_name && (!inv.lines || inv.lines.length === 0)">
+                    {{ inv.candidate_first_name }} {{ inv.candidate_last_name }}
+                  </span>
+                  <!-- Multi-candidate: expandable -->
+                  <button *ngIf="inv.lines && inv.lines.length > 0"
+                          (click)="toggleInvoiceLines(inv)"
+                          class="flex items-center gap-1 text-foreground hover:text-primary transition-colors cursor-pointer">
+                    <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         [class.rotate-90]="isInvoiceExpanded(inv)">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
+                    <span class="font-medium">{{ inv.line_count || inv.lines.length }} candidates</span>
                   </button>
-                  <!-- Delete button (only for non-approved) -->
-                  <button *ngIf="inv.status !== 'approved' && canEditOrder()"
-                          (click)="deleteInvoice(inv)"
-                          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-destructive/10 transition-colors"
-                          title="Delete invoice">
-                    <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
+                  <!-- No candidate (admin/cancel fee) -->
+                  <span *ngIf="!inv.candidate_first_name && (!inv.lines || inv.lines.length === 0)" class="text-muted-foreground">-</span>
+                </td>
+                <td class="py-3 px-4 text-right font-semibold text-foreground">
+                  {{ inv.final_fee_amount | number:'1.0-2' }}
+                  {{ inv.feeCurrency?.code || '' }}
+                  <span *ngIf="inv.fee_was_overridden" class="text-amber-500 text-xs ml-1" title="Fee was manually overridden">*</span>
+                </td>
+                <td class="py-3 px-4">
+                  <ui-badge [variant]="getStatusBadgeVariant(inv.status)" class="text-xs">
+                    {{ getStatusLabel(inv.status) }}
+                  </ui-badge>
+                </td>
+                <td class="py-3 px-4">
+                  <app-approval-card
+                    *ngIf="inv.approval"
+                    [approval]="inv.approval"
+                    [inlineMode]="true"
+                    (approvalUpdated)="onApprovalUpdated($event)"
+                    (allApprovalsCompleted)="onAllApprovalsCompleted($event)">
+                  </app-approval-card>
+                  <span *ngIf="!inv.approval && inv.status === 'approved'" class="text-xs text-muted-foreground">-</span>
+                </td>
+                <td class="py-3 px-4 text-muted-foreground">{{ inv.invoice_date ? (inv.invoice_date | date:'MMM d, y') : (inv.created_at | date:'MMM d, y') }}</td>
+                <td class="py-3 px-4 text-muted-foreground">{{ inv.payment_date ? (inv.payment_date | date:'MMM d, y') : '-' }}</td>
+                <td class="py-3 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1">
+                    <!-- Preview button -->
+                    <button (click)="openInvoicePreview(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Preview invoice">
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </button>
+                    <!-- Export button -->
+                    <button (click)="exportInvoiceCalculation(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Export calculation to Excel">
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                    </button>
+                    <!-- Delete button (only for non-approved) -->
+                    <button *ngIf="inv.status !== 'approved' && canEditOrder()"
+                            (click)="deleteInvoice(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-destructive/10 transition-colors"
+                            title="Delete invoice">
+                      <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Expanded invoice lines sub-table -->
+              <tr *ngIf="inv.lines && inv.lines.length > 0 && isInvoiceExpanded(inv)">
+                <td colspan="9" class="p-0">
+                  <div class="bg-muted/30 border-y border-border/30 px-8 py-2">
+                    <table class="w-full text-xs">
+                      <thead>
+                        <tr class="text-muted-foreground">
+                          <th class="text-left py-1.5 px-2 font-medium">#</th>
+                          <th class="text-left py-1.5 px-2 font-medium">Candidate</th>
+                          <th class="text-right py-1.5 px-2 font-medium">Salary</th>
+                          <th class="text-left py-1.5 px-2 font-medium">Type</th>
+                          <th class="text-right py-1.5 px-2 font-medium">Calculated Fee</th>
+                          <th class="text-right py-1.5 px-2 font-medium">Final Fee</th>
+                          <th class="text-center py-1.5 px-2 font-medium">Override</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let line of inv.lines" class="border-t border-border/20">
+                          <td class="py-1.5 px-2 text-muted-foreground">{{ line.line_number }}</td>
+                          <td class="py-1.5 px-2 text-foreground font-medium">{{ line.candidate_first_name }} {{ line.candidate_last_name }}</td>
+                          <td class="py-1.5 px-2 text-right text-foreground">
+                            {{ line.salary_amount | number:'1.0-2' }}
+                            {{ line.salaryCurrency?.code || '' }}
+                          </td>
+                          <td class="py-1.5 px-2 text-muted-foreground">{{ line.salaryType?.name || '' }}</td>
+                          <td class="py-1.5 px-2 text-right text-muted-foreground">{{ line.calculated_fee_amount | number:'1.2-2' }}</td>
+                          <td class="py-1.5 px-2 text-right font-medium text-foreground">{{ line.final_fee_amount | number:'1.2-2' }}</td>
+                          <td class="py-1.5 px-2 text-center">
+                            <span *ngIf="line.fee_was_overridden" class="text-amber-500" title="Fee overridden">*</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>

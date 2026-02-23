@@ -31,6 +31,7 @@ export class EditPositionDialogComponent implements OnInit {
   currencies: any[] = [];
   feeTypes: any[] = [];
   extraFeeTypes: any[] = [];
+  costCenters: any[] = [];
   isSubmitting = false;
   hasFeeLockedInvoices = false;
 
@@ -44,7 +45,7 @@ export class EditPositionDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<EditPositionDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { position: any, invoices: any[] },
+    @Inject(MAT_DIALOG_DATA) public data: { position: any, invoices: any[], existingPositions?: any[] },
     private fb: FormBuilder,
     private rest: RestService,
     private dialogService: DialogService
@@ -95,6 +96,14 @@ export class EditPositionDialogComponent implements OnInit {
         }
       }
     });
+
+    this.rest.getCostCenters('recruiting').subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.costCenters = res.data;
+        }
+      }
+    });
   }
 
   initForm(): void {
@@ -107,6 +116,7 @@ export class EditPositionDialogComponent implements OnInit {
     else if (pos.extra_fee_calculation_type === 3) extraFeeType = 'fixed';
 
     this.positionForm = this.fb.group({
+      costCenterID: [pos.cost_center_id || '', Validators.required],
       jobTitle: [pos.position_name || '', Validators.required],
       location: [pos.location || '', Validators.required],
       numberOfPeople: [pos.number_of_people || 1, [Validators.required, Validators.min(1)]],
@@ -228,6 +238,35 @@ export class EditPositionDialogComponent implements OnInit {
     return extraFeeType ? extraFeeType.name : '';
   }
 
+  /**
+   * Filter extra fee types: ADMIN and CANCEL are mutually exclusive.
+   * If other positions in the order use ADMIN, hide CANCEL (and vice versa).
+   */
+  getFilteredExtraFeeTypes(): any[] {
+    if (!this.extraFeeTypes || this.extraFeeTypes.length === 0) return this.extraFeeTypes;
+
+    const existingPositions = this.data.existingPositions || [];
+    const currentPositionID = this.data.position.ID;
+    let lockedType: string | null = null;
+
+    for (const pos of existingPositions) {
+      // Skip the current position being edited
+      if (pos.ID === currentPositionID) continue;
+      if (pos.extra_fee_type_id) {
+        const efType = this.extraFeeTypes.find(t => t.ID === pos.extra_fee_type_id);
+        if (efType && (efType.name === 'ADMIN' || efType.name === 'CANCEL')) {
+          lockedType = efType.name;
+          break;
+        }
+      }
+    }
+
+    if (!lockedType) return this.extraFeeTypes;
+
+    const excludeType = lockedType === 'ADMIN' ? 'CANCEL' : 'ADMIN';
+    return this.extraFeeTypes.filter(type => type.name !== excludeType);
+  }
+
   onSubmit(): void {
     if (this.positionForm.invalid) {
       this.positionForm.markAllAsTouched();
@@ -240,6 +279,7 @@ export class EditPositionDialogComponent implements OnInit {
 
     const positionData: any = {
       positionID: this.data.position.ID,
+      cost_center_id: formValue.costCenterID || null,
       position_name: formValue.jobTitle,
       location: formValue.location,
       number_of_people: formValue.numberOfPeople || 1,
