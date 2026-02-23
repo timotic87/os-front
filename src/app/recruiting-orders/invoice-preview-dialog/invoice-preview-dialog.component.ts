@@ -125,6 +125,14 @@ export class InvoicePreviewDialogComponent implements OnInit {
     }
   }
 
+  getVatLabel(): string {
+    const country = this.invoice?.order?.deal?.client?.country;
+    if (!country || country === 'RS') {
+      return 'Domestic - 20% VAT (code: 0)';
+    }
+    return 'Foreign - 0% VAT (code: 12)';
+  }
+
   close(): void {
     this.dialogRef.close();
   }
