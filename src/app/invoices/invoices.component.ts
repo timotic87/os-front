@@ -38,6 +38,7 @@ export class InvoicesComponent implements OnInit {
   filterSearch = '';
   filterType = '';
   Math = Math;
+  sendingToBC: { [id: number]: boolean } = {};
 
   typeOptions = [
     { value: '', label: 'All Types' },
@@ -136,6 +137,27 @@ export class InvoicesComponent implements OnInit {
       width: '800px',
       maxWidth: '95vw',
       data: { invoiceID: inv.ID }
+    });
+  }
+
+  sendToBC(inv: any): void {
+    if (inv.sent_to_bc) return;
+    if (!window.confirm(`Send invoice RI-${inv.ID} to Business Central?`)) return;
+
+    this.sendingToBC[inv.ID] = true;
+    this.rest.sendRecruitingInvoiceToBC(inv.ID).subscribe({
+      next: (res: any) => {
+        this.sendingToBC[inv.ID] = false;
+        if (res.status === 200) {
+          inv.sent_to_bc = true;
+          inv.bc_document_no = res.data?.invoice?.bc_document_no || '';
+          this.dialogService.showSnackBar('Invoice sent to BC successfully', '', 3000);
+        }
+      },
+      error: (err: any) => {
+        this.sendingToBC[inv.ID] = false;
+        this.dialogService.errorServDialog(err);
+      }
     });
   }
 

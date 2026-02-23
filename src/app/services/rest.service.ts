@@ -581,6 +581,10 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/sendSalesInvoiceToBC`, data, { headers: this.headers() }) as Observable<any>;
   }
 
+  sendRecruitingInvoiceToBC(invoiceId: number) {
+    return this.http.post(`${this.baseUrl}/sendRecruitingInvoiceToBC`, { invoiceId }, { headers: this.headers() }) as Observable<any>;
+  }
+
   getSalesInvoiceByID(id: number) {
     return this.http.get(`${this.baseUrl}/getSalesInvoiceByID/${id}`, { headers: this.headers() }) as Observable<any>;
   }
