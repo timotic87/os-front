@@ -605,6 +605,26 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/createSalesInvoice`, data, { headers: this.headers() }) as Observable<any>;
   }
 
+  updateSalesInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/updateSalesInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deleteSalesInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/deleteSalesInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  changeStatusSalesInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/changeStatusSalesInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  duplicateSalesInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/duplicateSalesInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getReadySalesInvoices(data: any) {
+    return this.http.post(`${this.baseUrl}/getReadySalesInvoices`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
   sendSalesInvoiceToBC(data: any) {
     return this.http.post(`${this.baseUrl}/sendSalesInvoiceToBC`, data, { headers: this.headers() }) as Observable<any>;
   }
@@ -613,8 +633,20 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/sendRecruitingInvoiceToBC`, { invoiceId }, { headers: this.headers() }) as Observable<any>;
   }
 
+  updateRecruitingInvoicePostBcStatus(data: any) {
+    return this.http.post(`${this.baseUrl}/updateRecruitingInvoicePostBcStatus`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateSalesInvoicePostBcStatus(data: any) {
+    return this.http.post(`${this.baseUrl}/updateSalesInvoicePostBcStatus`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
   getSalesInvoiceByID(id: number) {
     return this.http.get(`${this.baseUrl}/getSalesInvoiceByID/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getVatPostingGroups() {
+    return this.http.get(`${this.baseUrl}/getVatPostingGroups`, { headers: this.headers() }) as Observable<any>;
   }
 
   // Permission Templates
@@ -657,6 +689,14 @@ export class RestService {
 
   revokeEntityAccess(data: { userId: number, entityType: string, entityId: number }) {
     return this.http.post(`${this.baseUrl}/revokeAccess`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getSettings() {
+    return this.http.get(`${this.baseUrl}/getSettings`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  upsertSetting(data: any) {
+    return this.http.post(`${this.baseUrl}/upsertSetting`, data, { headers: this.headers() }) as Observable<any>;
   }
 
 }

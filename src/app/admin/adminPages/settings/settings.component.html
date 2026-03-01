@@ -1,0 +1,100 @@
+<ui-card>
+  <ui-card-header>
+    <ui-card-title>Settings</ui-card-title>
+    <ui-card-description>Manage application settings (key-value configuration)</ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+
+    <!-- Toolbar -->
+    <div class="flex items-end gap-3 mb-4">
+      <div *ngIf="!formMode">
+        <ui-button variant="default" (onClick)="showAddForm()">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add Setting
+        </ui-button>
+      </div>
+    </div>
+
+    <!-- Add/Edit Form -->
+    <div *ngIf="formMode" class="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
+      <h4 class="text-sm font-medium text-foreground mb-3">
+        {{ formMode === 'add' ? 'Add New Setting' : 'Edit Setting' }}
+      </h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Key *</label>
+          <input type="text" [(ngModel)]="form.key" placeholder="e.g. next_customer_no" maxlength="100"
+                 [disabled]="formMode === 'edit'"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Value *</label>
+          <input type="text" [(ngModel)]="form.value" placeholder="Setting value"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+          <input type="text" [(ngModel)]="form.description" placeholder="Optional description"
+                 class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Type</label>
+          <select [(ngModel)]="form.value_type"
+                  class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            <option value="string">String</option>
+            <option value="number">Number</option>
+            <option value="boolean">Boolean</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <ui-button variant="default" (onClick)="save()" [disabled]="!form.key.trim() || !form.value.trim()">
+          {{ formMode === 'add' ? 'Create' : 'Update' }}
+        </ui-button>
+        <ui-button variant="outline" (onClick)="cancelForm()">
+          Cancel
+        </ui-button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Key</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Value</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Description</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Type</th>
+            <th class="text-right py-2 px-3 text-muted-foreground font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of settings" class="border-b border-border/50 hover:bg-muted/50">
+            <td class="py-2 px-3 font-mono text-xs font-medium">{{ s.key }}</td>
+            <td class="py-2 px-3 font-mono text-xs">{{ s.value }}</td>
+            <td class="py-2 px-3 text-muted-foreground">{{ s.description }}</td>
+            <td class="py-2 px-3">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                {{ s.value_type }}
+              </span>
+            </td>
+            <td class="py-2 px-3 text-right">
+              <button (click)="editSetting(s)"
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-foreground hover:bg-muted transition-colors">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="settings.length === 0 && !loading" class="text-sm text-muted-foreground py-4 text-center">No settings found.</p>
+    </div>
+
+  </ui-card-content>
+</ui-card>

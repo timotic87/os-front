@@ -19,12 +19,14 @@ import {SalaryParamsComponent} from "./admin/adminPages/salary-params/salary-par
 import {EntityAccessComponent} from "./admin/adminPages/entity-access/entity-access.component";
 import {LegalEntitiesComponent} from "./admin/adminPages/legal-entities/legal-entities.component";
 import {CostCentersComponent} from "./admin/adminPages/cost-centers/cost-centers.component";
+import {SettingsComponent} from "./admin/adminPages/settings/settings.component";
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
 import {RecruitingOrderComponent} from "./recruiting-orders/recruiting-order/recruiting-order.component";
 import {RecruitingOrdersComponent} from "./recruiting-orders/recruiting-orders.component";
 import { authGuard } from './guards/auth.guard';
 import {InvoicesComponent} from "./invoices/invoices.component";
+import {SalesInvoicesComponent} from "./sales-invoices/sales-invoices.component";
 import {AuditLogComponent} from "./audit-log/audit-log.component";
 
 export const routes: Routes = [
@@ -62,6 +64,7 @@ export const routes: Routes = [
       {path: 'entity-access', component: EntityAccessComponent, outlet: 'admin'},
       {path: 'legal-entities', component: LegalEntitiesComponent, outlet: 'admin'},
       {path: 'cost-centers', component: CostCentersComponent, outlet: 'admin'},
+      {path: 'settings', component: SettingsComponent, outlet: 'admin'},
     ]
 
   },
@@ -138,6 +141,7 @@ export const routes: Routes = [
       dialogService.showMsgDialog('You dont have permission');
       return false;
     }]},
+  {path: 'sales-invoices', component: SalesInvoicesComponent, canActivate: [authGuard]},
   {path: 'audit-log', component: AuditLogComponent, canActivate: [authGuard, ()=>{
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
