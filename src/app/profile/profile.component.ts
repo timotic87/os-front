@@ -52,8 +52,10 @@ export class ProfileComponent {
   }
 
   uploadFile(event: any): void {
-    this.dialogService.showLoader();
     const file = event.target.files[0];
+    if (!file) return;
+
+    this.dialogService.showLoader();
     const user = this.userService.getUser();
     const filePath = `uploads/${user.fullName}`;
     const fileRef = ref(this.storage, filePath);
@@ -65,31 +67,33 @@ export class ProfileComponent {
         (snapshot) => {
           this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           observer.next(this.progress);
-
-          if (this.progress === 100) {
-            getDownloadURL(fileRef).then(url => {
-              this.rest.changePicUrl({ picUrl: url, userId: user.id }).subscribe(res => {
-                if (res.status !== 201) {
-                  this.dialogService.errorDialog(res);
-                } else {
-                  this.userService.updatePicUrl(url);
-                  this.urlPic = this.userService.getUser().picUrl;
-                  this.dialogService.closeLoader();
-                  window.location.reload();
-                }
-              });
-            }).catch(error => {
-              observer.error(error);
-              this.dialogService.closeLoader();
-              this.dialogService.errorDialog(error);
-            });
-          }
         },
         (error) => {
           observer.error(error);
+          this.dialogService.closeLoader();
           this.dialogService.errorDialog(error);
         },
-        () => { observer.complete(); }
+        () => {
+          // Upload complete - now safe to get download URL
+          getDownloadURL(fileRef).then(url => {
+            this.rest.changePicUrl({ picUrl: url, userId: user.id }).subscribe(res => {
+              if (res.status !== 201) {
+                this.dialogService.closeLoader();
+                this.dialogService.errorDialog(res);
+              } else {
+                this.userService.updatePicUrl(url);
+                this.urlPic = this.userService.getUser().picUrl;
+                this.dialogService.closeLoader();
+                window.location.reload();
+              }
+            });
+          }).catch(error => {
+            observer.error(error);
+            this.dialogService.closeLoader();
+            this.dialogService.errorDialog(error);
+          });
+          observer.complete();
+        }
       );
     });
 

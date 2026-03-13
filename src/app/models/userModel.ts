@@ -31,9 +31,11 @@ export class UserModel {
     this._status = status;
     this._defpage = defpage;
     this._mail = mail;
-    if (isFromLocalStorage){
+    if (!picUrl || picUrl === 'null' || picUrl === 'undefined') {
+      this._picUrl = null;
+    } else if (isFromLocalStorage) {
       this._picUrl = picUrl;
-    }else {
+    } else {
       this._picUrl = decodeURIComponent(picUrl);
     }
 
