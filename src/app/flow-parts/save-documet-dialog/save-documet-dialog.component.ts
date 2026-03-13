@@ -69,18 +69,16 @@ export class SaveDocumetDialogComponent implements OnInit, OnDestroy {
 
   getFileNamePreview(): string {
     const userInput = this.docForm.get('docName')?.value || '[your-name]';
-    
-    // For recruitment contracts (docSubTypeID = 9), show different preview
+
+    // For recruitment (docSubTypeID = 9), backend handles the full filename with service prefix
     if (this.data.docSubTypeID === 9) {
-      return `RECRUITMENT-offer_contract-${userInput}-[timestamp]`;
+      return `RECRUITMENT-${this.documentType}-${userInput}-[timestamp]`;
     }
-    
+
     return `${this.serviceType}-${this.documentType}-${userInput}-[timestamp]`;
   }
 
   save(){
-    console.log('🔍 SCROLL DEBUG: save() method called');
-    console.log('🔍 SCROLL DEBUG: current scroll position:', window.pageYOffset || document.documentElement.scrollTop);
     
     const file = this.data.file;
     const deal = this.data.deal;
@@ -97,35 +95,21 @@ export class SaveDocumetDialogComponent implements OnInit, OnDestroy {
 
     this.dialogService.showLoader();
     
-    console.log('🔍 SCROLL DEBUG: before HTTP request, scroll position:', window.pageYOffset || document.documentElement.scrollTop);
     
     this.rest.saveFileSys(formParams)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
-          console.log('🔍 SCROLL DEBUG: HTTP response received, scroll position:', window.pageYOffset || document.documentElement.scrollTop);
           
           this.dialogService.closeLoader(); // Fix: should be closeLoader, not showLoader
           if (result.status===200) {
-            console.log('🔍 SCROLL DEBUG: success, emitting events...');
             this.documentService.activeDocumentChange.next(result.data);
             this.documentService.addNewDocument.next(result.data);
             
-            console.log('🔍 SCROLL DEBUG: before dialog close, scroll position:', window.pageYOffset || document.documentElement.scrollTop);
             this.dialogRef.close(true);
-            
-            // Check scroll position after a delay
-            setTimeout(() => {
-              console.log('🔍 SCROLL DEBUG: 100ms after dialog close, scroll position:', window.pageYOffset || document.documentElement.scrollTop);
-            }, 100);
-            
-            setTimeout(() => {
-              console.log('🔍 SCROLL DEBUG: 500ms after dialog close, scroll position:', window.pageYOffset || document.documentElement.scrollTop);
-            }, 500);
           }
         },
         error: (err) => {
-          console.log('🔍 SCROLL DEBUG: HTTP error, scroll position:', window.pageYOffset || document.documentElement.scrollTop);
           this.dialogService.closeLoader()
           this.dialogService.showMsgDialog('Status: '+err.status+' msg: ' + err.error.message);
         }

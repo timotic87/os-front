@@ -127,7 +127,7 @@
 
             <!-- Salary Fee Configuration Based on Type -->
             @if (createDealForm.get('salaryFeetype')?.value) {
-              @switch (createDealForm.get('salaryFeetype').value.ID) {
+              @switch (createDealForm.get('salaryFeetype').value?.ID) {
                 @case (1) {
                   <!-- Percentage Fee -->
                   <div class="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -141,7 +141,7 @@
                                formControlName="salaryValue" 
                                placeholder="Enter percentage">
                         <span class="text-xs text-red-500" *ngIf="createDealForm.get('salaryValue')?.touched && !createDealForm.get('salaryValue')?.valid">
-                          Valid percentage required
+                          Enter a value between 1 and 100
                         </span>
                       </div>
                       
@@ -243,7 +243,7 @@
                                 class="block w-full rounded border-purple-300 dark:border-purple-600 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm h-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                                 [class.border-red-500]="createDealForm.get('salaryCurrency')?.touched && !createDealForm.get('salaryCurrency')?.valid">
                           @for(currency of currencyList; track currency){
-                            <option [ngValue]="currency">{{ currency.name }}</option>
+                            <option [ngValue]="currency">{{ currency.code }}</option>
                           }
                         </select>
                         <span class="text-xs text-red-500" *ngIf="createDealForm.get('salaryCurrency')?.touched && !createDealForm.get('salaryCurrency')?.valid">
@@ -295,7 +295,7 @@
 
             <!-- Cost Fee Configuration Based on Type -->
             @if (createDealForm.get('costFeetype')?.value) {
-              @switch (createDealForm.get('costFeetype').value.ID) {
+              @switch (createDealForm.get('costFeetype').value?.ID) {
                 @case (1) {
                   <!-- Percentage Cost Fee -->
                   <div class="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
@@ -309,7 +309,7 @@
                                formControlName="costValue" 
                                placeholder="Enter percentage">
                         <span class="text-xs text-red-500" *ngIf="createDealForm.get('costValue')?.touched && !createDealForm.get('costValue')?.valid">
-                          Valid percentage required
+                          Enter a value between 1 and 100
                         </span>
                       </div>
                       
@@ -407,7 +407,7 @@
                                 class="block w-full rounded border-red-300 dark:border-red-600 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm h-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                                 [class.border-red-500]="createDealForm.get('costCurrency')?.touched && !createDealForm.get('costCurrency')?.valid">
                           @for(currency of currencyList; track currency){
-                            <option [ngValue]="currency">{{ currency.name }}</option>
+                            <option [ngValue]="currency">{{ currency.code }}</option>
                           }
                         </select>
                         <span class="text-xs text-red-500" *ngIf="createDealForm.get('costCurrency')?.touched && !createDealForm.get('costCurrency')?.valid">

@@ -36,7 +36,6 @@ export class CDCMService {
           this.listDPperNumberOfEmployee.push(item);
         }
       }else {
-        console.log(res)
       }
     });
   }
@@ -67,7 +66,6 @@ export class CDCMService {
           this.cdcmStaticsList.push(item);
         }
       }else {
-        console.log(res)
       }
     });
   }
@@ -99,7 +97,6 @@ export class CDCMService {
   }
 
   calculateCDCM(data: any){
-    console.log(data)
     this.rest.calculateCDCM(data).subscribe(res=>{
       if (res.status===200){
         this.calculationCDCM = res.data;
@@ -165,7 +162,6 @@ export class CDCMService {
 
   // Handle CDCM approval completion
   handleApprovalCompletion(approvalData: any): void {
-    console.log('📊 CDCMService: Handling approval completion:', approvalData);
     
     // Determine the new CDCM status based on approval results
     let newStatus = 2; // Default to 'In Approval'
@@ -176,10 +172,8 @@ export class CDCMService {
       
       if (allApproved) {
         newStatus = 3; // Approved
-        console.log('✅ All approval steps approved - CDCM status will be: Approved');
       } else if (anyDeclined) {
         newStatus = 4; // Declined
-        console.log('❌ Some approval steps declined - CDCM status will be: Declined');
       }
     }
     

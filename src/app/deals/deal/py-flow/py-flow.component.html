@@ -302,7 +302,7 @@
       <div *ngIf="deal.flowStatus.ID >= 13; else stepNotActiveYet" class="space-y-4">
         <ui-button 
           *ngIf="deal.flowStatus.ID === 13"
-          (onClick)="contractSinged()"
+          (onClick)="contractSigned()"
           class="w-full sm:w-auto">
           <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>

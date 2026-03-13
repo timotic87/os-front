@@ -36,7 +36,7 @@ export class AddClientDialogComponent implements OnInit {
   ngOnInit() {
     this.addClientForm = new FormGroup({
       customerName: new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      registrationNo: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      registrationNo: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{8}$')]),
       vatRegistrationNo: new FormControl('', [Validators.required, Validators.pattern("^[0-9]{9}$")]),
       email: new FormControl(null, [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
       emailInFinance: new FormControl(null, [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
@@ -49,6 +49,19 @@ export class AddClientDialogComponent implements OnInit {
     });
 
     this.setupZipCodeAutocomplete();
+    this.setupCountryListener();
+  }
+
+  setupCountryListener() {
+    this.addClientForm.get('country')?.valueChanges.subscribe(country => {
+      const regCtrl = this.addClientForm.get('registrationNo')!;
+      if (country === 'RS') {
+        regCtrl.setValidators([Validators.required, Validators.pattern('^[0-9]{8}$')]);
+      } else {
+        regCtrl.clearValidators();
+      }
+      regCtrl.updateValueAndValidity();
+    });
   }
 
   setupZipCodeAutocomplete() {

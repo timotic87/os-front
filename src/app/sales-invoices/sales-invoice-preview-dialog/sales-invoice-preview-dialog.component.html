@@ -1,0 +1,238 @@
+<div class="preview-dialog">
+  <div class="dialog-header">
+    <div class="flex items-center gap-3">
+      <h2 class="text-xl font-semibold text-foreground">Sales Invoice</h2>
+      <ng-container *ngIf="invoice">
+        <ui-badge [variant]="getStatusBadgeVariant(invoice.status)" class="capitalize">
+          {{ invoice.status }}
+        </ui-badge>
+        <span class="text-sm text-muted-foreground font-mono">{{ invoice.invoiceNo }}</span>
+      </ng-container>
+    </div>
+    <button class="close-button" (click)="close()" aria-label="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex items-center justify-center py-12 text-muted-foreground">
+      <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      Loading invoice...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!loading && error" class="text-center py-12 text-destructive">
+      {{ error }}
+    </div>
+
+    <!-- Invoice Content -->
+    <div *ngIf="!loading && invoice && !error" class="space-y-5">
+
+      <!-- Description -->
+      <div *ngIf="invoice.description" class="preview-section">
+        <div class="section-label">Description</div>
+        <div class="text-sm text-foreground whitespace-pre-wrap">{{ invoice.description }}</div>
+      </div>
+
+      <!-- Client & Entity -->
+      <div class="preview-section">
+        <div class="section-label">Client &amp; Entity</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">Client</span>
+            <span class="item-value">{{ invoice.customerName || invoice.client?.customerName || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Customer No</span>
+            <span class="item-value font-mono">{{ invoice.customerNo || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Legal Entity</span>
+            <span class="item-value">{{ invoice.legalEntity?.shortName || invoice.legalEntity?.name || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Language</span>
+            <span class="item-value">{{ invoice.languageCode || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dimensions -->
+      <div class="preview-section">
+        <div class="section-label">Dimensions</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">Service (VU)</span>
+            <span class="item-value">
+              {{ invoice.service?.name || '-' }}
+              <span *ngIf="invoice.dimValue1" class="text-muted-foreground font-mono ml-1">({{ invoice.dimValue1 }})</span>
+            </span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Cost Center (MT)</span>
+            <span class="item-value">
+              {{ invoice.costCenter?.name || '-' }}
+              <span *ngIf="invoice.dimValue2" class="text-muted-foreground font-mono ml-1">({{ invoice.dimValue2 }})</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates & Currency -->
+      <div class="preview-section">
+        <div class="section-label">Dates &amp; Currency</div>
+        <div class="preview-grid grid-cols-3">
+          <div class="preview-item">
+            <span class="item-label">Issue Date</span>
+            <span class="item-value">{{ invoice.issueDate ? (invoice.issueDate | date:'MMM d, y') : '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Transaction Date</span>
+            <span class="item-value">{{ invoice.transactionDate ? (invoice.transactionDate | date:'MMM d, y') : '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Due Date</span>
+            <span class="item-value">{{ invoice.dueDate ? (invoice.dueDate | date:'MMM d, y') : '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Payment Due Days</span>
+            <span class="item-value">{{ invoice.paymentDueDays || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Currency</span>
+            <span class="item-value">{{ invoice.currencyCode || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Total Amount</span>
+            <span class="item-value font-semibold text-primary">{{ invoice.totalAmount | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lines -->
+      <div *ngIf="invoice.lines && invoice.lines.length > 0" class="preview-section">
+        <div class="section-label">Invoice Lines ({{ invoice.lines.length }})</div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">#</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Description</th>
+                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Qty</th>
+                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Unit Price</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">VAT Group</th>
+                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let line of invoice.lines; let i = index" class="border-b border-border/50">
+                <td class="py-2 px-3 text-muted-foreground">{{ i + 1 }}</td>
+                <td class="py-2 px-3 text-foreground">{{ line.description || '-' }}</td>
+                <td class="py-2 px-3 text-right text-foreground">{{ line.quantity }}</td>
+                <td class="py-2 px-3 text-right font-mono text-foreground">{{ line.unitPriceExclVAT | number:'1.2-2' }}</td>
+                <td class="py-2 px-3 text-muted-foreground">{{ line.vatProdPostingGroup || '0' }}</td>
+                <td class="py-2 px-3 text-right font-mono font-medium text-foreground">{{ (line.quantity * line.unitPriceExclVAT) | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="border-t border-border">
+                <td colspan="5" class="py-2 px-3 text-right font-medium text-muted-foreground">Total:</td>
+                <td class="py-2 px-3 text-right font-bold text-primary font-mono">{{ invoice.totalAmount | number:'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- BC Info -->
+      <div *ngIf="invoice.sentToBC" class="preview-section">
+        <div class="section-label">Business Central</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">BC Document No</span>
+            <span class="item-value font-mono">{{ invoice.bcDocumentNo || '-' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">Sent At</span>
+            <span class="item-value">{{ invoice.sentAt ? (invoice.sentAt | date:'MMM d, y \'at\' h:mm a') : '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creator -->
+      <div class="preview-section">
+        <div class="section-label">Created By</div>
+        <div class="flex items-center gap-2 text-sm">
+          <ng-container *ngIf="invoice.creator?.profilePicUrl">
+            <img class="w-6 h-6 rounded-full flex-shrink-0" [src]="invoice.creator.profilePicUrl" alt="Avatar" style="object-fit: cover;">
+          </ng-container>
+          <ng-container *ngIf="!invoice.creator?.profilePicUrl">
+            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+              {{ invoice.creator?.firstName?.charAt(0) }}{{ invoice.creator?.lastName?.charAt(0) }}
+            </div>
+          </ng-container>
+          <span class="text-foreground font-medium">{{ invoice.creator?.firstName }} {{ invoice.creator?.lastName }}</span>
+          <span class="text-muted-foreground">&bull; {{ invoice.createdAt | date:'MMM d, y \'at\' h:mm a' }}</span>
+        </div>
+      </div>
+
+      <!-- Revert Note (shown when invoice was reverted to draft) -->
+      <div *ngIf="invoice.revertNote && invoice.status === 'draft'" class="preview-section" style="border-color: hsl(var(--warning) / 0.5); background: hsl(var(--warning) / 0.08);">
+        <div class="section-label" style="color: hsl(var(--warning));">Revert Note</div>
+        <div class="text-sm text-foreground whitespace-pre-wrap">{{ invoice.revertNote }}</div>
+        <div *ngIf="invoice.reverter" class="text-xs text-muted-foreground mt-2">
+          — {{ invoice.reverter.firstName }} {{ invoice.reverter.lastName }}
+        </div>
+      </div>
+
+      <!-- Revert to Draft form (only for ready invoices, not sent) -->
+      <div *ngIf="invoice.status === 'ready'" class="preview-section">
+        <div *ngIf="!showRevertForm">
+          <button (click)="toggleRevertForm()"
+                  class="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-sm font-medium border border-amber-500/50 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 transition-colors">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+            </svg>
+            Revert to Draft
+          </button>
+        </div>
+        <div *ngIf="showRevertForm" class="space-y-3">
+          <div class="section-label" style="margin-bottom: 4px;">Revert to Draft</div>
+          <textarea [(ngModel)]="revertNote" rows="3" placeholder="What needs to be fixed? (optional note for the creator)"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background resize-none"></textarea>
+          <div class="flex items-center gap-2">
+            <button (click)="revertToDraft()" [disabled]="reverting"
+                    class="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50">
+              <ng-container *ngIf="reverting">
+                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Reverting...
+              </ng-container>
+              <ng-container *ngIf="!reverting">
+                Confirm Revert
+              </ng-container>
+            </button>
+            <button (click)="toggleRevertForm()"
+                    class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <div class="dialog-actions">
+    <ui-button variant="outline" (onClick)="close()">Close</ui-button>
+  </div>
+</div>

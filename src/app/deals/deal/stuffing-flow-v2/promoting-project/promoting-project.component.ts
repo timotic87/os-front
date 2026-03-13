@@ -46,7 +46,7 @@ export class PromotingProjectComponent implements OnInit{
           salaryValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
           salaryType: new FormControl('', [Validators.required]),
           costValue: new FormControl(null, [Validators.required, Validators.min(1), Validators.max(100)]),
-          costType: new FormControl({value: 'COST', disabled:true}, [Validators.required]),
+          costType: new FormControl({value: 'COST', disabled:true}),
           salarydaysdue: new FormControl(null, [Validators.required, Validators.min(1)]),
           costdaysdue: new FormControl(null, [Validators.required, Validators.min(1)]),
           salaryCurrency: new FormControl(null),
@@ -54,47 +54,62 @@ export class PromotingProjectComponent implements OnInit{
         });
 
         this.createDealForm.get('salaryFeetype').valueChanges.subscribe(value => {
-          if (value.ID===3) {
-            this.createDealForm.get('salaryType').setValue(1);
-            this.createDealForm.get('salaryType').disable();
-            this.createDealForm.get('salaryValue').setValue(null);
-            this.createDealForm.get('salaryType').clearValidators();
-            this.createDealForm.get('salaryValue').clearValidators();
-            this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1)]);
-            console.log(this.createDealForm.get('salaryType').valid)
-          }else if(value.ID===1) {
-            this.createDealForm.get('salaryType').setValue(null);
-            this.createDealForm.get('salaryType').enable();
-            this.createDealForm.get('salaryValue').setValue(null);
-            this.createDealForm.get('salaryType').clearValidators();
-            this.createDealForm.get('salaryValue').clearValidators();
-            this.createDealForm.get('salaryType').addValidators(Validators.required);
-            this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
-          }else if(value.ID===2){
-            this.createDealForm.get('salaryType').setValue(null);
-            this.createDealForm.get('salaryType').enable();
-            this.createDealForm.get('salaryValue').setValue(null);
-            this.createDealForm.get('salaryType').clearValidators();
-            this.createDealForm.get('salaryValue').clearValidators();
-            this.createDealForm.get('salaryType').addValidators(Validators.required);
-            this.createDealForm.get('salaryValue').addValidators([Validators.required, Validators.min(1)]);
+          const salaryValue = this.createDealForm.get('salaryValue');
+          const salaryType = this.createDealForm.get('salaryType');
+          const salaryCurrency = this.createDealForm.get('salaryCurrency');
+
+          salaryValue.setValue(null);
+          salaryValue.clearValidators();
+          salaryType.clearValidators();
+          salaryCurrency.clearValidators();
+
+          if (value.ID === 3) {
+            // Fixed fee: need amount + currency, no salary type
+            salaryType.setValue(null);
+            salaryType.disable();
+            salaryValue.addValidators([Validators.required, Validators.min(1)]);
+            salaryCurrency.addValidators(Validators.required);
+          } else if (value.ID === 1) {
+            // Percentage: need %, salary type, no currency
+            salaryType.setValue(null);
+            salaryType.enable();
+            salaryType.addValidators(Validators.required);
+            salaryValue.addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+          } else if (value.ID === 2) {
+            // Multiplier: need multiplier, salary type, no currency
+            salaryType.setValue(null);
+            salaryType.enable();
+            salaryType.addValidators(Validators.required);
+            salaryValue.addValidators([Validators.required, Validators.min(0.1)]);
           }
 
+          salaryValue.updateValueAndValidity();
+          salaryType.updateValueAndValidity();
+          salaryCurrency.updateValueAndValidity();
         });
 
     this.createDealForm.get('costFeetype').valueChanges.subscribe(value => {
-      if (value.ID===3) {
-        this.createDealForm.get('costValue').setValue(null);
-        this.createDealForm.get('costValue').clearValidators();
-        this.createDealForm.get('costValue').addValidators([Validators.required, Validators.min(1)]);
-      }else if(value.ID===1) {
-        this.createDealForm.get('costValue').setValue(null);
-        this.createDealForm.get('costValue').clearValidators();
-      }else if(value.ID===2){
-        this.createDealForm.get('costValue').setValue(null);
-        this.createDealForm.get('costValue').clearValidators();
+      const costValue = this.createDealForm.get('costValue');
+      const costCurrency = this.createDealForm.get('costCurrency');
+
+      costValue.setValue(null);
+      costValue.clearValidators();
+      costCurrency.clearValidators();
+
+      if (value.ID === 3) {
+        // Fixed fee: need amount + currency
+        costValue.addValidators([Validators.required, Validators.min(1)]);
+        costCurrency.addValidators(Validators.required);
+      } else if (value.ID === 1) {
+        // Percentage: need %
+        costValue.addValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+      } else if (value.ID === 2) {
+        // Multiplier: need multiplier
+        costValue.addValidators([Validators.required, Validators.min(0.1)]);
       }
 
+      costValue.updateValueAndValidity();
+      costCurrency.updateValueAndValidity();
     });
 
         this.createDealForm.get('isExpired').valueChanges.subscribe(value => {
@@ -132,6 +147,12 @@ export class PromotingProjectComponent implements OnInit{
     this.rest.getCurrencyList().subscribe(res=>{
       if (res.status===200){
         this.currencyList = res.data;
+        // Set RSD as default currency
+        const rsd = this.currencyList.find(c => c.code === 'RSD');
+        if (rsd) {
+          this.createDealForm.get('salaryCurrency').setValue(rsd);
+          this.createDealForm.get('costCurrency').setValue(rsd);
+        }
       }
     })
   }
@@ -142,31 +163,48 @@ export class PromotingProjectComponent implements OnInit{
       return
     }
 
+    this.createDealForm.markAllAsTouched();
+
     if (!this.createDealForm.valid) {
-      this.dialogService.showMsgDialog("Please fill in all required fields");
+      const missing = [];
+      const c = this.createDealForm.controls;
+      if (!c['contract_file_name'].valid) missing.push('Contract file name');
+      if (!c['startDate'].valid) missing.push('Start date');
+      if (c['endDate'].enabled && !c['endDate'].valid) missing.push('End date');
+      if (!c['salaryFeetype'].valid) missing.push('Salary fee type');
+      if (!c['salaryValue'].valid) missing.push('Salary fee value');
+      if (c['salaryType'].enabled && !c['salaryType'].valid) missing.push('Salary type');
+      if (!c['salarydaysdue'].valid) missing.push('Salary days due');
+      if (c['salaryCurrency'].enabled && !c['salaryCurrency'].valid) missing.push('Salary currency');
+      if (!c['costFeetype'].valid) missing.push('Cost fee type');
+      if (!c['costValue'].valid) missing.push('Cost fee value');
+      if (!c['costdaysdue'].valid) missing.push('Cost days due');
+      if (c['costCurrency'].enabled && !c['costCurrency'].valid) missing.push('Cost currency');
+      this.dialogService.showMsgDialog('Please fill in: ' + (missing.length ? missing.join(', ') : 'all required fields'));
       return;
     }
 
+    const f = this.createDealForm.getRawValue();
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
     formParams.set('dealID', this.deal.ID);
     formParams.set('filePath', this.deal.client.customerName);
-    formParams.set('fileName', this.createDealForm.get('contract_file_name').value);
+    formParams.set('fileName', f.contract_file_name);
     formParams.set('typeName', 'Contract');
     formParams.set('subTypeName', 'Staffing and payroll');
-    formParams.set('isExpired', this.createDealForm.value.isExpired);
-    formParams.set('startDate', this.createDealForm.value.startDate);
-    formParams.set('endDate', this.createDealForm.value.endDate);
+    formParams.set('isExpired', f.isExpired);
+    formParams.set('startDate', f.startDate);
+    formParams.set('endDate', f.endDate);
     formParams.set('clientID', this.deal.client.id);
-    formParams.set('salaryFeeTypeID', this.createDealForm.value.salaryFeetype? this.createDealForm.value.salaryFeetype.ID:null);
-    formParams.set('fee_type_salary_value', this.createDealForm.value.salaryValue);
-    formParams.set('fee_type_cost_value', this.createDealForm.value.costValue);
-    formParams.set('salary_typeID', this.createDealForm.value.salaryType? this.createDealForm.value.salaryType.ID:null);
-    formParams.set('payment_due_on_salary', this.createDealForm.value.salarydaysdue);
-    formParams.set('payment_due_on_cost', this.createDealForm.value.costdaysdue);
-    formParams.set('costFeeTypeID', this.createDealForm.value.costFeetype? this.createDealForm.value.costFeetype.ID:null);
-    formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
-    formParams.set('costCurrency', this.createDealForm.value.costCurrency ? this.createDealForm.value.costCurrency.id:null);
+    formParams.set('salaryFeeTypeID', f.salaryFeetype?.ID ?? null);
+    formParams.set('fee_type_salary_value', f.salaryValue);
+    formParams.set('fee_type_cost_value', f.costValue);
+    formParams.set('salary_typeID', f.salaryType?.ID ?? null);
+    formParams.set('payment_due_on_salary', f.salarydaysdue);
+    formParams.set('payment_due_on_cost', f.costdaysdue);
+    formParams.set('costFeeTypeID', f.costFeetype?.ID ?? null);
+    formParams.set('salaryCurrency', f.salaryCurrency?.ID ?? null);
+    formParams.set('costCurrency', f.costCurrency?.ID ?? null);
 
     this.dialogService.showLoader();
     this.rest.promotingToProject(formParams).subscribe({

@@ -83,6 +83,11 @@ export class PromotingProjectPyhraComponent implements OnInit{
     this.rest.getCurrencyList().subscribe(res=>{
       if (res.status===200){
         this.currencyList = res.data;
+        // Set RSD as default currency
+        const rsd = this.currencyList.find(c => c.code === 'RSD');
+        if (rsd) {
+          this.createDealForm.get('salaryCurrency').setValue(rsd);
+        }
       }
     })
   }
@@ -93,30 +98,41 @@ export class PromotingProjectPyhraComponent implements OnInit{
       return
     }
 
+    this.createDealForm.markAllAsTouched();
+
     if (!this.createDealForm.valid) {
-      this.dialogService.showMsgDialog("Please fill in all required fields");
+      const missing = [];
+      const c = this.createDealForm.controls;
+      if (!c['contract_file_name'].valid) missing.push('Contract file name');
+      if (!c['startDate'].valid) missing.push('Start date');
+      if (c['endDate'].enabled && !c['endDate'].valid) missing.push('End date');
+      if (!c['salaryValue'].valid) missing.push('Fee value');
+      if (!c['salarydaysdue'].valid) missing.push('Payment due days');
+      if (!c['salaryCurrency'].valid) missing.push('Currency');
+      this.dialogService.showMsgDialog('Please fill in: ' + (missing.length ? missing.join(', ') : 'all required fields'));
       return;
     }
 
+    const f = this.createDealForm.getRawValue();
     let formParams = new FormData();
     formParams.append('file', this.contractFile as File);
     formParams.set('dealID', this.deal.ID);
     formParams.set('filePath', this.deal.client.customerName);
-    formParams.set('fileName', this.createDealForm.get('contract_file_name').value);
+    formParams.set('fileName', f.contract_file_name);
     formParams.set('typeName', 'Contract');
     formParams.set('subTypeName', 'HRA&PY');
-    formParams.set('isExpired', this.createDealForm.value.isExpired);
-    formParams.set('startDate', this.createDealForm.value.startDate);
-    formParams.set('endDate', this.createDealForm.value.endDate);
+    formParams.set('isExpired', f.isExpired);
+    formParams.set('startDate', f.startDate);
+    formParams.set('endDate', f.endDate);
     formParams.set('clientID', this.deal.client.id);
-    formParams.set('salaryFeeTypeID', this.createDealForm.value.salaryFeetype? this.createDealForm.value.salaryFeetype.ID:null);
-    formParams.set('fee_type_salary_value', this.createDealForm.value.salaryValue);
+    formParams.set('salaryFeeTypeID', f.salaryFeetype?.ID ?? null);
+    formParams.set('fee_type_salary_value', f.salaryValue);
     formParams.set('fee_type_cost_value', null);
-    formParams.set('salary_typeID', this.createDealForm.value.salaryType? this.createDealForm.value.salaryType.ID:null);
-    formParams.set('payment_due_on_salary', this.createDealForm.value.salarydaysdue);
+    formParams.set('salary_typeID', f.salaryType?.ID ?? null);
+    formParams.set('payment_due_on_salary', f.salarydaysdue);
     formParams.set('payment_due_on_cost', null);
     formParams.set('costFeeTypeID', null);
-    formParams.set('salaryCurrency', this.createDealForm.value.salaryCurrency ? this.createDealForm.value.salaryCurrency.id:null);
+    formParams.set('salaryCurrency', f.salaryCurrency?.ID ?? null);
     formParams.set('costCurrency', null);
 
     this.dialogService.showLoader();

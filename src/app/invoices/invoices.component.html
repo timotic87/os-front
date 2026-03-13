@@ -10,174 +10,360 @@
           </svg>
           Invoices
         </ui-card-title>
-        <ui-card-description>All approved invoices</ui-card-description>
-      </div>
-      <div class="text-sm text-muted-foreground">
-        {{ totalCount }} invoice{{ totalCount !== 1 ? 's' : '' }}
+        <ui-card-description>All invoices ready for Business Central</ui-card-description>
       </div>
     </div>
   </ui-card-header>
   <ui-card-content>
-    <!-- Filters -->
-    <div class="flex items-end gap-3 flex-wrap mb-6">
-      <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1">Type</label>
-        <select [(ngModel)]="filterType" (change)="applyFilters()"
-                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
-          @for (t of typeOptions; track t.value) {
-            <option [value]="t.value">{{ t.label }}</option>
-          }
-        </select>
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
-        <input type="text" [(ngModel)]="filterSearch" placeholder="Candidate name..."
-               (keyup.enter)="applyFilters()"
-               class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
-      </div>
-      <button (click)="applyFilters()"
-              class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        Search
+
+    <!-- Tabs -->
+    <div class="flex border-b border-border mb-6">
+      <button (click)="switchTab('recruiting')"
+              [class]="activeTab === 'recruiting'
+                ? 'px-4 py-2.5 text-sm font-medium border-b-2 border-primary text-foreground -mb-px'
+                : 'px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors -mb-px border-b-2 border-transparent'">
+        Recruiting Invoices
+        <span class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{{ totalCount }}</span>
       </button>
-      @if (filterSearch || filterType) {
-        <button (click)="clearFilters()"
-                class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
-          Clear
-        </button>
-      }
+      <button (click)="switchTab('sales')"
+              [class]="activeTab === 'sales'
+                ? 'px-4 py-2.5 text-sm font-medium border-b-2 border-primary text-foreground -mb-px'
+                : 'px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors -mb-px border-b-2 border-transparent'">
+        Sales Invoices
+        <span class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{{ salesTotalCount }}</span>
+      </button>
     </div>
 
-    @if (loading) {
-      <div class="flex items-center justify-center py-12 text-muted-foreground">
-        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
-        Loading invoices...
-      </div>
-    } @else if (invoices.length === 0) {
-      <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p class="text-sm">No invoices found</p>
-      </div>
-    } @else {
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border">
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">ID</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Order #</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Position</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
-              <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Fee Amount</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice Date</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Payment Date</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</th>
-              <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (inv of invoices; track inv.ID) {
-              <tr class="border-b border-border hover:bg-muted/50 transition-colors">
-                <td class="px-3 py-2.5 font-mono text-sm text-muted-foreground">{{ inv.ID }}</td>
-                <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.order?.order_number || '-' }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.position?.position_number }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.client?.customerName || '-' }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.legalEntity?.shortName || inv.order?.deal?.legalEntity?.name || '-' }}</td>
-                <td class="px-3 py-2.5">
-                  <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
-                    {{ getInvoiceTypeLabel(inv.invoice_type) }}
-                  </ui-badge>
-                </td>
-                <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
-                  {{ inv.final_fee_amount | number:'1.2-2' }} {{ inv.feeCurrency?.code || '' }}
-                </td>
-                <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.invoice_date ? (inv.invoice_date | date:'MMM d, y') : '-' }}</td>
-                <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.payment_date ? (inv.payment_date | date:'MMM d, y') : '-' }}</td>
-                <td class="px-3 py-2.5 text-sm text-foreground">
-                  @if (inv.creator) {
-                    {{ inv.creator.firstName }} {{ inv.creator.lastName }}
-                  } @else {
-                    <span class="text-muted-foreground">-</span>
-                  }
-                </td>
-                <td class="px-3 py-2.5 text-center">
-                  <div class="flex items-center justify-center gap-1">
-                    <button (click)="openInvoicePreview(inv)"
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                            title="Preview invoice">
-                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                      </svg>
-                    </button>
-                    <button (click)="exportInvoice(inv)"
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                            title="Export calculation to Excel">
-                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                      </svg>
-                    </button>
-                    @if (inv.sent_to_bc) {
-                      <span class="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium px-1" title="Sent to BC: {{ inv.bc_document_no }}">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        BC
-                      </span>
-                    } @else {
-                      <button (click)="sendToBC(inv)"
-                              [disabled]="sendingToBC[inv.ID]"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                              title="Send to Business Central">
-                        @if (sendingToBC[inv.ID]) {
-                          <svg class="animate-spin h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                          </svg>
-                        } @else {
-                          <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                          </svg>
-                        }
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
+    <!-- ═══════ RECRUITING TAB ═══════ -->
+    @if (activeTab === 'recruiting') {
+      <!-- Filters -->
+      <div class="flex items-end gap-3 flex-wrap mb-6">
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Type</label>
+          <select [(ngModel)]="filterType" (change)="applyFilters()"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            @for (t of typeOptions; track t.value) {
+              <option [value]="t.value">{{ t.label }}</option>
             }
-          </tbody>
-        </table>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
+          <input type="text" [(ngModel)]="filterSearch" placeholder="Candidate name..."
+                 (keyup.enter)="applyFilters()"
+                 class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
+        <button (click)="applyFilters()"
+                class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Search
+        </button>
+        @if (filterSearch || filterType) {
+          <button (click)="clearFilters()"
+                  class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Clear
+          </button>
+        }
       </div>
 
-      <!-- Pagination -->
-      @if (totalCount > pageSize) {
-        <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
-          <div class="text-sm text-muted-foreground">
-            Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
-          </div>
-          <div class="flex items-center gap-2">
-            <button (click)="prevPage()" [disabled]="offset === 0"
-                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
-              Previous
-            </button>
-            <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
-            <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
-                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
-              Next
-            </button>
-          </div>
+      @if (loading) {
+        <div class="flex items-center justify-center py-12 text-muted-foreground">
+          <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Loading invoices...
         </div>
+      } @else if (invoices.length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-sm">No recruiting invoices found</p>
+        </div>
+      } @else {
+        <div class="overflow-visible">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">ID</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Order #</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Position</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
+                <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Fee Amount</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice Date</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Payment Date</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</th>
+                <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of invoices; track inv.ID) {
+                <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                  <td class="px-3 py-2.5 font-mono text-sm text-muted-foreground">{{ inv.ID }}</td>
+                  <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.order?.order_number || '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.position?.position_number }}</td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.client?.customerName || '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.legalEntity?.shortName || inv.order?.deal?.legalEntity?.name || '-' }}</td>
+                  <td class="px-3 py-2.5">
+                    <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
+                      {{ getInvoiceTypeLabel(inv.invoice_type) }}
+                    </ui-badge>
+                  </td>
+                  <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
+                    {{ inv.final_fee_amount | number:'1.2-2' }} {{ inv.feeCurrency?.code || '' }}
+                  </td>
+                  <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.invoice_date ? (inv.invoice_date | date:'MMM d, y') : '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.payment_date ? (inv.payment_date | date:'MMM d, y') : '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">
+                    @if (inv.creator) {
+                      {{ inv.creator.firstName }} {{ inv.creator.lastName }}
+                    } @else {
+                      <span class="text-muted-foreground">-</span>
+                    }
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                      <button (click)="openInvoicePreview(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Preview invoice">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                      </button>
+                      <button (click)="exportInvoice(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Export calculation to Excel">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                      </button>
+                      @if (inv.sent_to_bc) {
+                        <div class="relative">
+                          <button (click)="togglePostBcMenu($event, 'r-' + inv.ID)"
+                                  [title]="getPostBcStatusTooltip(inv.post_bc_status) || 'Sent to BC: ' + (inv.bc_document_no || '')"
+                                  class="text-xs font-medium cursor-pointer hover:underline"
+                                  [class]="inv.post_bc_status ? 'text-xs font-medium cursor-pointer hover:underline ' + getPostBcStatusColor(inv.post_bc_status) : 'text-xs font-medium cursor-pointer hover:underline text-green-600 dark:text-green-400'">
+                            {{ inv.post_bc_status ? getPostBcStatusLabel(inv.post_bc_status) : 'BC \u2713' }}
+                          </button>
+                          @if (openMenuId === 'r-' + inv.ID) {
+                            <div class="absolute right-0 top-6 z-50 min-w-[120px] rounded-md border border-border bg-popover py-1 shadow-md" (click)="$event.stopPropagation()">
+                              @for (opt of getPostBcOptions(inv, 'recruiting'); track opt.value) {
+                                <button (click)="changeRecruitingPostBcStatus(inv, opt.value)"
+                                        [title]="opt.tooltip"
+                                        class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                                        [class.font-semibold]="(inv.post_bc_status || '') === opt.value">
+                                  {{ opt.label }}
+                                </button>
+                              }
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <button (click)="sendToBC(inv)"
+                                [disabled]="sendingToBC[inv.ID]"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                title="Send to Business Central">
+                          @if (sendingToBC[inv.ID]) {
+                            <svg class="animate-spin h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                          } @else {
+                            <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalCount > pageSize) {
+          <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+            <div class="text-sm text-muted-foreground">
+              Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
+            </div>
+            <div class="flex items-center gap-2">
+              <button (click)="prevPage()" [disabled]="offset === 0"
+                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                Previous
+              </button>
+              <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
+              <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
+                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                Next
+              </button>
+            </div>
+          </div>
+        }
       }
     }
+
+    <!-- ═══════ SALES TAB ═══════ -->
+    @if (activeTab === 'sales') {
+      <!-- Filters -->
+      <div class="flex items-end gap-3 flex-wrap mb-6">
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
+          <input type="text" [(ngModel)]="salesFilterSearch" placeholder="Client, invoice no, description..."
+                 (keyup.enter)="applySalesFilters()"
+                 class="w-64 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
+        <button (click)="applySalesFilters()"
+                class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Search
+        </button>
+        @if (salesFilterSearch) {
+          <button (click)="clearSalesFilters()"
+                  class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Clear
+          </button>
+        }
+      </div>
+
+      @if (salesLoading) {
+        <div class="flex items-center justify-center py-12 text-muted-foreground">
+          <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Loading sales invoices...
+        </div>
+      } @else if (salesInvoices.length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-sm">No ready sales invoices found</p>
+        </div>
+      } @else {
+        <div class="overflow-visible">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice No</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Currency</th>
+                <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</th>
+                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
+                <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of salesInvoices; track inv.id) {
+                <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                  <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.invoiceNo }}</td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.customerName || inv.client?.customerName || '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.legalEntity?.shortName || inv.legalEntity?.name || '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-muted-foreground max-w-[200px] truncate" [title]="inv.description || ''">{{ inv.description || '-' }}</td>
+                  <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.currencyCode || '-' }}</td>
+                  <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
+                    {{ inv.totalAmount | number:'1.2-2' }}
+                  </td>
+                  <td class="px-3 py-2.5 text-sm text-foreground">
+                    @if (inv.creator) {
+                      {{ inv.creator.firstName }} {{ inv.creator.lastName }}
+                    } @else {
+                      <span class="text-muted-foreground">-</span>
+                    }
+                  </td>
+                  <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.createdAt | date:'MMM d, y' }}</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                      <button (click)="openSalesInvoicePreview(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Preview invoice">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                      </button>
+                      @if (inv.sentToBC) {
+                        <div class="relative">
+                          <button (click)="togglePostBcMenu($event, 's-' + inv.id)"
+                                  [title]="getPostBcStatusTooltip(inv.postBcStatus) || 'Sent to BC: ' + (inv.bcDocumentNo || '')"
+                                  class="text-xs font-medium cursor-pointer hover:underline"
+                                  [class]="inv.postBcStatus ? 'text-xs font-medium cursor-pointer hover:underline ' + getPostBcStatusColor(inv.postBcStatus) : 'text-xs font-medium cursor-pointer hover:underline text-green-600 dark:text-green-400'">
+                            {{ inv.postBcStatus ? getPostBcStatusLabel(inv.postBcStatus) : 'BC \u2713' }}
+                          </button>
+                          @if (openMenuId === 's-' + inv.id) {
+                            <div class="absolute right-0 top-6 z-50 min-w-[120px] rounded-md border border-border bg-popover py-1 shadow-md" (click)="$event.stopPropagation()">
+                              @for (opt of getPostBcOptions(inv, 'sales'); track opt.value) {
+                                <button (click)="changeSalesPostBcStatus(inv, opt.value)"
+                                        [title]="opt.tooltip"
+                                        class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                                        [class.font-semibold]="(inv.postBcStatus || '') === opt.value">
+                                  {{ opt.label }}
+                                </button>
+                              }
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <button (click)="sendSalesToBC(inv)"
+                                [disabled]="sendingSalesToBC[inv.id]"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                title="Send to Business Central">
+                          @if (sendingSalesToBC[inv.id]) {
+                            <svg class="animate-spin h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                          } @else {
+                            <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (salesTotalCount > pageSize) {
+          <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+            <div class="text-sm text-muted-foreground">
+              Showing {{ salesOffset + 1 }}-{{ Math.min(salesOffset + pageSize, salesTotalCount) }} of {{ salesTotalCount }}
+            </div>
+            <div class="flex items-center gap-2">
+              <button (click)="salesPrevPage()" [disabled]="salesOffset === 0"
+                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                Previous
+              </button>
+              <span class="text-sm text-muted-foreground">Page {{ salesCurrentPage }} of {{ salesTotalPages }}</span>
+              <button (click)="salesNextPage()" [disabled]="salesOffset + pageSize >= salesTotalCount"
+                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                Next
+              </button>
+            </div>
+          </div>
+        }
+      }
+    }
+
   </ui-card-content>
 </ui-card>
 </div>

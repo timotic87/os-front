@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CommonModule, DecimalPipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { DialogService } from '../services/dialog.service';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent } from '../shared/components/ui/card/card.component';
 import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 import { InvoicePreviewDialogComponent } from '../recruiting-orders/invoice-preview-dialog/invoice-preview-dialog.component';
+import { SalesInvoicePreviewDialogComponent } from '../sales-invoices/sales-invoice-preview-dialog/sales-invoice-preview-dialog.component';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -29,12 +30,15 @@ import * as XLSX from 'xlsx';
 })
 export class InvoicesComponent implements OnInit {
 
+  // Tab
+  activeTab: 'recruiting' | 'sales' = 'recruiting';
+
+  // Recruiting invoices state
   invoices: any[] = [];
   totalCount = 0;
   pageSize = 20;
   offset = 0;
   loading = true;
-
   filterSearch = '';
   filterType = '';
   Math = Math;
@@ -47,6 +51,25 @@ export class InvoicesComponent implements OnInit {
     { value: 'cancel_fee', label: 'Cancel Fee' }
   ];
 
+  // Sales invoices state
+  salesInvoices: any[] = [];
+  salesTotalCount = 0;
+  salesOffset = 0;
+  salesLoading = true;
+  salesFilterSearch = '';
+  sendingSalesToBC: { [id: number]: boolean } = {};
+
+  openMenuId: string | null = null;
+
+  postBcStatusOptions = [
+    { value: '', label: 'BC \u2713', tooltip: 'Sent to Business Central' },
+    { value: 'sef', label: 'Sent to SEF', tooltip: 'Invoice registered in Serbian e-invoicing system' },
+    { value: 'delivered', label: 'Delivered', tooltip: 'Invoice delivered to client' },
+    { value: 'paid', label: 'Paid', tooltip: 'Payment received' },
+    { value: 'cancelled', label: 'Cancelled', tooltip: 'Invoice cancelled (storno)' },
+    { value: 'void', label: 'Void', tooltip: 'Invoice voided / invalid' },
+  ];
+
   constructor(
     private rest: RestService,
     public userService: UserService,
@@ -56,7 +79,14 @@ export class InvoicesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInvoices();
+    this.loadSalesInvoices();
   }
+
+  switchTab(tab: 'recruiting' | 'sales') {
+    this.activeTab = tab;
+  }
+
+  // ─── RECRUITING INVOICES ───
 
   loadInvoices() {
     this.loading = true;
@@ -161,6 +191,188 @@ export class InvoicesComponent implements OnInit {
     });
   }
 
+  // ─── SALES INVOICES ───
+
+  loadSalesInvoices() {
+    this.salesLoading = true;
+    this.rest.getReadySalesInvoices({
+      offset: this.salesOffset,
+      limit: this.pageSize,
+      customerSearch: this.salesFilterSearch || undefined
+    }).subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          this.salesInvoices = res.data;
+          this.salesTotalCount = res.totalCount;
+        }
+        this.salesLoading = false;
+      },
+      error: (err: any) => {
+        this.dialogService.errorServDialog(err);
+        this.salesLoading = false;
+      }
+    });
+  }
+
+  applySalesFilters() {
+    this.salesOffset = 0;
+    this.loadSalesInvoices();
+  }
+
+  clearSalesFilters() {
+    this.salesFilterSearch = '';
+    this.salesOffset = 0;
+    this.loadSalesInvoices();
+  }
+
+  salesNextPage() {
+    if (this.salesOffset + this.pageSize < this.salesTotalCount) {
+      this.salesOffset += this.pageSize;
+      this.loadSalesInvoices();
+    }
+  }
+
+  salesPrevPage() {
+    if (this.salesOffset > 0) {
+      this.salesOffset = Math.max(0, this.salesOffset - this.pageSize);
+      this.loadSalesInvoices();
+    }
+  }
+
+  get salesCurrentPage(): number {
+    return Math.floor(this.salesOffset / this.pageSize) + 1;
+  }
+
+  get salesTotalPages(): number {
+    return Math.ceil(this.salesTotalCount / this.pageSize) || 1;
+  }
+
+  sendSalesToBC(inv: any): void {
+    if (inv.sentToBC) return;
+    if (!window.confirm(`Send invoice ${inv.invoiceNo} to Business Central?`)) return;
+
+    this.sendingSalesToBC[inv.id] = true;
+    this.rest.sendSalesInvoiceToBC({ invoiceId: inv.id }).subscribe({
+      next: (res: any) => {
+        this.sendingSalesToBC[inv.id] = false;
+        if (res.status === 200) {
+          this.dialogService.showSnackBar(`Invoice ${inv.invoiceNo} sent to BC`, '', 3000);
+          this.loadSalesInvoices();
+        }
+      },
+      error: (err: any) => {
+        this.sendingSalesToBC[inv.id] = false;
+        this.dialogService.errorServDialog(err);
+      }
+    });
+  }
+
+  getSalesStatusBadgeVariant(status: string): 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'secondary' {
+    switch (status) {
+      case 'ready': return 'info';
+      case 'sent': return 'success';
+      default: return 'outline';
+    }
+  }
+
+  openSalesInvoicePreview(inv: any): void {
+    const dialogRef = this.dialog.open(SalesInvoicePreviewDialogComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      data: { invoiceId: inv.id }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.action === 'reverted') {
+        this.loadSalesInvoices();
+      }
+    });
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() { this.openMenuId = null; }
+
+  togglePostBcMenu(event: Event, id: string) {
+    event.stopPropagation();
+    this.openMenuId = this.openMenuId === id ? null : id;
+  }
+
+  // ─── POST-BC STATUS ───
+
+  changeRecruitingPostBcStatus(inv: any, newStatus: string): void {
+    const postBcStatus = newStatus || null;
+    this.openMenuId = null;
+    this.rest.updateRecruitingInvoicePostBcStatus({ invoiceId: inv.ID, postBcStatus }).subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          inv.post_bc_status = postBcStatus;
+        }
+      },
+      error: (err: any) => {
+        this.dialogService.errorServDialog(err);
+      }
+    });
+  }
+
+  changeSalesPostBcStatus(inv: any, newStatus: string): void {
+    const postBcStatus = newStatus || null;
+    this.openMenuId = null;
+    this.rest.updateSalesInvoicePostBcStatus({ invoiceId: inv.id, postBcStatus }).subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          inv.postBcStatus = postBcStatus;
+        }
+      },
+      error: (err: any) => {
+        this.dialogService.errorServDialog(err);
+      }
+    });
+  }
+
+  getPostBcStatusBadgeVariant(status: string): 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'secondary' {
+    switch (status) {
+      case 'sef': return 'info';
+      case 'delivered': return 'default';
+      case 'paid': return 'success';
+      case 'cancelled': return 'warning';
+      case 'void': return 'destructive';
+      default: return 'outline';
+    }
+  }
+
+  getPostBcStatusLabel(status: string): string {
+    const opt = this.postBcStatusOptions.find(o => o.value === status);
+    return opt ? opt.label : '';
+  }
+
+  getPostBcStatusTooltip(status: string): string {
+    const opt = this.postBcStatusOptions.find(o => o.value === status);
+    return opt?.tooltip || '';
+  }
+
+  getPostBcStatusColor(status: string): string {
+    switch (status) {
+      case 'sef': return 'text-blue-600 dark:text-blue-400';
+      case 'delivered': return 'text-foreground';
+      case 'paid': return 'text-green-600 dark:text-green-400';
+      case 'cancelled': return 'text-amber-600 dark:text-amber-400';
+      case 'void': return 'text-red-600 dark:text-red-400';
+      default: return 'text-green-600 dark:text-green-400';
+    }
+  }
+
+  getPostBcOptions(inv: any, type: 'recruiting' | 'sales'): typeof this.postBcStatusOptions {
+    const isDomestic = type === 'recruiting'
+      ? (!inv.feeCurrency?.code || inv.feeCurrency.code === 'RSD')
+      : (!inv.currencyCode || inv.currencyCode === 'RSD');
+    return this.postBcStatusOptions.filter(o => {
+      if (isDomestic && o.value === 'delivered') return false;
+      if (!isDomestic && o.value === 'sef') return false;
+      return true;
+    });
+  }
+
+  // ─── EXCEL EXPORT (recruiting only) ───
+
   exportInvoice(inv: any): void {
     this.rest.getInvoiceCalculationData(inv.ID).subscribe({
       next: (res) => {
@@ -235,7 +447,6 @@ export class InvoicesComponent implements OnInit {
       rows.push(['Fee Override', 'Yes (manually adjusted)']);
     }
 
-    // Salary calculator breakdown
     const calcResults = calcData.calculatorResults;
     if (calcResults) {
       rows.push(['', ''], ['Salary Calculator Results', ''], ['', 'RSD', 'EUR', 'USD']);
@@ -253,7 +464,6 @@ export class InvoicesComponent implements OnInit {
       }
     }
 
-    // Exchange rates
     if (calcData.exchangeRates) {
       rows.push(['', ''], ['Exchange Rates', '']);
       if (calcData.exchangeRates.EUR) {
@@ -279,7 +489,6 @@ export class InvoicesComponent implements OnInit {
     const feeFormula = this.getFeeConfigLabel(calcData.feeSnapshot);
     const lines: any[] = invoice.lines || [];
 
-    // Sheet 1: Summary
     const summary: any[][] = [
       ['Placement Fee Calculation', ''],
       ['', ''],
@@ -294,10 +503,6 @@ export class InvoicesComponent implements OnInit {
     ];
 
     for (const line of lines) {
-      let lineCalc: any = null;
-      if (line.calculation_data) {
-        try { lineCalc = typeof line.calculation_data === 'string' ? JSON.parse(line.calculation_data) : line.calculation_data; } catch {}
-      }
       summary.push([
         line.line_number,
         `${line.candidate_first_name} ${line.candidate_last_name}`,
@@ -328,7 +533,6 @@ export class InvoicesComponent implements OnInit {
     ];
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
-    // Per-candidate detail sheets
     for (const line of lines) {
       let lineCalc: any = null;
       if (line.calculation_data) {
@@ -394,7 +598,6 @@ export class InvoicesComponent implements OnInit {
       annualNet: 'Annual Net', annualGross: 'Annual Base Gross', annualGrandGross: 'Annual Grand Gross'
     };
     if (key && map[key]) return map[key];
-    // Fallback: derive from salary_type_id for old invoices
     if (salaryTypeId) {
       const typeMap: Record<number, string> = {
         1: 'monthlyGrandGross', 2: 'monthlyGross', 3: 'monthlyNet',

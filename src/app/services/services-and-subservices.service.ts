@@ -171,7 +171,8 @@ export class ServicesAndSubservicesService {
 
   editService(serviceObj, dialogRef) {
     this.dialogService.showLoader();
-    this.rest.editService(serviceObj).subscribe(res=>{
+    const data = { ID: serviceObj.ID, name: serviceObj.name };
+    this.rest.editService(data).subscribe(res=>{
       this.dialogService.closeLoader();
       if (res.status === 201){
         this.services[this.services.findIndex(service => service.ID === serviceObj.ID)] = serviceObj;
@@ -184,7 +185,8 @@ export class ServicesAndSubservicesService {
 
   editSubservice(subserviceObj, dialogRef) {
     this.dialogService.showLoader();
-    this.rest.editSubservice(subserviceObj).subscribe(res=>{
+    const data = { ID: subserviceObj.ID, name: subserviceObj.name, serviceID: subserviceObj.serviceID };
+    this.rest.editSubservice(data).subscribe(res=>{
       this.dialogService.closeLoader();
       if (res.status === 201){
         this.subservices[this.subservices.findIndex(subservice => subservice.ID === subserviceObj.ID)] = subserviceObj;

@@ -431,6 +431,16 @@ export class RestService {
   getProjectByDealID(dealID: any){
     return this.http.get(`${this.baseUrl}/getProjectByDealID/${dealID}`, {headers: this.headers()}) as Observable<any>;
   }
+
+  createProjectAnnex(data: any){
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${this.cookieService.get('jwt')}`);
+    return this.http.post(`${this.baseUrl}/projectAnnex`, data, {headers: headers}) as Observable<any>;
+  }
+
+  getProjectAnnexes(projectID: number){
+    return this.http.get(`${this.baseUrl}/projectAnnexes/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  }
   getEntityaccess(data){
     return this.http.get(`${this.baseUrl}/entityaccess/${data.entityType}/${data.entityId}`, {headers: this.headers()}) as Observable<any>;
   }

@@ -1,0 +1,508 @@
+<div class="container mx-auto px-4 py-6 pt-24 max-w-7xl">
+
+<!-- ═══════ LIST MODE ═══════ -->
+@if (mode === 'list') {
+<ui-card>
+  <ui-card-header>
+    <div class="flex items-center justify-between w-full">
+      <div>
+        <ui-card-title class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Sales Invoices
+        </ui-card-title>
+        <ui-card-description>Create and manage sales invoices</ui-card-description>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-muted-foreground">{{ totalCount }} invoice{{ totalCount !== 1 ? 's' : '' }}</span>
+        <button (click)="switchToCreate()"
+                class="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          New Invoice
+        </button>
+      </div>
+    </div>
+  </ui-card-header>
+  <ui-card-content>
+    <!-- Filters -->
+    <div class="flex items-end gap-3 flex-wrap mb-6">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
+        <input type="text" [(ngModel)]="filterSearch" placeholder="Client, invoice no, description..."
+               (keyup.enter)="applyFilters()"
+               class="w-64 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Status</label>
+        <select [(ngModel)]="filterStatus" (change)="applyFilters()"
+                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+          <option value="">All</option>
+          <option value="draft">Draft</option>
+          <option value="ready">Ready</option>
+          <option value="sent">Sent</option>
+        </select>
+      </div>
+      <button (click)="applyFilters()"
+              class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Search
+      </button>
+      @if (filterSearch || filterStatus) {
+        <button (click)="clearFilters()"
+                class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Clear
+        </button>
+      }
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-12 text-muted-foreground">
+        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading invoices...
+      </div>
+    } @else if (invoices.length === 0) {
+      <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-sm">No sales invoices found</p>
+      </div>
+    } @else {
+      <!-- Table -->
+      <div class="overflow-visible">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice No</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Currency</th>
+              <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
+              <th class="text-center px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inv of invoices; track inv.id) {
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.invoiceNo }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.customerName || inv.client?.customerName || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.legalEntity?.shortName || inv.legalEntity?.name || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-muted-foreground max-w-[200px] truncate" [title]="inv.description || ''">{{ inv.description || '-' }}</td>
+                <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.currencyCode || '-' }}</td>
+                <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
+                  {{ inv.totalAmount | number:'1.2-2' }}
+                </td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-1.5">
+                    <ui-badge [variant]="getStatusBadgeVariant(inv.status)" class="text-xs capitalize">
+                      {{ inv.status }}
+                    </ui-badge>
+                    @if (inv.revertNote) {
+                      <button (click)="showRevertNote(inv)"
+                              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 transition-colors"
+                              [title]="inv.revertNote">
+                        <svg class="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z"/>
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.createdAt | date:'MMM d, y' }}</td>
+                <td class="px-3 py-2.5 text-center">
+                  <div class="flex items-center justify-center gap-1">
+                    <!-- Preview (all statuses) -->
+                    <button (click)="openPreview(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Preview invoice">
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </button>
+                    <!-- Draft actions: Edit, Mark Ready, Duplicate, Delete -->
+                    @if (inv.status === 'draft') {
+                      <button (click)="switchToEdit(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Edit">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                      </button>
+                      <button (click)="markReady(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Mark Ready">
+                        <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </button>
+                      <button (click)="duplicateInvoice(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Duplicate">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                      </button>
+                      <button (click)="deleteInvoice(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-destructive/10 transition-colors"
+                              title="Delete">
+                        <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    }
+                    <!-- Ready actions: Revert to Draft, Duplicate -->
+                    @if (inv.status === 'ready') {
+                      <button (click)="revertToDraft(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Revert to Draft">
+                        <svg class="h-4 w-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                        </svg>
+                      </button>
+                      <button (click)="duplicateInvoice(inv)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="Duplicate">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                      </button>
+                    }
+                    <!-- Sent: post-BC status menu -->
+                    @if (inv.status === 'sent') {
+                      <div class="relative">
+                        <button (click)="togglePostBcMenu($event, 's-' + inv.id)"
+                                [title]="getPostBcStatusTooltip(inv.postBcStatus) || 'Sent to BC: ' + (inv.bcDocumentNo || '')"
+                                class="text-xs font-medium cursor-pointer hover:underline"
+                                [class]="inv.postBcStatus ? 'text-xs font-medium cursor-pointer hover:underline ' + getPostBcStatusColor(inv.postBcStatus) : 'text-xs font-medium cursor-pointer hover:underline text-green-600 dark:text-green-400'">
+                          {{ inv.postBcStatus ? getPostBcStatusLabel(inv.postBcStatus) : 'BC \u2713' }}
+                        </button>
+                        @if (openMenuId === 's-' + inv.id) {
+                          <div class="absolute right-0 top-6 z-50 min-w-[120px] rounded-md border border-border bg-popover py-1 shadow-md" (click)="$event.stopPropagation()">
+                            @for (opt of getPostBcOptions(inv); track opt.value) {
+                              <button (click)="changeSalesPostBcStatus(inv, opt.value)"
+                                      [title]="opt.tooltip"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                                      [class.font-semibold]="(inv.postBcStatus || '') === opt.value">
+                                {{ opt.label }}
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalCount > pageSize) {
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
+          </div>
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" [disabled]="offset === 0"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Previous
+            </button>
+            <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </ui-card-content>
+</ui-card>
+}
+
+<!-- ═══════ CREATE / EDIT MODE ═══════ -->
+@if (mode === 'create' || mode === 'edit') {
+<ui-card>
+  <ui-card-header>
+    <div class="flex items-center justify-between w-full">
+      <div>
+        <ui-card-title class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            @if (mode === 'create') {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            }
+          </svg>
+          {{ mode === 'create' ? 'New Sales Invoice' : 'Edit Invoice: ' + (editingInvoice?.invoiceNo || '') }}
+        </ui-card-title>
+        <ui-card-description>
+          {{ mode === 'create' ? 'Create a new draft invoice' : 'Edit draft invoice details and lines' }}
+        </ui-card-description>
+      </div>
+      <button (click)="switchToList()"
+              class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back to List
+      </button>
+    </div>
+  </ui-card-header>
+  <ui-card-content>
+    <form [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()">
+
+      <!-- Header Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+
+        <!-- Legal Entity -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity *</label>
+          <select formControlName="legalEntityId"
+                  class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option [ngValue]="null" disabled>Select legal entity</option>
+            @for (le of legalEntities; track le.id) {
+              <option [ngValue]="le.id">{{ le.shortName || le.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Client (autocomplete) -->
+        <div class="relative">
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Client</label>
+          <input type="text" formControlName="clientSearch"
+                 (input)="onClientSearch($event)"
+                 placeholder="Type to search clients..."
+                 autocomplete="off"
+                 class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+          @if (clientSuggestions.length > 0) {
+            <div class="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto">
+              @for (client of clientSuggestions; track client.id) {
+                <button type="button" (click)="selectClient(client)"
+                        class="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                  <span class="font-medium">{{ client.customerName }}</span>
+                  @if (client.customerNo) {
+                    <span class="text-muted-foreground ml-2">({{ client.customerNo }})</span>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Service (VU) -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Service (VU)</label>
+          <select formControlName="serviceId"
+                  class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option [ngValue]="null">-- None --</option>
+            @for (s of services; track s.ID) {
+              <option [ngValue]="s.ID">{{ s.name }} {{ s.code ? '(' + s.code + ')' : '' }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Cost Center (MT) - search -->
+        <div class="relative">
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Cost Center (MT)</label>
+          <div class="relative">
+            <input type="text" formControlName="costCenterSearch"
+                   (input)="onCostCenterSearch($event)"
+                   placeholder="Type code or name..."
+                   autocomplete="off"
+                   class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+            @if (invoiceForm.get('costCenterId')?.value) {
+              <button type="button" (click)="clearCostCenter()"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            }
+          </div>
+          @if (filteredCostCenters.length > 0) {
+            <div class="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto">
+              @for (cc of filteredCostCenters; track cc.ID) {
+                <button type="button" (click)="selectCostCenter(cc)"
+                        class="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                  <span class="font-mono font-medium">{{ cc.code }}</span>
+                  <span class="text-muted-foreground ml-2">{{ cc.name }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Currency -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Currency</label>
+          <select formControlName="currencyCode"
+                  class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option value="">-- None --</option>
+            @for (c of currencies; track c.id) {
+              <option [value]="c.code">{{ c.code }} - {{ c.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Issue Date -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Issue Date</label>
+          <input type="date" formControlName="issueDate"
+                 class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
+
+        <!-- Transaction Date -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Transaction Date</label>
+          <input type="date" formControlName="transactionDate"
+                 class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
+
+        <!-- Payment Due Days -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Payment Due Days</label>
+          <input type="number" formControlName="paymentDueDays" min="0"
+                 class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
+
+        <!-- Calculated Due Date (readonly) -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Due Date (calculated)</label>
+          <input type="text" [value]="calculatedDueDate || '—'" readonly
+                 class="w-full h-9 rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground cursor-default"/>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-8">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+        <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background resize-none"></textarea>
+      </div>
+
+      <!-- Lines -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-foreground">Invoice Lines</h3>
+          <button type="button" (click)="addLine()"
+                  class="inline-flex items-center gap-1 h-8 px-3 rounded-md text-sm font-medium border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Line
+          </button>
+        </div>
+
+        @if (lines.length === 0) {
+          <p class="text-sm text-muted-foreground text-center py-4">No lines added. Click "Add Line" to start.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border">
+                  <th class="text-left px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-5">#</th>
+                  <th class="text-left px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+                  <th class="text-right px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Quantity</th>
+                  <th class="text-right px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-36">Unit Price excl. VAT</th>
+                  <th class="text-left px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-40">VAT Group</th>
+                  <th class="text-right px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Line Amount</th>
+                  <th class="w-10"></th>
+                </tr>
+              </thead>
+              <tbody formArrayName="lines">
+                @for (line of lines.controls; track line; let i = $index) {
+                  <tr [formGroupName]="i" class="border-b border-border">
+                    <td class="px-2 py-2 text-xs text-muted-foreground">{{ i + 1 }}</td>
+                    <td class="px-2 py-1">
+                      <input type="text" formControlName="description" placeholder="Line description..."
+                             class="w-full h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"/>
+                    </td>
+                    <td class="px-2 py-1">
+                      <input type="number" formControlName="quantity" min="1" step="1"
+                             class="w-full h-8 rounded-md border border-input bg-background px-2 text-sm text-right text-foreground focus:outline-none focus:ring-1 focus:ring-ring"/>
+                    </td>
+                    <td class="px-2 py-1">
+                      <input type="number" formControlName="unitPriceExclVAT" min="0" step="0.01"
+                             class="w-full h-8 rounded-md border border-input bg-background px-2 text-sm text-right text-foreground focus:outline-none focus:ring-1 focus:ring-ring"/>
+                    </td>
+                    <td class="px-2 py-1">
+                      <select formControlName="vatProdPostingGroup"
+                              class="w-full h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                        <option value="0">None (0)</option>
+                        @for (vat of vatPostingGroups; track vat.id) {
+                          <option [value]="vat.code">{{ vat.code }} - {{ vat.name }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td class="px-2 py-2 text-right font-mono text-sm font-medium text-foreground">
+                      {{ getLineAmount(i) | number:'1.2-2' }}
+                    </td>
+                    <td class="px-1 py-1">
+                      <button type="button" (click)="removeLine(i)"
+                              class="inline-flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                              title="Remove line">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr class="border-t-2 border-border">
+                  <td colspan="5" class="px-2 py-3 text-right text-sm font-semibold text-foreground">Total:</td>
+                  <td class="px-2 py-3 text-right font-mono text-sm font-bold text-foreground">
+                    {{ totalAmount | number:'1.2-2' }}
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3 pt-4 border-t border-border">
+        <button type="submit" [disabled]="creating"
+                class="inline-flex items-center gap-1.5 h-10 px-5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none">
+          @if (creating) {
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            {{ mode === 'edit' ? 'Saving...' : 'Creating...' }}
+          } @else {
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ mode === 'edit' ? 'Save Changes' : 'Create Invoice' }}
+          }
+        </button>
+        <button type="button" (click)="switchToList()"
+                class="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </ui-card-content>
+</ui-card>
+}
+
+</div>

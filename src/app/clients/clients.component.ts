@@ -8,7 +8,6 @@ import {DialogService} from "../services/dialog.service";
 import {AddClientDialogComponent} from "./add-client-dialog/add-client-dialog.component";
 import {ClientViewDialogComponent} from "./client-view-dialog/client-view-dialog.component";
 import {UserService} from "../services/user.service";
-import {ErCodesDialogComponent} from "./er-codes-dialog/er-codes-dialog.component";
 import {DocumentatonComponent} from "./documentaton/documentaton.component";
 
 // shadCN UI Components
@@ -159,14 +158,6 @@ export class ClientsComponent implements OnInit{
     this.dialog.open(AddClientDialogComponent, {
       width: '800px',
       minHeight: '600px'
-    })
-  }
-
-  BCandCPClick(client){
-    this.dialog.open(ErCodesDialogComponent, {
-      width: '800px',
-      minHeight: '600px',
-      data: client
     })
   }
 

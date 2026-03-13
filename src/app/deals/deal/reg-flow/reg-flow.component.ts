@@ -1,5 +1,6 @@
 import {Component, Input, OnInit, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
+import {FLOW_STATUS, DOCUMENT_TYPE} from '../../../models/flow-status.constants';
 import {ClientContractDocumentStatusComponent} from "../../../flow-parts/client-contract-document-status/client-contract-document-status.component";
 import {ClientDocumentStatusComponent} from "../../../flow-parts/client-document-status/client-document-status.component";
 import {DokumentApprovalComponent} from "../../../flow-parts/dokument-approval/dokument-approval.component";
@@ -86,12 +87,12 @@ export class RegFlowComponent implements OnInit {
         }
         
         // Document fully approved - determine next flow status and update immediately
-        let nextStatusID = 7; // Default to offer review
-        
-        if (data.fullData?.documentTypeID === 2) {
-          nextStatusID = 12; // Contract review
-        } else if (data.fullData?.documentTypeID === 1) {
-          nextStatusID = 7; // Offer review
+        let nextStatusID: number = FLOW_STATUS.OFFER_CLIENT_REVIEW;
+
+        if (data.fullData?.documentTypeID === DOCUMENT_TYPE.CONTRACT) {
+          nextStatusID = FLOW_STATUS.CONTRACT_SENT_TO_CLIENT;
+        } else if (data.fullData?.documentTypeID === DOCUMENT_TYPE.OFFER) {
+          nextStatusID = FLOW_STATUS.OFFER_CLIENT_REVIEW;
         }
         
         // Update flow status immediately
@@ -122,35 +123,27 @@ export class RegFlowComponent implements OnInit {
       
       // If ALL document approvals are completed (allApproved=true), update flow status
       if (data.allApproved) {
-        // Use the documentId or other identifiers to determine if this is offer or contract
-        let nextStatusID = 7; // Default to offer completion (step 2)
-        
-        // Check if we can determine document type from the event data
+        let nextStatusID: number = FLOW_STATUS.OFFER_CLIENT_REVIEW;
+
         if (data.fullData && data.fullData.documentTypeID) {
-          if (data.fullData.documentTypeID === 1) {
-            // Offer document approved -> move to client offer review
-            nextStatusID = 7;
-          } else if (data.fullData.documentTypeID === 2) {
-            // Contract document approved -> move to client contract review  
-            nextStatusID = 12; // Contract review for recruiting flow
+          if (data.fullData.documentTypeID === DOCUMENT_TYPE.OFFER) {
+            nextStatusID = FLOW_STATUS.OFFER_CLIENT_REVIEW;
+          } else if (data.fullData.documentTypeID === DOCUMENT_TYPE.CONTRACT) {
+            nextStatusID = FLOW_STATUS.CONTRACT_SENT_TO_CLIENT;
           }
         } else {
-          // Fallback: Check current deal status to determine which document was approved
           const currentStatus = this.deal?.flowStatus?.ID || 0;
-          
-          if (currentStatus >= 9 && currentStatus < 12) {
-            // We're in contract phase, so this must be contract approval
-            nextStatusID = 12;
-          } else if (currentStatus >= 1 && currentStatus < 7) {
-            // We're in offer phase, so this must be offer approval
-            nextStatusID = 7;
+
+          if (currentStatus >= FLOW_STATUS.CONTRACT_START && currentStatus < FLOW_STATUS.CONTRACT_SENT_TO_CLIENT) {
+            nextStatusID = FLOW_STATUS.CONTRACT_SENT_TO_CLIENT;
+          } else if (currentStatus >= 1 && currentStatus < FLOW_STATUS.OFFER_CLIENT_REVIEW) {
+            nextStatusID = FLOW_STATUS.OFFER_CLIENT_REVIEW;
           } else {
-            // Use the component's current context to determine document type
             const currentDocType = this.getCurrentDocTypeID();
-            if (currentDocType === 1) {
-              nextStatusID = 7; // Offer -> client review
-            } else if (currentDocType === 2) {
-              nextStatusID = 12; // Contract -> client review
+            if (currentDocType === DOCUMENT_TYPE.OFFER) {
+              nextStatusID = FLOW_STATUS.OFFER_CLIENT_REVIEW;
+            } else if (currentDocType === DOCUMENT_TYPE.CONTRACT) {
+              nextStatusID = FLOW_STATUS.CONTRACT_SENT_TO_CLIENT;
             }
           }
         }
@@ -174,7 +167,7 @@ export class RegFlowComponent implements OnInit {
    * Check if there's already a recruiting order for this deal
    */
   private checkForExistingRecruitingOrder(): void {
-    if (this.deal?.ID && this.deal.flowStatus?.ID >= 14) {
+    if (this.deal?.ID && this.deal.flowStatus?.ID >= FLOW_STATUS.RECRUITING_ORDER) {
       // Make API call to check for existing recruiting order
       this.rest.getRecruitingOrderByDealId(this.deal.ID).subscribe({
         next: (res) => {
@@ -208,9 +201,7 @@ export class RegFlowComponent implements OnInit {
     }
     
     if (event['clientAccepted'] === true) {
-      // In recruiting flow, we always move directly to contract signing (status 13)
-      // regardless of whether it was offer or contract acceptance
-      let statusID = 13;
+      let statusID: number = FLOW_STATUS.CONTRACT_SIGNING;
       
       this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
         next: (res) => {
@@ -280,11 +271,10 @@ export class RegFlowComponent implements OnInit {
   }
 
   contractSigned(): void {
-    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: 14}).subscribe({
+    this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: FLOW_STATUS.RECRUITING_ORDER}).subscribe({
       next: res => {
         if (res.status === 200) {
-          // Update local deal object instead of page reload
-          this.deal.flowStatus.ID = 14;
+          this.deal.flowStatus.ID = FLOW_STATUS.RECRUITING_ORDER;
           this.cdr.detectChanges();
           this.dialogService.showSnackBar('Contract marked as signed successfully!', '', 3000);
         }
@@ -320,9 +310,9 @@ export class RegFlowComponent implements OnInit {
 
   // Utility methods for ShadCN components
   getFlowStatusVariant(statusID: number): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' {
-    if (statusID >= 14) return 'success';  // Contract signed
-    if (statusID >= 9) return 'default';   // In progress
-    if (statusID >= 4) return 'outline';   // Pending approval
+    if (statusID >= FLOW_STATUS.RECRUITING_ORDER) return 'success';
+    if (statusID >= FLOW_STATUS.CONTRACT_START) return 'default';
+    if (statusID >= FLOW_STATUS.CDCM_APPROVED) return 'outline';
     return 'secondary';
   }
 
@@ -387,74 +377,57 @@ export class RegFlowComponent implements OnInit {
     // - We're in contract documentation phase (status 9-11) - as it's accessible
     // - We're in client review phase for contracts (status 12)
     // - We're in signing phase (status 13+) - as review is completed
-    return flowStatusID >= 7;
+    return flowStatusID >= FLOW_STATUS.OFFER_CLIENT_REVIEW;
   }
 
-  /**
-   * Get the step indicator class for Step 2 specifically
-   */
   getStep2IndicatorClass(): string {
     const baseClasses = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold';
-    
     if (this.isStep2Active()) {
-      return `${baseClasses} bg-primary/10 text-primary`; // Active step
+      return `${baseClasses} bg-primary/10 text-primary`;
     } else {
-      return `${baseClasses} bg-muted text-muted-foreground`; // Inactive step
+      return `${baseClasses} bg-muted text-muted-foreground`;
     }
   }
 
-  /**
-   * Get the correct progress percentage (0-100%) for the progress bar
-   * Maps recruiting flow status IDs to step numbers (1-4)
-   */
   getProgressPercentage(): number {
     const flowStatusID = this.deal?.flowStatus?.ID || 0;
-    
-    // Recruiting flow has 4 main steps:
-    // Step 1: Offer/Contract Documentation (flowStatusID 1-6, 9-11) 
-    // Step 2: Client Offer/Contract Review (flowStatusID 7-8, 12)
-    // Step 3: Signing (flowStatusID 13)
-    // Step 4: Create Recruiting Order (flowStatusID 14+)
-    
+
     let stepNumber = 0;
     if (flowStatusID >= 1 && flowStatusID <= 6) {
-      stepNumber = 1; // Offer documentation phase
-    } else if (flowStatusID === 7 || flowStatusID === 8) {
-      stepNumber = 2; // Client offer review phase
-    } else if (flowStatusID >= 9 && flowStatusID <= 11) {
-      stepNumber = 1; // Contract documentation phase (back to step 1)
-    } else if (flowStatusID === 12) {
-      stepNumber = 2; // Client contract review phase
-    } else if (flowStatusID === 13) {
-      stepNumber = 3; // Signing phase
-    } else if (flowStatusID >= 14) {
-      stepNumber = 4; // Create recruiting order phase
+      stepNumber = 1;
+    } else if (flowStatusID === FLOW_STATUS.OFFER_CLIENT_REVIEW || flowStatusID === FLOW_STATUS.OFFER_SENT_TO_CLIENT) {
+      stepNumber = 2;
+    } else if (flowStatusID >= FLOW_STATUS.CONTRACT_START && flowStatusID <= FLOW_STATUS.CONTRACT_CLIENT_REVIEW) {
+      stepNumber = 1;
+    } else if (flowStatusID === FLOW_STATUS.CONTRACT_SENT_TO_CLIENT) {
+      stepNumber = 2;
+    } else if (flowStatusID === FLOW_STATUS.CONTRACT_SIGNING) {
+      stepNumber = 3;
+    } else if (flowStatusID >= FLOW_STATUS.RECRUITING_ORDER) {
+      stepNumber = 4;
     }
-    
+
     return Math.min((stepNumber / 4) * 100, 100);
   }
 
-  /**
-   * Get the current step number (1-4) for display
-   */
   getCurrentStepNumber(): number {
     const flowStatusID = this.deal?.flowStatus?.ID || 0;
-    
+
     if (flowStatusID >= 1 && flowStatusID <= 6) {
-      return 1; // Offer documentation phase
-    } else if (flowStatusID === 7 || flowStatusID === 8) {
-      return 2; // Client offer review phase
-    } else if (flowStatusID >= 9 && flowStatusID <= 11) {
-      return 1; // Contract documentation phase (back to step 1)
-    } else if (flowStatusID === 12) {
-      return 2; // Client contract review phase
-    } else if (flowStatusID === 13) {
-      return 3; // Signing phase
-    } else if (flowStatusID >= 14) {
-      return 4; // Create recruiting order phase
+      return 1;
+    } else if (flowStatusID === FLOW_STATUS.OFFER_CLIENT_REVIEW || flowStatusID === FLOW_STATUS.OFFER_SENT_TO_CLIENT) {
+      return 2;
+    } else if (flowStatusID >= FLOW_STATUS.CONTRACT_START && flowStatusID <= FLOW_STATUS.CONTRACT_CLIENT_REVIEW) {
+      return 1;
+    } else if (flowStatusID === FLOW_STATUS.CONTRACT_SENT_TO_CLIENT) {
+      return 2;
+    } else if (flowStatusID === FLOW_STATUS.CONTRACT_SIGNING) {
+      return 3;
+    } else if (flowStatusID >= FLOW_STATUS.RECRUITING_ORDER) {
+      return 4;
     }
-    
-    return 1; // Default to step 1
+
+    return 1;
   }
 
   /**
@@ -543,16 +516,15 @@ export class RegFlowComponent implements OnInit {
       return;
     }
     
-    // Check if document is fully approved (status 3 = approved)
     if (activeDocument.statusID === 3) {
       const currentFlowStatus = this.deal?.flowStatus?.ID || 0;
       const currentDocType = this.getCurrentDocTypeID();
       const isStep2Active = this.isStep2Active();
       
       if (!isStep2Active) {
-        let targetStatus = 7; // Default to offer review
-        if (currentDocType === 2) {
-          targetStatus = 12; // Contract review
+        let targetStatus: number = FLOW_STATUS.OFFER_CLIENT_REVIEW;
+        if (currentDocType === DOCUMENT_TYPE.CONTRACT) {
+          targetStatus = FLOW_STATUS.CONTRACT_SENT_TO_CLIENT;
         }
         
         this.updateDealFlowStatus(targetStatus);
@@ -564,9 +536,7 @@ export class RegFlowComponent implements OnInit {
    * Handle when recruiting order creation starts
    */
   onOrderCreating(isCreating: boolean): void {
-    console.log('📥 onOrderCreating called with:', isCreating);
     this.isCreatingOrder = isCreating;
-    console.log('   isCreatingOrder is now:', this.isCreatingOrder);
     this.cdr.detectChanges();
   }
   
@@ -574,18 +544,14 @@ export class RegFlowComponent implements OnInit {
    * Handle when recruiting order is successfully created
    */
   onOrderCreated(order: any): void {
-    console.log('✅ onOrderCreated called with:', order);
-    console.log('✅ Setting recruitingOrder and isCreatingOrder = false');
-    
     this.recruitingOrder = order;
     this.isCreatingOrder = false;
     
     // Force change detection
     this.cdr.detectChanges();
     
-    // Update local deal status to 15 (Recruiting Order Created)
     if (this.deal?.flowStatus) {
-      this.deal.flowStatus.ID = 15;
+      this.deal.flowStatus.ID = FLOW_STATUS.RECRUITING_ORDER_CREATED;
       this.cdr.detectChanges();
     }
     

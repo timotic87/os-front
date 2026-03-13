@@ -59,17 +59,17 @@
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
             </svg>
-            Salary Fee
+            Salary Fee ({{project.salaryFeeType?.name || '-'}})
           </h4>
           <div class="space-y-2">
             <div class="text-sm text-green-700 dark:text-green-300">
-              @if (project.salaryFeeType.ID===1) {
-                {{project.fee_type_salary_value}}% of {{project.salaryType.name}}
-              } @else if (project.salaryFeeType.ID===2){
-                {{project.fee_type_salary_value}}x {{project.salaryType.name}}
+              @if (project.salaryFeeType?.ID===1) {
+                {{project.fee_type_salary_value}}% of {{project.salaryType?.name}}
+              } @else if (project.salaryFeeType?.ID===2){
+                {{project.fee_type_salary_value}}x {{project.salaryType?.name}}
               } @else {
                 <span class="font-semibold text-green-900 dark:text-green-100">
-                  {{project.fee_type_salary_value | currency: project.salaryCurrency.name === "EUR" ? project.salaryCurrency.name : (project.salaryCurrency.name + " ")}}
+                  {{project.fee_type_salary_value | currency: project.salaryCurrency?.code || 'RSD'}}
                 </span>
               }
             </div>
@@ -85,17 +85,17 @@
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
             </svg>
-            Cost Fee
+            Cost Fee ({{project.costFeeType?.name || '-'}})
           </h4>
           <div class="space-y-2">
             <div class="text-sm text-orange-700 dark:text-orange-300">
-              @if (project.costFeeType.ID===1) {
+              @if (project.costFeeType?.ID===1) {
                 {{project.fee_type_cost_value}}% of COST
-              } @else if (project.costFeeType.ID===2){
+              } @else if (project.costFeeType?.ID===2){
                 {{project.fee_type_cost_value}}x COST
               } @else {
                 <span class="font-semibold text-orange-900 dark:text-orange-100">
-                  {{project.fee_type_cost_value | currency: project.costCurrency.name === "EUR" ? project.costCurrency.name : (project.costCurrency.name + " ")}}
+                  {{project.fee_type_cost_value | currency: project.costCurrency?.code || 'RSD'}}
                 </span>
               }
             </div>
@@ -107,7 +107,7 @@
       </div>
 
       <!-- Contract Document -->
-      <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" *ngIf="project.document">
         <h4 class="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
           <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -146,6 +146,66 @@
               </svg>
               Download
             </ui-button>
+          </div>
+        </div>
+      </div>
+      <!-- Create Annex Button -->
+      <div class="flex justify-end my-4">
+        <button type="button" (click)="openAnnexDialog()"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Create Annex
+        </button>
+      </div>
+
+      <!-- Annex History -->
+      <div *ngIf="annexes.length > 0" class="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+        <h4 class="text-sm font-medium text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Annex History ({{annexes.length}})
+        </h4>
+        <div class="space-y-2">
+          <div *ngFor="let annex of annexes"
+               class="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-md border border-amber-200 dark:border-amber-700">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{annex.document?.fileName || annex.reason}}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                      [class]="annex.status === 1 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : annex.status === 0 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'">
+                  {{annex.status === 1 ? 'Active' : annex.status === 0 ? 'Pending' : 'Superseded'}}
+                </span>
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Effective: {{annex.effectiveDate | date: 'MMM d, y'}}
+                · Created by {{annex.creator?.firstName}} {{annex.creator?.lastName}}
+                · {{annex.createDate | date: 'MMM d, y'}}
+              </div>
+              <div class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex flex-wrap gap-x-3">
+                <span *ngIf="annex.salaryFeeType">
+                  Salary ({{annex.salaryFeeType.name}}): {{annex.salaryFeeType.ID === 1 ? annex.fee_type_salary_value + '%' : annex.salaryFeeType.ID === 2 ? annex.fee_type_salary_value + 'x' : (annex.fee_type_salary_value | currency: annex.salaryCurrency?.code || 'RSD')}}
+                </span>
+                <span *ngIf="annex.costFeeType">
+                  Cost ({{annex.costFeeType.name}}): {{annex.costFeeType.ID === 1 ? annex.fee_type_cost_value + '%' : annex.costFeeType.ID === 2 ? annex.fee_type_cost_value + 'x' : (annex.fee_type_cost_value | currency: annex.costCurrency?.code || 'RSD')}}
+                </span>
+                <span *ngIf="annex.startDate">
+                  {{annex.startDate | date: 'MMM d, y'}} – {{annex.endDate ? (annex.endDate | date: 'MMM d, y') : 'indefinite'}}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2" *ngIf="annex.document">
+              <button type="button" (click)="showDoc(annex.document)"
+                      class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                View
+              </button>
+              <button type="button" (click)="downloadDoc(annex.document)"
+                      class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                Download
+              </button>
+            </div>
           </div>
         </div>
       </div>

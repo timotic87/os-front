@@ -34,8 +34,6 @@ export class DealComentsDialogComponent implements OnInit{
               private userService: UserService, private dialogRef: MatDialogRef<DealComentsDialogComponent>,
               private notificationSocketService: NotificationSocketService) {
 
-    // TODO: Replace with proper socket handling through NotificationSocketService
-    // Listen for deal comments through the existing socket service instead of creating new connection
     this.getAllComments();
 
   }
