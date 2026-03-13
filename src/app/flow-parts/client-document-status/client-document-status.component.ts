@@ -23,12 +23,13 @@ export class ClientDocumentStatusComponent implements OnInit, OnChanges {
 
 @Input() deal: any;
   @Input() documentType: 'offer' | 'contract' = 'offer'; // for label context
-  @Input() flowType: 'recruiting' | 'py' | 'stuffing' = 'py'; // to determine available options
+  @Input() flowType: 'recruiting' | 'py' | 'stuffing' | 'custom' = 'py'; // to determine available options
   @Input() actionsDisabled: boolean = false; // Disable all actions when deal is not active
   @Output() statusChange = new EventEmitter<any>();
 
   clientAccepted: boolean | null = null;
   rejectionReason: string = '';
+  customState: 'send' | 'awaiting' | 'done' = 'send';
   
   private _rejectedReturnTo: 'cdcm' | 'document' | 'cancel' = 'document';
   
@@ -55,8 +56,8 @@ export class ClientDocumentStatusComponent implements OnInit, OnChanges {
   
   private setDefaultRejectedReturnTo(): void {
     // Set default rejectedReturnTo based on flow type
-    if (this.flowType === 'recruiting') {
-      this.rejectedReturnTo = 'document'; // recruiting doesn't have CDCM step
+    if (this.flowType === 'recruiting' || this.flowType === 'custom') {
+      this.rejectedReturnTo = 'document';
     } else {
       this.rejectedReturnTo = 'cdcm'; // py and stuffing flows have CDCM step
     }
@@ -92,15 +93,18 @@ export class ClientDocumentStatusComponent implements OnInit, OnChanges {
   }
 
   markAsSent() {
+    if (this.flowType === 'custom') {
+      this.customState = 'awaiting';
+      this.dialogService.showSnackBar('Marked as sent to client', '', 3000);
+      return;
+    }
     this.dialogService.showLoader();
     this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID: FLOW_STATUS.OFFER_SENT_TO_CLIENT}).subscribe({
       next: res=>{
         this.dialogService.closeLoader();
         if (res.status === 200) {
           this.deal.flowStatus.ID = FLOW_STATUS.OFFER_SENT_TO_CLIENT;
-          // Show success message
           this.dialogService.showSnackBar('Offer marked as sent to client successfully!', '', 3000);
-          // Emit status change event to notify parent components
           this.statusChange.emit({
             flowStatusUpdated: true,
             newFlowStatusID: FLOW_STATUS.OFFER_SENT_TO_CLIENT,

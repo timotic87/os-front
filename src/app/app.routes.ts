@@ -20,6 +20,7 @@ import {EntityAccessComponent} from "./admin/adminPages/entity-access/entity-acc
 import {LegalEntitiesComponent} from "./admin/adminPages/legal-entities/legal-entities.component";
 import {CostCentersComponent} from "./admin/adminPages/cost-centers/cost-centers.component";
 import {SettingsComponent} from "./admin/adminPages/settings/settings.component";
+import {FlowsComponent} from "./admin/adminPages/flows/flows.component";
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {DocumentViewComponent} from "./flow-parts/document-view/document-view.component";
 import {RecruitingOrderComponent} from "./recruiting-orders/recruiting-order/recruiting-order.component";
@@ -65,6 +66,7 @@ export const routes: Routes = [
       {path: 'legal-entities', component: LegalEntitiesComponent, outlet: 'admin'},
       {path: 'cost-centers', component: CostCentersComponent, outlet: 'admin'},
       {path: 'settings', component: SettingsComponent, outlet: 'admin'},
+      {path: 'flows', component: FlowsComponent, outlet: 'admin'},
     ]
 
   },

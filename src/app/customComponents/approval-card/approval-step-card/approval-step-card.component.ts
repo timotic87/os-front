@@ -86,35 +86,26 @@ export class ApprovalStepCardComponent implements OnInit{
             // Update the approval steps array to reflect changes
             this.approvalSteps[this.stepIndex] = result.approvalStep;
             
-            // Emit the change event to notify parent components
-            this.approvalChanged.emit({
-              stepIndex: this.stepIndex,
-              approvalStep: result.approvalStep,
-              allSteps: this.approvalSteps,
-              fullData: result.fullData
-            });
-            
-            // If all approvals are completed, emit completion event
+            // If all approvals are completed, emit completion BEFORE change event
+            // (approvalChanged triggers cdr.detectChanges in parent which can destroy this component)
             if (result.allApproved) {
-              // Extract dealId from multiple possible sources
-              let extractedDealId = result.fullData?.dealId || this.approval.dealId || this.approval.deal?.ID || 
+              let extractedDealId = result.fullData?.dealId || this.approval.dealId || this.approval.deal?.ID ||
                                    this.approval.document?.dealId || result.fullData?.deal?.ID;
-              
-              // If still not found, try to get it from URL params as fallback
+
               if (!extractedDealId) {
                 const dealIdFromUrl = +this.route.snapshot.paramMap.get('id');
                 if (dealIdFromUrl) {
                   extractedDealId = dealIdFromUrl;
                 }
               }
-              
+
               // Emit local event to parent component
               this.approvalCompleted.emit({
                 approvalId: this.approval.ID,
                 allSteps: this.approvalSteps,
                 fullData: result.fullData
               });
-              
+
               // Emit global event through DocumentService for all listeners
               this.documentService.approvalCompleted.next({
                 approvalId: this.approval.ID,
@@ -125,6 +116,14 @@ export class ApprovalStepCardComponent implements OnInit{
                 fullData: result.fullData
               });
             }
+
+            // Emit the change event to notify parent components
+            this.approvalChanged.emit({
+              stepIndex: this.stepIndex,
+              approvalStep: result.approvalStep,
+              allSteps: this.approvalSteps,
+              fullData: result.fullData
+            });
             
             // Emit document status update event to trigger document refresh for any status change
             if (result.approvalStep.statusID === 2 || result.approvalStep.statusID === 3) {

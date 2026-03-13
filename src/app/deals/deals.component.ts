@@ -58,6 +58,7 @@ export class DealsComponent implements OnInit, OnDestroy {
 
   stats = { total: 0, active: 0, pending: 0, completed: 0, cancelled: 0 };
   activeStatCard: string | null = null;
+  flowsMap: { [flowID: number]: { name: string, stepsCount: number, steps: any[] } } = {};
 
   clientName: string = '';
 
@@ -158,6 +159,7 @@ export class DealsComponent implements OnInit, OnDestroy {
     this.rest.getServices().subscribe(res => this.services = res.data);
     this.rest.getDealStatuses().subscribe(res => this.statuses = res.data);
 
+    this.loadFlows();
     this.loadStats();
     this.reloadDeals();
 
@@ -246,6 +248,44 @@ export class DealsComponent implements OnInit, OnDestroy {
     } else {
       return 'outline';
     }
+  }
+
+  loadFlows(): void {
+    this.rest.getFlows().subscribe({
+      next: res => {
+        if (res.status === 200 && res.data) {
+          for (const flow of res.data) {
+            const steps = (flow.steps || []).sort((a, b) => a.orderIndex - b.orderIndex);
+            this.flowsMap[flow.ID] = { name: flow.name, stepsCount: steps.length, steps };
+          }
+        }
+      }
+    });
+  }
+
+  getCustomFlowLabel(deal: any): string {
+    const step = deal.customFlowStep || 1;
+    const flowID = deal.subservice?.flowID;
+    const flowInfo = flowID ? this.flowsMap[flowID] : null;
+
+    if (!flowInfo) return `Step ${step}`;
+
+    if (step > flowInfo.stepsCount) return 'Completed';
+
+    const currentStep = flowInfo.steps[step - 1];
+    if (currentStep?.label) return currentStep.label;
+
+    return `Step ${step} / ${flowInfo.stepsCount}`;
+  }
+
+  getCustomFlowVariant(deal: any): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' {
+    const step = deal.customFlowStep || 1;
+    const flowID = deal.subservice?.flowID;
+    const flowInfo = flowID ? this.flowsMap[flowID] : null;
+
+    if (flowInfo && step > flowInfo.stepsCount) return 'success';
+    if (step === 1) return 'info';
+    return 'warning';
   }
 
   getFlowStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' {

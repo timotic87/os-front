@@ -7,9 +7,50 @@
         </svg>
         Approval Templates
       </ui-card-title>
+      <button (click)="toggleCreateForm()"
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        @if (showCreateForm) {
+          Cancel
+        } @else {
+          + New Template
+        }
+      </button>
     </div>
   </ui-card-header>
   <ui-card-content>
+
+    <!-- Create Form -->
+    @if (showCreateForm) {
+      <div class="mb-4 p-4 rounded-md border border-border bg-muted/30">
+        <h3 class="text-sm font-semibold mb-3">Create New Approval Template</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Name *</label>
+            <input [(ngModel)]="newName" placeholder="Template name"
+                   class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+            <input [(ngModel)]="newDescription" placeholder="Optional description"
+                   class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Sequential</label>
+            <select [(ngModel)]="newIsSequential"
+                    class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring">
+              <option [ngValue]="true">Yes (steps in order)</option>
+              <option [ngValue]="false">No (parallel)</option>
+            </select>
+          </div>
+        </div>
+        <button (click)="createTemplate()"
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          Create
+        </button>
+      </div>
+    }
+
+    <!-- Table -->
     <div class="rounded-md border border-border overflow-hidden">
       <table class="w-full text-sm">
         <thead>
@@ -17,6 +58,7 @@
             <th class="h-9 px-3 text-left font-medium text-muted-foreground">ID</th>
             <th class="h-9 px-3 text-left font-medium text-muted-foreground">Name</th>
             <th class="h-9 px-3 text-center font-medium text-muted-foreground">Sequential</th>
+            <th class="h-9 px-3 text-center font-medium text-muted-foreground w-16">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +73,15 @@
                 } @else {
                   <span class="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">No</span>
                 }
+              </td>
+              <td class="px-3 py-2.5 text-center">
+                <button (click)="deleteTemplate($event, approval)"
+                        class="inline-flex items-center justify-center rounded-md h-7 w-7 text-destructive hover:bg-destructive/10 transition-colors"
+                        title="Delete template">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
               </td>
             </tr>
           }

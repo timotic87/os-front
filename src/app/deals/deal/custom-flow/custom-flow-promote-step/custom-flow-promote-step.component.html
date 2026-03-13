@@ -1,0 +1,67 @@
+<div class="space-y-6">
+  <form [formGroup]="form" autocomplete="off">
+
+    <!-- Upload signed contract -->
+    <div class="space-y-2 mb-6">
+      <label class="text-sm font-medium text-foreground">
+        <span class="text-red-500">*</span> Upload signed contract
+      </label>
+      <app-pick-file (onFileSelected)="onContractFileSelected($event)"></app-pick-file>
+    </div>
+
+    <!-- Contract file name -->
+    <div class="space-y-2 mb-6">
+      <label class="text-sm font-medium text-foreground">
+        <span class="text-red-500">*</span> Contract file name
+      </label>
+      <input type="text" formControlName="contract_file_name"
+             class="w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background text-foreground border-border"
+             [class.border-red-500]="form.get('contract_file_name').touched && !form.get('contract_file_name').valid"
+             placeholder="Enter contract file name">
+    </div>
+
+    <!-- Date row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Start date -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-foreground">
+          <span class="text-red-500">*</span> Valid from
+        </label>
+        <input type="date" formControlName="startDate"
+               class="w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background text-foreground border-border"
+               [class.border-red-500]="form.get('startDate').touched && !form.get('startDate').valid">
+      </div>
+
+      <!-- Can expire toggle -->
+      <div class="space-y-2 flex flex-col justify-end">
+        <label class="inline-flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" formControlName="isExpired"
+                 class="w-4 h-4 rounded border-border text-primary focus:ring-primary/50">
+          <span class="text-sm text-foreground">Can expire</span>
+        </label>
+      </div>
+
+      <!-- End date -->
+      <div class="space-y-2" *ngIf="form.get('isExpired').value">
+        <label class="text-sm font-medium text-foreground">
+          <span class="text-red-500">*</span> Valid until
+        </label>
+        <input type="date" formControlName="endDate"
+               class="w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background text-foreground border-border"
+               [class.border-red-500]="form.get('endDate').touched && form.get('endDate').enabled && !form.get('endDate').valid">
+      </div>
+    </div>
+
+    <!-- Promote button -->
+    <div class="pt-4 border-t border-border">
+      <button (click)="promote()"
+              class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
+        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+        Promote to Project
+      </button>
+    </div>
+
+  </form>
+</div>

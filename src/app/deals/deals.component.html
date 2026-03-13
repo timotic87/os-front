@@ -219,8 +219,11 @@
                   </div>
                 </td>
                 <td class="px-4 py-3">
-                  <ui-badge [variant]="getFlowStatusVariant(deal.flowStatus.name)" class="text-xs">
-                    {{ deal.flowStatus.name }}
+                  <ui-badge *ngIf="!deal.subservice?.flowID" [variant]="getFlowStatusVariant(deal.flowStatus?.name)" class="text-xs">
+                    {{ deal.flowStatus?.name }}
+                  </ui-badge>
+                  <ui-badge *ngIf="deal.subservice?.flowID" [variant]="getCustomFlowVariant(deal)" class="text-xs">
+                    {{ getCustomFlowLabel(deal) }}
                   </ui-badge>
                 </td>
                 <td class="px-4 py-3">

@@ -91,7 +91,7 @@ export class SaveDocumetDialogComponent implements OnInit, OnDestroy {
     formParams.set('clientId', (deal.client.id).toString());
     formParams.set('dealID', (deal.ID).toString());
     formParams.set('documetTypeID', this.data.documetTypeID.toString());
-    formParams.set('docSubTypeID', this.data.docSubTypeID.toString());
+    formParams.set('docSubTypeID', (this.data.docSubTypeID || '').toString());
 
     this.dialogService.showLoader();
     

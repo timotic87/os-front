@@ -4,14 +4,16 @@ export class SubserviceModel {
   private _serviceID: number;
   private _serviceName: string;
   private _typeID: number;
+  private _flowID: number;
 
 
-  constructor(ID: number, name: string, serviceID: number, serviceName: string, typeID: number) {
+  constructor(ID: number, name: string, serviceID: number, serviceName: string, typeID: number, flowID: number = null) {
     this._ID = ID;
     this._name = name;
     this._serviceID = serviceID;
     this._serviceName = serviceName;
     this._typeID = typeID;
+    this._flowID = flowID;
   }
 
   get ID(): number {
@@ -34,7 +36,11 @@ export class SubserviceModel {
     return this._typeID;
   }
 
+  get flowID(): number {
+    return this._flowID;
+  }
+
   public static createSubserviceModel(data: any){
-    return new SubserviceModel(data.ID, data.name, data.serviceID, data.serviceName, data.typeID);
+    return new SubserviceModel(data.ID, data.name, data.serviceID, data.serviceName, data.typeID, data.flowID);
   }
 }

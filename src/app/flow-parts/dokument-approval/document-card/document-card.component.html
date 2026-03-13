@@ -60,8 +60,8 @@
     </ui-button>
     
     <!-- Submit button -->
-    <button 
-      (click)="submitDocument()" 
+    <button
+      (click)="submitDocument()"
       [disabled]="(document || documentService.activeDocument).statusID > 1 || (document || documentService.activeDocument).isSubmitting"
       class="submit-btn">
       <!-- Show loading spinner when submitting -->

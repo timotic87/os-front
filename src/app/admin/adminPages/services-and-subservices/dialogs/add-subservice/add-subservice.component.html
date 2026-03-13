@@ -1,14 +1,14 @@
 <div class="container p-6">
   <h2 class="text-gray-600 dark:text-gray-300 mb-6">Create new subservice</h2>
   <form [formGroup]="createSubserviceForm">
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-3 gap-4">
       <div>
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Subservice Name:</div>
         <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
           <input type="text" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600"
                  [ngClass]="createSubserviceForm.touched && !createSubserviceForm.get('subserviceName').valid ? 'border-red-500':''" formControlName="subserviceName" autocomplete="new-name">
         </div>
-        <label class="text-xs text-red-500 block text-center" *ngIf="createSubserviceForm.get('subserviceName').touched && !createSubserviceForm.get('subserviceName').valid">First name needs to be minimum 3 characters long.</label>
+        <label class="text-xs text-red-500 block text-center" *ngIf="createSubserviceForm.get('subserviceName').touched && !createSubserviceForm.get('subserviceName').valid">Name needs to be minimum 3 characters long.</label>
       </div>
       <div>
         <div class="flex justify-center text-gray-600 dark:text-gray-300">Service</div>
@@ -22,6 +22,14 @@
           </mat-autocomplete>
         </div>
         <label class="text-xs text-red-500 block text-center" *ngIf="createSubserviceForm.get('service').touched && !createSubserviceForm.get('service').valid">Must select service.</label>
+      </div>
+      <div>
+        <div class="flex justify-center text-gray-600 dark:text-gray-300">Flow Type</div>
+        <div class="flex justify-center text-gray-400 mb-3 dark:text-neutral-100">
+          <select formControlName="flowSelection" class="w-3/4 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 dark:bg-gray-600 dark:text-neutral-100">
+            <option *ngFor="let ft of flowOptions" [ngValue]="ft.value">{{ft.label}}</option>
+          </select>
+        </div>
       </div>
     </div>
     <div>

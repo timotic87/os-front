@@ -97,6 +97,7 @@
                   <tr class="border-b border-border bg-muted/50">
                     <th class="h-9 px-3 text-left font-medium text-muted-foreground w-16">ID</th>
                     <th class="h-9 px-3 text-left font-medium text-muted-foreground">Name</th>
+                    <th class="h-9 px-3 text-left font-medium text-muted-foreground w-32">Flow</th>
                     <th class="h-9 px-3 text-center font-medium text-muted-foreground w-24">Actions</th>
                   </tr>
                 </thead>
@@ -105,6 +106,13 @@
                     <tr class="border-b border-border hover:bg-muted/30 transition-colors">
                       <td class="px-3 py-2.5 font-medium text-primary">{{ subservice.ID }}</td>
                       <td class="px-3 py-2.5 text-foreground">{{ subservice.name }}</td>
+                      <td class="px-3 py-2.5">
+                        @if (subservice.typeID || subservice.flowID) {
+                          <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium" [class]="getFlowBadgeClass(subservice)">{{ getFlowName(subservice) }}</span>
+                        } @else {
+                          <span class="text-xs text-muted-foreground">-</span>
+                        }
+                      </td>
                       <td class="px-3 py-2.5">
                         <div class="flex items-center justify-center gap-1">
                           <button (click)="changeSubservice(subservice)" title="Edit"

@@ -108,7 +108,7 @@ export class ProjectModel {
       data.clientCity, data.clientCountry || '', data.clientPib, data.clientMb, data.clientZipCode, data.clientMail,
       data.clientEmailInFinance || '', data.clientPhoneInFinance || '')
     const service = new ServiceModel(data.serviceID, data.serviceName)
-    const subservice = new SubserviceModel(data.subserviceID, data.subserviceName, data.serviceID, data.serviceName, data.subserviceTypeID)
+    const subservice = new SubserviceModel(data.subserviceID, data.subserviceName, data.serviceID, data.serviceName, data.subserviceTypeID, data.subserviceFlowID)
     const creatorUser = UserModel.createUserModelDva({unitID: data.CUnitID, unitName: data.cUnitName, departmentID: data.cDepartmentID, departmentName: data.cDepartmentName,
       positionID: data.cPositionID, positionName: data.cPositionName, userStatusesId: data.cUserStatusesId, statusName: data.cStatusName, id: data.creatorID,
       firstName: data.cFirstName, lastName: data.cLastName, username: data.cUsername, defpage: data.cDefpage, mail: data.cMail, profilePicUrl: data.cProfilePicUrl});

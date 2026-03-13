@@ -1,0 +1,300 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Left Panel: Flow List -->
+  <ui-card class="lg:col-span-1">
+    <ui-card-header>
+      <div class="flex items-center justify-between w-full">
+        <ui-card-title class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+          </svg>
+          Custom Flows
+        </ui-card-title>
+        <button (click)="startCreate()" title="Create new flow"
+                class="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </button>
+      </div>
+    </ui-card-header>
+    <ui-card-content>
+      <div class="space-y-1">
+        <!-- Built-in flows (read only) -->
+        <div class="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Built-in</div>
+        <div class="flex items-center gap-2.5 rounded-md px-3 py-2 text-muted-foreground opacity-60">
+          <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">1</span>
+          <span class="text-sm">REG (Recruiting)</span>
+        </div>
+        <div class="flex items-center gap-2.5 rounded-md px-3 py-2 text-muted-foreground opacity-60">
+          <span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">2</span>
+          <span class="text-sm">STAFFING</span>
+        </div>
+        <div class="flex items-center gap-2.5 rounded-md px-3 py-2 text-muted-foreground opacity-60">
+          <span class="inline-flex items-center rounded-md bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 text-xs font-medium text-purple-700 dark:text-purple-300">3</span>
+          <span class="text-sm">HRA & PY</span>
+        </div>
+
+        <div class="border-t border-border my-2"></div>
+
+        <!-- Custom flows -->
+        <div class="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Custom</div>
+        <ng-container *ngFor="let flow of flows">
+          <div class="group flex items-center justify-between rounded-md px-3 py-2.5 cursor-pointer transition-colors"
+               [class]="selectedFlow?.ID === flow.ID
+                 ? 'bg-primary/10 text-primary'
+                 : 'hover:bg-muted text-foreground'"
+               (click)="selectFlow(flow)">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold flex-shrink-0"
+                   [class]="selectedFlow?.ID === flow.ID
+                     ? 'bg-primary text-primary-foreground'
+                     : 'bg-muted text-muted-foreground'">
+                {{ flow.ID }}
+              </div>
+              <div class="min-w-0">
+                <span class="text-sm font-medium truncate block">{{ flow.name }}</span>
+                <span class="text-xs text-muted-foreground">{{ flow.steps?.length || 0 }} steps</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                 [class.opacity-100]="selectedFlow?.ID === flow.ID">
+              <button (click)="deleteFlow(flow); $event.stopPropagation()" title="Delete"
+                      class="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-background transition-colors">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </ng-container>
+        <div *ngIf="flows.length === 0" class="text-center py-4 text-muted-foreground">
+          <p class="text-sm">No custom flows yet</p>
+        </div>
+      </div>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Right Panel: Flow Details / Builder -->
+  <div class="lg:col-span-2">
+
+    <!-- View mode (selected flow, not editing) -->
+    <ui-card *ngIf="selectedFlow && !isEditing && !isCreating">
+      <ui-card-header>
+        <div class="flex items-center justify-between w-full">
+          <div>
+            <ui-card-title>{{ selectedFlow.name }}</ui-card-title>
+            <ui-card-description *ngIf="selectedFlow.description">{{ selectedFlow.description }}</ui-card-description>
+          </div>
+          <button (click)="startEdit()" title="Edit flow"
+                  class="inline-flex items-center px-3 py-1.5 border border-border rounded-md shadow-sm text-xs font-medium text-foreground bg-background hover:bg-muted transition-colors">
+            <svg class="mr-1.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+      </ui-card-header>
+      <ui-card-content>
+        <div class="space-y-3">
+          <ng-container *ngFor="let step of selectedFlow.steps; let i = index">
+            <div class="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/20">
+              <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-semibold flex-shrink-0">
+                {{ i + 1 }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-foreground">{{ step.label || getStepTypeLabel(step.stepType) }}</div>
+                <div class="text-xs text-muted-foreground mt-0.5">
+                  {{ getStepTypeLabel(step.stepType) }}
+                  <span *ngIf="step.documentTypeID"> · {{ getDocTypeName(step.documentTypeID) }}</span>
+                  <span *ngIf="step.documentSubTypeID"> / {{ getDocSubTypeName(step.documentSubTypeID) }}</span>
+                  <span *ngIf="step.approvalID"> · Approval: {{ getApprovalTemplateName(step.approvalID) }}</span>
+                  <span *ngIf="step.stepType === 'client_review' && step.onRejectStepIndex"> · On reject: go to step {{ step.onRejectStepIndex }}</span>
+                </div>
+              </div>
+              <span *ngIf="step.isRequired" class="text-xs px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">Required</span>
+            </div>
+          </ng-container>
+          <div *ngIf="!selectedFlow.steps || selectedFlow.steps.length === 0" class="text-center py-6 text-muted-foreground">
+            <p class="text-sm">No steps configured</p>
+          </div>
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- Edit/Create mode -->
+    <ui-card *ngIf="isEditing || isCreating">
+      <ui-card-header>
+        <div class="flex items-center justify-between w-full">
+          <ui-card-title>{{ isCreating ? 'Create New Flow' : 'Edit Flow' }}</ui-card-title>
+          <div class="flex gap-2">
+            <button (click)="cancelEdit()"
+                    class="inline-flex items-center px-3 py-1.5 border border-border rounded-md shadow-sm text-xs font-medium text-foreground bg-background hover:bg-muted transition-colors">
+              Cancel
+            </button>
+            <button (click)="save()"
+                    class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-primary hover:bg-primary/90 transition-colors">
+              {{ isCreating ? 'Create' : 'Save' }}
+            </button>
+          </div>
+        </div>
+      </ui-card-header>
+      <ui-card-content>
+        <div class="space-y-6">
+          <!-- Flow name & description -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-foreground block mb-1.5">Flow Name *</label>
+              <input type="text" [(ngModel)]="editName"
+                     class="w-full border border-border rounded-md py-2 px-3 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                     placeholder="e.g. Basic Consulting">
+            </div>
+            <div>
+              <label class="text-sm font-medium text-foreground block mb-1.5">Description</label>
+              <input type="text" [(ngModel)]="editDescription"
+                     class="w-full border border-border rounded-md py-2 px-3 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                     placeholder="Optional description">
+            </div>
+          </div>
+
+          <!-- Steps -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-medium text-foreground">Steps</label>
+              <button (click)="addStep()"
+                      class="inline-flex items-center px-2.5 py-1 border border-border rounded-md text-xs font-medium text-foreground hover:bg-muted transition-colors">
+                <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add Step
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <ng-container *ngFor="let step of editSteps; let i = index">
+                <div class="p-4 rounded-lg border border-border bg-muted/10">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <div class="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                        {{ i + 1 }}
+                      </div>
+                      <span class="text-sm font-medium text-foreground">Step {{ i + 1 }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button (click)="moveStepUp(i)" [disabled]="i === 0" title="Move up"
+                              class="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                        </svg>
+                      </button>
+                      <button (click)="moveStepDown(i)" [disabled]="i === editSteps.length - 1" title="Move down"
+                              class="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                      </button>
+                      <button (click)="removeStep(i)" title="Remove step"
+                              class="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-muted transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- Step Type -->
+                    <div>
+                      <label class="text-xs text-muted-foreground block mb-1">Step Type *</label>
+                      <select [(ngModel)]="step.stepType" (ngModelChange)="onStepTypeChange(step)"
+                              class="w-full border border-border rounded-md py-1.5 px-2.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                        <option *ngFor="let st of stepTypes" [value]="st.value">{{ st.label }}</option>
+                      </select>
+                    </div>
+
+                    <!-- Custom Label -->
+                    <div>
+                      <label class="text-xs text-muted-foreground block mb-1">Custom Label</label>
+                      <input type="text" [(ngModel)]="step.label"
+                             class="w-full border border-border rounded-md py-1.5 px-2.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                             placeholder="Optional label">
+                    </div>
+
+                    <!-- Document type config (only for 'document' step) -->
+                    <ng-container *ngIf="step.stepType === 'document'">
+                      <div>
+                        <label class="text-xs text-muted-foreground block mb-1">Document Type</label>
+                        <select [(ngModel)]="step.documentTypeID"
+                                class="w-full border border-border rounded-md py-1.5 px-2.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                          <option [ngValue]="null">-- Select --</option>
+                          <option *ngFor="let dt of documentTypes" [ngValue]="dt.ID">{{ dt.typeName }}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="text-xs text-muted-foreground block mb-1">Document Subtype</label>
+                        <select [(ngModel)]="step.documentSubTypeID"
+                                class="w-full border border-border rounded-md py-1.5 px-2.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                          <option [ngValue]="null">-- Select --</option>
+                          <option *ngFor="let dst of getSubTypesForType(step.documentTypeID)" [ngValue]="dst.ID">{{ dst.subTypeName }}</option>
+                        </select>
+                      </div>
+                      <div class="col-span-2">
+                        <label class="text-xs text-muted-foreground block mb-1">Approval Template</label>
+                        <select [(ngModel)]="step.approvalID"
+                                class="w-full border border-border rounded-md py-1.5 px-2.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                          <option [ngValue]="null">-- None (no approval required) --</option>
+                          <option *ngFor="let at of approvalTemplates" [ngValue]="at.ID">{{ at.name }}</option>
+                        </select>
+                      </div>
+                    </ng-container>
+                  </div>
+
+                  <!-- On reject config (only for client_review) -->
+                  <div *ngIf="step.stepType === 'client_review'" class="mt-3">
+                    <label class="text-xs text-muted-foreground block mb-1">On rejection, return to step:</label>
+                    <select [(ngModel)]="step.onRejectStepIndex"
+                            class="w-full border border-border rounded-md py-1.5 px-2.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                      <option [ngValue]="null">-- First step (default) --</option>
+                      <ng-container *ngFor="let otherStep of editSteps; let j = index">
+                        <option *ngIf="j !== i" [ngValue]="otherStep.orderIndex">Step {{ j + 1 }}: {{ otherStep.label || getStepTypeLabel(otherStep.stepType) }}</option>
+                      </ng-container>
+                    </select>
+                  </div>
+
+                  <!-- Required toggle -->
+                  <div class="flex items-center gap-2 mt-3">
+                    <input type="checkbox" [(ngModel)]="step.isRequired" [id]="'req-' + i"
+                           class="rounded border-border text-primary focus:ring-ring">
+                    <label [for]="'req-' + i" class="text-xs text-muted-foreground">Required step</label>
+                  </div>
+                </div>
+              </ng-container>
+
+              <div *ngIf="editSteps.length === 0" class="text-center py-8 rounded-lg border border-dashed border-border">
+                <svg class="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <p class="text-sm text-muted-foreground">No steps yet. Click "Add Step" to begin building your flow.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- No flow selected -->
+    <ui-card *ngIf="!selectedFlow && !isCreating">
+      <ui-card-content>
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+          <div class="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+            <svg class="h-8 w-8 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+            </svg>
+          </div>
+          <p class="text-lg font-medium text-foreground mb-1">Select or create a flow</p>
+          <p class="text-sm text-muted-foreground max-w-sm">Choose a custom flow from the left panel to view its steps, or click + to create a new one</p>
+        </div>
+      </ui-card-content>
+    </ui-card>
+  </div>
+</div>

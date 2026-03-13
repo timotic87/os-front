@@ -1,5 +1,5 @@
 <!-- STEP 1: Mark as sent -->
-<div *ngIf="deal.flowStatus.ID === 7" class="space-y-4">
+<div *ngIf="(flowType !== 'custom' && deal.flowStatus.ID === 7) || (flowType === 'custom' && customState === 'send')" class="space-y-4">
   <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
     <div class="flex items-start gap-3">
       <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -10,7 +10,7 @@
         <p class="text-sm text-blue-700 dark:text-blue-300 mb-3">
           The {{ documentType }} is ready to be sent to the client for review. Click the button below to mark it as sent.
         </p>
-        <ui-button 
+        <ui-button
           (onClick)="markAsSent()"
           [disabled]="actionsDisabled"
           class="w-full sm:w-auto">
@@ -25,7 +25,7 @@
 </div>
 
 <!-- STEP 2: Awaiting client response -->
-<div *ngIf="deal.flowStatus.ID === 8" class="space-y-4">
+<div *ngIf="(flowType !== 'custom' && deal.flowStatus.ID === 8) || (flowType === 'custom' && customState === 'awaiting')" class="space-y-4">
   <div class="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
     <div class="flex items-start gap-3">
       <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,11 +36,11 @@
         <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
           The {{ documentType }} has been sent to the client. Please record their response below.
         </p>
-        
+
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-2">Did the client accept the {{ documentType }}?</label>
-            <select [(ngModel)]="clientAccepted" 
+            <select [(ngModel)]="clientAccepted"
                     [disabled]="actionsDisabled"
                     class="w-full rounded-md border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-yellow-950/50 px-3 py-2 text-sm text-yellow-900 dark:text-yellow-100 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500">
               <option [ngValue]="null" disabled>Select response...</option>
@@ -52,14 +52,14 @@
           <div *ngIf="clientAccepted === false" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-2">Rejection reason:</label>
-              <textarea [(ngModel)]="rejectionReason" 
+              <textarea [(ngModel)]="rejectionReason"
                        [disabled]="actionsDisabled"
                        rows="3"
                        placeholder="Please describe why the client rejected the {{ documentType }}..."
                        class="w-full rounded-md border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-yellow-950/50 px-3 py-2 text-sm text-yellow-900 dark:text-yellow-100 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500"></textarea>
             </div>
 
-            <div>
+            <div *ngIf="flowType !== 'custom'">
               <label class="block text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-2">What should happen next?</label>
               <select [(ngModel)]="rejectedReturnTo"
                       [disabled]="actionsDisabled"
@@ -68,7 +68,7 @@
                 <option value="document">✏️ {{ getDocumentEditLabel() }}</option>
                 <option value="cancel">❌ Cancel - End the project (cannot be undone)</option>
               </select>
-              
+
               <!-- Warning message for cancel option -->
               <div *ngIf="rejectedReturnTo === 'cancel'" class="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
                 <div class="flex items-start gap-2">
@@ -84,7 +84,7 @@
           </div>
 
           <div style="margin-top: 1rem;">
-            <ui-button 
+            <ui-button
               (onClick)="submitClientResponse()"
               [disabled]="actionsDisabled || clientAccepted === null || clientAccepted === undefined"
               class="w-full sm:w-auto">
@@ -101,7 +101,7 @@
 </div>
 
 <!-- STEP 3: Success state -->
-<div *ngIf="deal.flowStatus.ID > 8" class="space-y-4">
+<div *ngIf="(flowType !== 'custom' && deal.flowStatus.ID > 8) || (flowType === 'custom' && customState === 'done')" class="space-y-4">
   <div class="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
     <div class="flex items-start gap-3">
       <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">

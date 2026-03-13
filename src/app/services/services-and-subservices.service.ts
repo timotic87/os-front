@@ -185,7 +185,7 @@ export class ServicesAndSubservicesService {
 
   editSubservice(subserviceObj, dialogRef) {
     this.dialogService.showLoader();
-    const data = { ID: subserviceObj.ID, name: subserviceObj.name, serviceID: subserviceObj.serviceID };
+    const data = { ID: subserviceObj.ID, name: subserviceObj.name, serviceID: subserviceObj.serviceID, typeID: subserviceObj.typeID, flowID: subserviceObj.flowID };
     this.rest.editSubservice(data).subscribe(res=>{
       this.dialogService.closeLoader();
       if (res.status === 201){

@@ -3,13 +3,17 @@ import {RestService} from "../../../services/rest.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ApprovalViewEditDialogComponent} from "./approval-view-edit-dialog/approval-view-edit-dialog.component";
 import {ApprovalService} from "../../../services/approval.service";
+import {DialogService} from "../../../services/dialog.service";
 import {CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent} from '../../../shared/components/ui/card/card.component';
+import {FormsModule} from '@angular/forms';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-approvals',
   standalone: true,
   imports: [
-    CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent
+    CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent,
+    FormsModule, NgIf
   ],
   templateUrl: './approvals.component.html',
   styleUrl: './approvals.component.css'
@@ -18,22 +22,35 @@ export class ApprovalsComponent {
 
   approvals;
 
-  constructor(rest: RestService, private matDialog: MatDialog, public approvalService: ApprovalService) {
-    rest.getApprovalTemplates().subscribe(res=>{
-      if(res["status"]===200){
-        this.approvals = res['data'];
-      }
-    });
+  // Create form state
+  showCreateForm = false;
+  newName = '';
+  newDescription = '';
+  newIsSequential = true;
+
+  constructor(
+    private rest: RestService,
+    private matDialog: MatDialog,
+    public approvalService: ApprovalService,
+    private dialogService: DialogService
+  ) {
+    this.loadApprovals();
 
     approvalService.updateApprovalTemplteSubject.subscribe(appTemp=>{
-
       const index = this.approvals.findIndex(item => item.ID === appTemp.ID);
       if (index !== -1) {
         this.approvals[index].name = appTemp.approvalName;
         this.approvals[index].isSequential = appTemp.isSequential;
       }
     })
+  }
 
+  loadApprovals() {
+    this.rest.getApprovalTemplates().subscribe(res=>{
+      if(res["status"]===200){
+        this.approvals = res['data'];
+      }
+    });
   }
 
   onTemplateCliclk(approval){
@@ -44,7 +61,52 @@ export class ApprovalsComponent {
         data: res
       });
     });
+  }
 
+  toggleCreateForm() {
+    this.showCreateForm = !this.showCreateForm;
+    if (!this.showCreateForm) {
+      this.resetCreateForm();
+    }
+  }
+
+  resetCreateForm() {
+    this.newName = '';
+    this.newDescription = '';
+    this.newIsSequential = true;
+  }
+
+  createTemplate() {
+    if (!this.newName.trim()) {
+      this.dialogService.showSnackBar('Template name is required', '', 3000);
+      return;
+    }
+    this.dialogService.showLoader();
+    this.rest.createApprovalTemplate({
+      name: this.newName.trim(),
+      description: this.newDescription.trim(),
+      isSequential: this.newIsSequential
+    }).subscribe(res => {
+      this.dialogService.closeLoader();
+      if (res.data) {
+        this.dialogService.showSnackBar('Approval template created', '', 3000);
+        this.showCreateForm = false;
+        this.resetCreateForm();
+        this.loadApprovals();
+      } else {
+        this.dialogService.errorDialog(res);
+      }
+    });
+  }
+
+  deleteTemplate(event: Event, approval: any) {
+    event.stopPropagation();
+    this.dialogService.showLoader();
+    this.rest.deleteApprovalTemplate(approval.ID).subscribe(res => {
+      this.dialogService.closeLoader();
+      this.approvals = this.approvals.filter(a => a.ID !== approval.ID);
+      this.dialogService.showSnackBar('Approval template deleted', '', 3000);
+    });
   }
 
 }

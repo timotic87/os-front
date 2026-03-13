@@ -1,0 +1,290 @@
+<!-- Loading state -->
+<div *ngIf="loading" class="flex items-center justify-center py-12">
+  <div class="text-muted-foreground text-sm">Loading flow...</div>
+</div>
+
+<!-- Flow not found -->
+<div *ngIf="!loading && !flowDef" class="flex items-center justify-center py-12">
+  <div class="text-center">
+    <svg class="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+    </svg>
+    <p class="text-sm text-muted-foreground">Flow configuration not found for this subservice type.</p>
+  </div>
+</div>
+
+<!-- Flow loaded -->
+<ng-container *ngIf="!loading && flowDef">
+
+  <!-- Progress Header -->
+  <ui-card>
+    <ui-card-header>
+      <ui-card-title class="flex items-center gap-2">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+        </svg>
+        {{ flowDef.name }}
+      </ui-card-title>
+      <ui-card-description *ngIf="flowDef.description">{{ flowDef.description }}</ui-card-description>
+    </ui-card-header>
+    <ui-card-content>
+      <div class="flex items-center space-x-4 text-sm">
+        <ui-badge class="text-xs" variant="secondary">
+          Step {{ currentStep }} of {{ steps.length }}
+        </ui-badge>
+      </div>
+      <div class="mt-4 w-full bg-muted rounded-full h-2">
+        <div class="bg-primary h-2 rounded-full transition-all duration-500" [style.width.%]="getProgressPercentage()"></div>
+      </div>
+    </ui-card-content>
+  </ui-card>
+
+  <!-- Dynamic Steps -->
+  <ng-container *ngFor="let step of steps; let i = index; trackBy: trackByStepId">
+
+    <!-- DOCUMENT step -->
+    <ui-card *ngIf="step.stepType === 'document'" [class]="getStepCardClass(step)">
+      <ui-card-header>
+        <ui-card-title class="flex items-center gap-2">
+          <div [class]="getStepIndicatorClass(step)" style="margin-bottom: 8px;">{{ i + 1 }}</div>
+          {{ getStepLabel(step) }}
+          <span *ngIf="isStepComplete(step)" class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completed</span>
+          <span *ngIf="!step.isRequired && isCurrentStep(step)" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">Optional</span>
+        </ui-card-title>
+        <ui-card-description>{{ getStepDescription(step) }}</ui-card-description>
+      </ui-card-header>
+      <ui-card-content>
+        <app-custom-flow-document-step
+          [deal]="deal"
+          [docTypeID]="step.documentTypeID || 1"
+          [docSubTypeID]="step.documentSubTypeID"
+          [approvalID]="step.approvalID"
+          [type]="getDocType(step)"
+          [readonly]="!isStepActive(step)"
+          (stepCompleted)="onDocumentStepCompleted()">
+        </app-custom-flow-document-step>
+        <div *ngIf="!step.isRequired && isCurrentStep(step)" class="flex justify-end pt-2">
+          <button (click)="skipStep()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-md hover:bg-muted transition-colors">
+            Skip step
+            <svg class="ml-1 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </button>
+        </div>
+        <div *ngIf="!isStepActive(step)" class="py-4 text-center text-muted-foreground text-sm">
+          Complete previous steps to unlock this step.
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- CLIENT REVIEW step -->
+    <ui-card *ngIf="step.stepType === 'client_review'" [class]="getStepCardClass(step)">
+      <ui-card-header>
+        <ui-card-title class="flex items-center gap-2">
+          <div [class]="getStepIndicatorClass(step)" style="margin-bottom: 8px;">{{ i + 1 }}</div>
+          {{ getStepLabel(step) }}
+          <span *ngIf="isStepComplete(step)" class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completed</span>
+          <span *ngIf="!step.isRequired && isCurrentStep(step)" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">Optional</span>
+        </ui-card-title>
+        <ui-card-description>{{ getStepDescription(step) }}</ui-card-description>
+      </ui-card-header>
+      <ui-card-content>
+        <div *ngIf="isCurrentStep(step)">
+          <app-client-document-status
+            [deal]="deal"
+            [documentType]="'offer'"
+            [flowType]="'custom'"
+            (statusChange)="onClientReviewStatusChange($event, step)">
+          </app-client-document-status>
+          <div *ngIf="!step.isRequired" class="flex justify-end pt-2">
+            <button (click)="skipStep()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-md hover:bg-muted transition-colors">
+              Skip step
+              <svg class="ml-1 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="isStepComplete(step)" class="py-4 text-center">
+          <svg class="h-6 w-6 mx-auto mb-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p class="text-sm text-green-600 dark:text-green-400">Client review completed</p>
+        </div>
+        <div *ngIf="!isStepActive(step)" class="py-6 text-center text-muted-foreground text-sm">
+          Complete previous steps to unlock this step.
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- CONTRACT SIGNING step -->
+    <ui-card *ngIf="step.stepType === 'contract_signing'" [class]="getStepCardClass(step)">
+      <ui-card-header>
+        <ui-card-title class="flex items-center gap-2">
+          <div [class]="getStepIndicatorClass(step)" style="margin-bottom: 8px;">{{ i + 1 }}</div>
+          {{ getStepLabel(step) }}
+          <span *ngIf="isStepComplete(step)" class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completed</span>
+          <span *ngIf="!step.isRequired && isCurrentStep(step)" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">Optional</span>
+        </ui-card-title>
+        <ui-card-description>{{ getStepDescription(step) }}</ui-card-description>
+      </ui-card-header>
+      <ui-card-content>
+        <div *ngIf="isCurrentStep(step)" class="flex flex-col items-center py-6">
+          <p class="text-sm text-muted-foreground mb-4 text-center">Confirm that the contract has been signed by all parties.</p>
+          <div class="flex items-center gap-3">
+            <button (click)="onContractSigned()"
+                    class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
+              <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Mark Contract as Signed
+            </button>
+            <button *ngIf="!step.isRequired" (click)="skipStep()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-md hover:bg-muted transition-colors">
+              Skip step
+              <svg class="ml-1 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="isStepComplete(step)" class="py-4 text-center">
+          <svg class="h-6 w-6 mx-auto mb-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p class="text-sm text-green-600 dark:text-green-400">Contract signed</p>
+        </div>
+        <div *ngIf="!isStepActive(step)" class="py-6 text-center text-muted-foreground text-sm">
+          Complete previous steps to unlock this step.
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- PROMOTING TO PROJECT step -->
+    <ui-card *ngIf="step.stepType === 'promoting_to_project'" [class]="getStepCardClass(step)">
+      <ui-card-header>
+        <ui-card-title class="flex items-center gap-2">
+          <div [class]="getStepIndicatorClass(step)" style="margin-bottom: 8px;">{{ i + 1 }}</div>
+          {{ getStepLabel(step) }}
+          <span *ngIf="isStepComplete(step)" class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completed</span>
+          <span *ngIf="!step.isRequired && isCurrentStep(step)" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">Optional</span>
+        </ui-card-title>
+        <ui-card-description>{{ getStepDescription(step) }}</ui-card-description>
+      </ui-card-header>
+      <ui-card-content>
+        <div *ngIf="isCurrentStep(step)">
+          <app-custom-flow-promote-step
+            [deal]="deal"
+            (projectPromoted)="onProjectPromoted($event)">
+          </app-custom-flow-promote-step>
+          <div *ngIf="!step.isRequired" class="flex justify-end pt-2">
+            <button (click)="skipStep()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-md hover:bg-muted transition-colors">
+              Skip step
+              <svg class="ml-1 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="isStepComplete(step)" class="py-4">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="h-5 w-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-sm font-medium text-green-600 dark:text-green-400">Project created</p>
+          </div>
+          <div *ngIf="projectInfo" class="rounded-lg border border-border bg-muted/20 p-4 space-y-2 text-sm">
+            <div *ngIf="projectInfo.document" class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-muted-foreground flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              <span class="text-foreground flex-1 truncate">{{ projectInfo.document.fileName }}</span>
+              <button (click)="viewProjectDoc()" title="View with watermark"
+                      class="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button (click)="downloadProjectDoc()" title="Download"
+                      class="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+              <span class="text-foreground" *ngIf="projectInfo.isExpired">
+                {{ projectInfo.startDate | date:'dd.MM.yyyy' }} - {{ projectInfo.endDate | date:'dd.MM.yyyy' }}
+              </span>
+              <span class="text-foreground" *ngIf="!projectInfo.isExpired">
+                From {{ projectInfo.startDate | date:'dd.MM.yyyy' }} (no expiry)
+              </span>
+            </div>
+
+            <!-- Create Annex dugme -->
+            <div class="pt-3 border-t border-border mt-3">
+              <button (click)="openAnnexDialog()"
+                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Create Annex
+              </button>
+            </div>
+          </div>
+
+          <!-- Annex lista -->
+          <div *ngIf="annexes.length > 0" class="mt-4 space-y-2">
+            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Annexes</div>
+            <div *ngFor="let annex of annexes"
+                 class="rounded-lg border border-border bg-muted/20 p-3 text-sm space-y-1">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <ui-badge [variant]="annex.status === 1 ? 'success' : annex.status === 0 ? 'warning' : 'secondary'" class="text-xs">
+                    {{ annex.status === 1 ? 'Active' : annex.status === 0 ? 'Pending' : 'Superseded' }}
+                  </ui-badge>
+                  <span class="text-foreground font-medium">{{ annex.reason }}</span>
+                </div>
+                <span class="text-xs text-muted-foreground">Effective: {{ annex.effectiveDate | date:'dd.MM.yyyy' }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+                <span *ngIf="annex.isExpired">{{ annex.startDate | date:'dd.MM.yyyy' }} - {{ annex.endDate | date:'dd.MM.yyyy' }}</span>
+                <span *ngIf="!annex.isExpired">From {{ annex.startDate | date:'dd.MM.yyyy' }} (no expiry)</span>
+                <span *ngIf="annex.creator" class="ml-2">by {{ annex.creator.firstName }} {{ annex.creator.lastName }}</span>
+              </div>
+              <div *ngIf="annex.document" class="flex items-center gap-2 pt-1">
+                <svg class="w-3.5 h-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <span class="truncate flex-1 text-muted-foreground">{{ annex.document.fileName }}</span>
+                <button (click)="viewAnnexDoc(annex)" title="View"
+                        class="p-1 rounded text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                <button (click)="downloadAnnexDoc(annex)" title="Download"
+                        class="p-1 rounded text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!isStepActive(step)" class="py-6 text-center text-muted-foreground text-sm">
+          Complete previous steps to unlock this step.
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+  </ng-container>
+</ng-container>

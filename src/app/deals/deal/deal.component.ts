@@ -18,6 +18,7 @@ import {PyFlowComponent} from "./py-flow/py-flow.component";
 import {ChangeBdConsultantDialogComponent} from "../../flow-parts/change-bd-consultant-dialog/change-bd-consultant-dialog.component";
 import {RegFlowComponent} from "./reg-flow/reg-flow.component";
 import {StuffingFlowV2Component} from "./stuffing-flow-v2/stuffing-flow-v2.component";
+import {CustomFlowComponent} from "./custom-flow/custom-flow.component";
 
 // ShadCN UI Components
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
@@ -39,6 +40,7 @@ import { BadgeComponent } from '../../shared/components/ui/badge/badge.component
     PyFlowComponent,
     RegFlowComponent,
     StuffingFlowV2Component,
+    CustomFlowComponent,
     // ShadCN UI Components
     ButtonComponent,
     CardComponent,

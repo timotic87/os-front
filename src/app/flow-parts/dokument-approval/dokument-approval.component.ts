@@ -43,16 +43,13 @@ export class DokumentApprovalComponent implements OnInit {
    */
   canAddNewDocument(): boolean {
     const flowStatusID = this.deal?.flowStatus?.ID || 0;
-    
-    // Check if we're dealing with offer (1) or contract (2) document
+
     if (this.docTypeID === 1) {
-      // Offer documents: allow during initial offer phase (1-6)
       return flowStatusID >= 1 && flowStatusID <= 6;
     } else if (this.docTypeID === 2) {
-      // Contract documents: allow during initial contract phase (9-11)
       return flowStatusID >= 9 && flowStatusID <= 11;
     }
-    
+
     return false;
   }
 

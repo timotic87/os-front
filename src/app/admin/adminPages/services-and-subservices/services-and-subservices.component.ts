@@ -8,6 +8,7 @@ import {EditSubserviceComponent} from "./dialogs/edit-subservice/edit-subservice
 import {AddSubserviceLeComponent} from "./dialogs/add-subservice-le/add-subservice-le.component";
 import {EditSubserviceLeComponent} from "./dialogs/edit-subservice-le/edit-subservice-le.component";
 import {CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent} from '../../../shared/components/ui/card/card.component';
+import {RestService} from '../../../services/rest.service';
 
 @Component({
   selector: 'app-services-and-subservices',
@@ -32,11 +33,41 @@ export class ServicesAndSubservicesComponent implements OnInit {
     return this.SANDS.subservicelegalEntity.filter(c => c.serviceID === this.selectedService.ID);
   }
 
-  constructor(public SANDS: ServicesAndSubservicesService, private matDialog: MatDialog) {
+  customFlows: any[] = [];
+
+  constructor(public SANDS: ServicesAndSubservicesService, private matDialog: MatDialog, private rest: RestService) {
   }
 
   ngOnInit() {
     this.SANDS.ensureLoaded();
+    this.rest.getFlows().subscribe(res => {
+      if (res.status === 200) {
+        this.customFlows = res.data;
+      }
+    });
+  }
+
+  getFlowName(subservice: any): string {
+    if (subservice.flowID) {
+      const custom = this.customFlows.find(f => f.ID === subservice.flowID);
+      return custom ? custom.name : `Flow #${subservice.flowID}`;
+    }
+    const typeID = subservice.typeID;
+    if (!typeID) return '-';
+    if (typeID === 1) return 'REG';
+    if (typeID === 2) return 'STAFFING';
+    if (typeID === 3) return 'HRA & PY';
+    return '-';
+  }
+
+  getFlowBadgeClass(subservice: any): string {
+    if (subservice.flowID) return 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300';
+    const typeID = subservice.typeID;
+    if (!typeID) return '';
+    if (typeID === 1) return 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300';
+    if (typeID === 2) return 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300';
+    if (typeID === 3) return 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300';
+    return '';
   }
 
   selectService(service: any) {

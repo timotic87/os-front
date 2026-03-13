@@ -260,6 +260,9 @@ export class RestService {
   changeDealFlowStatus(data: any){
     return this.http.put(`${this.baseUrl}/changeDealFlowStatus`, data, {headers: this.headers()}) as Observable<any>;
   }
+  changeCustomFlowStep(data: any){
+    return this.http.put(`${this.baseUrl}/changeCustomFlowStep`, data, {headers: this.headers()}) as Observable<any>;
+  }
   changeDealStatus(data: any){
     return this.http.put(`${this.baseUrl}/changeDealStatus`, data, {headers: this.headers()}) as Observable<any>;
   }
@@ -325,6 +328,12 @@ export class RestService {
   editApprovalTemplate(data) {
     return this.http.put(`${this.baseUrl}/editApprovalTemplate`, data, {headers: this.headers()}) as Observable<any>;
   }
+  createApprovalTemplate(data: any) {
+    return this.http.post(`${this.baseUrl}/createApprovalTemplate`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  deleteApprovalTemplate(ID: number) {
+    return this.http.delete(`${this.baseUrl}/deleteApprovalTemplate/${ID}`, {headers: this.headers()}) as Observable<any>;
+  }
   getApprovalsByCdcmID(cdcmID) {
     return this.http.get(`${this.baseUrl}/getApprovalsByCdcmID/${cdcmID}`, {headers: this.headers()}) as Observable<any>;
   }
@@ -363,6 +372,12 @@ export class RestService {
   }
   getDocumentSubTypes(){
     return this.http.get(`${this.baseUrl}/getDocumentSubTypes`, {headers: this.headers()}) as Observable<any>;
+  }
+  getAllDocumentTypes(){
+    return this.http.get(`${this.baseUrl}/getAllDocumentTypes`, {headers: this.headers()}) as Observable<any>;
+  }
+  getAllDocumentSubTypes(){
+    return this.http.get(`${this.baseUrl}/getAllDocumentSubTypes`, {headers: this.headers()}) as Observable<any>;
   }
 
   createDocumentType(data: any){
@@ -707,6 +722,27 @@ export class RestService {
 
   upsertSetting(data: any) {
     return this.http.post(`${this.baseUrl}/upsertSetting`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // Flows
+  getFlows() {
+    return this.http.get(`${this.baseUrl}/getFlows`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getFlowById(id: number) {
+    return this.http.get(`${this.baseUrl}/getFlow/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  createFlow(data: any) {
+    return this.http.post(`${this.baseUrl}/createFlow`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateFlow(id: number, data: any) {
+    return this.http.put(`${this.baseUrl}/updateFlow/${id}`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deleteFlow(id: number) {
+    return this.http.delete(`${this.baseUrl}/deleteFlow/${id}`, { headers: this.headers() }) as Observable<any>;
   }
 
 }
