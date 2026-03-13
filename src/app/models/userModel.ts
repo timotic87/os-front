@@ -2,7 +2,7 @@ import { UnitModel } from "./unitModel";
 import { DepartmentModel } from "./departmentModel";
 import { PositionModel } from "./positionModel";
 import { UserStatusModel } from "./userStatusModel";
-import {LogicalFileSystem} from "@angular/compiler-cli";
+import { environment } from "../../environments/environment";
 
 export class UserModel {
   private _id: number;
@@ -38,7 +38,10 @@ export class UserModel {
     } else {
       this._picUrl = decodeURIComponent(picUrl);
     }
-
+    // Resolve relative backend URLs to full URLs
+    if (this._picUrl && this._picUrl.startsWith('/')) {
+      this._picUrl = environment.SERVER_URL + this._picUrl;
+    }
   }
 
   get id(): number {

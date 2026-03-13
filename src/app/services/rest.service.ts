@@ -189,6 +189,15 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/changePicUrl`,data , {headers: this.headers()}) as Observable<any>;
   }
 
+  uploadProfilePic(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${this.cookieService.get('jwt')}`)
+      .set('x-socket-id', this.socketId || '123');
+    return this.http.post(`${this.baseUrl}/uploadProfilePic`, formData, {headers}) as Observable<any>;
+  }
+
   getServices(){
     return this.http.get(`${this.baseUrl}/services`, {headers: this.headers()}) as Observable<any>;
   }
