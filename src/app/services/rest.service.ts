@@ -85,8 +85,8 @@ export class RestService {
     return this.http.put(`${this.baseUrl}/updateLegalEntity`, data, { headers: this.headers() }) as Observable<any>;
   }
 
-  deleteLegalEntity(id: number) {
-    return this.http.delete(`${this.baseUrl}/deleteLegalEntity/${id}`, { headers: this.headers() }) as Observable<any>;
+  toggleLegalEntityActive(id: number) {
+    return this.http.put(`${this.baseUrl}/toggleLegalEntityActive/${id}`, {}, { headers: this.headers() }) as Observable<any>;
   }
 
   saveFile(data){
@@ -598,7 +598,7 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getApprovalByRecruitingInvoiceID/${invoiceID}`, { headers: this.headers() }) as Observable<any>;
   }
 
-  getApprovedRecruitingInvoices(data: { offset: number, limit: number, search?: string, type?: string }) {
+  getApprovedRecruitingInvoices(data: { offset: number, limit: number, search?: string, type?: string, legalEntityId?: string, sentToBC?: string }) {
     return this.http.post(`${this.baseUrl}/getApprovedRecruitingInvoices`, data, { headers: this.headers() }) as Observable<any>;
   }
 
@@ -679,6 +679,26 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getSalesInvoiceByID/${id}`, { headers: this.headers() }) as Observable<any>;
   }
 
+  createSalesCreditDebitNote(data: { sourceInvoiceId: number, noteType: 'credit' | 'debit', lines?: any[], createAsReady?: boolean, issueDate?: string, transactionDate?: string, paymentDueDays?: number }) {
+    return this.http.post(`${this.baseUrl}/createCreditDebitNote`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  completeSalesNote(data: { noteId: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, lines?: any[] }) {
+    return this.http.post(`${this.baseUrl}/completeNote`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  createRecruitingCreditDebitNote(data: { sourceInvoiceId: number, noteType: 'credit' | 'debit', finalFeeAmount?: number, issueDate?: string, transactionDate?: string, paymentDueDays?: number }) {
+    return this.http.post(`${this.baseUrl}/createRecruitingCreditDebitNote`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  completeRecruitingNote(data: { noteId: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, description?: string, finalFeeAmount?: number, invoiceDate?: string, paymentDate?: string }) {
+    return this.http.post(`${this.baseUrl}/completeRecruitingNote`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateRecruitingInvoice(data: any) {
+    return this.http.post(`${this.baseUrl}/updateRecruitingInvoice`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
   getVatPostingGroups() {
     return this.http.get(`${this.baseUrl}/getVatPostingGroups`, { headers: this.headers() }) as Observable<any>;
   }
@@ -731,6 +751,31 @@ export class RestService {
 
   upsertSetting(data: any) {
     return this.http.post(`${this.baseUrl}/upsertSetting`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  getInvoiceSeqInfo() {
+    return this.http.get(`${this.baseUrl}/getInvoiceSeqInfo`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  // BC Environments
+  getBcEnvironments() {
+    return this.http.get(`${this.baseUrl}/bc-environments`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  createBcEnvironment(data: any) {
+    return this.http.post(`${this.baseUrl}/bc-environments`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  updateBcEnvironment(id: number, data: any) {
+    return this.http.put(`${this.baseUrl}/bc-environments/${id}`, data, { headers: this.headers() }) as Observable<any>;
+  }
+
+  deleteBcEnvironment(id: number) {
+    return this.http.delete(`${this.baseUrl}/bc-environments/${id}`, { headers: this.headers() }) as Observable<any>;
+  }
+
+  activateBcEnvironment(id: number) {
+    return this.http.post(`${this.baseUrl}/bc-environments/${id}/activate`, {}, { headers: this.headers() }) as Observable<any>;
   }
 
   // Flows

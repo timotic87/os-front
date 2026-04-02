@@ -35,7 +35,7 @@
       </a>
       <a routerLinkActive="bg-muted text-foreground" [routerLink]="['sales-invoices']"
          class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-        Sales Invoices
+        Manual Invoices
       </a>
       <a *ngIf="userService.can('view_audit_log')"
          routerLinkActive="bg-muted text-foreground" [routerLink]="['audit-log']"

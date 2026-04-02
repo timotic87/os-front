@@ -18,7 +18,11 @@ import {NgForOf, NgIf, DecimalPipe} from '@angular/common';
 export class LegalEntitiesComponent implements OnInit {
 
   entities: any[] = [];
+  filteredEntities: any[] = [];
   loading = false;
+
+  searchText = '';
+  filterStatus = '';
 
   // Add/Edit form
   formMode: 'add' | 'edit' | null = null;
@@ -30,12 +34,31 @@ export class LegalEntitiesComponent implements OnInit {
     this.loadEntities();
   }
 
+  applyFilter() {
+    let result = [...this.entities];
+    if (this.filterStatus === 'active') {
+      result = result.filter(e => e.isActive);
+    } else if (this.filterStatus === 'inactive') {
+      result = result.filter(e => !e.isActive);
+    }
+    if (this.searchText.trim()) {
+      const s = this.searchText.trim().toLowerCase();
+      result = result.filter(e =>
+        e.name.toLowerCase().includes(s) ||
+        (e.shortName || '').toLowerCase().includes(s) ||
+        (e.bcCompanyId || '').toLowerCase().includes(s)
+      );
+    }
+    this.filteredEntities = result;
+  }
+
   loadEntities() {
     this.loading = true;
     this.rest.getLEList().subscribe({
       next: res => {
         if (res.status === 200) {
           this.entities = res.data;
+          this.applyFilter();
         }
         this.loading = false;
       },
@@ -98,14 +121,16 @@ export class LegalEntitiesComponent implements OnInit {
     }
   }
 
-  deleteEntity(entity: any) {
-    if (!window.confirm(`Delete "${entity.name}"? This cannot be undone.`)) return;
+  toggleActive(entity: any) {
+    const action = entity.isActive ? 'deactivate' : 'activate';
+    if (!window.confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} "${entity.name}"?`)) return;
 
-    this.rest.deleteLegalEntity(entity.id).subscribe({
+    this.rest.toggleLegalEntityActive(entity.id).subscribe({
       next: res => {
         if (res.status === 200) {
-          this.dialogService.showSnackBar('Legal entity deleted', '', 3000);
-          this.loadEntities();
+          entity.isActive = !entity.isActive;
+          this.applyFilter();
+          this.dialogService.showSnackBar(`Legal entity ${action}d`, '', 3000);
         }
       },
       error: err => this.dialogService.errorServDialog(err)

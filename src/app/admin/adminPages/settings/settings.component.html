@@ -98,3 +98,256 @@
 
   </ui-card-content>
 </ui-card>
+
+<!-- BC Environments -->
+<ui-card class="mt-6 block">
+  <ui-card-header>
+    <ui-card-title>Business Central Environments</ui-card-title>
+    <ui-card-description>Manage BC connection profiles. Only one environment can be active at a time.</ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+
+    <div class="flex justify-end mb-4">
+      <button (click)="openAddBcEnv()"
+              class="inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Environment
+      </button>
+    </div>
+
+    <div *ngIf="bcEnvsLoading" class="py-6 text-center text-sm text-muted-foreground">Loading...</div>
+
+    <div *ngIf="!bcEnvsLoading && bcEnvs.length === 0" class="py-8 text-center text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+      No BC environments configured yet.
+    </div>
+
+    <div *ngFor="let env of bcEnvs"
+         class="mb-3 rounded-lg border overflow-hidden"
+         [class.border-green-500]="env.isActive"
+         [class.border-border]="!env.isActive">
+
+      <!-- Header row -->
+      <div class="flex items-center justify-between px-4 py-3"
+           [class.bg-green-50]="env.isActive"
+           [class.dark:bg-green-950]="env.isActive"
+           [class.bg-card]="!env.isActive">
+        <div class="flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+               [class.bg-green-500]="env.isActive"
+               [class.bg-muted-foreground]="!env.isActive"
+               [class.opacity-40]="!env.isActive"></div>
+          <span class="font-semibold text-sm text-foreground">{{ env.name }}</span>
+          <span *ngIf="env.isActive"
+                class="text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded-full">
+            ACTIVE
+          </span>
+        </div>
+        <div class="flex gap-2">
+          <button *ngIf="!env.isActive" (click)="activateBcEnv(env)"
+                  class="h-8 px-3 rounded-md text-xs font-medium border border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-950 transition-colors">
+            Activate
+          </button>
+          <button (click)="openEditBcEnv(env)"
+                  class="h-8 px-3 rounded-md text-xs font-medium border border-border text-foreground hover:bg-muted transition-colors">
+            Edit
+          </button>
+          <button *ngIf="!env.isActive" (click)="removeBcEnv(env)"
+                  class="h-8 px-3 rounded-md text-xs font-medium border border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 px-4 py-3 bg-muted/30 border-t border-border/50 text-xs">
+        <div>
+          <div class="text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Tenant ID</div>
+          <div class="font-mono text-foreground truncate">{{ env.tenantId }}</div>
+        </div>
+        <div>
+          <div class="text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Client ID</div>
+          <div class="font-mono text-foreground truncate">{{ env.clientId }}</div>
+        </div>
+        <div>
+          <div class="text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Client Secret</div>
+          <div class="font-mono text-muted-foreground">••••••••{{ env.clientSecretHint }}</div>
+        </div>
+        <div>
+          <div class="text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Environment</div>
+          <div class="font-mono text-foreground">{{ env.environmentName }}</div>
+        </div>
+        <div>
+          <div class="text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Company ID</div>
+          <div class="font-mono text-foreground truncate">{{ env.companyId }}</div>
+        </div>
+        <div>
+          <div class="text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Scope</div>
+          <div class="font-mono text-muted-foreground truncate">{{ env.scope }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div *ngIf="showBcForm"
+         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+         (click)="cancelBcForm()">
+      <div class="bg-card rounded-xl p-7 w-[620px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-xl"
+           (click)="$event.stopPropagation()">
+
+        <h3 class="text-base font-bold text-foreground mb-5">
+          {{ bcEditingId ? 'Edit BC Environment' : 'Add BC Environment' }}
+        </h3>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Display Name *</label>
+            <input [(ngModel)]="bcForm.name" type="text" placeholder="e.g. Production, Test DEV"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Tenant ID *</label>
+            <input [(ngModel)]="bcForm.tenantId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Client ID *</label>
+            <input [(ngModel)]="bcForm.clientId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-muted-foreground mb-1">
+              Client Secret {{ bcEditingId ? '(leave blank to keep existing)' : '*' }}
+            </label>
+            <input [(ngModel)]="bcForm.clientSecret" type="password"
+                   [placeholder]="bcEditingId ? '••••••••' : 'Enter client secret'"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Environment Name *</label>
+            <input [(ngModel)]="bcForm.environmentName" type="text" placeholder="e.g. Production, BE-terna_DEV"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Company ID *</label>
+            <input [(ngModel)]="bcForm.companyId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-muted-foreground mb-1">Scope</label>
+            <input [(ngModel)]="bcForm.scope" type="text"
+                   class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end mt-6 pt-4 border-t border-border">
+          <button (click)="cancelBcForm()"
+                  class="h-9 px-4 rounded-md text-sm border border-border text-foreground hover:bg-muted transition-colors">
+            Cancel
+          </button>
+          <button (click)="saveBcEnv()" [disabled]="bcSaving"
+                  class="h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-colors">
+            {{ bcSaving ? 'Saving...' : (bcEditingId ? 'Update' : 'Create') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </ui-card-content>
+</ui-card>
+
+<!-- Client Master Legal Entity -->
+<ui-card class="mt-6 block">
+  <ui-card-header>
+    <ui-card-title>Client Master Legal Entity</ui-card-title>
+    <ui-card-description>
+      All new client (customerStaging) records in Business Central are created under this legal entity's company.
+    </ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+      <div class="flex-1 min-w-0">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity *</label>
+        <select [(ngModel)]="clientMasterLeId"
+                class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <option value="">— select —</option>
+          <option *ngFor="let le of legalEntities" [value]="le.id">
+            {{ le.name }}
+          </option>
+        </select>
+      </div>
+
+      <div *ngIf="clientMasterLeId" class="text-xs text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded-md border border-border">
+        {{ getLeName(clientMasterLeId) }}
+      </div>
+
+      <button (click)="saveClientMasterLe()" [disabled]="!clientMasterLeId || savingClientMasterLe"
+              class="h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap">
+        {{ savingClientMasterLe ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+
+  </ui-card-content>
+</ui-card>
+
+<!-- Invoice Sequence per Legal Entity -->
+<ui-card class="mt-6 block">
+  <ui-card-header>
+    <ui-card-title>Invoice Sequence per Legal Entity</ui-card-title>
+    <ui-card-description>
+      Set the minimum next invoice number for each legal entity. Used when invoices are created directly in Business Central to avoid number conflicts.
+    </ui-card-description>
+  </ui-card-header>
+  <ui-card-content>
+
+    <div *ngIf="seqLoading" class="py-6 text-center text-sm text-muted-foreground">Loading...</div>
+
+    <div *ngIf="!seqLoading" class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Legal Entity</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Last Invoice No</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Current Floor</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Next Will Be</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Set Floor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let le of seqInfo" class="border-b border-border/50 hover:bg-muted/50">
+            <td class="py-2 px-3 font-medium">{{ le.legalEntityName }}</td>
+            <td class="py-2 px-3 font-mono text-xs text-muted-foreground">
+              {{ le.lastInvoiceNo || '—' }}
+            </td>
+            <td class="py-2 px-3 font-mono text-xs">
+              <span *ngIf="le.floor !== null" class="text-blue-600 dark:text-blue-400">{{ le.floor }}</span>
+              <span *ngIf="le.floor === null" class="text-muted-foreground">—</span>
+            </td>
+            <td class="py-2 px-3">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 font-mono">
+                F{{ currentYearShort }}/{{ padSeq(le.nextSeq) }}
+              </span>
+            </td>
+            <td class="py-2 px-3">
+              <div class="flex items-center gap-2">
+                <input type="number" min="1"
+                       [(ngModel)]="editingSeq[le.legalEntityId]"
+                       placeholder="e.g. 51"
+                       class="w-24 h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <button (click)="saveSeqFloor(le)"
+                        [disabled]="savingSeq[le.legalEntityId] || editingSeq[le.legalEntityId] === null || editingSeq[le.legalEntityId] === undefined"
+                        class="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  {{ savingSeq[le.legalEntityId] ? 'Saving...' : 'Set' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="seqInfo.length === 0" class="text-sm text-muted-foreground py-4 text-center">No legal entities found.</p>
+    </div>
+
+  </ui-card-content>
+</ui-card>

@@ -247,7 +247,7 @@
               </ui-button>
               <mat-menu #posStatusMenu="matMenu">
                 <div class="px-3 py-2 text-xs font-medium text-muted-foreground">Change Status</div>
-                <button mat-menu-item *ngFor="let status of statuses"
+                <button mat-menu-item *ngFor="let status of getPositionStatuses(position)"
                         [disabled]="status.ID === position.status_id"
                         (click)="changePositionStatus(position.ID, status.ID)">
                   {{ status.name }}
@@ -478,11 +478,33 @@
           <tbody>
             <ng-container *ngFor="let inv of invoices">
               <tr class="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                <td class="py-3 px-4 font-mono text-muted-foreground">{{ inv.position?.position_number }}</td>
+                <td class="py-3 px-4 font-mono text-muted-foreground">
+                  <div>{{ inv.position?.position_number }}</div>
+                  <div class="text-xs font-mono mt-0.5">RI-{{ inv.ID }}</div>
+                  <ng-container *ngIf="isCreditMemo(inv) && getSourceInvoice(inv) as src">
+                    <button (click)="openInvoicePreview(src)"
+                            class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono mt-0.5 block">
+                      ↑ RI-{{ src.ID }}
+                    </button>
+                  </ng-container>
+                  <ng-container *ngFor="let note of getCreditNotes(inv)">
+                    <button (click)="openInvoicePreview(note)"
+                            [class]="note.noteType === 'credit' ? 'text-xs text-violet-600 dark:text-violet-400 hover:underline font-mono mt-0.5 block' : 'text-xs text-orange-600 dark:text-orange-400 hover:underline font-mono mt-0.5 block'">
+                      ↓ RI-{{ note.ID }}
+                    </button>
+                  </ng-container>
+                </td>
                 <td class="py-3 px-4">
-                  <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
-                    {{ getInvoiceTypeLabel(inv.invoice_type) }}
-                  </ui-badge>
+                  <div class="flex items-center gap-1 flex-wrap">
+                    <ui-badge [variant]="getInvoiceTypeBadgeVariant(inv.invoice_type)" class="text-xs">
+                      {{ getInvoiceTypeLabel(inv.invoice_type) }}
+                    </ui-badge>
+                    <span *ngIf="isCreditMemo(inv)"
+                          class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                          [class]="inv.noteType === 'credit' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'">
+                      {{ getRecNoteTypeBadge(inv) }}
+                    </span>
+                  </div>
                 </td>
                 <td class="py-3 px-4 text-foreground">
                   <!-- Single candidate -->
@@ -541,6 +563,33 @@
                             title="Export calculation to Excel">
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                    </button>
+                    <!-- Edit KZ/KO note (finance, before BC) -->
+                    <button *ngIf="isCreditMemo(inv) && !inv.sent_to_bc && userService.can('complete_rec_credit_note')"
+                            (click)="openCompleteRecNoteDialog(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Edit Note">
+                      <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <!-- Create KO (Credit Note) -->
+                    <button *ngIf="!isCreditMemo(inv) && inv.sent_to_bc && userService.can('create_rec_credit_note')"
+                            (click)="createRecCreditNote(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Create Credit Note (KO)">
+                      <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
+                      </svg>
+                    </button>
+                    <!-- Create KZ (Debit Note) -->
+                    <button *ngIf="!isCreditMemo(inv) && inv.sent_to_bc && userService.can('create_rec_credit_note')"
+                            (click)="createRecDebitNote(inv)"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                            title="Create Debit Note (KZ)">
+                      <svg class="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
                       </svg>
                     </button>
                     <!-- Delete button (only for non-approved) -->

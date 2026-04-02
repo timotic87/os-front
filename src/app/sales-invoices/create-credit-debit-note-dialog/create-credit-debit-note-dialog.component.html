@@ -1,0 +1,144 @@
+<div style="padding: 24px; min-width: 620px; max-width: 800px;">
+
+  <!-- Header -->
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <svg style="width: 20px; height: 20px; flex-shrink: 0;"
+         [style.color]="data.noteType === 'credit' ? '#7c3aed' : '#d97706'"
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <div>
+      <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: hsl(var(--foreground));">
+        {{ title }}
+      </h3>
+      <p style="margin: 4px 0 0; font-size: 12px; color: hsl(var(--muted-foreground));">
+        @if (isRecruiting) {
+          From invoice RI-{{ data.invoice.ID }} · {{ data.invoice.candidate_first_name }} {{ data.invoice.candidate_last_name }}
+        } @else {
+          From invoice {{ data.invoice.invoiceNo }} · {{ data.invoice.customerName }}
+        }
+      </p>
+    </div>
+  </div>
+
+  <form [formGroup]="form">
+
+    <!-- Lines Table -->
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 13px; font-weight: 600; color: hsl(var(--foreground)); margin-bottom: 8px;">
+        Invoice Lines
+      </label>
+
+      <div *ngIf="lines.length === 0"
+           style="padding: 16px; text-align: center; font-size: 13px; color: hsl(var(--muted-foreground)); border: 1px dashed hsl(var(--border)); border-radius: 6px;">
+        No lines on source invoice.
+      </div>
+
+      <div *ngIf="lines.length > 0" style="border: 1px solid hsl(var(--border)); border-radius: 6px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: hsl(var(--muted)/0.5);">
+              <th style="padding: 8px 10px; text-align: left; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">#</th>
+              <th style="padding: 8px 10px; text-align: left; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Description</th>
+              <th style="padding: 8px 10px; text-align: right; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; width: 90px;">Qty</th>
+              <th style="padding: 8px 10px; text-align: right; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; width: 130px;">Unit Price</th>
+              <th style="padding: 8px 10px; text-align: right; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; width: 110px;">Amount</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="lines">
+            <tr *ngFor="let lineCtrl of lines.controls; let i = index"
+                [formGroupName]="i"
+                style="border-top: 1px solid hsl(var(--border)/0.6);">
+              <td style="padding: 6px 10px; color: hsl(var(--muted-foreground));">{{ i + 1 }}</td>
+              <td style="padding: 6px 10px;">
+                <input formControlName="description"
+                       type="text"
+                       style="width: 100%; height: 32px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 13px; box-sizing: border-box;" />
+              </td>
+              <td style="padding: 6px 10px;">
+                <input formControlName="quantity"
+                       type="number"
+                       min="0.01"
+                       step="0.01"
+                       style="width: 80px; height: 32px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 13px; text-align: right; box-sizing: border-box;" />
+              </td>
+              <td style="padding: 6px 10px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input formControlName="unitPriceExclVAT"
+                         type="number"
+                         step="0.01"
+                         style="width: 110px; height: 32px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 13px; text-align: right; box-sizing: border-box;" />
+                  <span *ngIf="currencyCode" style="font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); white-space: nowrap;">{{ currencyCode }}</span>
+                </div>
+              </td>
+              <td style="padding: 6px 10px; text-align: right; font-family: monospace; font-weight: 500; color: hsl(var(--foreground));">
+                {{ lineTotal(i) | number:'1.2-2' }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style="border-top: 2px solid hsl(var(--border)); background: hsl(var(--muted)/0.3);">
+              <td colspan="4" style="padding: 8px 10px; text-align: right; font-size: 13px; font-weight: 500; color: hsl(var(--muted-foreground));">Total:</td>
+              <td style="padding: 8px 10px; text-align: right; font-family: monospace; font-weight: 700; color: hsl(var(--foreground));">
+                {{ grandTotal | number:'1.2-2' }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dates -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 500; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Issue Date *</label>
+        <input formControlName="issueDate" type="date"
+               style="width: 100%; height: 34px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 13px; box-sizing: border-box;" />
+      </div>
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 500; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Transaction Date *</label>
+        <input formControlName="transactionDate" type="date"
+               style="width: 100%; height: 34px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 13px; box-sizing: border-box;" />
+      </div>
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 500; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Payment Due (days) *</label>
+        <input formControlName="paymentDueDays" type="number" min="0"
+               style="width: 100%; height: 34px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 13px; box-sizing: border-box;" />
+      </div>
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 500; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Due Date</label>
+        <div style="height: 34px; padding: 0 8px; border-radius: 4px; border: 1px solid hsl(var(--border)/0.5); background: hsl(var(--muted)/0.3); color: hsl(var(--muted-foreground)); font-size: 13px; display: flex; align-items: center;">
+          {{ calculatedDueDate || '—' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Mark as Ready toggle (sales only) -->
+    @if (!isRecruiting) {
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <input type="checkbox" id="markAsReady" [(ngModel)]="markAsReady"
+               style="width: 16px; height: 16px; cursor: pointer;" />
+        <label for="markAsReady" style="font-size: 13px; color: hsl(var(--foreground)); cursor: pointer; margin: 0;">
+          Mark as Ready immediately
+        </label>
+        <span style="font-size: 11px; color: hsl(var(--muted-foreground));">(finance will be notified)</span>
+      </div>
+    }
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px;">
+      <button type="button" (click)="dialogRef.close()"
+              style="height: 36px; padding: 0 16px; border-radius: 6px; border: 1px solid hsl(var(--border)); background: transparent; color: hsl(var(--foreground)); font-size: 14px; cursor: pointer;">
+        Cancel
+      </button>
+      <button type="button" (click)="save()" [disabled]="saving || form.invalid"
+              [style.background]="data.noteType === 'credit' ? '#7c3aed' : '#d97706'"
+              style="height: 36px; padding: 0 16px; border-radius: 6px; border: none; color: #fff; font-size: 14px; cursor: pointer;"
+              [style.opacity]="(saving || form.invalid) ? '0.6' : '1'">
+        {{ saving ? 'Creating...' : title }}
+      </button>
+    </div>
+
+  </form>
+</div>

@@ -20,16 +20,16 @@
   </ui-card-header>
   <ui-card-content>
 
-    <!-- Search Bar -->
-    <div class="mb-4 flex items-center gap-2 max-w-md">
-      <div class="relative flex-1">
+    <!-- Search / Filter Bar -->
+    <div class="mb-4 flex items-end gap-3 flex-wrap">
+      <div class="relative">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input [(ngModel)]="searchText"
                type="text"
-               class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-8 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-               placeholder="Search by name, username, department..."
+               class="flex h-9 w-72 rounded-md border border-input bg-background pl-9 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+               placeholder="Name, username, department..."
                (input)="onSearchInput()"
                (keyup)="searchEvent($event)"/>
         <button *ngIf="searchText" (click)="clearSearch()"
@@ -39,6 +39,15 @@
           </svg>
         </button>
       </div>
+      <select [(ngModel)]="filterStatus" (ngModelChange)="search()"
+              class="h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        <option value="">All statuses</option>
+        <option *ngFor="let s of uniqueStatuses" [value]="s">{{ s }}</option>
+      </select>
+      <button *ngIf="searchText || filterStatus" (click)="clearSearch()"
+              class="h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+        Clear
+      </button>
     </div>
 
     <!-- Users Table -->

@@ -29,7 +29,7 @@
               [class]="activeTab === 'sales'
                 ? 'px-4 py-2.5 text-sm font-medium border-b-2 border-primary text-foreground -mb-px'
                 : 'px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors -mb-px border-b-2 border-transparent'">
-        Sales Invoices
+        Manual Invoices
         <span class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{{ salesTotalCount }}</span>
       </button>
     </div>
@@ -38,6 +38,22 @@
     @if (activeTab === 'recruiting') {
       <!-- Filters -->
       <div class="flex items-end gap-3 flex-wrap mb-6">
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
+          <input type="text" [(ngModel)]="filterSearch" placeholder="Candidate name..."
+                 (keyup.enter)="applyFilters()"
+                 class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity</label>
+          <select [(ngModel)]="filterLegalEntity" (change)="applyFilters()"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option value="">All Entities</option>
+            @for (le of legalEntities; track le.id) {
+              <option [value]="le.id">{{ le.shortName || le.name }}</option>
+            }
+          </select>
+        </div>
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1">Type</label>
           <select [(ngModel)]="filterType" (change)="applyFilters()"
@@ -48,24 +64,29 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
-          <input type="text" [(ngModel)]="filterSearch" placeholder="Candidate name..."
-                 (keyup.enter)="applyFilters()"
-                 class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Status</label>
+          <select [(ngModel)]="filterSentToBC" (change)="applyFilters()"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option value="">All</option>
+            <option value="false">Not sent to BC</option>
+            <option value="true">Sent to BC</option>
+          </select>
         </div>
-        <button (click)="applyFilters()"
-                class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          Search
-        </button>
-        @if (filterSearch || filterType) {
-          <button (click)="clearFilters()"
-                  class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Clear
+        <div class="flex items-end gap-2">
+          <button (click)="applyFilters()"
+                  class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Search
           </button>
-        }
+          @if (filterSearch || filterLegalEntity || filterType || filterSentToBC !== '') {
+            <button (click)="clearFilters()"
+                    class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Clear
+            </button>
+          }
+        </div>
       </div>
 
       @if (loading) {
@@ -104,7 +125,30 @@
             <tbody>
               @for (inv of invoices; track inv.ID) {
                 <tr class="border-b border-border hover:bg-muted/50 transition-colors">
-                  <td class="px-3 py-2.5 font-mono text-sm text-muted-foreground">{{ inv.ID }}</td>
+                  <td class="px-3 py-2.5 font-mono text-sm text-muted-foreground">
+                    <div class="flex items-center gap-1.5">
+                      RI-{{ inv.ID }}
+                      @if (isCreditMemo(inv)) {
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                              [class]="inv.noteType === 'credit' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'">
+                          {{ getRecNoteTypeBadge(inv) }}
+                        </span>
+                      }
+                    </div>
+                    @if (inv.sourceInvoice) {
+                      <button (click)="openInvoicePreview(inv.sourceInvoice)"
+                              class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono mt-0.5 block">
+                        ↑ RI-{{ inv.sourceInvoice.ID }}
+                      </button>
+                    }
+                    @for (note of inv.creditNotes; track note.ID) {
+                      <button (click)="openInvoicePreview(note)"
+                              class="text-xs hover:underline font-mono mt-0.5 block"
+                              [class]="note.noteType === 'credit' ? 'text-violet-600 dark:text-violet-400' : 'text-orange-600 dark:text-orange-400'">
+                        ↓ RI-{{ note.ID }}
+                      </button>
+                    }
+                  </td>
                   <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.order?.order_number || '-' }}</td>
                   <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.position?.position_number }}</td>
                   <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.order?.deal?.client?.customerName || '-' }}</td>
@@ -143,6 +187,43 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                       </button>
+                      <!-- Edit recruiting invoice (before sent_to_bc, not KO/KZ) -->
+                      @if (!inv.sent_to_bc && !isCreditMemo(inv)) {
+                        <button (click)="openEditRecruitingInvoiceDialog(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Edit invoice">
+                          <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- Knjižno: dopuni (finansije) -->
+                      @if (isCreditMemo(inv) && !inv.sent_to_bc && userService.can('complete_rec_credit_note')) {
+                        <button (click)="openCompleteRecNoteDialog(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Complete note (finance)">
+                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- Create credit/debit note (only on sent non-Credit-Memo invoices) -->
+                      @if (!isCreditMemo(inv) && inv.sent_to_bc && userService.can('create_rec_credit_note')) {
+                        <button (click)="createRecCreditNote(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Create Credit Note">
+                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
+                          </svg>
+                        </button>
+                        <button (click)="createRecDebitNote(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Create Debit Note">
+                          <svg class="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
+                          </svg>
+                        </button>
+                      }
                       @if (inv.sent_to_bc) {
                         <div class="relative">
                           <button (click)="togglePostBcMenu($event, 'r-' + inv.ID)"
@@ -219,21 +300,51 @@
           <label class="block text-xs font-medium text-muted-foreground mb-1">Search</label>
           <input type="text" [(ngModel)]="salesFilterSearch" placeholder="Client, invoice no, description..."
                  (keyup.enter)="applySalesFilters()"
-                 class="w-64 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+                 class="w-52 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
         </div>
-        <button (click)="applySalesFilters()"
-                class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          Search
-        </button>
-        @if (salesFilterSearch) {
-          <button (click)="clearSalesFilters()"
-                  class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Clear
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity</label>
+          <select [(ngModel)]="salesFilterLegalEntity" (change)="applySalesFilters()"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option value="">All Entities</option>
+            @for (le of legalEntities; track le.id) {
+              <option [value]="le.id">{{ le.shortName || le.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Type</label>
+          <select [(ngModel)]="salesFilterDocType" (change)="applySalesFilters()"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            @for (t of salesDocTypeOptions; track t.value) {
+              <option [value]="t.value">{{ t.label }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Status</label>
+          <select [(ngModel)]="salesFilterSentToBC" (change)="applySalesFilters()"
+                  class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+            <option value="">All</option>
+            <option value="false">Not sent to BC</option>
+            <option value="true">Sent to BC</option>
+          </select>
+        </div>
+        <div class="flex items-end gap-2">
+          <button (click)="applySalesFilters()"
+                  class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Search
           </button>
-        }
+          @if (salesFilterSearch || salesFilterLegalEntity || salesFilterDocType || salesFilterSentToBC !== '') {
+            <button (click)="clearSalesFilters()"
+                    class="inline-flex items-center h-9 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Clear
+            </button>
+          }
+        </div>
       </div>
 
       @if (salesLoading) {
@@ -242,14 +353,14 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
           </svg>
-          Loading sales invoices...
+          Loading manual invoices...
         </div>
       } @else if (salesInvoices.length === 0) {
         <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
           <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <p class="text-sm">No ready sales invoices found</p>
+          <p class="text-sm">No ready manual invoices found</p>
         </div>
       } @else {
         <div class="overflow-visible">
@@ -270,7 +381,23 @@
             <tbody>
               @for (inv of salesInvoices; track inv.id) {
                 <tr class="border-b border-border hover:bg-muted/50 transition-colors">
-                  <td class="px-3 py-2.5 font-mono text-sm text-foreground">{{ inv.invoiceNo }}</td>
+                  <td class="px-3 py-2.5 font-mono text-sm text-foreground">
+                    <div>{{ inv.invoiceNo }}</div>
+                    @if (inv.sourceInvoice) {
+                      <button (click)="openSalesInvoicePreview(inv.sourceInvoice)"
+                              class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-normal font-mono mt-0.5 block">
+                        ↑ {{ inv.sourceInvoice.invoiceNo }}
+                      </button>
+                    }
+                    @if (inv.notes?.length) {
+                      @for (note of inv.notes; track note.id) {
+                        <button (click)="openSalesInvoicePreview(note)"
+                                class="text-xs text-violet-600 dark:text-violet-400 hover:underline font-normal font-mono mt-0.5 block">
+                          ↓ {{ note.invoiceNo }}
+                        </button>
+                      }
+                    }
+                  </td>
                   <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.customerName || inv.client?.customerName || '-' }}</td>
                   <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.legalEntity?.shortName || inv.legalEntity?.name || '-' }}</td>
                   <td class="px-3 py-2.5 text-sm text-muted-foreground max-w-[200px] truncate" [title]="inv.description || ''">{{ inv.description || '-' }}</td>
@@ -296,6 +423,46 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                       </button>
+                      <!-- Edit sales invoice (before sentToBC, not KO/KZ) -->
+                      @if (!inv.sentToBC && !isCreditMemo(inv)) {
+                        <button (click)="openEditSalesInvoiceDialog(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Edit invoice">
+                          <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- Revert to Draft (ready credit memo) -->
+                      @if (inv.status === 'ready' && isCreditMemo(inv)) {
+                        <button (click)="revertSalesCreditNoteToDraft(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Revert to Draft">
+                          <svg class="h-4 w-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- Complete note (finance step, draft credit memo) -->
+                      @if (inv.status === 'draft' && isCreditMemo(inv) && userService.can('complete_sales_credit_note')) {
+                        <button (click)="openCompleteSalesNoteDialog(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Complete note (finance)">
+                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- Mark Ready (draft credit memo) -->
+                      @if (inv.status === 'draft' && isCreditMemo(inv)) {
+                        <button (click)="markSalesNoteReady(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Mark as Ready">
+                          <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                          </svg>
+                        </button>
+                      }
                       @if (inv.sentToBC) {
                         <div class="relative">
                           <button (click)="togglePostBcMenu($event, 's-' + inv.id)"
@@ -317,7 +484,24 @@
                             </div>
                           }
                         </div>
-                      } @else {
+                      <!-- Create KO/KZ (sent manual invoice, not a note) -->
+                      @if (!isCreditMemo(inv) && userService.can('create_rec_credit_note')) {
+                        <button (click)="createSalesCreditNote(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Create Credit Note (KO)">
+                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
+                          </svg>
+                        </button>
+                        <button (click)="createSalesDebitNote(inv)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="Create Debit Note (KZ)">
+                          <svg class="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
+                          </svg>
+                        </button>
+                      }
+                      } @else if (inv.status !== 'draft') {
                         <button (click)="sendSalesToBC(inv)"
                                 [disabled]="sendingSalesToBC[inv.id]"
                                 class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"

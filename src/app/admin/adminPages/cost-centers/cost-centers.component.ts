@@ -21,7 +21,8 @@ export class CostCentersComponent implements OnInit {
   filteredCostCenters: any[] = [];
   loading = false;
 
-  // Filter
+  // Filter / search
+  searchText = '';
   filterType = '';
   types: string[] = [];
 
@@ -59,11 +60,18 @@ export class CostCentersComponent implements OnInit {
   }
 
   applyFilter() {
+    let result = [...this.costCenters];
     if (this.filterType) {
-      this.filteredCostCenters = this.costCenters.filter(cc => cc.type === this.filterType);
-    } else {
-      this.filteredCostCenters = [...this.costCenters];
+      result = result.filter(cc => cc.type === this.filterType);
     }
+    if (this.searchText.trim()) {
+      const s = this.searchText.trim().toLowerCase();
+      result = result.filter(cc =>
+        cc.code.toLowerCase().includes(s) ||
+        cc.name.toLowerCase().includes(s)
+      );
+    }
+    this.filteredCostCenters = result;
   }
 
   showAddForm() {

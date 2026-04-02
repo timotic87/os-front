@@ -50,6 +50,23 @@
       </div>
     }
 
+    <!-- Search -->
+    <div class="mb-4">
+      <div class="relative w-72">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" [(ngModel)]="searchText" (ngModelChange)="applySearch()" placeholder="Search templates..."
+               class="h-9 w-full pl-9 pr-8 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"/>
+        <button *ngIf="searchText" (click)="searchText = ''; applySearch()"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <!-- Table -->
     <div class="rounded-md border border-border overflow-hidden">
       <table class="w-full text-sm">
@@ -62,7 +79,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (approval of approvals; track approval) {
+          @for (approval of filteredApprovals; track approval) {
             <tr class="border-b border-border hover:bg-muted/30 transition-colors cursor-pointer"
                 (click)="onTemplateCliclk(approval)">
               <td class="px-3 py-2.5 font-medium text-primary">{{ approval.ID }}</td>

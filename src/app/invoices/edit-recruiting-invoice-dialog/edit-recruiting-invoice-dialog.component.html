@@ -1,0 +1,121 @@
+<div class="flex flex-col" style="min-width: 680px; max-width: 95vw;">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+    <svg class="h-5 w-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+    </svg>
+    <div>
+      <h2 class="text-base font-semibold text-foreground">Edit Recruiting Invoice</h2>
+      <p class="text-xs text-muted-foreground mt-0.5">RI-{{ data.invoice.ID }} &nbsp;·&nbsp; {{ data.invoice.invoice_type }}</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="px-6 py-5 space-y-5 overflow-y-auto" style="max-height: 75vh;" [formGroup]="form">
+
+    <!-- Candidate -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">First Name</label>
+        <input type="text" formControlName="candidate_first_name" placeholder="Candidate first name"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Last Name</label>
+        <input type="text" formControlName="candidate_last_name" placeholder="Candidate last name"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+    </div>
+
+    <!-- Lines table -->
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-2">Invoice Lines</label>
+      <div class="rounded-md border border-border overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-muted/50">
+            <tr>
+              <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground w-8">#</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Description</th>
+              <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground w-28">Qty</th>
+              <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground w-44">Unit Price</th>
+              <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground w-32">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-border">
+              <td class="px-3 py-2 text-muted-foreground">1</td>
+              <td class="px-3 py-1">
+                <input type="text" formControlName="description" placeholder="Description..."
+                       class="w-full h-8 rounded border border-input bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"/>
+              </td>
+              <td class="px-3 py-2 text-right text-sm text-muted-foreground">1</td>
+              <td class="px-3 py-1">
+                <div class="flex items-center gap-1.5">
+                  <input type="number" formControlName="final_fee_amount" min="0" step="0.01"
+                         class="w-full h-8 rounded border border-input bg-background px-2 text-sm text-right focus:outline-none focus:ring-1 focus:ring-ring"/>
+                  @if (currencyCode) {
+                    <span class="text-xs font-medium text-muted-foreground whitespace-nowrap">{{ currencyCode }}</span>
+                  }
+                </div>
+              </td>
+              <td class="px-3 py-2 text-right font-mono text-sm font-medium">
+                {{ (form.get('final_fee_amount')?.value | number:'1.2-2') || '0.00' }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-muted/30 border-t-2 border-border">
+            <tr>
+              <td colspan="4" class="px-3 py-2 text-right text-sm font-semibold text-muted-foreground">Total:</td>
+              <td class="px-3 py-2 text-right font-mono text-sm font-bold">
+                {{ (form.get('final_fee_amount')?.value | number:'1.2-2') || '0.00' }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dates -->
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Invoice Date</label>
+        <input type="date" formControlName="invoice_date"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Service Date</label>
+        <input type="date" formControlName="service_date"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Payment Date</label>
+        <input type="date" formControlName="payment_date"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="block text-xs font-medium text-muted-foreground mb-1">Notes</label>
+      <textarea formControlName="notes" rows="2" placeholder="Internal notes..."
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"></textarea>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="flex justify-end gap-3 px-6 py-4 border-t border-border">
+    <button type="button" (click)="dialogRef.close()"
+            class="inline-flex items-center h-9 px-4 rounded-md text-sm font-medium border border-input bg-background text-foreground hover:bg-accent transition-colors">
+      Cancel
+    </button>
+    <button type="button" (click)="submit()" [disabled]="isSubmitting"
+            class="inline-flex items-center h-9 px-4 rounded-md text-sm font-medium text-white transition-colors disabled:opacity-50"
+            style="background:#2563eb;">
+      {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
+
+</div>

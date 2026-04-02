@@ -13,6 +13,8 @@ import { RecruitingInvoiceDialogComponent } from '../recruiting-invoice-dialog/r
 import { InvoicePreviewDialogComponent } from '../invoice-preview-dialog/invoice-preview-dialog.component';
 import { ApprovalCardComponent } from '../../customComponents/approval-card/approval-card.component';
 import { HistoryDialogComponent } from '../../customComponents/history-dialog/history-dialog.component';
+import { CreateCreditDebitNoteDialogComponent } from '../../sales-invoices/create-credit-debit-note-dialog/create-credit-debit-note-dialog.component';
+import { CompleteRecruitingNoteDialogComponent } from '../../invoices/complete-recruiting-note-dialog/complete-recruiting-note-dialog.component';
 import * as XLSX from 'xlsx';
 // ShadCN UI Components
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
@@ -33,7 +35,9 @@ import { BadgeComponent } from '../../shared/components/ui/badge/badge.component
     CardDescriptionComponent,
     CardContentComponent,
     BadgeComponent,
-    ApprovalCardComponent
+    ApprovalCardComponent,
+    CreateCreditDebitNoteDialogComponent,
+    CompleteRecruitingNoteDialogComponent,
   ],
   templateUrl: './recruiting-order.component.html'
 })
@@ -411,6 +415,12 @@ export class RecruitingOrderComponent implements OnInit {
     return efType ? efType.name : '';
   }
 
+  /** Returns allowed statuses for a position — hides Canceled CF (4) when position has ADMIN fee */
+  getPositionStatuses(position: any): any[] {
+    const isAdmin = this.getPositionExtraFeeTypeName(position) === 'ADMIN';
+    return (this.statuses || []).filter(s => !(isAdmin && s.ID === 4));
+  }
+
   canClosePosition(position: any): boolean {
     return (position.number_filled || 0) < position.number_of_people;
   }
@@ -436,6 +446,67 @@ export class RecruitingOrderComponent implements OnInit {
       case 'cancel_fee': return 'Cancel Fee';
       default: return type;
     }
+  }
+
+  // ─── CREDIT/DEBIT NOTES ───
+
+  isCreditMemo(inv: any): boolean {
+    return inv.documentType === 'Credit Memo';
+  }
+
+  getSourceInvoice(note: any): any {
+    if (!note.sourceInvoiceId) return null;
+    return this.invoices.find(i => i.ID === note.sourceInvoiceId) || null;
+  }
+
+  getCreditNotes(inv: any): any[] {
+    return this.invoices.filter(i => i.sourceInvoiceId === inv.ID);
+  }
+
+  getRecNoteTypeBadge(inv: any): string {
+    if (!this.isCreditMemo(inv)) return '';
+    return inv.noteType === 'credit' ? 'Credit Note' : 'Debit Note';
+  }
+
+  private openRecNoteDialog(inv: any, noteType: 'credit' | 'debit') {
+    const normalizedInv = {
+      ...inv,
+      lines: [{
+        lineNo: 1,
+        description: `${inv.candidate_first_name || ''} ${inv.candidate_last_name || ''}`.trim() || 'Fee',
+        quantity: 1,
+        unitPriceExclVAT: inv.final_fee_amount || 0,
+        vatProdPostingGroup: '',
+      }],
+      paymentDueDays: 30,
+    };
+    const dialogRef = this.dialog.open(CreateCreditDebitNoteDialogComponent, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: { invoice: normalizedInv, noteType, invoiceType: 'recruiting' }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.created) this.loadInvoices();
+    });
+  }
+
+  createRecCreditNote(inv: any) {
+    this.openRecNoteDialog(inv, 'credit');
+  }
+
+  createRecDebitNote(inv: any) {
+    this.openRecNoteDialog(inv, 'debit');
+  }
+
+  openCompleteRecNoteDialog(note: any) {
+    const dialogRef = this.dialog.open(CompleteRecruitingNoteDialogComponent, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: { note }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.saved) this.loadInvoices();
+    });
   }
 
   getInvoiceTypeBadgeVariant(type: string): 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'secondary' {

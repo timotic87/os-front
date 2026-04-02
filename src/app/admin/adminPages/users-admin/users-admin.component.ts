@@ -36,6 +36,7 @@ import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescription
 export class UsersAdminComponent {
 
   searchText: string = '';
+  filterStatus: string = '';
   userList: UserModel[] = [];
   filteredUserList: UserModel[] = [];
 
@@ -62,18 +63,21 @@ export class UsersAdminComponent {
   }
 
   search() {
-    if (!this.searchText || this.searchText.trim().length === 0) {
-      this.filteredUserList = [...this.userList];
-      return;
+    let result = [...this.userList];
+    if (this.searchText.trim()) {
+      const s = this.searchText.trim().toLowerCase();
+      result = result.filter(user =>
+        user.fullName?.toLowerCase().includes(s) ||
+        user.userName?.toLowerCase().includes(s) ||
+        user.department?.name?.toLowerCase().includes(s) ||
+        user.unit?.name?.toLowerCase().includes(s) ||
+        user.position?.name?.toLowerCase().includes(s)
+      );
     }
-    const s = this.searchText.trim().toLowerCase();
-    this.filteredUserList = this.userList.filter(user =>
-      user.fullName?.toLowerCase().includes(s) ||
-      user.userName?.toLowerCase().includes(s) ||
-      user.department?.name?.toLowerCase().includes(s) ||
-      user.unit?.name?.toLowerCase().includes(s) ||
-      user.position?.name?.toLowerCase().includes(s)
-    );
+    if (this.filterStatus) {
+      result = result.filter(user => user.status?.name === this.filterStatus);
+    }
+    this.filteredUserList = result;
   }
 
   onSearchInput() {
@@ -82,14 +86,20 @@ export class UsersAdminComponent {
 
   clearSearch() {
     this.searchText = '';
+    this.filterStatus = '';
     this.filteredUserList = [...this.userList];
+  }
+
+  get uniqueStatuses(): string[] {
+    const names = this.userList.map(u => u.status?.name).filter(Boolean) as string[];
+    return [...new Set(names)].sort();
   }
 
   updateUsers() {
     this.rest.getUsers().subscribe(res => {
       if (res.status == 200) {
         this.userList = this.usersService.getListOfUsers(res.data);
-        this.filteredUserList = [...this.userList];
+        this.search();
       }
     });
   }

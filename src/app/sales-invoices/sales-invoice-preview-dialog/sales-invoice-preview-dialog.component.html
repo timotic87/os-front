@@ -1,12 +1,18 @@
 <div class="preview-dialog">
   <div class="dialog-header">
-    <div class="flex items-center gap-3">
-      <h2 class="text-xl font-semibold text-foreground">Sales Invoice</h2>
+    <div class="flex items-center gap-3 flex-wrap">
+      <h2 class="text-xl font-semibold text-foreground">
+        {{ invoice?.documentType === 'Credit Memo' ? (invoice?.noteType === 'credit' ? 'Credit Note' : 'Debit Note') : 'Manual Invoice' }}
+      </h2>
       <ng-container *ngIf="invoice">
         <ui-badge [variant]="getStatusBadgeVariant(invoice.status)" class="capitalize">
           {{ invoice.status }}
         </ui-badge>
         <span class="text-sm text-muted-foreground font-mono">{{ invoice.invoiceNo }}</span>
+        <span *ngIf="invoice.documentType === 'Credit Memo'"
+              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+          Credit Memo
+        </span>
       </ng-container>
     </div>
     <button class="close-button" (click)="close()" aria-label="Close">
@@ -34,6 +40,30 @@
 
     <!-- Invoice Content -->
     <div *ngIf="!loading && invoice && !error" class="space-y-5">
+
+      <!-- Credit/Debit Note Info -->
+      <div *ngIf="invoice.documentType === 'Credit Memo'" class="preview-section"
+           style="border-left: 3px solid #7c3aed; padding-left: 12px;">
+        <div class="section-label">Note — BC Data</div>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="item-label">Ref. Invoice No.</span>
+            <span class="item-value font-mono">{{ invoice.refInvoiceNo || '—' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="item-label">eInvoice Subtype</span>
+            <span class="item-value">{{ invoice.eInvoiceDocSubtype || '—' }}</span>
+          </div>
+          <div *ngIf="invoice.noteComment" class="preview-item" style="grid-column: 1 / -1;">
+            <span class="item-label">Komentar</span>
+            <span class="item-value whitespace-pre-wrap">{{ invoice.noteComment }}</span>
+          </div>
+          <div *ngIf="invoice.sourceInvoiceId" class="preview-item">
+            <span class="item-label">Izvorna faktura ID</span>
+            <span class="item-value font-mono">#{{ invoice.sourceInvoiceId }}</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Description -->
       <div *ngIf="invoice.description" class="preview-section">

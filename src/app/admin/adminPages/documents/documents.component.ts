@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgForOf, NgIf } from '@angular/common';
 import {RestService} from "../../../services/rest.service";
 import {MatDialog} from "@angular/material/dialog";
 import {AddDocumentTypeComponent} from "./add-document-type/add-document-type.component";
@@ -10,15 +12,38 @@ import {CardComponent, CardContentComponent, CardHeaderComponent, CardTitleCompo
   selector: 'app-documents',
   standalone: true,
   imports: [
-    CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent
+    CardComponent, CardContentComponent, CardHeaderComponent, CardTitleComponent,
+    FormsModule, NgForOf, NgIf
   ],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.css'
 })
 export class DocumentsComponent {
 
-  documetTypes = [];
-  documentSubTypes = [];
+  documetTypes: any[] = [];
+  documentSubTypes: any[] = [];
+
+  searchDocTypes = '';
+  searchSubTypes = '';
+  filterSubTypeByDocType = '';
+
+  get filteredDocTypes(): any[] {
+    if (!this.searchDocTypes.trim()) return this.documetTypes;
+    const s = this.searchDocTypes.trim().toLowerCase();
+    return this.documetTypes.filter(t => t.typeName.toLowerCase().includes(s));
+  }
+
+  get filteredSubTypes(): any[] {
+    let result = this.documentSubTypes;
+    if (this.filterSubTypeByDocType) {
+      result = result.filter(t => String(t.DocumentType?.ID) === this.filterSubTypeByDocType);
+    }
+    if (this.searchSubTypes.trim()) {
+      const s = this.searchSubTypes.trim().toLowerCase();
+      result = result.filter(t => t.subTypeName.toLowerCase().includes(s));
+    }
+    return result;
+  }
 
   constructor(private rest: RestService, private matDialog: MatDialog, private dialogService: DialogService) {
     this.getDocumetsTypes();

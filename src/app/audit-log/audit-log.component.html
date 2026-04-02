@@ -48,12 +48,12 @@
       </div>
       <div>
         <label class="block text-xs font-medium text-muted-foreground mb-1">From</label>
-        <input type="date" [(ngModel)]="filterDateFrom" (change)="applyFilters()"
+        <input type="date" [(ngModel)]="filterDateFrom" (ngModelChange)="applyFilters()"
                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
       </div>
       <div>
         <label class="block text-xs font-medium text-muted-foreground mb-1">To</label>
-        <input type="date" [(ngModel)]="filterDateTo" (change)="applyFilters()"
+        <input type="date" [(ngModel)]="filterDateTo" (ngModelChange)="applyFilters()"
                class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
       </div>
       <div>

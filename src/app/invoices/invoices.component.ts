@@ -9,6 +9,11 @@ import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescription
 import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 import { InvoicePreviewDialogComponent } from '../recruiting-orders/invoice-preview-dialog/invoice-preview-dialog.component';
 import { SalesInvoicePreviewDialogComponent } from '../sales-invoices/sales-invoice-preview-dialog/sales-invoice-preview-dialog.component';
+import { CompleteNoteDialogComponent } from '../sales-invoices/complete-note-dialog/complete-note-dialog.component';
+import { CompleteRecruitingNoteDialogComponent } from './complete-recruiting-note-dialog/complete-recruiting-note-dialog.component';
+import { CreateCreditDebitNoteDialogComponent } from '../sales-invoices/create-credit-debit-note-dialog/create-credit-debit-note-dialog.component';
+import { EditRecruitingInvoiceDialogComponent } from './edit-recruiting-invoice-dialog/edit-recruiting-invoice-dialog.component';
+import { EditSalesInvoiceDialogComponent } from './edit-sales-invoice-dialog/edit-sales-invoice-dialog.component';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -24,7 +29,9 @@ import * as XLSX from 'xlsx';
     CardTitleComponent,
     CardDescriptionComponent,
     CardContentComponent,
-    BadgeComponent
+    BadgeComponent,
+    EditRecruitingInvoiceDialogComponent,
+    EditSalesInvoiceDialogComponent
   ],
   templateUrl: './invoices.component.html'
 })
@@ -39,10 +46,13 @@ export class InvoicesComponent implements OnInit {
   pageSize = 20;
   offset = 0;
   loading = true;
-  filterSearch = '';
   filterType = '';
+  filterLegalEntity = '';
+  filterSentToBC = '';
+  filterSearch = '';
   Math = Math;
   sendingToBC: { [id: number]: boolean } = {};
+  legalEntities: any[] = [];
 
   typeOptions = [
     { value: '', label: 'All Types' },
@@ -57,7 +67,17 @@ export class InvoicesComponent implements OnInit {
   salesOffset = 0;
   salesLoading = true;
   salesFilterSearch = '';
+  salesFilterLegalEntity = '';
+  salesFilterSentToBC = '';
+  salesFilterDocType = '';
   sendingSalesToBC: { [id: number]: boolean } = {};
+
+  salesDocTypeOptions = [
+    { value: '', label: 'All Types' },
+    { value: 'invoice', label: 'Invoice' },
+    { value: 'credit', label: 'Credit Note' },
+    { value: 'debit', label: 'Debit Note' },
+  ];
 
   openMenuId: string | null = null;
 
@@ -80,6 +100,7 @@ export class InvoicesComponent implements OnInit {
   ngOnInit(): void {
     this.loadInvoices();
     this.loadSalesInvoices();
+    this.rest.getLEList().subscribe({ next: (r: any) => { this.legalEntities = r.status === 200 ? r.data : []; } });
   }
 
   switchTab(tab: 'recruiting' | 'sales') {
@@ -93,8 +114,10 @@ export class InvoicesComponent implements OnInit {
     this.rest.getApprovedRecruitingInvoices({
       offset: this.offset,
       limit: this.pageSize,
-      search: this.filterSearch || undefined,
-      type: this.filterType || undefined
+      type: this.filterType || undefined,
+      legalEntityId: this.filterLegalEntity || undefined,
+      sentToBC: this.filterSentToBC !== '' ? this.filterSentToBC : undefined,
+      search: this.filterSearch || undefined
     }).subscribe({
       next: (res: any) => {
         if (res.status === 200) {
@@ -116,8 +139,10 @@ export class InvoicesComponent implements OnInit {
   }
 
   clearFilters() {
-    this.filterSearch = '';
     this.filterType = '';
+    this.filterLegalEntity = '';
+    this.filterSentToBC = '';
+    this.filterSearch = '';
     this.offset = 0;
     this.loadInvoices();
   }
@@ -198,7 +223,10 @@ export class InvoicesComponent implements OnInit {
     this.rest.getReadySalesInvoices({
       offset: this.salesOffset,
       limit: this.pageSize,
-      customerSearch: this.salesFilterSearch || undefined
+      customerSearch: this.salesFilterSearch || undefined,
+      legalEntityId: this.salesFilterLegalEntity || undefined,
+      sentToBC: this.salesFilterSentToBC !== '' ? this.salesFilterSentToBC : undefined,
+      docType: this.salesFilterDocType || undefined
     }).subscribe({
       next: (res: any) => {
         if (res.status === 200) {
@@ -221,6 +249,9 @@ export class InvoicesComponent implements OnInit {
 
   clearSalesFilters() {
     this.salesFilterSearch = '';
+    this.salesFilterLegalEntity = '';
+    this.salesFilterSentToBC = '';
+    this.salesFilterDocType = '';
     this.salesOffset = 0;
     this.loadSalesInvoices();
   }
@@ -368,6 +399,144 @@ export class InvoicesComponent implements OnInit {
       if (isDomestic && o.value === 'delivered') return false;
       if (!isDomestic && o.value === 'sef') return false;
       return true;
+    });
+  }
+
+  // ─── CREDIT/DEBIT NOTES ───
+
+  openEditRecruitingInvoiceDialog(inv: any) {
+    const ref = this.dialog.open(EditRecruitingInvoiceDialogComponent, {
+      width: '680px',
+      maxWidth: '95vw',
+      data: { invoice: inv }
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result) this.loadInvoices();
+    });
+  }
+
+  openEditSalesInvoiceDialog(inv: any) {
+    const ref = this.dialog.open(EditSalesInvoiceDialogComponent, {
+      width: '860px',
+      maxWidth: '95vw',
+      data: { invoice: inv }
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result) this.loadSalesInvoices();
+    });
+  }
+
+  isCreditMemo(inv: any): boolean {
+    return inv.documentType === 'Credit Memo';
+  }
+
+  getRecNoteTypeBadge(inv: any): string {
+    if (!this.isCreditMemo(inv)) return '';
+    return inv.noteType === 'credit' ? 'Credit Note' : 'Debit Note';
+  }
+
+  getSalesNoteTypeBadge(inv: any): string {
+    if (!this.isCreditMemo(inv)) return '';
+    return inv.noteType === 'credit' ? 'Credit Note' : 'Debit Note';
+  }
+
+  private openRecNoteDialog(inv: any, noteType: 'credit' | 'debit') {
+    const normalizedInv = {
+      ...inv,
+      lines: [{
+        lineNo: 1,
+        description: `${inv.candidate_first_name || ''} ${inv.candidate_last_name || ''}`.trim() || 'Fee',
+        quantity: 1,
+        unitPriceExclVAT: inv.final_fee_amount || 0,
+        vatProdPostingGroup: '',
+      }],
+      paymentDueDays: 30,
+    };
+    const dialogRef = this.dialog.open(CreateCreditDebitNoteDialogComponent, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: { invoice: normalizedInv, noteType, invoiceType: 'recruiting' }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.created) this.loadInvoices();
+    });
+  }
+
+  createRecCreditNote(inv: any) {
+    this.openRecNoteDialog(inv, 'credit');
+  }
+
+  createRecDebitNote(inv: any) {
+    this.openRecNoteDialog(inv, 'debit');
+  }
+
+  openCompleteRecNoteDialog(note: any) {
+    const dialogRef = this.dialog.open(CompleteRecruitingNoteDialogComponent, {
+      width: '720px',
+      data: { note, showRefInvoiceNo: true }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.saved) this.loadInvoices();
+    });
+  }
+
+  createSalesCreditNote(inv: any) {
+    const dialogRef = this.dialog.open(CreateCreditDebitNoteDialogComponent, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: { invoice: inv, noteType: 'credit' }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.created) this.loadSalesInvoices();
+    });
+  }
+
+  createSalesDebitNote(inv: any) {
+    const dialogRef = this.dialog.open(CreateCreditDebitNoteDialogComponent, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: { invoice: inv, noteType: 'debit' }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.created) this.loadSalesInvoices();
+    });
+  }
+
+  markSalesNoteReady(inv: any) {
+    this.rest.changeStatusSalesInvoice({ invoiceId: inv.id, newStatus: 'ready' }).subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Marked as ready', '', 2500);
+          this.loadSalesInvoices();
+        }
+      },
+      error: (err: any) => this.dialogService.errorServDialog(err)
+    });
+  }
+
+  revertSalesCreditNoteToDraft(inv: any) {
+    const ref = this.dialogService.showChooseDialog(`Revert ${inv.invoiceNo} to Draft?`);
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.rest.changeStatusSalesInvoice({ invoiceId: inv.id, newStatus: 'draft' }).subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            this.dialogService.showSnackBar('Reverted to draft', '', 2500);
+            this.loadSalesInvoices();
+          }
+        },
+        error: (err: any) => this.dialogService.errorServDialog(err)
+      });
+    });
+  }
+
+  openCompleteSalesNoteDialog(note: any) {
+    const dialogRef = this.dialog.open(CompleteNoteDialogComponent, {
+      width: '720px',
+      data: { note }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.saved) this.loadSalesInvoices();
     });
   }
 

@@ -9,6 +9,9 @@ import { DialogService } from '../services/dialog.service';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent } from '../shared/components/ui/card/card.component';
 import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 import { SalesInvoicePreviewDialogComponent } from './sales-invoice-preview-dialog/sales-invoice-preview-dialog.component';
+import { CompleteNoteDialogComponent } from './complete-note-dialog/complete-note-dialog.component';
+import { CreateCreditDebitNoteDialogComponent } from './create-credit-debit-note-dialog/create-credit-debit-note-dialog.component';
+import { EditSalesInvoiceDialogComponent } from '../invoices/edit-sales-invoice-dialog/edit-sales-invoice-dialog.component';
 
 @Component({
   selector: 'app-sales-invoices',
@@ -25,14 +28,15 @@ import { SalesInvoicePreviewDialogComponent } from './sales-invoice-preview-dial
     CardTitleComponent,
     CardDescriptionComponent,
     CardContentComponent,
-    BadgeComponent
+    BadgeComponent,
+    EditSalesInvoiceDialogComponent
   ],
   templateUrl: './sales-invoices.component.html',
   styleUrl: './sales-invoices.component.css'
 })
 export class SalesInvoicesComponent implements OnInit {
 
-  mode: 'list' | 'create' | 'edit' = 'list';
+  mode: 'list' | 'create' = 'list';
 
   // List state
   invoices: any[] = [];
@@ -51,10 +55,8 @@ export class SalesInvoicesComponent implements OnInit {
   costCenters: any[] = [];
   filteredCostCenters: any[] = [];
   currencies: any[] = [];
-  vatPostingGroups: any[] = [];
   clientSuggestions: any[] = [];
   creating = false;
-  editingInvoice: any = null;
 
   openMenuId: string | null = null;
   postBcStatusOptions = [
@@ -203,69 +205,24 @@ export class SalesInvoicesComponent implements OnInit {
 
   switchToCreate() {
     this.mode = 'create';
-    this.editingInvoice = null;
     this.loadDropdowns();
     this.initForm();
   }
 
   switchToList() {
     this.mode = 'list';
-    this.editingInvoice = null;
     this.loadInvoices();
   }
 
-  // ─── EDIT MODE ───
-
-  switchToEdit(inv: any) {
-    this.editingInvoice = inv;
-    this.mode = 'edit';
-    this.loadDropdowns();
-    this.initForm();
-
-    // Fetch full invoice with lines
-    this.rest.getSalesInvoiceByID(inv.id).subscribe({
-      next: (res: any) => {
-        if (res.status === 200 && res.data) {
-          this.editingInvoice = res.data;
-          this.populateFormFromInvoice(res.data);
-        }
-      },
-      error: (err: any) => {
-        this.dialogService.errorServDialog(err);
-        this.switchToList();
-      }
+  openEditDialog(inv: any) {
+    const ref = this.dialog.open(EditSalesInvoiceDialogComponent, {
+      width: '860px',
+      maxWidth: '95vw',
+      data: { invoice: inv }
     });
-  }
-
-  private populateFormFromInvoice(inv: any) {
-    this.invoiceForm.patchValue({
-      legalEntityId: inv.legalEntityId,
-      clientSearch: inv.customerName || inv.client?.customerName || '',
-      clientId: inv.clientId,
-      serviceId: inv.serviceId,
-      costCenterSearch: inv.costCenter ? `${inv.costCenter.code} - ${inv.costCenter.name}` : '',
-      costCenterId: inv.costCenterId,
-      currencyCode: inv.currencyCode || '',
-      issueDate: inv.issueDate ? inv.issueDate.split('T')[0] : '',
-      transactionDate: inv.transactionDate ? inv.transactionDate.split('T')[0] : '',
-      paymentDueDays: inv.paymentDueDays || 30,
-      description: inv.description || ''
+    ref.afterClosed().subscribe(result => {
+      if (result) this.loadInvoices();
     });
-
-    // Clear and re-add lines
-    this.lines.clear();
-    if (inv.lines && inv.lines.length > 0) {
-      for (const line of inv.lines) {
-        this.lines.push(this.fb.group({
-          description: [line.description || ''],
-          quantity: [line.quantity || 1, [Validators.required, Validators.min(0.01)]],
-          unitPriceExclVAT: [line.unitPriceExclVAT || 0, [Validators.required, Validators.min(0)]],
-          vatProdPostingGroup: [line.vatProdPostingGroup || '0']
-        }));
-      }
-    } else {
-      this.addLine();
-    }
   }
 
   // ─── SAVE (create or update) ───
@@ -296,41 +253,23 @@ export class SalesInvoicesComponent implements OnInit {
       lines: formVal.lines.map((l: any) => ({
         description: l.description || null,
         quantity: l.quantity,
-        unitPriceExclVAT: l.unitPriceExclVAT,
-        vatProdPostingGroup: l.vatProdPostingGroup || '0'
+        unitPriceExclVAT: l.unitPriceExclVAT
       }))
     };
 
-    if (this.mode === 'edit' && this.editingInvoice) {
-      payload.invoiceId = this.editingInvoice.id;
-      this.rest.updateSalesInvoice(payload).subscribe({
-        next: (res: any) => {
-          this.creating = false;
-          if (res.status === 200) {
-            this.dialogService.showSnackBar(`Invoice ${res.data?.invoiceNo || ''} updated successfully`, '', 3000);
-            this.switchToList();
-          }
-        },
-        error: (err: any) => {
-          this.creating = false;
-          this.dialogService.errorServDialog(err);
+    this.rest.createSalesInvoice(payload).subscribe({
+      next: (res: any) => {
+        this.creating = false;
+        if (res.status === 201 || res.status === 200) {
+          this.dialogService.showSnackBar(`Invoice ${res.data?.invoiceNo || ''} created successfully`, '', 3000);
+          this.switchToList();
         }
-      });
-    } else {
-      this.rest.createSalesInvoice(payload).subscribe({
-        next: (res: any) => {
-          this.creating = false;
-          if (res.status === 201 || res.status === 200) {
-            this.dialogService.showSnackBar(`Invoice ${res.data?.invoiceNo || ''} created successfully`, '', 3000);
-            this.switchToList();
-          }
-        },
-        error: (err: any) => {
-          this.creating = false;
-          this.dialogService.errorServDialog(err);
-        }
-      });
-    }
+      },
+      error: (err: any) => {
+        this.creating = false;
+        this.dialogService.errorServDialog(err);
+      }
+    });
   }
 
   // ─── ACTIONS ───
@@ -389,6 +328,47 @@ export class SalesInvoicesComponent implements OnInit {
     });
   }
 
+  createCreditNote(inv: any) {
+    const dialogRef = this.dialog.open(CreateCreditDebitNoteDialogComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      data: { invoice: inv, noteType: 'credit' }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.created) this.loadInvoices();
+    });
+  }
+
+  createDebitNote(inv: any) {
+    const dialogRef = this.dialog.open(CreateCreditDebitNoteDialogComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      data: { invoice: inv, noteType: 'debit' }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.created) this.loadInvoices();
+    });
+  }
+
+  openCompleteNoteDialog(note: any) {
+    const dialogRef = this.dialog.open(CompleteNoteDialogComponent, {
+      width: '720px',
+      data: { note }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result?.saved) this.loadInvoices();
+    });
+  }
+
+  isCreditMemo(inv: any): boolean {
+    return inv.documentType === 'Credit Memo';
+  }
+
+  getNoteTypeBadge(inv: any): string {
+    if (!this.isCreditMemo(inv)) return '';
+    return inv.noteType === 'credit' ? 'Credit Note' : 'Debit Note';
+  }
+
   showRevertNote(inv: any) {
     const who = inv.reverter ? `${inv.reverter.firstName} ${inv.reverter.lastName}` : 'Someone';
     this.dialog.open(RevertNoteDialogComponent, {
@@ -433,11 +413,6 @@ export class SalesInvoicesComponent implements OnInit {
         this.currencies = res.status === 200 ? res.data : [];
       }
     });
-    this.rest.getVatPostingGroups().subscribe({
-      next: (res: any) => {
-        this.vatPostingGroups = Array.isArray(res) ? res : [];
-      }
-    });
   }
 
   private getTodayString(): string {
@@ -471,12 +446,10 @@ export class SalesInvoicesComponent implements OnInit {
   }
 
   addLine() {
-    const defaultVat = this.vatPostingGroups.find(v => v.is_default)?.code || '0';
     this.lines.push(this.fb.group({
       description: [''],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      unitPriceExclVAT: [0, [Validators.required, Validators.min(0)]],
-      vatProdPostingGroup: [defaultVat]
+      unitPriceExclVAT: [0, [Validators.required, Validators.min(0)]]
     }));
   }
 

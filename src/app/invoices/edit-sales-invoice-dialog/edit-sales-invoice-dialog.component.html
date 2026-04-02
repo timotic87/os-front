@@ -1,0 +1,214 @@
+<div class="flex flex-col" style="min-width: 760px; max-width: 95vw;">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+    <svg class="h-5 w-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+    </svg>
+    <div>
+      <h2 class="text-base font-semibold text-foreground">Edit Manual Invoice</h2>
+      <p class="text-xs text-muted-foreground mt-0.5">{{ data.invoice.invoiceNo }}</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="px-6 py-5 overflow-y-auto" style="max-height: 75vh;" [formGroup]="form">
+
+    <!-- Header fields -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+      <!-- Legal Entity -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity *</label>
+        <select formControlName="legalEntityId"
+                class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+          <option [ngValue]="null" disabled>Select legal entity</option>
+          @for (le of legalEntities; track le.id) {
+            <option [ngValue]="le.id">{{ le.shortName || le.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Client -->
+      <div class="relative">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Client</label>
+        <input type="text" formControlName="clientSearch"
+               (input)="onClientSearch($event)"
+               placeholder="Type to search clients..."
+               autocomplete="off"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+        @if (clientSuggestions.length > 0) {
+          <div class="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto">
+            @for (c of clientSuggestions; track c.id) {
+              <button type="button" (click)="selectClient(c)"
+                      class="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors">
+                <span class="font-medium">{{ c.customerName }}</span>
+                @if (c.customerNo) { <span class="text-muted-foreground ml-2">({{ c.customerNo }})</span> }
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Service -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Service (VU)</label>
+        <select formControlName="serviceId"
+                class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+          <option [ngValue]="null">-- None --</option>
+          @for (s of services; track s.ID) {
+            <option [ngValue]="s.ID">{{ s.name }} {{ s.code ? '(' + s.code + ')' : '' }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Cost Center -->
+      <div class="relative">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Cost Center (MT)</label>
+        <input type="text" formControlName="costCenterSearch"
+               (input)="onCostCenterSearch($event)"
+               placeholder="Type code or name..."
+               autocomplete="off"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+        @if (filteredCostCenters.length > 0) {
+          <div class="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto">
+            @for (cc of filteredCostCenters; track cc.ID) {
+              <button type="button" (click)="selectCostCenter(cc)"
+                      class="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors">
+                <span class="font-mono font-medium">{{ cc.code }}</span>
+                <span class="text-muted-foreground ml-2">{{ cc.name }}</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Currency -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Currency</label>
+        <select formControlName="currencyCode"
+                class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+          <option value="">-- None --</option>
+          @for (c of currencies; track c.id) {
+            <option [value]="c.code">{{ c.code }} - {{ c.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Issue Date -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Issue Date</label>
+        <input type="date" formControlName="issueDate"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+
+      <!-- Transaction Date -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Transaction Date</label>
+        <input type="date" formControlName="transactionDate"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+
+      <!-- Payment Due Days -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Payment Due Days</label>
+        <input type="number" formControlName="paymentDueDays" min="0"
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
+
+      <!-- Due Date (calculated) -->
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Due Date (calculated)</label>
+        <input type="text" [value]="calculatedDueDate || '—'" readonly
+               class="w-full h-9 rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground cursor-default"/>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-6">
+      <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+      <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"></textarea>
+    </div>
+
+    <!-- Lines -->
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-foreground">Invoice Lines</h3>
+        <button type="button" (click)="addLine()"
+                class="inline-flex items-center gap-1 h-8 px-3 rounded-md text-sm font-medium border border-input bg-background text-foreground hover:bg-accent transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add Line
+        </button>
+      </div>
+      <div class="overflow-x-auto rounded-md border border-border">
+        <table class="w-full text-sm">
+          <thead class="bg-muted/50">
+            <tr>
+              <th class="px-2 py-2 text-left text-xs font-medium text-muted-foreground w-5">#</th>
+              <th class="px-2 py-2 text-left text-xs font-medium text-muted-foreground">Description</th>
+              <th class="px-2 py-2 text-right text-xs font-medium text-muted-foreground w-24">Qty</th>
+              <th class="px-2 py-2 text-right text-xs font-medium text-muted-foreground w-44">Unit Price</th>
+              <th class="px-2 py-2 text-right text-xs font-medium text-muted-foreground w-28">Amount</th>
+              <th class="w-8"></th>
+            </tr>
+          </thead>
+          <tbody formArrayName="lines">
+            @for (line of lines.controls; track line; let i = $index) {
+              <tr [formGroupName]="i" class="border-t border-border">
+                <td class="px-2 py-2 text-xs text-muted-foreground">{{ i + 1 }}</td>
+                <td class="px-2 py-1">
+                  <input type="text" formControlName="description" placeholder="Description..."
+                         class="w-full h-8 rounded border border-input bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"/>
+                </td>
+                <td class="px-2 py-1">
+                  <input type="number" formControlName="quantity" min="1"
+                         class="w-full h-8 rounded border border-input bg-background px-2 text-sm text-right focus:outline-none focus:ring-1 focus:ring-ring"/>
+                </td>
+                <td class="px-2 py-1">
+                  <div class="flex items-center gap-1.5">
+                    <input type="number" formControlName="unitPriceExclVAT" min="0" step="0.01"
+                           class="w-full h-8 rounded border border-input bg-background px-2 text-sm text-right focus:outline-none focus:ring-1 focus:ring-ring"/>
+                    @if (selectedCurrency) {
+                      <span class="text-xs font-medium text-muted-foreground whitespace-nowrap">{{ selectedCurrency }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="px-2 py-2 text-right font-mono text-sm font-medium">{{ getLineAmount(i) | number:'1.2-2' }}</td>
+                <td class="px-1 py-1">
+                  <button type="button" (click)="removeLine(i)"
+                          class="inline-flex items-center justify-center w-7 h-7 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot class="bg-muted/30 border-t-2 border-border">
+            <tr>
+              <td colspan="4" class="px-2 py-2 text-right text-sm font-semibold text-muted-foreground">Total:</td>
+              <td class="px-2 py-2 text-right font-mono text-sm font-bold">{{ totalAmount | number:'1.2-2' }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="flex justify-end gap-3 px-6 py-4 border-t border-border">
+    <ui-button variant="outline" (click)="dialogRef.close()">Cancel</ui-button>
+    <ui-button (click)="submit()" [disabled]="isSubmitting"
+               style="background:#2563eb; color:#fff;">
+      {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+    </ui-button>
+  </div>
+
+</div>
