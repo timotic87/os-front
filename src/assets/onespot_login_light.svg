@@ -1,0 +1,23 @@
+<svg width="260" height="200" viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- App icon rounded square - light variant -->
+  <rect x="80" y="8" width="100" height="100" rx="22" fill="rgba(255,255,255,0.12)"/>
+  <rect x="80" y="8" width="100" height="100" rx="22" fill="none" stroke="#FF5A3C" stroke-width="1" opacity="0.4"/>
+
+  <!-- Location pin -->
+  <path d="M 130 96 C 111 88 105 72 106 50 A 24 24 0 0 0 154 50 C 155 72 149 88 130 96 Z" fill="#FF5A3C"/>
+  <circle cx="130" cy="50" r="10" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="130" cy="50" r="3.5" fill="#FF5A3C"/>
+
+  <!-- Pulse rings -->
+  <circle cx="130" cy="96" r="5" fill="none" stroke="#FF5A3C" stroke-width="1.2" opacity="0.5"/>
+  <circle cx="130" cy="96" r="9" fill="none" stroke="#FF5A3C" stroke-width="0.8" opacity="0.25"/>
+
+  <!-- Wordmark - centriran text-anchor middle na x=130 -->
+  <text text-anchor="middle" x="130" y="142" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="36" letter-spacing="-0.5">
+    <tspan font-weight="300" fill="#ffffff">One</tspan><tspan font-weight="700" fill="#FF5A3C">Spot</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="130" y="163" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="8" font-weight="300" fill="#ffffff" letter-spacing="3.5" opacity="0.6">EVERYTHING IN ONE PLACE</text>
+  <line x1="62" y1="172" x2="198" y2="172" stroke="#ffffff" stroke-width="0.6" opacity="0.15"/>
+</svg>

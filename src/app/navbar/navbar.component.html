@@ -2,8 +2,9 @@
 
   <!-- Left: Logo + Nav Links -->
   <div class="flex items-center gap-6">
-    <a href="" class="flex items-center shrink-0">
-      <img src="../../assets/mp_color.png" class="h-6" alt="Logo" loading="lazy"/>
+    <a href="" class="flex items-center gap-2 shrink-0">
+      <img src="assets/onespot_icon.svg" class="h-8 w-8" alt="OneSpot" loading="lazy"/>
+      <span class="text-[10px] text-muted-foreground hidden sm:block">Built for Manpower</span>
     </a>
 
     <div class="flex items-center gap-1">
@@ -41,6 +42,11 @@
          routerLinkActive="bg-muted text-foreground" [routerLink]="['audit-log']"
          class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
         Audit Log
+      </a>
+
+      <a routerLinkActive="bg-muted text-foreground" [routerLink]="['help']"
+         class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+        Help
       </a>
 
       <!-- Utils Dropdown -->

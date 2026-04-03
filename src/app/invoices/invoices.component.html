@@ -271,24 +271,22 @@
         </div>
 
         <!-- Pagination -->
-        @if (totalCount > pageSize) {
-          <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
-            <div class="text-sm text-muted-foreground">
-              Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
-            </div>
-            <div class="flex items-center gap-2">
-              <button (click)="prevPage()" [disabled]="offset === 0"
-                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
-                Previous
-              </button>
-              <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
-              <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
-                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
-                Next
-              </button>
-            </div>
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, totalCount) }} of {{ totalCount }}
           </div>
-        }
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" [disabled]="offset === 0"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Previous
+            </button>
+            <span class="text-sm text-muted-foreground">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button (click)="nextPage()" [disabled]="offset + pageSize >= totalCount"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Next
+            </button>
+          </div>
+        </div>
       }
     }
 
@@ -527,24 +525,22 @@
         </div>
 
         <!-- Pagination -->
-        @if (salesTotalCount > pageSize) {
-          <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
-            <div class="text-sm text-muted-foreground">
-              Showing {{ salesOffset + 1 }}-{{ Math.min(salesOffset + pageSize, salesTotalCount) }} of {{ salesTotalCount }}
-            </div>
-            <div class="flex items-center gap-2">
-              <button (click)="salesPrevPage()" [disabled]="salesOffset === 0"
-                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
-                Previous
-              </button>
-              <span class="text-sm text-muted-foreground">Page {{ salesCurrentPage }} of {{ salesTotalPages }}</span>
-              <button (click)="salesNextPage()" [disabled]="salesOffset + pageSize >= salesTotalCount"
-                      class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
-                Next
-              </button>
-            </div>
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ salesOffset + 1 }}-{{ Math.min(salesOffset + pageSize, salesTotalCount) }} of {{ salesTotalCount }}
           </div>
-        }
+          <div class="flex items-center gap-2">
+            <button (click)="salesPrevPage()" [disabled]="salesOffset === 0"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Previous
+            </button>
+            <span class="text-sm text-muted-foreground">Page {{ salesCurrentPage }} of {{ salesTotalPages }}</span>
+            <button (click)="salesNextPage()" [disabled]="salesOffset + pageSize >= salesTotalCount"
+                    class="inline-flex items-center h-8 px-3 rounded-md text-sm border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              Next
+            </button>
+          </div>
+        </div>
       }
     }
 

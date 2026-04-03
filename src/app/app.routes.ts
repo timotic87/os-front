@@ -1,4 +1,5 @@
 import {Router, Routes} from '@angular/router';
+import {HelpComponent} from "./help/help.component";
 import {LoginComponent} from "./login/login.component";
 import {ClientsComponent} from "./clients/clients.component";
 import {ProfileComponent} from "./profile/profile.component";
@@ -144,6 +145,7 @@ export const routes: Routes = [
       return false;
     }]},
   {path: 'sales-invoices', component: SalesInvoicesComponent, canActivate: [authGuard]},
+  {path: 'help', component: HelpComponent, canActivate: [authGuard]},
   {path: 'audit-log', component: AuditLogComponent, canActivate: [authGuard, ()=>{
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
