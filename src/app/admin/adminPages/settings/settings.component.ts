@@ -32,11 +32,6 @@ export class SettingsComponent implements OnInit {
   savingSeq: { [legalEntityId: number]: boolean } = {};
   currentYearShort = String(new Date().getFullYear()).slice(-2);
 
-  // Client Master LE
-  legalEntities: any[] = [];
-  clientMasterLeId: string = '';
-  savingClientMasterLe = false;
-
   // BC Environments
   bcEnvs: any[] = [];
   bcEnvsLoading = false;
@@ -59,7 +54,6 @@ export class SettingsComponent implements OnInit {
     this.loadSettings();
     this.loadSeqInfo();
     this.loadBcEnvs();
-    this.loadClientMasterLe();
   }
 
   loadSeqInfo() {
@@ -156,50 +150,6 @@ export class SettingsComponent implements OnInit {
       },
       error: err => this.dialogService.errorServDialog(err)
     });
-  }
-
-  // --- Client Master Legal Entity ---
-
-  loadClientMasterLe() {
-    this.rest.getLEList().subscribe({
-      next: res => {
-        if (res.status === 200) {
-          this.legalEntities = (res.data || []).filter((le: any) => le.bcCompanyId && le.isActive !== false);
-        }
-      }
-    });
-    this.rest.getSettings().subscribe({
-      next: res => {
-        if (res.status === 200) {
-          const s = (res.data || []).find((x: any) => x.key === 'bc_client_master_le_id');
-          this.clientMasterLeId = s?.value || '';
-        }
-      }
-    });
-  }
-
-  saveClientMasterLe() {
-    if (!this.clientMasterLeId) return;
-    this.savingClientMasterLe = true;
-    this.rest.upsertSetting({
-      key: 'bc_client_master_le_id',
-      value: String(this.clientMasterLeId),
-      description: 'Legal entity whose BC company ID is used for all client (customerStaging) creation',
-      value_type: 'number'
-    }).subscribe({
-      next: res => {
-        this.savingClientMasterLe = false;
-        if (res.status === 200 || res.status === 201) {
-          this.dialogService.showSnackBar('Client master legal entity saved', '', 2500);
-        }
-      },
-      error: err => { this.savingClientMasterLe = false; this.dialogService.errorServDialog(err); }
-    });
-  }
-
-  getLeName(id: string): string {
-    const le = this.legalEntities.find((x: any) => String(x.id) === String(id));
-    return le ? `${le.name} (${le.bcCompanyId?.slice(0, 8)}...)` : '';
   }
 
   // --- BC Environments ---

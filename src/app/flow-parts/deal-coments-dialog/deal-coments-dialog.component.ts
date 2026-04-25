@@ -50,6 +50,7 @@ export class DealComentsDialogComponent implements OnInit{
       this.dialogService.showMsgDialog("You don't have permission to send comment");
       return;
     }
+    this.commentForm.markAllAsTouched();
     if(this.commentForm.valid){
       this.dialogService.showLoader();
       const data = { dealID: this.dealID, comment: this.commentForm.value.commentText };

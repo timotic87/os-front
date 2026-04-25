@@ -50,7 +50,7 @@ export const routes: Routes = [
       const userService = inject(UserService);
       const router = inject(Router);
       const dialogService = inject(DialogService);
-      if (userService.getUser() && userService.getUser().unit.id === 19 && userService.getUser().position.id === 44) {
+      if (userService.getUser() && userService.can('admin_access')) {
         return true;
       }
       router.navigate(['login']);

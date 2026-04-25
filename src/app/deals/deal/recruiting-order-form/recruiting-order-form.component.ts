@@ -603,6 +603,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
    * Submit the form to create recruiting order
    */
   onSubmit(): void {
+    this.orderForm.markAllAsTouched();
     if (this.orderForm.valid && !this.isActionsDisabled && !this.isSubmitting) {
       this.isSubmitting = true;
       this.orderCreating.emit(true);

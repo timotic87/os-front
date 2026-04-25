@@ -20,6 +20,7 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
   form!: FormGroup;
   isSubmitting = false;
   currencyCode = '';
+  vatPostingGroups: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -34,12 +35,17 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
       candidate_first_name: [''],
       candidate_last_name: [''],
       final_fee_amount: [''],
+      vat_prod_posting_group: ['0'],
       invoice_date: [''],
       service_date: [''],
       payment_date: [''],
       description: [''],
       notes: [''],
       lines: this.fb.array([])
+    });
+
+    this.rest.getVatPostingGroups().subscribe({
+      next: (res: any) => { this.vatPostingGroups = Array.isArray(res) ? res : (res.data || []); }
     });
 
     // Load full invoice to get all fields including description
@@ -51,6 +57,7 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
           candidate_first_name: inv.candidate_first_name || '',
           candidate_last_name:  inv.candidate_last_name  || '',
           final_fee_amount:     inv.final_fee_amount ?? '',
+          vat_prod_posting_group: inv.vat_prod_posting_group || '0',
           invoice_date:         inv.invoice_date  || '',
           service_date:         inv.service_date  || '',
           payment_date:         inv.payment_date  || '',
@@ -86,6 +93,7 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
       candidate_first_name: val.candidate_first_name || null,
       candidate_last_name: val.candidate_last_name || null,
       final_fee_amount: parseFloat(val.final_fee_amount) || null,
+      vat_prod_posting_group: val.vat_prod_posting_group || '0',
       invoice_date: val.invoice_date || null,
       service_date: val.service_date || null,
       payment_date: val.payment_date || null,

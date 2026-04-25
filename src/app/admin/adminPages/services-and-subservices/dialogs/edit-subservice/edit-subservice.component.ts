@@ -79,6 +79,7 @@ export class EditSubserviceComponent implements OnInit {
   }
 
   edit(){
+    this.editSubserviceForm.markAllAsTouched();
     if (this.editSubserviceForm.valid) {
       const f = this.editSubserviceForm.value;
       const { typeID, flowID } = this.parseFlowSelection();

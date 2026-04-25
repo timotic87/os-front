@@ -48,6 +48,7 @@ export class EditSubserviceLeComponent implements OnInit {
   }
 
   edit(){
+    this.subserviceLEForm.markAllAsTouched();
     if (this.subserviceLEForm.valid){
       if (this.current_LE_ID!==this.connectionobj.legalentityID || this.current_subservice_ID!==this.connectionobj.subserviceID){
         const data = {ID: this.connectionobj.ID, subserviceID: this.current_subservice_ID, legalEntityID: this.current_LE_ID};

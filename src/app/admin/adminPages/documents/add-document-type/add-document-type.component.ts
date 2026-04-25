@@ -39,6 +39,7 @@ export class AddDocumentTypeComponent implements OnInit {
   }
 
   create() {
+    this.docTypeForm.markAllAsTouched();
     if (this.docTypeForm.valid) {
       this.rest.createDocumentType(this.docTypeForm.value).subscribe({
           next: result => {

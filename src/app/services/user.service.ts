@@ -78,7 +78,7 @@ export class UserService {
   }
 
   public can(permissionName: string): boolean {
-    return this.getPermissions().includes(permissionName);
+    return this.getPermissions()?.includes(permissionName) ?? false;
   }
   async hasEntityAccess(entityType: string, entityId: number, requiredLevel?: 'view' | 'edit'): Promise<boolean> {
     return new Promise((resolve) => {

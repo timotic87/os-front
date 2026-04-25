@@ -64,6 +64,7 @@ export class AddSubserviceLeComponent implements OnInit {
   }
 
   create(){
+    this.subserviceLEForm.markAllAsTouched();
     if (this.subserviceLEForm.valid){
       const data = {subserviceID: this.currentSubservice.ID, legalEntityID: this.currentLe.id}
       this.SANDS.createSubserviceLe(data, this.dialogRef);

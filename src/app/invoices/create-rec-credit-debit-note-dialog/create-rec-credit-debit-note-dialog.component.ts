@@ -28,6 +28,7 @@ export class CreateRecCreditDebitNoteDialogComponent {
   ) {
     this.form = this.fb.group({
       finalFeeAmount: [data.invoice.final_fee_amount || 0, [Validators.required, Validators.min(0)]],
+      refInvoiceNo: [''],
     });
   }
 
@@ -38,6 +39,7 @@ export class CreateRecCreditDebitNoteDialogComponent {
       sourceInvoiceId: this.data.invoice.ID,
       noteType: this.data.noteType,
       finalFeeAmount: this.form.value.finalFeeAmount,
+      refInvoiceNo: this.form.value.refInvoiceNo || null,
     }).subscribe({
       next: (res: any) => {
         this.saving = false;

@@ -55,6 +55,7 @@ export class SalesInvoicesComponent implements OnInit {
   costCenters: any[] = [];
   filteredCostCenters: any[] = [];
   currencies: any[] = [];
+  vatPostingGroups: any[] = [];
   clientSuggestions: any[] = [];
   creating = false;
 
@@ -232,6 +233,14 @@ export class SalesInvoicesComponent implements OnInit {
       this.dialogService.showSnackBar('Legal Entity is required', '', 3000);
       return;
     }
+    if (!this.invoiceForm.get('issueDate')?.value) {
+      this.dialogService.showSnackBar('Issue Date is required', '', 3000);
+      return;
+    }
+    if (!this.invoiceForm.get('transactionDate')?.value) {
+      this.dialogService.showSnackBar('Transaction Date is required', '', 3000);
+      return;
+    }
     if (this.lines.length === 0) {
       this.dialogService.showSnackBar('At least one line is required', '', 3000);
       return;
@@ -250,10 +259,12 @@ export class SalesInvoicesComponent implements OnInit {
       paymentDueDays: formVal.paymentDueDays || null,
       currencyCode: formVal.currencyCode || null,
       description: formVal.description || null,
+      poNo: formVal.poNo || null,
       lines: formVal.lines.map((l: any) => ({
         description: l.description || null,
         quantity: l.quantity,
-        unitPriceExclVAT: l.unitPriceExclVAT
+        unitPriceExclVAT: l.unitPriceExclVAT,
+        vatProdPostingGroup: l.vatProdPostingGroup || '0'
       }))
     };
 
@@ -413,6 +424,11 @@ export class SalesInvoicesComponent implements OnInit {
         this.currencies = res.status === 200 ? res.data : [];
       }
     });
+    this.rest.getVatPostingGroups().subscribe({
+      next: (res: any) => {
+        this.vatPostingGroups = Array.isArray(res) ? res : (res.data || []);
+      }
+    });
   }
 
   private getTodayString(): string {
@@ -430,10 +446,11 @@ export class SalesInvoicesComponent implements OnInit {
       costCenterSearch: [''],
       costCenterId: [null],
       currencyCode: [''],
-      issueDate: [today],
-      transactionDate: [today],
+      issueDate: [today, Validators.required],
+      transactionDate: [today, Validators.required],
       paymentDueDays: [30],
       description: [''],
+      poNo: [''],
       lines: this.fb.array([])
     });
 
@@ -446,10 +463,12 @@ export class SalesInvoicesComponent implements OnInit {
   }
 
   addLine() {
+    const defaultVat = this.vatPostingGroups.find((v: any) => v.is_default)?.code || '0';
     this.lines.push(this.fb.group({
       description: [''],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      unitPriceExclVAT: [0, [Validators.required, Validators.min(0)]]
+      unitPriceExclVAT: [0, [Validators.required, Validators.min(0)]],
+      vatProdPostingGroup: [defaultVat]
     }));
   }
 

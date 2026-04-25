@@ -8,7 +8,7 @@
     </a>
 
     <div class="flex items-center gap-1">
-      @if (userService.getUser()?.unit?.id === 19 && userService.getUser()?.position?.id === 44) {
+      @if (userService.can('admin_access')) {
         <a routerLinkActive="bg-muted text-foreground" [routerLink]="['admin']"
            class="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
           Admin

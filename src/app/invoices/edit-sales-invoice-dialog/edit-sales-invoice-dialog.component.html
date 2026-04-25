@@ -98,15 +98,17 @@
 
       <!-- Issue Date -->
       <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1">Issue Date</label>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Issue Date *</label>
         <input type="date" formControlName="issueDate"
+               [class.border-red-500]="form.get('issueDate')?.invalid && form.get('issueDate')?.touched"
                class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
       </div>
 
       <!-- Transaction Date -->
       <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1">Transaction Date</label>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Transaction Date *</label>
         <input type="date" formControlName="transactionDate"
+               [class.border-red-500]="form.get('transactionDate')?.invalid && form.get('transactionDate')?.touched"
                class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
       </div>
 
@@ -125,11 +127,18 @@
       </div>
     </div>
 
-    <!-- Description -->
-    <div class="mb-6">
-      <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
-      <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"></textarea>
+    <!-- Description + PO No -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="md:col-span-2">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+        <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-muted-foreground mb-1">PO No. <span class="text-muted-foreground font-normal">(max 35)</span></label>
+        <input type="text" formControlName="poNo" maxlength="35" placeholder="Purchase order number..."
+               class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"/>
+      </div>
     </div>
 
     <!-- Lines -->
@@ -152,6 +161,7 @@
               <th class="px-2 py-2 text-left text-xs font-medium text-muted-foreground">Description</th>
               <th class="px-2 py-2 text-right text-xs font-medium text-muted-foreground w-24">Qty</th>
               <th class="px-2 py-2 text-right text-xs font-medium text-muted-foreground w-44">Unit Price</th>
+              <th class="px-2 py-2 text-left text-xs font-medium text-muted-foreground w-36">VAT Group</th>
               <th class="px-2 py-2 text-right text-xs font-medium text-muted-foreground w-28">Amount</th>
               <th class="w-8"></th>
             </tr>
@@ -177,6 +187,14 @@
                     }
                   </div>
                 </td>
+                <td class="px-2 py-1">
+                  <select formControlName="vatProdPostingGroup"
+                          class="w-full h-8 rounded border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                    @for (vat of vatPostingGroups; track vat.id) {
+                      <option [value]="vat.code">{{ vat.code }} - {{ vat.name }}</option>
+                    }
+                  </select>
+                </td>
                 <td class="px-2 py-2 text-right font-mono text-sm font-medium">{{ getLineAmount(i) | number:'1.2-2' }}</td>
                 <td class="px-1 py-1">
                   <button type="button" (click)="removeLine(i)"
@@ -191,7 +209,7 @@
           </tbody>
           <tfoot class="bg-muted/30 border-t-2 border-border">
             <tr>
-              <td colspan="4" class="px-2 py-2 text-right text-sm font-semibold text-muted-foreground">Total:</td>
+              <td colspan="5" class="px-2 py-2 text-right text-sm font-semibold text-muted-foreground">Total:</td>
               <td class="px-2 py-2 text-right font-mono text-sm font-bold">{{ totalAmount | number:'1.2-2' }}</td>
               <td></td>
             </tr>

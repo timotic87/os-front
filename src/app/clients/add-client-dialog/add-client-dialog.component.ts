@@ -36,9 +36,9 @@ export class AddClientDialogComponent implements OnInit {
   ngOnInit() {
     this.addClientForm = new FormGroup({
       customerName: new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      registrationNo: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{8}$')]),
-      vatRegistrationNo: new FormControl('', [Validators.required, Validators.pattern("^[0-9]{9}$")]),
-      email: new FormControl(null, [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
+      registrationNo: new FormControl(''),
+      vatRegistrationNo: new FormControl(''),
+      email: new FormControl(null, [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
       emailInFinance: new FormControl(null, [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
       phoneInFinance: new FormControl(null),
       zipCode: new FormControl('', [Validators.required, Validators.minLength(4)]),
@@ -55,12 +55,16 @@ export class AddClientDialogComponent implements OnInit {
   setupCountryListener() {
     this.addClientForm.get('country')?.valueChanges.subscribe(country => {
       const regCtrl = this.addClientForm.get('registrationNo')!;
+      const vatCtrl = this.addClientForm.get('vatRegistrationNo')!;
       if (country === 'RS') {
         regCtrl.setValidators([Validators.required, Validators.pattern('^[0-9]{8}$')]);
+        vatCtrl.setValidators([Validators.required, Validators.pattern('^[0-9]{9}$')]);
       } else {
         regCtrl.clearValidators();
+        vatCtrl.clearValidators();
       }
       regCtrl.updateValueAndValidity();
+      vatCtrl.updateValueAndValidity();
     });
   }
 
@@ -87,6 +91,7 @@ export class AddClientDialogComponent implements OnInit {
   }
 
   addClient() {
+    this.addClientForm.markAllAsTouched();
     if (this.addClientForm.valid) {
       let data = this.addClientForm.value;
       this.clientService.createClient(data);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {environment} from "../../environments/environment.development";
+import {environment} from "../../environments/environment";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {authorizationEnum} from "./enum-sevice";
@@ -679,15 +679,15 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getSalesInvoiceByID/${id}`, { headers: this.headers() }) as Observable<any>;
   }
 
-  createSalesCreditDebitNote(data: { sourceInvoiceId: number, noteType: 'credit' | 'debit', lines?: any[], createAsReady?: boolean, issueDate?: string, transactionDate?: string, paymentDueDays?: number }) {
+  createSalesCreditDebitNote(data: { sourceInvoiceId: number, noteType: 'credit' | 'debit', lines?: any[], createAsReady?: boolean, issueDate?: string, transactionDate?: string, paymentDueDays?: number, refInvoiceNo?: string | null }) {
     return this.http.post(`${this.baseUrl}/createCreditDebitNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 
-  completeSalesNote(data: { noteId: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, lines?: any[] }) {
+  completeSalesNote(data: { noteId: number, issueDate?: string, transactionDate?: string, paymentDueDays?: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, lines?: any[] }) {
     return this.http.post(`${this.baseUrl}/completeNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 
-  createRecruitingCreditDebitNote(data: { sourceInvoiceId: number, noteType: 'credit' | 'debit', finalFeeAmount?: number, issueDate?: string, transactionDate?: string, paymentDueDays?: number }) {
+  createRecruitingCreditDebitNote(data: { sourceInvoiceId: number, noteType: 'credit' | 'debit', finalFeeAmount?: number, issueDate?: string, transactionDate?: string, paymentDueDays?: number, refInvoiceNo?: string | null }) {
     return this.http.post(`${this.baseUrl}/createRecruitingCreditDebitNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 

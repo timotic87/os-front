@@ -34,6 +34,7 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
   costCenters: any[] = [];
   filteredCostCenters: any[] = [];
   currencies: any[] = [];
+  vatPostingGroups: any[] = [];
   clientSuggestions: any[] = [];
   isSubmitting = false;
 
@@ -54,10 +55,11 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       costCenterSearch: [''],
       costCenterId: [null],
       currencyCode: [''],
-      issueDate: [''],
-      transactionDate: [''],
+      issueDate: ['', Validators.required],
+      transactionDate: ['', Validators.required],
       paymentDueDays: [30],
       description: [''],
+      poNo: [''],
       lines: this.fb.array([])
     });
 
@@ -66,12 +68,13 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
 
   private loadDropdowns(done?: () => void) {
     let loaded = 0;
-    const check = () => { if (++loaded === 4 && done) done(); };
+    const check = () => { if (++loaded === 5 && done) done(); };
 
     this.rest.getLEList().subscribe({ next: (r: any) => { this.legalEntities = r.status === 200 ? r.data : []; check(); } });
     this.rest.getServices().subscribe({ next: (r: any) => { this.services = r.status === 200 ? r.data : []; check(); } });
     this.rest.getCostCenters().subscribe({ next: (r: any) => { this.costCenters = r.status === 200 ? r.data : []; check(); } });
     this.rest.getCurrencyList().subscribe({ next: (r: any) => { this.currencies = r.status === 200 ? r.data : []; check(); } });
+    this.rest.getVatPostingGroups().subscribe({ next: (r: any) => { this.vatPostingGroups = Array.isArray(r) ? r : (r.data || []); check(); } });
   }
 
   private populateForm(inv: any) {
@@ -86,7 +89,8 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       issueDate: inv.issueDate ? inv.issueDate.split('T')[0] : '',
       transactionDate: inv.transactionDate ? inv.transactionDate.split('T')[0] : '',
       paymentDueDays: inv.paymentDueDays || 30,
-      description: inv.description || ''
+      description: inv.description || '',
+      poNo: inv.poNo || ''
     });
 
     // Fetch full invoice with lines
@@ -100,7 +104,8 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
             this.lines.push(this.fb.group({
               description: [line.description || ''],
               quantity: [line.quantity || 1, [Validators.required, Validators.min(0.01)]],
-              unitPriceExclVAT: [line.unitPriceExclVAT || 0, [Validators.required, Validators.min(0)]]
+              unitPriceExclVAT: [line.unitPriceExclVAT || 0, [Validators.required, Validators.min(0)]],
+              vatProdPostingGroup: [line.vatProdPostingGroup || '0']
             }));
           }
         } else {
@@ -116,10 +121,12 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
   }
 
   addLine() {
+    const defaultVat = this.vatPostingGroups.find((v: any) => v.is_default)?.code || '0';
     this.lines.push(this.fb.group({
       description: [''],
       quantity: [1, [Validators.required, Validators.min(0.01)]],
-      unitPriceExclVAT: [0, [Validators.required, Validators.min(0)]]
+      unitPriceExclVAT: [0, [Validators.required, Validators.min(0)]],
+      vatProdPostingGroup: [defaultVat]
     }));
   }
 
@@ -179,6 +186,14 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       this.dialogService.showSnackBar('Legal Entity is required', '', 3000);
       return;
     }
+    if (!this.form.get('issueDate')?.value) {
+      this.dialogService.showSnackBar('Issue Date is required', '', 3000);
+      return;
+    }
+    if (!this.form.get('transactionDate')?.value) {
+      this.dialogService.showSnackBar('Transaction Date is required', '', 3000);
+      return;
+    }
     if (!this.lines.length) {
       this.dialogService.showSnackBar('At least one line is required', '', 3000);
       return;
@@ -198,10 +213,12 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       paymentDueDays: val.paymentDueDays || null,
       currencyCode: val.currencyCode || null,
       description: val.description || null,
+      poNo: val.poNo || null,
       lines: val.lines.map((l: any) => ({
         description: l.description || null,
         quantity: l.quantity,
-        unitPriceExclVAT: l.unitPriceExclVAT
+        unitPriceExclVAT: l.unitPriceExclVAT,
+        vatProdPostingGroup: l.vatProdPostingGroup || '0'
       }))
     };
 

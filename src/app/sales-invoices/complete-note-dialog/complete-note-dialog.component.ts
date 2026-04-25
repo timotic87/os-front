@@ -15,6 +15,7 @@ export class CompleteNoteDialogComponent {
   form: FormGroup;
   saving = false;
   noteTypeLabel: string;
+  vatPostingGroups: any[] = [];
 
   get lines(): FormArray {
     return this.form.get('lines') as FormArray;
@@ -39,14 +40,36 @@ export class CompleteNoteDialogComponent {
         description: [l.description || ''],
         quantity: [l.quantity || 1, [Validators.required, Validators.min(0.01)]],
         unitPriceExclVAT: [l.unitPriceExclVAT || 0, [Validators.required]],
+        vatProdPostingGroup: [l.vatProdPostingGroup || '0'],
       })
     );
 
+    const issueDate = data.note.issueDate ? new Date(data.note.issueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+    const transactionDate = data.note.transactionDate ? new Date(data.note.transactionDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
     this.form = this.fb.group({
+      issueDate: [issueDate, Validators.required],
+      transactionDate: [transactionDate, Validators.required],
+      paymentDueDays: [data.note.paymentDueDays ?? 30, [Validators.required, Validators.min(0)]],
       refInvoiceNo: [data.note.refInvoiceNo || ''],
       noteComment: [data.note.noteComment || ''],
       lines: this.fb.array(sourceLinesArr),
     });
+
+    this.rest.getVatPostingGroups().subscribe({
+      next: (res: any) => {
+        this.vatPostingGroups = Array.isArray(res) ? res : (res.data || []);
+      }
+    });
+  }
+
+  get calculatedDueDate(): string {
+    const issueDate = this.form.get('issueDate')?.value;
+    const days = this.form.get('paymentDueDays')?.value;
+    if (!issueDate || days == null) return '';
+    const d = new Date(issueDate);
+    d.setDate(d.getDate() + parseInt(days));
+    return d.toISOString().split('T')[0];
   }
 
   lineTotal(i: number): number {
@@ -65,6 +88,9 @@ export class CompleteNoteDialogComponent {
     const val = this.form.value;
     this.rest.completeSalesNote({
       noteId: this.data.note.id,
+      issueDate: val.issueDate,
+      transactionDate: val.transactionDate,
+      paymentDueDays: val.paymentDueDays,
       refInvoiceNo: val.refInvoiceNo || undefined,
       noteComment: val.noteComment || undefined,
       lines: val.lines,

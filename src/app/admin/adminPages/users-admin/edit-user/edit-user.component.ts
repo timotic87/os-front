@@ -84,6 +84,7 @@ export class EditUserComponent implements OnInit{
 
 
   editUser(){
+    this.editUserForm.markAllAsTouched();
     if(this.editUserForm.valid){
       this.dialogService.showLoader()
       let userData = this.editUserForm.value;

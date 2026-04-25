@@ -84,7 +84,7 @@
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice No</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
-              <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+              <th class="text-center px-2 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Currency</th>
               <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
               <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
@@ -122,7 +122,16 @@
                 </td>
                 <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.customerName || inv.client?.customerName || '-' }}</td>
                 <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.legalEntity?.shortName || inv.legalEntity?.name || '-' }}</td>
-                <td class="px-3 py-2.5 text-sm text-muted-foreground max-w-[200px] truncate" [title]="inv.description || ''">{{ inv.description || '-' }}</td>
+                <td class="px-2 py-2.5 text-center">
+                  @if (inv.description || inv.noteComment) {
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted cursor-default"
+                          [title]="inv.noteComment || inv.description || ''">
+                      <svg class="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                      </svg>
+                    </span>
+                  }
+                </td>
                 <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.currencyCode || '-' }}</td>
                 <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
                   {{ inv.totalAmount | number:'1.2-2' }}
@@ -155,98 +164,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                       </svg>
                     </button>
-                    <!-- Draft credit memo actions -->
-                    @if (inv.status === 'draft' && isCreditMemo(inv)) {
-                      @if (userService.can('complete_sales_credit_note')) {
-                        <button (click)="openCompleteNoteDialog(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Edit note">
-                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                          </svg>
-                        </button>
-                      }
-                      <button (click)="markReady(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Mark as Ready">
-                        <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                      </button>
-                      <button (click)="deleteInvoice(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Delete">
-                        <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                      </button>
-                    }
-                    <!-- Draft actions: Edit, Mark Ready, Duplicate, Delete (only for regular invoices) -->
-                    @if (inv.status === 'draft' && !isCreditMemo(inv)) {
-                      <button (click)="openEditDialog(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Edit">
-                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                      </button>
-                      <button (click)="markReady(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Mark Ready">
-                        <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                      </button>
-                      <button (click)="duplicateInvoice(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Duplicate">
-                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                        </svg>
-                      </button>
-                      <button (click)="deleteInvoice(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-destructive/10 transition-colors"
-                              title="Delete">
-                        <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                      </button>
-                    }
-                    <!-- Ready actions: Revert to Draft, Duplicate -->
-                    @if (inv.status === 'ready') {
-                      <button (click)="revertToDraft(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Revert to Draft">
-                        <svg class="h-4 w-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                        </svg>
-                      </button>
-                      <button (click)="duplicateInvoice(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Duplicate">
-                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                        </svg>
-                      </button>
-                    }
-                    <!-- Sent: credit/debit note actions (only for regular invoices) -->
-                    @if (inv.status === 'sent' && !isCreditMemo(inv) && userService.can('create_sales_credit_note')) {
-                      <button (click)="createCreditNote(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Create Credit Note">
-                        <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
-                        </svg>
-                      </button>
-                      <button (click)="createDebitNote(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Create Debit Note">
-                        <svg class="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
-                        </svg>
-                      </button>
-                    }
-                    <!-- Sent: post-BC status menu -->
+                    <!-- BC status or Send to BC -->
                     @if (inv.status === 'sent') {
                       <div class="relative">
                         <button (click)="togglePostBcMenu($event, 's-' + inv.id)"
@@ -269,6 +187,110 @@
                         }
                       </div>
                     }
+                    <!-- More actions dropdown -->
+                    <div class="relative">
+                      <button (click)="togglePostBcMenu($event, 'more-' + inv.id)"
+                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                              title="More actions">
+                        <svg class="h-4 w-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
+                          <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                        </svg>
+                      </button>
+                      @if (openMenuId === 'more-' + inv.id) {
+                        <div class="absolute right-0 top-9 z-50 min-w-[180px] rounded-md border border-border bg-popover py-1 shadow-md" (click)="$event.stopPropagation()">
+                          @if (inv.status === 'draft' && !isCreditMemo(inv)) {
+                            <button (click)="openEditDialog(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                              </svg>
+                              Edit
+                            </button>
+                            <button (click)="markReady(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                              </svg>
+                              Mark Ready
+                            </button>
+                            <button (click)="duplicateInvoice(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                              </svg>
+                              Duplicate
+                            </button>
+                            <div class="border-t border-border my-1"></div>
+                            <button (click)="deleteInvoice(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2 text-destructive">
+                              <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                              </svg>
+                              Delete
+                            </button>
+                          }
+                          @if (inv.status === 'draft' && isCreditMemo(inv)) {
+                            @if (userService.can('complete_sales_credit_note')) {
+                              <button (click)="openCompleteNoteDialog(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit Note
+                              </button>
+                            }
+                            <button (click)="markReady(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                              </svg>
+                              Mark Ready
+                            </button>
+                            <div class="border-t border-border my-1"></div>
+                            <button (click)="deleteInvoice(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2 text-destructive">
+                              <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                              </svg>
+                              Delete
+                            </button>
+                          }
+                          @if (inv.status === 'ready') {
+                            <button (click)="revertToDraft(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                              </svg>
+                              Revert to Draft
+                            </button>
+                            <button (click)="duplicateInvoice(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                              </svg>
+                              Duplicate
+                            </button>
+                          }
+                          @if (inv.status === 'sent' && !isCreditMemo(inv) && userService.can('create_sales_credit_note')) {
+                            <div class="border-t border-border my-1"></div>
+                            <button (click)="createCreditNote(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
+                              </svg>
+                              Create KO
+                            </button>
+                            <button (click)="createDebitNote(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
+                              </svg>
+                              Create KZ
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -447,11 +469,18 @@
         </div>
       </div>
 
-      <!-- Description -->
-      <div class="mb-8">
-        <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
-        <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
-                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background resize-none"></textarea>
+      <!-- Description + PO No -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+          <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
+                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1">PO No. <span class="text-muted-foreground font-normal">(max 35)</span></label>
+          <input type="text" formControlName="poNo" maxlength="35" placeholder="Purchase order number..."
+                 class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
+        </div>
       </div>
 
       <!-- Lines -->
@@ -478,6 +507,7 @@
                   <th class="text-left px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
                   <th class="text-right px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Quantity</th>
                   <th class="text-right px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-44">Unit Price excl. VAT</th>
+                  <th class="text-left px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-36">VAT Group</th>
                   <th class="text-right px-2 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Line Amount</th>
                   <th class="w-10"></th>
                 </tr>
@@ -498,6 +528,14 @@
                       <input type="number" formControlName="unitPriceExclVAT" min="0" step="0.01"
                              class="w-full h-8 rounded-md border border-input bg-background px-2 text-sm text-right text-foreground focus:outline-none focus:ring-1 focus:ring-ring"/>
                     </td>
+                    <td class="px-2 py-1">
+                      <select formControlName="vatProdPostingGroup"
+                              class="w-full h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                        @for (vat of vatPostingGroups; track vat.id) {
+                          <option [value]="vat.code">{{ vat.code }} - {{ vat.name }}</option>
+                        }
+                      </select>
+                    </td>
                     <td class="px-2 py-2 text-right font-mono text-sm font-medium text-foreground">
                       {{ getLineAmount(i) | number:'1.2-2' }}
                     </td>
@@ -515,7 +553,7 @@
               </tbody>
               <tfoot>
                 <tr class="border-t-2 border-border">
-                  <td colspan="4" class="px-2 py-3 text-right text-sm font-semibold text-foreground">Total:</td>
+                  <td colspan="5" class="px-2 py-3 text-right text-sm font-semibold text-foreground">Total:</td>
                   <td class="px-2 py-3 text-right font-mono text-sm font-bold text-foreground">
                     {{ totalAmount | number:'1.2-2' }}
                   </td>

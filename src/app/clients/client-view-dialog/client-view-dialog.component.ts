@@ -56,8 +56,8 @@ export class ClientViewDialogComponent implements OnInit {
   ngOnInit() {
     this.editClientForm = new FormGroup({
       customerName: new FormControl(this.data.customerName, [Validators.required, Validators.minLength(3)]),
-      registrationNo: new FormControl(this.data.registrationNo, [Validators.required, Validators.minLength(6)]),
-      vatRegistrationNo: new FormControl(this.data.vatRegistrationNo, [Validators.required, Validators.pattern("^[0-9]{9}$")]),
+      registrationNo: new FormControl(this.data.registrationNo),
+      vatRegistrationNo: new FormControl(this.data.vatRegistrationNo),
       email: new FormControl(this.data.email, [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
       emailInFinance: new FormControl(this.data.emailInFinance, [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")]),
       phoneInFinance: new FormControl(this.data.phoneInFinance),

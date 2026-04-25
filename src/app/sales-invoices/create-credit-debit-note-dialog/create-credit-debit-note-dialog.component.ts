@@ -15,6 +15,7 @@ export class CreateCreditDebitNoteDialogComponent {
   form: FormGroup;
   saving = false;
   markAsReady = false;
+  vatPostingGroups: any[] = [];
 
   get title(): string {
     return this.data.noteType === 'credit' ? 'Create Credit Note' : 'Create Debit Note';
@@ -49,6 +50,7 @@ export class CreateCreditDebitNoteDialogComponent {
         description: [l.description || ''],
         quantity: [l.quantity || 1, [Validators.required, Validators.min(0.01)]],
         unitPriceExclVAT: [l.unitPriceExclVAT || 0, [Validators.required]],
+        vatProdPostingGroup: [l.vatProdPostingGroup || '0'],
       })
     );
 
@@ -56,7 +58,14 @@ export class CreateCreditDebitNoteDialogComponent {
       issueDate: [today, Validators.required],
       transactionDate: [today, Validators.required],
       paymentDueDays: [inv.paymentDueDays || 30, [Validators.required, Validators.min(0)]],
+      refInvoiceNo: [''],
       lines: this.fb.array(sourceLinesArr),
+    });
+
+    this.rest.getVatPostingGroups().subscribe({
+      next: (res: any) => {
+        this.vatPostingGroups = Array.isArray(res) ? res : (res.data || []);
+      }
     });
   }
 
@@ -98,6 +107,7 @@ export class CreateCreditDebitNoteDialogComponent {
         issueDate: val.issueDate,
         transactionDate: val.transactionDate,
         paymentDueDays: val.paymentDueDays,
+        refInvoiceNo: val.refInvoiceNo || null,
       }).subscribe({
         next: (res: any) => {
           this.saving = false;
@@ -120,6 +130,7 @@ export class CreateCreditDebitNoteDialogComponent {
         issueDate: val.issueDate,
         transactionDate: val.transactionDate,
         paymentDueDays: val.paymentDueDays,
+        refInvoiceNo: val.refInvoiceNo || null,
       }).subscribe({
         next: (res: any) => {
           this.saving = false;

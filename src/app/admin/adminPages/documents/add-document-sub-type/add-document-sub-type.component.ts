@@ -50,6 +50,7 @@ export class AddDocumentSubTypeComponent implements OnInit {
   }
 
   create() {
+    this.docTypeForm.markAllAsTouched();
     if (this.docTypeForm.valid) {
       this.rest.createDocumentSubType({
         subtypeName: this.docTypeForm.value.docName,

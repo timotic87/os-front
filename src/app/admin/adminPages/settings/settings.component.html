@@ -257,41 +257,6 @@
   </ui-card-content>
 </ui-card>
 
-<!-- Client Master Legal Entity -->
-<ui-card class="mt-6 block">
-  <ui-card-header>
-    <ui-card-title>Client Master Legal Entity</ui-card-title>
-    <ui-card-description>
-      All new client (customerStaging) records in Business Central are created under this legal entity's company.
-    </ui-card-description>
-  </ui-card-header>
-  <ui-card-content>
-
-    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-      <div class="flex-1 min-w-0">
-        <label class="block text-xs font-medium text-muted-foreground mb-1">Legal Entity *</label>
-        <select [(ngModel)]="clientMasterLeId"
-                class="w-full h-9 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-          <option value="">— select —</option>
-          <option *ngFor="let le of legalEntities" [value]="le.id">
-            {{ le.name }}
-          </option>
-        </select>
-      </div>
-
-      <div *ngIf="clientMasterLeId" class="text-xs text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded-md border border-border">
-        {{ getLeName(clientMasterLeId) }}
-      </div>
-
-      <button (click)="saveClientMasterLe()" [disabled]="!clientMasterLeId || savingClientMasterLe"
-              class="h-9 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap">
-        {{ savingClientMasterLe ? 'Saving...' : 'Save' }}
-      </button>
-    </div>
-
-  </ui-card-content>
-</ui-card>
-
 <!-- Invoice Sequence per Legal Entity -->
 <ui-card class="mt-6 block">
   <ui-card-header>

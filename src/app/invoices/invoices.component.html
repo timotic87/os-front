@@ -180,50 +180,62 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                       </button>
-                      <button (click)="exportInvoice(inv)"
-                              class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                              title="Export calculation to Excel">
-                        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                      </button>
-                      <!-- Edit recruiting invoice (before sent_to_bc, not KO/KZ) -->
-                      @if (!inv.sent_to_bc && !isCreditMemo(inv)) {
-                        <button (click)="openEditRecruitingInvoiceDialog(inv)"
+                      <!-- More actions dropdown -->
+                      <div class="relative">
+                        <button (click)="togglePostBcMenu($event, 'more-r-' + inv.ID)"
                                 class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Edit invoice">
-                          <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                title="More actions">
+                          <svg class="h-4 w-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
+                            <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
                           </svg>
                         </button>
-                      }
-                      <!-- Knjižno: dopuni (finansije) -->
-                      @if (isCreditMemo(inv) && !inv.sent_to_bc && userService.can('complete_rec_credit_note')) {
-                        <button (click)="openCompleteRecNoteDialog(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Complete note (finance)">
-                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                          </svg>
-                        </button>
-                      }
-                      <!-- Create credit/debit note (only on sent non-Credit-Memo invoices) -->
-                      @if (!isCreditMemo(inv) && inv.sent_to_bc && userService.can('create_rec_credit_note')) {
-                        <button (click)="createRecCreditNote(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Create Credit Note">
-                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
-                          </svg>
-                        </button>
-                        <button (click)="createRecDebitNote(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Create Debit Note">
-                          <svg class="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
-                          </svg>
-                        </button>
-                      }
+                        @if (openMenuId === 'more-r-' + inv.ID) {
+                          <div class="absolute right-0 top-9 z-50 min-w-[180px] rounded-md border border-border bg-popover py-1 shadow-md" (click)="$event.stopPropagation()">
+                            <button (click)="exportInvoice(inv); openMenuId = null"
+                                    class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                              <svg class="h-3.5 w-3.5 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                              </svg>
+                              Export Excel
+                            </button>
+                            @if (!inv.sent_to_bc && !isCreditMemo(inv)) {
+                              <button (click)="openEditRecruitingInvoiceDialog(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit Invoice
+                              </button>
+                            }
+                            @if (isCreditMemo(inv) && !inv.sent_to_bc && userService.can('complete_rec_credit_note')) {
+                              <button (click)="openCompleteRecNoteDialog(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit Note
+                              </button>
+                            }
+                            @if (!isCreditMemo(inv) && inv.sent_to_bc && userService.can('create_rec_credit_note')) {
+                              <div class="border-t border-border my-1"></div>
+                              <button (click)="createRecCreditNote(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
+                                </svg>
+                                Create KO
+                              </button>
+                              <button (click)="createRecDebitNote(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
+                                </svg>
+                                Create KZ
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
                       @if (inv.sent_to_bc) {
                         <div class="relative">
                           <button (click)="togglePostBcMenu($event, 'r-' + inv.ID)"
@@ -368,7 +380,7 @@
                 <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice No</th>
                 <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client</th>
                 <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Legal Entity</th>
-                <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+                <th class="text-center px-2 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
                 <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Currency</th>
                 <th class="text-right px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
                 <th class="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</th>
@@ -398,7 +410,16 @@
                   </td>
                   <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.customerName || inv.client?.customerName || '-' }}</td>
                   <td class="px-3 py-2.5 text-sm text-foreground">{{ inv.legalEntity?.shortName || inv.legalEntity?.name || '-' }}</td>
-                  <td class="px-3 py-2.5 text-sm text-muted-foreground max-w-[200px] truncate" [title]="inv.description || ''">{{ inv.description || '-' }}</td>
+                  <td class="px-2 py-2.5 text-center">
+                    @if (inv.description || inv.noteComment) {
+                      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted cursor-default"
+                            [title]="inv.noteComment || inv.description || ''">
+                        <svg class="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                        </svg>
+                      </span>
+                    }
+                  </td>
                   <td class="px-3 py-2.5 text-sm text-muted-foreground">{{ inv.currencyCode || '-' }}</td>
                   <td class="px-3 py-2.5 text-right font-mono text-sm font-medium text-foreground">
                     {{ inv.totalAmount | number:'1.2-2' }}
@@ -421,46 +442,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                       </button>
-                      <!-- Edit sales invoice (before sentToBC, not KO/KZ) -->
-                      @if (!inv.sentToBC && !isCreditMemo(inv)) {
-                        <button (click)="openEditSalesInvoiceDialog(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Edit invoice">
-                          <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                          </svg>
-                        </button>
-                      }
-                      <!-- Revert to Draft (ready credit memo) -->
-                      @if (inv.status === 'ready' && isCreditMemo(inv)) {
-                        <button (click)="revertSalesCreditNoteToDraft(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Revert to Draft">
-                          <svg class="h-4 w-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                          </svg>
-                        </button>
-                      }
-                      <!-- Complete note (finance step, draft credit memo) -->
-                      @if (inv.status === 'draft' && isCreditMemo(inv) && userService.can('complete_sales_credit_note')) {
-                        <button (click)="openCompleteSalesNoteDialog(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Complete note (finance)">
-                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                          </svg>
-                        </button>
-                      }
-                      <!-- Mark Ready (draft credit memo) -->
-                      @if (inv.status === 'draft' && isCreditMemo(inv)) {
-                        <button (click)="markSalesNoteReady(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Mark as Ready">
-                          <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                          </svg>
-                        </button>
-                      }
+                      <!-- BC status or Send to BC -->
                       @if (inv.sentToBC) {
                         <div class="relative">
                           <button (click)="togglePostBcMenu($event, 's-' + inv.id)"
@@ -482,23 +464,6 @@
                             </div>
                           }
                         </div>
-                      <!-- Create KO/KZ (sent manual invoice, not a note) -->
-                      @if (!isCreditMemo(inv) && userService.can('create_rec_credit_note')) {
-                        <button (click)="createSalesCreditNote(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Create Credit Note (KO)">
-                          <svg class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
-                          </svg>
-                        </button>
-                        <button (click)="createSalesDebitNote(inv)"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
-                                title="Create Debit Note (KZ)">
-                          <svg class="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
-                          </svg>
-                        </button>
-                      }
                       } @else if (inv.status !== 'draft') {
                         <button (click)="sendSalesToBC(inv)"
                                 [disabled]="sendingSalesToBC[inv.id]"
@@ -516,6 +481,73 @@
                           }
                         </button>
                       }
+                      <!-- More actions dropdown -->
+                      <div class="relative">
+                        <button (click)="togglePostBcMenu($event, 'more-s-' + inv.id)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
+                                title="More actions">
+                          <svg class="h-4 w-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
+                            <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                          </svg>
+                        </button>
+                        @if (openMenuId === 'more-s-' + inv.id) {
+                          <div class="absolute right-0 top-9 z-50 min-w-[190px] rounded-md border border-border bg-popover py-1 shadow-md" (click)="$event.stopPropagation()">
+                            @if (!inv.sentToBC && !isCreditMemo(inv)) {
+                              <button (click)="openEditSalesInvoiceDialog(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit Invoice
+                              </button>
+                            }
+                            @if (inv.status === 'draft' && isCreditMemo(inv) && userService.can('complete_sales_credit_note')) {
+                              <button (click)="openCompleteSalesNoteDialog(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit Note
+                              </button>
+                            }
+                            @if (inv.status === 'draft' && isCreditMemo(inv)) {
+                              <button (click)="markSalesNoteReady(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Mark as Ready
+                              </button>
+                            }
+                            @if (inv.status === 'ready' && isCreditMemo(inv)) {
+                              <button (click)="revertSalesCreditNoteToDraft(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                                </svg>
+                                Revert to Draft
+                              </button>
+                            }
+                            @if (inv.sentToBC && !isCreditMemo(inv) && userService.can('create_rec_credit_note')) {
+                              <div class="border-t border-border my-1"></div>
+                              <button (click)="createSalesCreditNote(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4M5 10h14M15 14l4 4-4 4"/>
+                                </svg>
+                                Create KO
+                              </button>
+                              <button (click)="createSalesDebitNote(inv); openMenuId = null"
+                                      class="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors flex items-center gap-2">
+                                <svg class="h-3.5 w-3.5 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
+                                </svg>
+                                Create KZ
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
                     </div>
                   </td>
                 </tr>

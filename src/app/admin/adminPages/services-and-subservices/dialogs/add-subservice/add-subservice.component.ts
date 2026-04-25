@@ -64,6 +64,7 @@ export class AddSubserviceComponent implements OnInit {
   }
 
   create(){
+    this.createSubserviceForm.markAllAsTouched();
     if (this.createSubserviceForm.valid) {
       const { typeID, flowID } = this.parseFlowSelection();
       const data = {

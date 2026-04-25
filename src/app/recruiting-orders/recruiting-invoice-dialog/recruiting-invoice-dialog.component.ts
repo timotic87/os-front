@@ -120,6 +120,18 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
     return this.invoiceForm?.get('candidates') as FormArray;
   }
 
+  get expectedSalaryCurrencyCode(): string {
+    const id = this.position?.expected_salary_currency_id;
+    if (!id) return '';
+    return this.currencies.find((c: any) => c.ID === id)?.code || '';
+  }
+
+  get selectedFeeCurrencyCode(): string {
+    const id = this.invoiceForm?.get('fee_currency_id')?.value;
+    if (!id) return '';
+    return this.currencies.find((c: any) => c.ID === id)?.code || '';
+  }
+
   /** Total fee across all candidates */
   get totalFee(): number {
     if (!this.candidatesArray) return 0;
@@ -186,6 +198,7 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
       next: (res) => {
         if (res.status === 200) {
           this.currencies = res.data;
+          this.autoSetFeeCurrency();
           if (this.mode === 'admin_fee') {
             this.calculateAdminFee();
           }
@@ -385,10 +398,34 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
 
   // --- Single-candidate methods (admin_fee / cancel_fee) ---
 
+  /** If fee_currency_id wasn't set from client/position, auto-detect from client country */
+  autoSetFeeCurrency(): void {
+    const current = this.invoiceForm.get('fee_currency_id')?.value;
+    if (current) return; // already set
+
+    let targetCode: string | null = null;
+    if (this.data.clientCountry === 'RS') {
+      targetCode = 'RSD';
+    }
+    if (!targetCode) return;
+
+    const found = this.currencies.find((c: any) => c.code === targetCode);
+    if (found) {
+      this.invoiceForm.patchValue({ fee_currency_id: found.ID });
+      if (this.mode === 'admin_fee') {
+        this.invoiceForm.patchValue({ salary_currency_id: found.ID });
+      }
+    }
+  }
+
   calculateAdminFee(): void {
     const feeCurrencyId = this.invoiceForm.get('fee_currency_id')!.value;
     const feeCurrency = this.currencies.find((c: any) => c.ID === feeCurrencyId);
     const feeCurrencyCode = feeCurrency?.code || this.data.clientCurrency?.code || 'EUR';
+
+    const salaryCurrencyId = this.invoiceForm.get('salary_currency_id')?.value;
+    const salaryCurrency = this.currencies.find((c: any) => c.ID === salaryCurrencyId);
+    const currencyCode = salaryCurrency?.code || feeCurrencyCode;
 
     this.isCalculating = true;
     this.feeBreakdown = null;
@@ -397,7 +434,7 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
       positionId: this.position.ID,
       salary: 0,
       salaryInputTypeId: 0,
-      currencyCode: 'EUR',
+      currencyCode,
       feeCurrencyCode,
       invoiceType: 'admin_fee'
     } as any).subscribe({
