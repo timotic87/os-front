@@ -272,7 +272,7 @@
                 formControlName="currencyId"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                 @for(currency of currencyService.getCurrencyList(); track currency){
-                  <option [value]="currency.id">{{ currency.name }}</option>
+                  <option [value]="currency.id">{{ currency.code }}</option>
                 }
               </select>
             </div>

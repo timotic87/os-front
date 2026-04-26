@@ -484,6 +484,8 @@
                       <!-- More actions dropdown -->
                       <div class="relative">
                         <button (click)="togglePostBcMenu($event, 'more-s-' + inv.id)"
+                                [disabled]="inv.sentToBC && isCreditMemo(inv)"
+                                [class.opacity-40]="inv.sentToBC && isCreditMemo(inv)"
                                 class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors"
                                 title="More actions">
                           <svg class="h-4 w-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">

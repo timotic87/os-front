@@ -3,17 +3,20 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {RestService} from '../../../../services/rest.service';
 import {DialogService} from '../../../../services/dialog.service';
 import {FormsModule} from '@angular/forms';
-import {NgForOf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {ButtonComponent} from '../../../../shared/components/ui/button/button.component';
+import {getPermissionDescription} from '../../permission-descriptions';
 
 @Component({
   selector: 'app-permission-template-dialog',
   standalone: true,
-  imports: [FormsModule, NgForOf, ButtonComponent],
+  imports: [FormsModule, NgForOf, NgIf, ButtonComponent],
   templateUrl: './permission-template-dialog.component.html',
   styleUrl: './permission-template-dialog.component.css'
 })
 export class PermissionTemplateDialogComponent implements OnInit {
+
+  readonly getPermDesc = getPermissionDescription;
 
   name = '';
   description = '';

@@ -8,6 +8,7 @@ import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/f
 import {NgForOf, NgIf} from "@angular/common";
 import {ButtonComponent} from '../../../../shared/components/ui/button/button.component';
 import {FormsModule} from "@angular/forms";
+import {getPermissionDescription} from '../../permission-descriptions';
 
 @Component({
   selector: 'app-user-permissions-dialog',
@@ -23,6 +24,8 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './user-permissions-dialog.component.css'
 })
 export class UserPermissionsDialogComponent implements OnInit {
+
+  readonly getPermDesc = getPermissionDescription;
 
   arrayOfArrays = [];
   templates: any[] = [];
