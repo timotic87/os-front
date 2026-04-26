@@ -70,12 +70,8 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  seqKey(leId: number, type: string): string {
-    return `${leId}_${type}`;
-  }
-
   saveSeqFloor(le: any, type: 'inv' | 'ko' | 'kz') {
-    const key = this.seqKey(le.legalEntityId, type);
+    const key = `${le.legalEntityId}_${type}`;
     const floor = this.editingSeq[key];
     if (floor === null || floor === undefined || isNaN(Number(floor))) {
       this.dialogService.showSnackBar('Enter a valid number', '', 3000);
