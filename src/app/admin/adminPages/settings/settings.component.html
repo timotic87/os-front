@@ -262,7 +262,7 @@
   <ui-card-header>
     <ui-card-title>Invoice Sequence per Legal Entity</ui-card-title>
     <ui-card-description>
-      Set the minimum next invoice number for each legal entity. Used when invoices are created directly in Business Central to avoid number conflicts.
+      Set the minimum next invoice number for each legal entity and document type. Used when invoices are created directly in Business Central to avoid number conflicts.
     </ui-card-description>
   </ui-card-header>
   <ui-card-content>
@@ -274,41 +274,98 @@
         <thead>
           <tr class="border-b border-border">
             <th class="text-left py-2 px-3 text-muted-foreground font-medium">Legal Entity</th>
-            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Last Invoice No</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Type</th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium">Last No</th>
             <th class="text-left py-2 px-3 text-muted-foreground font-medium">Current Floor</th>
             <th class="text-left py-2 px-3 text-muted-foreground font-medium">Next Will Be</th>
             <th class="text-left py-2 px-3 text-muted-foreground font-medium">Set Floor</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let le of seqInfo" class="border-b border-border/50 hover:bg-muted/50">
-            <td class="py-2 px-3 font-medium">{{ le.legalEntityName }}</td>
-            <td class="py-2 px-3 font-mono text-xs text-muted-foreground">
-              {{ le.lastInvoiceNo || '—' }}
-            </td>
-            <td class="py-2 px-3 font-mono text-xs">
-              <span *ngIf="le.floor !== null" class="text-blue-600 dark:text-blue-400">{{ le.floor }}</span>
-              <span *ngIf="le.floor === null" class="text-muted-foreground">—</span>
-            </td>
-            <td class="py-2 px-3">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 font-mono">
-                F{{ currentYearShort }}/{{ padSeq(le.nextSeq) }}
-              </span>
-            </td>
-            <td class="py-2 px-3">
-              <div class="flex items-center gap-2">
-                <input type="number" min="1"
-                       [(ngModel)]="editingSeq[le.legalEntityId]"
-                       placeholder="e.g. 51"
-                       class="w-24 h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                <button (click)="saveSeqFloor(le)"
-                        [disabled]="savingSeq[le.legalEntityId] || editingSeq[le.legalEntityId] === null || editingSeq[le.legalEntityId] === undefined"
-                        class="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                  {{ savingSeq[le.legalEntityId] ? 'Saving...' : 'Set' }}
-                </button>
-              </div>
-            </td>
-          </tr>
+          <ng-container *ngFor="let le of seqInfo; let last = last">
+            <!-- Invoice row -->
+            <tr class="border-b border-border/30 hover:bg-muted/50">
+              <td class="py-2 px-3 font-medium" rowspan="3">{{ le.legalEntityName }}</td>
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Invoice</span>
+              </td>
+              <td class="py-2 px-3 font-mono text-xs text-muted-foreground">{{ le.inv.lastNo || '—' }}</td>
+              <td class="py-2 px-3 font-mono text-xs">
+                <span *ngIf="le.inv.floor !== null" class="text-blue-600 dark:text-blue-400">{{ le.inv.floor }}</span>
+                <span *ngIf="le.inv.floor === null" class="text-muted-foreground">—</span>
+              </td>
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 font-mono">
+                  F{{ currentYearShort }}/{{ padSeq(le.inv.nextSeq) }}
+                </span>
+              </td>
+              <td class="py-2 px-3">
+                <div class="flex items-center gap-2">
+                  <input type="number" min="1" [(ngModel)]="editingSeq[seqKey(le.legalEntityId, 'inv')]"
+                         placeholder="e.g. 51" class="w-24 h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <button (click)="saveSeqFloor(le, 'inv')"
+                          [disabled]="savingSeq[seqKey(le.legalEntityId, 'inv')] || editingSeq[seqKey(le.legalEntityId, 'inv')] == null"
+                          class="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    {{ savingSeq[seqKey(le.legalEntityId, 'inv')] ? 'Saving...' : 'Set' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- KO row -->
+            <tr class="border-b border-border/30 hover:bg-muted/50">
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">KO</span>
+              </td>
+              <td class="py-2 px-3 font-mono text-xs text-muted-foreground">{{ le.ko.lastNo || '—' }}</td>
+              <td class="py-2 px-3 font-mono text-xs">
+                <span *ngIf="le.ko.floor !== null" class="text-blue-600 dark:text-blue-400">{{ le.ko.floor }}</span>
+                <span *ngIf="le.ko.floor === null" class="text-muted-foreground">—</span>
+              </td>
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 font-mono">
+                  KO{{ currentYearShort }}/{{ padSeq(le.ko.nextSeq) }}
+                </span>
+              </td>
+              <td class="py-2 px-3">
+                <div class="flex items-center gap-2">
+                  <input type="number" min="1" [(ngModel)]="editingSeq[seqKey(le.legalEntityId, 'ko')]"
+                         placeholder="e.g. 51" class="w-24 h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <button (click)="saveSeqFloor(le, 'ko')"
+                          [disabled]="savingSeq[seqKey(le.legalEntityId, 'ko')] || editingSeq[seqKey(le.legalEntityId, 'ko')] == null"
+                          class="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    {{ savingSeq[seqKey(le.legalEntityId, 'ko')] ? 'Saving...' : 'Set' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- KZ row -->
+            <tr [class.border-b]="!last" [class.border-border]="!last" class="hover:bg-muted/50">
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">KZ</span>
+              </td>
+              <td class="py-2 px-3 font-mono text-xs text-muted-foreground">{{ le.kz.lastNo || '—' }}</td>
+              <td class="py-2 px-3 font-mono text-xs">
+                <span *ngIf="le.kz.floor !== null" class="text-blue-600 dark:text-blue-400">{{ le.kz.floor }}</span>
+                <span *ngIf="le.kz.floor === null" class="text-muted-foreground">—</span>
+              </td>
+              <td class="py-2 px-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 font-mono">
+                  KZ{{ currentYearShort }}/{{ padSeq(le.kz.nextSeq) }}
+                </span>
+              </td>
+              <td class="py-2 px-3">
+                <div class="flex items-center gap-2">
+                  <input type="number" min="1" [(ngModel)]="editingSeq[seqKey(le.legalEntityId, 'kz')]"
+                         placeholder="e.g. 51" class="w-24 h-8 px-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <button (click)="saveSeqFloor(le, 'kz')"
+                          [disabled]="savingSeq[seqKey(le.legalEntityId, 'kz')] || editingSeq[seqKey(le.legalEntityId, 'kz')] == null"
+                          class="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    {{ savingSeq[seqKey(le.legalEntityId, 'kz')] ? 'Saving...' : 'Set' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
       <p *ngIf="seqInfo.length === 0" class="text-sm text-muted-foreground py-4 text-center">No legal entities found.</p>

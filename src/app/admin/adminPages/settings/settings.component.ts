@@ -28,8 +28,8 @@ export class SettingsComponent implements OnInit {
   // Invoice sequence per legal entity
   seqInfo: any[] = [];
   seqLoading = false;
-  editingSeq: { [legalEntityId: number]: number | null } = {};
-  savingSeq: { [legalEntityId: number]: boolean } = {};
+  editingSeq: { [key: string]: number | null } = {};
+  savingSeq: { [key: string]: boolean } = {};
   currentYearShort = String(new Date().getFullYear()).slice(-2);
 
   // BC Environments
@@ -70,29 +70,40 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  saveSeqFloor(le: any) {
-    const floor = this.editingSeq[le.legalEntityId];
+  seqKey(leId: number, type: string): string {
+    return `${leId}_${type}`;
+  }
+
+  saveSeqFloor(le: any, type: 'inv' | 'ko' | 'kz') {
+    const key = this.seqKey(le.legalEntityId, type);
+    const floor = this.editingSeq[key];
     if (floor === null || floor === undefined || isNaN(Number(floor))) {
       this.dialogService.showSnackBar('Enter a valid number', '', 3000);
       return;
     }
-    this.savingSeq[le.legalEntityId] = true;
+    const settingKeyMap = {
+      inv: `invoice_seq_floor_${le.legalEntityId}`,
+      ko:  `note_seq_floor_ko_${le.legalEntityId}`,
+      kz:  `note_seq_floor_kz_${le.legalEntityId}`,
+    };
+    const labelMap = { inv: 'Invoice', ko: 'KO', kz: 'KZ' };
+    this.savingSeq[key] = true;
     this.rest.upsertSetting({
-      key: `invoice_seq_floor_${le.legalEntityId}`,
+      key: settingKeyMap[type],
       value: String(floor),
-      description: `Invoice sequence floor for ${le.legalEntityName}`,
+      description: `${labelMap[type]} sequence floor for ${le.legalEntityName}`,
       value_type: 'number'
     }).subscribe({
       next: res => {
-        this.savingSeq[le.legalEntityId] = false;
+        this.savingSeq[key] = false;
         if (res.status === 200 || res.status === 201) {
-          this.dialogService.showSnackBar(`Floor set to ${floor} for ${le.legalEntityName}`, '', 3000);
-          this.editingSeq[le.legalEntityId] = null;
+          this.dialogService.showSnackBar(`${labelMap[type]} floor set to ${floor} for ${le.legalEntityName}`, '', 3000);
+          this.editingSeq[key] = null;
           this.loadSeqInfo();
         }
       },
       error: err => {
-        this.savingSeq[le.legalEntityId] = false;
+        this.savingSeq[key] = false;
         this.dialogService.errorServDialog(err);
       }
     });
