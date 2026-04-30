@@ -691,7 +691,7 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/createRecruitingCreditDebitNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 
-  completeRecruitingNote(data: { noteId: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, description?: string, finalFeeAmount?: number, invoiceDate?: string, paymentDate?: string }) {
+  completeRecruitingNote(data: { noteId: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, description?: string, finalFeeAmount?: number, invoiceDate?: string, paymentDate?: string, poNo?: string }) {
     return this.http.post(`${this.baseUrl}/completeRecruitingNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 

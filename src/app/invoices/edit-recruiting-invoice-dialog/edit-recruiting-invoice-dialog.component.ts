@@ -41,6 +41,7 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
       payment_date: [''],
       description: [''],
       notes: [''],
+      poNo: [''],
       lines: this.fb.array([])
     });
 
@@ -62,7 +63,8 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
           service_date:         inv.service_date  || '',
           payment_date:         inv.payment_date  || '',
           description:          inv.description   || '',
-          notes:                inv.notes         || ''
+          notes:                inv.notes         || '',
+          poNo:                 inv.poNo          || ''
         });
       }
     });
@@ -98,7 +100,8 @@ export class EditRecruitingInvoiceDialogComponent implements OnInit {
       service_date: val.service_date || null,
       payment_date: val.payment_date || null,
       description: val.description || null,
-      notes: val.notes || null
+      notes: val.notes || null,
+      poNo: val.poNo || null
     };
 
     if (this.hasMultipleLines) {

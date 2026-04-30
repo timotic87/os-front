@@ -42,6 +42,7 @@ export class CompleteRecruitingNoteDialogComponent {
       paymentDate: [paymentDate],
       refInvoiceNo: [inv.refInvoiceNo || ''],
       noteComment: [inv.noteComment || ''],
+      poNo: [inv.poNo || ''],
     });
   }
 
@@ -57,6 +58,7 @@ export class CompleteRecruitingNoteDialogComponent {
       finalFeeAmount: val.finalFeeAmount,
       invoiceDate: val.invoiceDate || undefined,
       paymentDate: val.paymentDate || undefined,
+      poNo: val.poNo || undefined,
     }).subscribe({
       next: (res: any) => {
         this.saving = false;

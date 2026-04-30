@@ -61,6 +61,15 @@
       <p style="margin: 4px 0 0; font-size: 11px; color: hsl(var(--muted-foreground));">Required before sending to BC</p>
     </div>
 
+    <!-- PO Number -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 6px;">
+        PO Number <span style="font-weight: 400; color: hsl(var(--muted-foreground));">(optional, max 35)</span>
+      </label>
+      <input formControlName="poNo" type="text" maxlength="35" placeholder="Purchase order number..."
+             style="width: 100%; height: 38px; padding: 0 12px; border-radius: 6px; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 14px; box-sizing: border-box;" />
+    </div>
+
     <!-- Comment -->
     <div style="margin-bottom: 20px;">
       <label style="display: block; font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 6px;">

@@ -155,6 +155,12 @@
         </div>
       </div>
 
+      <!-- PO Number -->
+      <div *ngIf="invoice.poNo" class="preview-section">
+        <div class="section-label">PO Number</div>
+        <div class="text-sm font-medium text-foreground font-mono">{{ invoice.poNo }}</div>
+      </div>
+
       <!-- Creator -->
       <div class="preview-section">
         <div class="section-label">Created By</div>
