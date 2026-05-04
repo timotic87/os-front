@@ -169,16 +169,12 @@ export class DealsComponent implements OnInit, OnDestroy {
     });
 
     this.notService.dealStatusUpdated$.pipe(takeUntil(this.destroy$)).subscribe(data => {
-      if (data?.dealId) {
+      if (data?.dealId && data.newFlowStatus) {
         const dealIndex = this.dealsArr.findIndex(deal => deal.ID == data.dealId);
-        if (dealIndex !== -1 && data.newStatus && data.newFlowStatus) {
-          this.dealsArr[dealIndex].status = data.newStatus;
+        if (dealIndex !== -1) {
           this.dealsArr[dealIndex].flowStatus = data.newFlowStatus;
-        } else {
-          this.reloadDeals();
+          if (data.newStatus) this.dealsArr[dealIndex].status = data.newStatus;
         }
-      } else {
-        this.reloadDeals();
       }
       this.loadStats();
     });

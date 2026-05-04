@@ -77,8 +77,11 @@ export class PyFlowComponent implements OnInit {
     
     // Listen for document status changes (approved/rejected)
     documentService.documentSubmitted.subscribe(data => {
-      this.refreshDocumentLists();
-      
+      // Only refresh document lists for document approvals, not CDCM approvals
+      if (!data.cdcmId) {
+        this.refreshDocumentLists();
+      }
+
       // If ANY document approval is completed (allApproved=true), update flow status based on approval type
       if (data.allApproved) {
         
@@ -93,14 +96,17 @@ export class PyFlowComponent implements OnInit {
             nextStatusID = FLOW_STATUS.CONTRACT_CLIENT_REVIEW;
           }
         } else {
+          // No documentTypeID - skip if this is a CDCM approval (has cdcmId)
+          if (data.cdcmId) {
+            return;
+          }
           const currentStatus = this.deal?.flowStatus?.ID || 0;
           if (currentStatus >= FLOW_STATUS.CONTRACT_START && currentStatus < FLOW_STATUS.CONTRACT_CLIENT_REVIEW) {
             nextStatusID = FLOW_STATUS.CONTRACT_CLIENT_REVIEW;
           } else if (currentStatus >= FLOW_STATUS.CDCM_APPROVED && currentStatus < FLOW_STATUS.OFFER_CLIENT_REVIEW) {
             nextStatusID = FLOW_STATUS.OFFER_CLIENT_REVIEW;
           } else {
-            // Default - don't change status if we can't determine
-            return; // Exit early, don't update status
+            return;
           }
         }
         
@@ -162,8 +168,6 @@ export class PyFlowComponent implements OnInit {
           this.activeCDCM = null;
           this.cdcmApproval = null;
         }
-        // Trigger change detection after CDCM data update
-        this.cdr.detectChanges();
       } else {
       }
     })
@@ -195,16 +199,12 @@ export class PyFlowComponent implements OnInit {
   }
 
   updateDealStatus(event: any){
-    // Handle flow status update (when "Mark as Sent" is clicked)
     if (event['flowStatusUpdated']) {
-      // Update local deal object
       this.deal.flowStatus.ID = event['newFlowStatusID'];
-      // Trigger change detection
       this.cdr.detectChanges();
       return;
     }
-    
-    // Handle client response (when client accepts/rejects)
+
     if (event['clientAccepted']===null){
       this.dialogService.showSnackBar('Choose the client response first', null, 2500);
       return;
@@ -216,7 +216,6 @@ export class PyFlowComponent implements OnInit {
       this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
         next: (res)=>{
           if (res.status === 200) {
-            // Update local deal object instead of page reload
             this.deal.flowStatus.ID = statusID;
             this.cdr.detectChanges();
             this.dialogService.showSnackBar('Deal status updated successfully!', '', 3000);
@@ -231,14 +230,10 @@ export class PyFlowComponent implements OnInit {
       this.rest.clientOfferReject({dealID: this.deal.ID, event}).subscribe({
         next: (res)=>{
           if (res.status === 200) {
-            // Update local deal object with the flowStatusID returned from API
             this.deal.flowStatus.ID = res.data.flowStatusID;
-            
-            // Refresh CDCM and document data to show rejected items and activate add buttons
             this.getActiveCDCM();
             this.getInactiveCDCM();
             this.refreshDocumentLists();
-            
             this.cdr.detectChanges();
             this.dialogService.showSnackBar('Deal status updated successfully! Process returned to previous step.', '', 4000);
           }
@@ -357,52 +352,29 @@ export class PyFlowComponent implements OnInit {
   }
 
   onApprovalCompleted(event: any): void {
-    
-    // IMMEDIATELY update the local UI state for instant feedback
-    const oldStatus = this.deal?.flowStatus?.ID;
     this.deal.flowStatus.ID = FLOW_STATUS.CDCM_APPROVED;
-    
-    // Clear the active CDCM immediately since it's approved
     this.activeCDCM = null;
     this.cdcmApproval = null;
-    
-    // Force multiple rounds of change detection for immediate UI update
     this.cdr.detectChanges();
-    this.cdr.markForCheck();
-    
-    // Also trigger zone run to ensure all Angular components update
-    setTimeout(() => {
-      this.cdr.detectChanges();
-      this.cdr.markForCheck();
-    }, 0);
-    
-    // Then update on the backend
+
     this.updateDealFlowStatus(FLOW_STATUS.CDCM_APPROVED);
-    
-    // Finally refresh all data from server with a delay
+
     setTimeout(() => {
       this.refreshAllCDCMData();
       this.refreshDealObject();
     }, 1000);
-    
   }
 
 
-  // Update the deal's flow status to the specified status ID (same as stuffing-flow)
   updateDealFlowStatus(statusID: number): void {
     this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
       next: (res) => {
         if (res.status === 200) {
-          // Update the local deal object to reflect the new status
-          const oldStatus = this.deal.flowStatus.ID;
           this.deal.flowStatus.ID = statusID;
-          
-          // Force Angular change detection to update UI immediately
           this.cdr.detectChanges();
         }
       },
       error: (err) => {
-        console.error('Failed to update deal flow status:', err);
         this.dialogService.showMsgDialog('Failed to update flow status: ' + (err.error?.message || err.status));
       }
     });
@@ -439,91 +411,42 @@ export class PyFlowComponent implements OnInit {
     }, 300);
   }
 
-  // Refresh deal object from server to get latest flow status (same as stuffing-flow)
   refreshDealObject(): void {
     this.rest.getDealByID(this.deal.ID).subscribe({
       next: (res) => {
-        if (res.status === 200 && res.data) {
-          // Update the deal object with fresh data from server
-          const oldFlowStatus = this.deal.flowStatus.ID;
-          this.deal = res.data;
-          const newFlowStatus = this.deal.flowStatus.ID;
-          
-          
-          // Trigger change detection to update UI immediately
-          setTimeout(() => {
-            // Force Angular change detection
-            this.cdr.detectChanges();
-          }, 100);
+        if (res.status === 200 && res.data?.flowStatus) {
+          this.deal.flowStatus = res.data.flowStatus;
+          this.cdr.detectChanges();
         }
-      },
-      error: (err) => {
-        console.error('Failed to refresh deal object:', err);
       }
     });
   }
 
-  // Refresh document lists when document status changes (same as stuffing-flow)
   refreshDocumentLists(): void {
-    
-    // Note: Do not emit approvalRejected.next() here as it creates infinite loop
-    // Contract components already listen to the event from other sources
-    
-    // Direct component refresh approach
-    setTimeout(() => {
-      // Refresh offer document component (step 2)
-      if (this.offerDocumentComponent) {
-        // Check if the component has a refresh method and call it
-        if (typeof this.offerDocumentComponent.ngOnInit === 'function') {
-          this.offerDocumentComponent.ngOnInit();
-        }
-        // Also try to trigger a re-fetch of documents
-        if (typeof (this.offerDocumentComponent as any).getActiveDocuments === 'function') {
-          (this.offerDocumentComponent as any).getActiveDocuments();
-        }
-        if (typeof (this.offerDocumentComponent as any).getInactiveDocuments === 'function') {
-          (this.offerDocumentComponent as any).getInactiveDocuments();
-        }
+    if (this.offerDocumentComponent) {
+      if (typeof (this.offerDocumentComponent as any).getActiveOffer === 'function') {
+        (this.offerDocumentComponent as any).getActiveOffer();
       }
-      
-      // Refresh contract document component (step 4)
-      if (this.contractDocumentComponent) {
-        // Check if the component has a refresh method and call it
-        if (typeof this.contractDocumentComponent.ngOnInit === 'function') {
-          this.contractDocumentComponent.ngOnInit();
-        }
-        // Also try to trigger a re-fetch of documents
-        if (typeof (this.contractDocumentComponent as any).getActiveContract === 'function') {
-          (this.contractDocumentComponent as any).getActiveContract();
-        }
-        if (typeof (this.contractDocumentComponent as any).getInaciveOfferDocs === 'function') {
-          (this.contractDocumentComponent as any).getInaciveOfferDocs();
-        }
+      if (typeof (this.offerDocumentComponent as any).getInaciveOfferDocs === 'function') {
+        (this.offerDocumentComponent as any).getInaciveOfferDocs();
       }
-      
-      // Also use the document service to notify all document components
-      this.documentService.activeDocumentChange.next(null);
-      this.documentService.inactiveDocumentChange.next([]);
-      
-    }, 500); // Increased delay to ensure approval process completes
+    }
+
+    if (this.contractDocumentComponent) {
+      if (typeof (this.contractDocumentComponent as any).getActiveContract === 'function') {
+        (this.contractDocumentComponent as any).getActiveContract();
+      }
+      if (typeof (this.contractDocumentComponent as any).getInaciveOfferDocs === 'function') {
+        (this.contractDocumentComponent as any).getInaciveOfferDocs();
+      }
+    }
   }
 
-  // Handle project promotion completion
   onProjectPromoted(event: any): void {
-    
     if (event.success) {
-      // Immediately update the local deal object to reflect the new status
-      const oldStatus = this.deal.flowStatus.ID;
       this.deal.flowStatus.ID = event.newFlowStatusID;
-      
-      // Force change detection to update UI immediately
       this.cdr.detectChanges();
-      
-      // Also refresh the deal object from server to ensure we have latest data
-      setTimeout(() => {
-        this.refreshDealObject();
-      }, 500);
-      
+      setTimeout(() => this.refreshDealObject(), 500);
     }
   }
 

@@ -35,6 +35,7 @@ export class DokumentApprovalComponent implements OnInit {
   @Input() statusIDShow: any;
   @Input() type: 'offer' | 'contract' = 'offer';
   @Input() approvalID = 2;
+  @Input() showApproval: boolean = true;
 
   /**
    * Check if user can add a new document based on current flow status

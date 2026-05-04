@@ -3,8 +3,7 @@ import {MatDialog} from "@angular/material/dialog";
 import { NgIf, CommonModule } from "@angular/common";
 import {CdcmCardComponent} from "../../../customComponents/cdcm-card/cdcm-card.component";
 import {CDCMService} from "../../../services/cdcm.service";
-import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {ApprovalModel} from "../../../models/approval/approvalModel";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {RestService} from "../../../services/rest.service";
 import {UserService} from "../../../services/user.service";
 import {StaffingCdcmDialogV2Component} from "../../staffing-cdcm-dialog-v2/staffing-cdcm-dialog-v2.component";
@@ -61,15 +60,7 @@ import { BadgeComponent } from '../../../shared/components/ui/badge/badge.compon
 })
 export class StuffingFlowV2Component implements OnInit {
 
-  canViewDocumentation = false;
-
   @Input() deal: any;
-
-  approval: ApprovalModel;
-
-  file: File;
-
-  formGroup: FormGroup;
 
   activeCDCM;
   inactiveCDCM: any[];
@@ -94,8 +85,11 @@ export class StuffingFlowV2Component implements OnInit {
     });
 
     documentService.documentSubmitted.subscribe(data => {
-      this.refreshDocumentLists();
-      
+      // Only refresh document lists for document approvals, not CDCM approvals
+      if (!data.cdcmId) {
+        this.refreshDocumentLists();
+      }
+
       // If ANY document approval is completed (allApproved=true), update flow status based on approval type
       if (data.allApproved) {
         
@@ -110,14 +104,17 @@ export class StuffingFlowV2Component implements OnInit {
             nextStatusID = FLOW_STATUS.CONTRACT_CLIENT_REVIEW;
           }
         } else {
+          // No documentTypeID - skip if this is a CDCM approval (has cdcmId)
+          if (data.cdcmId) {
+            return;
+          }
           const currentStatus = this.deal?.flowStatus?.ID || 0;
           if (currentStatus >= FLOW_STATUS.CONTRACT_START && currentStatus < FLOW_STATUS.CONTRACT_CLIENT_REVIEW) {
             nextStatusID = FLOW_STATUS.CONTRACT_CLIENT_REVIEW;
           } else if (currentStatus >= FLOW_STATUS.CDCM_APPROVED && currentStatus < FLOW_STATUS.OFFER_CLIENT_REVIEW) {
             nextStatusID = FLOW_STATUS.OFFER_CLIENT_REVIEW;
           } else {
-            // Default - don't change status if we can't determine
-            return; // Exit early, don't update status
+            return;
           }
         }
         
@@ -182,8 +179,6 @@ export class StuffingFlowV2Component implements OnInit {
           this.activeCDCM = null;
           this.cdcmApproval = null;
         }
-        // Trigger change detection after CDCM data update
-        this.cdr.detectChanges();
       } else {
       }
     })
@@ -217,25 +212,10 @@ export class StuffingFlowV2Component implements OnInit {
   }
 
   updateDealStatus(event: any){
-    const scrollPosition = window.scrollY;
-    
     // Handle flow status update (when "Mark as Sent" is clicked)
     if (event['flowStatusUpdated']) {
-      // Update local deal object
       this.deal.flowStatus.ID = event['newFlowStatusID'];
-      // Trigger change detection
       this.cdr.detectChanges();
-      
-      // Check if scroll position was affected
-      setTimeout(() => {
-        const currentScrollPosition = window.scrollY;
-        if (Math.abs(currentScrollPosition - scrollPosition) > 50) {
-          window.scrollTo({
-            top: scrollPosition,
-            behavior: 'instant'
-          });
-        }
-      }, 0);
       return;
     }
     
@@ -345,45 +325,17 @@ export class StuffingFlowV2Component implements OnInit {
   }
   
   onApprovalCompleted(event: any): void {
-    const scrollPosition = window.scrollY;
-    
-    
-    // IMMEDIATELY update the local UI state for instant feedback
-    const oldStatus = this.deal?.flowStatus?.ID;
     this.deal.flowStatus.ID = FLOW_STATUS.CDCM_APPROVED;
-    
-    // Clear the active CDCM immediately since it's approved
     this.activeCDCM = null;
     this.cdcmApproval = null;
-    
-    // Force multiple rounds of change detection for immediate UI update
     this.cdr.detectChanges();
-    this.cdr.markForCheck();
-    
-    // Also trigger zone run to ensure all Angular components update
-    setTimeout(() => {
-      this.cdr.detectChanges();
-      this.cdr.markForCheck();
-      
-      // Check if scroll position was affected by change detection
-      const currentScrollPosition = window.scrollY;
-      if (Math.abs(currentScrollPosition - scrollPosition) > 50) {
-        window.scrollTo({
-          top: scrollPosition,
-          behavior: 'instant'
-        });
-      }
-    }, 0);
-    
-    // Then update on the backend
+
     this.updateDealFlowStatus(FLOW_STATUS.CDCM_APPROVED);
-    
-    // Finally refresh all data from server with a delay
+
     setTimeout(() => {
       this.refreshAllCDCMData();
       this.refreshDealObject();
     }, 1000);
-    
   }
   
   refreshAllCDCMData(): void {
@@ -435,94 +387,38 @@ export class StuffingFlowV2Component implements OnInit {
     }
   }
 
-  // Update the deal's flow status to the specified status ID
   updateDealFlowStatus(statusID: number): void {
-    const scrollPosition = window.scrollY;
-    
     this.rest.changeDealFlowStatus({dealID: this.deal.ID, statusID}).subscribe({
       next: (res) => {
         if (res.status === 200) {
-          // Update the local deal object to reflect the new status
-          const oldStatus = this.deal.flowStatus.ID;
           this.deal.flowStatus.ID = statusID;
-          
-          // Force Angular change detection to update UI immediately
           this.cdr.detectChanges();
-          
-          // Check if scroll position was affected by status update and change detection
-          setTimeout(() => {
-            const currentScrollPosition = window.scrollY;
-            if (Math.abs(currentScrollPosition - scrollPosition) > 50) {
-              window.scrollTo({
-                top: scrollPosition,
-                behavior: 'instant'
-              });
-            }
-          }, 100);
         }
       },
       error: (err) => {
-        console.error('Failed to update deal flow status:', err);
         this.dialogService.showMsgDialog('Failed to update flow status: ' + (err.error?.message || err.status));
       }
     });
   }
 
-  // Refresh document lists when document status changes
   refreshDocumentLists(): void {
-    
-    // Store current scroll position before any changes
-    const scrollPosition = window.scrollY;
-    
-    // Note: Do not emit approvalRejected.next() here as it creates infinite loop
-    // Contract components already listen to the event from other sources
-    
-    // Use event-based approach instead of directly calling ngOnInit() which could reset scroll position
-    setTimeout(() => {
-      
-      // Instead of calling ngOnInit() directly, use the document service events
-      // This prevents the components from scrolling to top during initialization
-      
-      // Refresh offer document component (step 2) via service events instead of ngOnInit
-      if (this.offerDocumentComponent) {
-        // Use service methods instead of ngOnInit to avoid scroll reset
-        if (typeof (this.offerDocumentComponent as any).getActiveOffer === 'function') {
-          (this.offerDocumentComponent as any).getActiveOffer();
-        }
-        if (typeof (this.offerDocumentComponent as any).getInaciveOfferDocs === 'function') {
-          (this.offerDocumentComponent as any).getInaciveOfferDocs();
-        }
+    if (this.offerDocumentComponent) {
+      if (typeof (this.offerDocumentComponent as any).getActiveOffer === 'function') {
+        (this.offerDocumentComponent as any).getActiveOffer();
       }
-      
-      // Refresh contract document component (step 4) via service events instead of ngOnInit
-      if (this.contractDocumentComponent) {
-        // Use service methods instead of ngOnInit to avoid scroll reset
-        if (typeof (this.contractDocumentComponent as any).getActiveContract === 'function') {
-          (this.contractDocumentComponent as any).getActiveContract();
-        }
-        if (typeof (this.contractDocumentComponent as any).getInaciveOfferDocs === 'function') {
-          (this.contractDocumentComponent as any).getInaciveOfferDocs();
-        }
+      if (typeof (this.offerDocumentComponent as any).getInaciveOfferDocs === 'function') {
+        (this.offerDocumentComponent as any).getInaciveOfferDocs();
       }
-      
-      // Use the document service to notify all document components
-      this.documentService.activeDocumentChange.next(null);
-      this.documentService.inactiveDocumentChange.next([]);
-      
-      // Check if scroll position was affected and restore it if needed
-      setTimeout(() => {
-        const currentScrollPosition = window.scrollY;
-        
-        if (Math.abs(currentScrollPosition - scrollPosition) > 50) {
-          window.scrollTo({
-            top: scrollPosition,
-            behavior: 'instant'
-          });
-        }
-        
-      }, 100);
-      
-    }, 500); // Increased delay to ensure approval process completes
+    }
+
+    if (this.contractDocumentComponent) {
+      if (typeof (this.contractDocumentComponent as any).getActiveContract === 'function') {
+        (this.contractDocumentComponent as any).getActiveContract();
+      }
+      if (typeof (this.contractDocumentComponent as any).getInaciveOfferDocs === 'function') {
+        (this.contractDocumentComponent as any).getInaciveOfferDocs();
+      }
+    }
   }
 
   // Helper methods for step styling
@@ -556,57 +452,22 @@ export class StuffingFlowV2Component implements OnInit {
     return 'secondary';
   }
 
-  // Refresh deal object from server to get latest flow status
   refreshDealObject(): void {
-    const scrollPosition = window.scrollY;
-    
     this.rest.getDealByID(this.deal.ID).subscribe({
       next: (res) => {
-        if (res.status === 200 && res.data) {
-          // Update the deal object with fresh data from server
-          const oldFlowStatus = this.deal.flowStatus.ID;
-          this.deal = res.data;
-          const newFlowStatus = this.deal.flowStatus.ID;
-          
-          
-          // Trigger change detection to update UI immediately
-          setTimeout(() => {
-            // Force Angular change detection
-            this.cdr.detectChanges();
-            
-            // Check if scroll position was affected and restore it if needed
-            const currentScrollPosition = window.scrollY;
-            if (Math.abs(currentScrollPosition - scrollPosition) > 50) {
-              window.scrollTo({
-                top: scrollPosition,
-                behavior: 'instant'
-              });
-            }
-          }, 100);
+        if (res.status === 200 && res.data?.flowStatus) {
+          this.deal.flowStatus = res.data.flowStatus;
+          this.cdr.detectChanges();
         }
-      },
-      error: (err) => {
-        console.error('Failed to refresh deal object:', err);
       }
     });
   }
 
-  // Handle project promotion completion
   onProjectPromoted(event: any): void {
-    
     if (event.success) {
-      // Immediately update the local deal object to reflect the new status
-      const oldStatus = this.deal.flowStatus.ID;
       this.deal.flowStatus.ID = event.newFlowStatusID;
-      
-      // Force change detection to update UI immediately
       this.cdr.detectChanges();
-      
-      // Also refresh the deal object from server to ensure we have latest data
-      setTimeout(() => {
-        this.refreshDealObject();
-      }, 500);
-      
+      setTimeout(() => this.refreshDealObject(), 500);
     }
   }
 

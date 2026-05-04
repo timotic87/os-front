@@ -1,304 +1,134 @@
 <div class="recruiting-flow-container">
-  <!-- Flow Progress Header -->
-  <ui-card>
-    <ui-card-header>
-      <ui-card-title class="flex items-center gap-2">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5">
-          <path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-        Recruiting Flow Progress
-      </ui-card-title>
-      <ui-card-description>
-        Track the current status and progress through the recruiting workflow
-      </ui-card-description>
-    </ui-card-header>
-    <ui-card-content>
-      <div class="flex items-center space-x-4 text-sm">
-        <ui-badge class="text-xs" [variant]="getFlowStatusVariant((deal?.flowStatus?.ID) || 0)">
-          {{ (deal?.flowStatus?.name) || 'Not Started' }}
-        </ui-badge>
-        <span class="text-muted-foreground">•</span>
-        <span class="text-muted-foreground">Step {{ getCurrentStepNumber() }} of 4</span>
-      </div>
-      <div class="mt-4 w-full bg-muted rounded-full h-2">
-        <div class="bg-primary h-2 rounded-full transition-all duration-500" [style.width.%]="getProgressPercentage()"></div>
-      </div>
-    </ui-card-content>
-  </ui-card>
 
-  <!-- Step 1: Offer Documentation -->
+  <!-- Step 1: Upload Document -->
   <ui-card>
     <ui-card-header>
       <ui-card-title class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary" style="margin-bottom: 8px;">
           1
         </div>
-        Offer/Contract Documentation
+        Document Upload
       </ui-card-title>
       <ui-card-description>
-        Generate and manage offer and contract documents
+        Upload the document for this recruiting deal
       </ui-card-description>
     </ui-card-header>
-    <ui-card-content class="space-y-4">
-      <div *ngIf="deal.flowStatus.ID >= 1; else stepNotActiveYet">
-        <!-- Universal Document Management -->
-        <div class="mb-6">
-          <h4 class="text-lg font-semibold mb-4">Document Management</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Add and manage offer or contract documents as needed for this project.
-          </p>
-          <app-dokument-approval
-            #documentComponent
-            [deal]="deal"
-            [docTypeID]="getCurrentDocTypeID()"
-            [docSubTypeID]="getCurrentDocSubTypeID()"
-            [approvalID]="getCurrentApprovalID()"
-            [type]="getCurrentDocType()"
-            [statusIDShow]="1">
-          </app-dokument-approval>
-        </div>
-      </div>
-      <ng-template #stepNotActiveYet>
-        <div class="text-center py-6">
-          <div class="text-muted-foreground text-sm">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            This step will be available when the recruiting process begins.
-          </div>
-        </div>
-      </ng-template>
+    <ui-card-content>
+      <app-dokument-approval
+        #documentComponent
+        [deal]="deal"
+        [docTypeID]="getCurrentDocTypeID()"
+        [docSubTypeID]="getCurrentDocSubTypeID()"
+        [approvalID]="getCurrentApprovalID()"
+        [type]="getCurrentDocType()"
+        [statusIDShow]="1"
+        [showApproval]="false">
+      </app-dokument-approval>
     </ui-card-content>
   </ui-card>
 
-  <!-- Step 2: Client Offer/Contract Review -->
-  <ui-card [class]="getStepCardClass(7)">
+  <!-- Step 2: Create Recruiting Order -->
+  <ui-card [class]="getStepCardClass(isStep2Active())">
     <ui-card-header>
       <ui-card-title class="flex items-center gap-2">
-        <div style="margin-bottom: 8px;" [ngClass]="getStep2IndicatorClass()">
+        <div style="margin-bottom: 8px;" [ngClass]="getStepIndicatorClass(isStep2Active())">
           2
-        </div>
-        Client Offer/Contract Review
-      </ui-card-title>
-      <ui-card-description>
-        Awaiting client response to submitted documents
-      </ui-card-description>
-    </ui-card-header>
-    <ui-card-content>
-      <div *ngIf="isStep2Active(); else stepNotActiveYet" class="space-y-6">
-        <!-- Offer Review -->
-        <div *ngIf="deal.flowStatus.ID === 7 || deal.flowStatus.ID === 8">
-          <h4 class="text-lg font-semibold mb-4">Offer Review</h4>
-          <app-client-document-status
-            [deal]="deal"
-            [documentType]="'offer'"
-            [flowType]="'recruiting'"
-            [actionsDisabled]="isActionsDisabled()"
-            (statusChange)="updateDealStatus($event)">
-          </app-client-document-status>
-        </div>
-
-        <!-- Contract Review -->
-        <div *ngIf="deal.flowStatus.ID === 12">
-          <h4 class="text-lg font-semibold mb-4">Contract Review</h4>
-          <app-client-contract-document-status
-            [deal]="deal"
-            [documentType]="'contract'"
-            [actionsDisabled]="isActionsDisabled()"
-            (statusChange)="updateDealStatus($event)">
-          </app-client-contract-document-status>
-        </div>
-
-        <!-- Offer Accepted Success State -->
-        <div *ngIf="deal.flowStatus.ID === 9 || deal.flowStatus.ID === 10 || deal.flowStatus.ID === 11" class="space-y-4">
-          <div class="bg-green-50 dark:!bg-green-950/30 border border-green-200 dark:!border-green-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-sm font-medium text-green-900 dark:!text-green-100 mb-1">Document Accepted</h4>
-                <p class="text-sm text-green-700 dark:!text-green-300">
-                  The client has successfully accepted the document. The process is moving to contract signing.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Contract Accepted Success State -->
-        <div *ngIf="deal.flowStatus.ID >= 13" class="space-y-4">
-          <div class="bg-green-50 dark:!bg-green-950/30 border border-green-200 dark:!border-green-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-sm font-medium text-green-900 dark:!text-green-100 mb-1">Document Accepted - Ready for Signing</h4>
-                <p class="text-sm text-green-700 dark:!text-green-300">
-                  The client has successfully accepted the document. You can now proceed to contract signing below.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 2 Info when no active review -->
-        <div *ngIf="deal.flowStatus.ID !== 7 && deal.flowStatus.ID !== 8 && deal.flowStatus.ID !== 12 && deal.flowStatus.ID < 9" class="text-center py-6">
-          <div class="text-muted-foreground text-sm">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Client review will be available when documents are submitted for approval.
-          </div>
-        </div>
-      </div>
-    </ui-card-content>
-  </ui-card>
-
-  <!-- Step 3: Offer/Contract Signing -->
-  <ui-card [class]="getStepCardClass(13)">
-    <ui-card-header>
-      <ui-card-title class="flex items-center gap-2">
-        <div style="margin-bottom: 8px;" [ngClass]="getStepIndicatorClass(13)">
-          3
-        </div>
-        Offer/Contract Signing
-      </ui-card-title>
-      <ui-card-description>
-        Finalize and sign the offer/contract
-      </ui-card-description>
-    </ui-card-header>
-    <ui-card-content>
-      <div *ngIf="deal.flowStatus.ID >= 13; else stepNotActiveYet" class="space-y-4">
-        <!-- Contract Signing Action -->
-        <ui-button
-          *ngIf="deal.flowStatus.ID === 13"
-          class="w-full sm:w-auto"
-          [disabled]="isActionsDisabled()"
-          (onClick)="contractSigned()">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          Mark as Signed
-        </ui-button>
-
-        <!-- Signed Confirmation -->
-        <div *ngIf="deal.flowStatus.ID > 13" class="flex items-center gap-2 p-4 bg-green-50 dark:!bg-green-950/30 border border-green-200 dark:!border-green-800 rounded-lg">
-          <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-3 h-3 text-white">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          </div>
-          <span class="text-green-700 dark:!text-green-300 font-semibold">Documents have been signed successfully</span>
-        </div>
-      </div>
-    </ui-card-content>
-  </ui-card>
-
-  <!-- Step 4: Create Recruiting Order -->
-  <ui-card [class]="getStepCardClass(14)">
-    <ui-card-header>
-      <ui-card-title class="flex items-center gap-2">
-        <div style="margin-bottom: 8px;" [ngClass]="getStepIndicatorClass(14)">
-          4
         </div>
         Create Recruiting Order
       </ui-card-title>
       <ui-card-description>
-        Set up recruiting order and positions for this project
+        Set up the recruiting order and positions for this project
       </ui-card-description>
     </ui-card-header>
     <ui-card-content>
-      <div *ngIf="deal.flowStatus.ID >= 14; else stepNotActiveYet">
 
-        <!-- Show form if no order exists yet -->
-        <div [style.display]="recruitingOrder ? 'none' : 'block'">
-          <div *ngIf="isCreatingOrder" class="text-center py-8 mb-6">
-            <div class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:!bg-blue-950/30 border border-blue-200 dark:!border-blue-800">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Creating recruiting order...
-            </div>
-          </div>
-          
-          <div [style.display]="isCreatingOrder ? 'none' : 'block'">
-            <app-recruiting-order-form
-              [deal]="deal"
-              [isActionsDisabled]="isActionsDisabled()"
-              (orderCreated)="onOrderCreated($event)"
-              (orderCreating)="onOrderCreating($event)">
-            </app-recruiting-order-form>
+      <!-- Locked: no document uploaded yet -->
+      <div *ngIf="!isStep2Active()" class="text-center py-6">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-12 h-12 mx-auto mb-3 text-muted-foreground/50">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+        <p class="text-sm text-muted-foreground">Upload a document in Step 1 to unlock this step.</p>
+      </div>
+
+      <!-- Order form: document uploaded, order not yet created -->
+      <div *ngIf="isStep2Active() && !recruitingOrder">
+        <div *ngIf="isCreatingOrder" class="text-center py-8">
+          <div class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:!bg-blue-950/30 border border-blue-200 dark:!border-blue-800">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Creating recruiting order...
           </div>
         </div>
 
-        <!-- Show success state when order is created -->
-        <div *ngIf="recruitingOrder" class="space-y-6">
-          <div class="bg-green-50 dark:!bg-green-950/30 border border-green-200 dark:!border-green-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-sm font-medium text-green-900 dark:!text-green-100 mb-1">Recruiting Order Created</h4>
-                <p class="text-sm text-green-700 dark:!text-green-300">
-                  Order has been created successfully with {{ recruitingOrder.positions?.length || 0 }} position(s).
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order Summary -->
-          <div class="border dark:!border-gray-700 rounded-lg p-4">
-            <h4 class="text-lg font-semibold mb-3">Order Summary</h4>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-muted-foreground">Order Number:</span>
-                <span class="ml-2 font-medium">{{ recruitingOrder.order_number }}</span>
-                <ui-badge *ngIf="recruitingOrder.is_umbrella" [variant]="'secondary'" class="text-xs ml-2">
-                  Umbrella
-                </ui-badge>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Status:</span>
-                <span class="ml-2">
-                  <ui-badge [variant]="'outline'" class="text-xs">
-                    {{ recruitingOrder.status?.name || 'Active' }}
-                  </ui-badge>
-                </span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Client:</span>
-                <span class="ml-2 font-medium">{{ recruitingOrder.deal?.client?.customerName || 'N/A' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex gap-3 pt-2">
-            <ui-button variant="outline" size="sm" (onClick)="viewRecruitingOrder()">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-              View Order Details
-            </ui-button>
-            <ui-button variant="outline" size="sm" (click)="addPosition()" [disabled]="isActionsDisabled()">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Add Position
-            </ui-button>
-          </div>
+        <div [style.display]="isCreatingOrder ? 'none' : 'block'">
+          <app-recruiting-order-form
+            [deal]="deal"
+            [isActionsDisabled]="isActionsDisabled()"
+            (orderCreated)="onOrderCreated($event)"
+            (orderCreating)="onOrderCreating($event)">
+          </app-recruiting-order-form>
         </div>
       </div>
+
+      <!-- Success: order created -->
+      <div *ngIf="recruitingOrder" class="space-y-6">
+        <div class="bg-green-50 dark:!bg-green-950/30 border border-green-200 dark:!border-green-800 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-medium text-green-900 dark:!text-green-100 mb-1">Recruiting Order Created</h4>
+              <p class="text-sm text-green-700 dark:!text-green-300">
+                Order has been created successfully with {{ recruitingOrder.positions?.length || 0 }} position(s).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="border dark:!border-gray-700 rounded-lg p-4">
+          <h4 class="text-lg font-semibold mb-3">Order Summary</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-muted-foreground">Order Number:</span>
+              <span class="ml-2 font-medium">{{ recruitingOrder.order_number }}</span>
+              <ui-badge *ngIf="recruitingOrder.is_umbrella" [variant]="'secondary'" class="text-xs ml-2">Umbrella</ui-badge>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Status:</span>
+              <span class="ml-2">
+                <ui-badge [variant]="'outline'" class="text-xs">{{ recruitingOrder.status?.name || 'Active' }}</ui-badge>
+              </span>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Client:</span>
+              <span class="ml-2 font-medium">{{ recruitingOrder.deal?.client?.customerName || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <ui-button variant="outline" size="sm" (onClick)="viewRecruitingOrder()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            View Order Details
+          </ui-button>
+          <ui-button variant="outline" size="sm" (click)="addPosition()" [disabled]="isActionsDisabled()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2 h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add Position
+          </ui-button>
+        </div>
+      </div>
+
     </ui-card-content>
   </ui-card>
+
 </div>

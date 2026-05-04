@@ -24,7 +24,8 @@ import {BadgeComponent} from "../../../shared/components/ui/badge/badge.componen
 export class DocumentCardComponent {
 
   @Input() approvalID: any;
-  @Input() document: any; // Input for document data
+  @Input() document: any;
+  @Input() showSubmit: boolean = true;
 
   constructor(
     private rest: RestService, 

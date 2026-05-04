@@ -61,6 +61,7 @@
     
     <!-- Submit button -->
     <button
+      *ngIf="showSubmit"
       (click)="submitDocument()"
       [disabled]="(document || documentService.activeDocument).statusID > 1 || (document || documentService.activeDocument).isSubmitting"
       class="submit-btn">

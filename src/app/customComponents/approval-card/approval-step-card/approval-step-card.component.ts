@@ -141,7 +141,8 @@ export class ApprovalStepCardComponent implements OnInit{
               // For both approved and rejected - trigger document list refresh
               this.documentService.documentSubmitted.next({
                 approvalId: this.approval.ID,
-                documentId: result.fullData?.documentId || this.approval.documentId,
+                cdcmId: this.approval.cdcmID || null,
+                documentId: result.fullData?.documentId || this.approval.documentID || null,
                 dealId: result.fullData?.dealId || this.approval.dealId,
                 statusID: result.approvalStep.statusID,
                 allApproved: result.allApproved,

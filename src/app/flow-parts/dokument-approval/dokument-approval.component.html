@@ -14,10 +14,9 @@
   <input type="file" #fileInput accept="application/pdf" style="display: none;" (change)="onFileSelected($event)">
 
   <div class="grid grid-cols-3 gap-2 w-full">
-      <app-document-card [approvalID]="approvalID" *ngIf="documentService.activeDocument"></app-document-card>
-    @if (docApproval){
-
-      <app-approval-card 
+      <app-document-card [approvalID]="approvalID" [showSubmit]="showApproval" *ngIf="documentService.activeDocument"></app-document-card>
+    @if (docApproval && showApproval){
+      <app-approval-card
         [approval]="docApproval"
         (approvalUpdated)="onApprovalUpdated($event)"
         (allApprovalsCompleted)="onAllApprovalsCompleted($event)">
