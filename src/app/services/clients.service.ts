@@ -80,21 +80,24 @@ export class ClientsService {
   }
 
   createClient(data) {
-    this.dialogService.showLoader()
-    this.rest.createClient(data).subscribe({
-      next: res => {
+    this.dialogService.showLoader();
+    return this.rest.createClient(data).pipe(
+      map(res => {
+        this.dialogService.closeLoader();
         if (res.status === 201) {
-          this.dialogService.closeLoader()
-          this.dialogService.showSnackBar("You are succesfuly create Client", 'Close', 2500)
+          this.dialogService.showSnackBar("Klijent je uspešno kreiran", 'Close', 2500);
           this.isListChange.next(true);
+          return { success: true };
         }
-      },
-      error: err => {
-        this.dialogService.closeLoader()
-        this.dialogService.showMsgDialog('Status: ' + err.status + ' msg: ' + err.error.message);
-      }
-
-    })
+        return { success: false };
+      }),
+      catchError(err => {
+        this.dialogService.closeLoader();
+        const msg = err?.error?.message || 'Greška pri kreiranju klijenta';
+        this.dialogService.showMsgDialog(msg);
+        return of({ success: false });
+      })
+    );
   }
 
   setCurrentClient(client) {

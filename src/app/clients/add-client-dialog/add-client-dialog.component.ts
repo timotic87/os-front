@@ -94,8 +94,9 @@ export class AddClientDialogComponent implements OnInit {
     this.addClientForm.markAllAsTouched();
     if (this.addClientForm.valid) {
       let data = this.addClientForm.value;
-      this.clientService.createClient(data);
-      this.dialogRef.close();
+      this.clientService.createClient(data).subscribe(res => {
+        if (res.success) this.dialogRef.close();
+      });
     }
   }
 

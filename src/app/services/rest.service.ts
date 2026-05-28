@@ -77,6 +77,10 @@ export class RestService {
     return this.http.get(`${this.baseUrl}/getLegalEntities`, {headers: this.headers()}) as Observable<any>;
   }
 
+  getLEListAll(){
+    return this.http.get(`${this.baseUrl}/getLegalEntities?all=true`, {headers: this.headers()}) as Observable<any>;
+  }
+
   createLegalEntity(data: any) {
     return this.http.post(`${this.baseUrl}/createLegalEntity`, data, { headers: this.headers() }) as Observable<any>;
   }

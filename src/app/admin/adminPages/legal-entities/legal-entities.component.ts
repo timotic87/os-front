@@ -54,7 +54,7 @@ export class LegalEntitiesComponent implements OnInit {
 
   loadEntities() {
     this.loading = true;
-    this.rest.getLEList().subscribe({
+    this.rest.getLEListAll().subscribe({
       next: res => {
         if (res.status === 200) {
           this.entities = res.data;
