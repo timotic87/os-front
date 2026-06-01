@@ -37,20 +37,6 @@
           </div>
         </div>
 
-        <!-- Description -->
-        <div class="space-y-2">
-          <ui-label for="description">Description</ui-label>
-          <ui-textarea
-            id="description"
-            formControlName="description"
-            placeholder="Order description (optional)"
-            rows="3"
-            [class.border-red-500]="hasError('description')">
-          </ui-textarea>
-          <div *ngIf="hasError('description')" class="text-red-500 text-sm">
-            {{ getErrorMessage('description') }}
-          </div>
-        </div>
         <!-- Payment Terms -->
         <div class="border-t dark:!border-gray-700 pt-4">
           <h5 class="text-md font-semibold mb-3">Payment Terms</h5>
@@ -74,6 +60,20 @@
               </ui-input>
             </div>
           </div>
+        </div>
+
+        <!-- Initial comment (opens / continues the deal comment thread) -->
+        <div class="space-y-2 mt-4">
+          <ui-label for="initialComment">
+            Initial comment
+            <span class="text-xs text-muted-foreground font-normal ml-1">(optional, posts to deal comment thread)</span>
+          </ui-label>
+          <textarea
+            id="initialComment"
+            formControlName="initialComment"
+            rows="3"
+            placeholder="Message for recruiter / team (visible in deal and recruiting order comments)..."
+            class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"></textarea>
         </div>
       </ui-card-content>
     </ui-card>
@@ -440,13 +440,16 @@
               </div>
             </div>
 
-            <!-- Notes -->
+            <!-- Initial comment (opens this position's comment thread) -->
             <div class="mt-4">
-              <ui-label [for]="'notes' + i" class="block text-sm font-medium mb-2">Notes</ui-label>
+              <ui-label [for]="'initialComment' + i" class="block text-sm font-medium mb-2">
+                Initial comment
+                <span class="text-xs text-muted-foreground font-normal ml-1">(optional, posts to position comment thread)</span>
+              </ui-label>
               <ui-textarea
-                [id]="'notes' + i"
-                formControlName="notes"
-                placeholder="Additional notes for this position (optional)"
+                [id]="'initialComment' + i"
+                formControlName="initialComment"
+                placeholder="Message about this position (visible to recruiter and team)..."
                 rows="2">
               </ui-textarea>
             </div>

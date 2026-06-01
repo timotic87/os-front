@@ -60,6 +60,7 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       paymentDueDays: [30],
       description: [''],
       poNo: [''],
+      messageToFinance: [''],
       lines: this.fb.array([])
     });
 
@@ -90,7 +91,8 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       transactionDate: inv.transactionDate ? inv.transactionDate.split('T')[0] : '',
       paymentDueDays: inv.paymentDueDays || 30,
       description: inv.description || '',
-      poNo: inv.poNo || ''
+      poNo: inv.poNo || '',
+      messageToFinance: inv.messageToFinance || ''
     });
 
     // Fetch full invoice with lines
@@ -214,6 +216,7 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       currencyCode: val.currencyCode || null,
       description: val.description || null,
       poNo: val.poNo || null,
+      messageToFinance: val.messageToFinance ?? null,
       lines: val.lines.map((l: any) => ({
         description: l.description || null,
         quantity: l.quantity,

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { RestService } from '../../services/rest.service';
 import { DialogService } from '../../services/dialog.service';
+import { UserService } from '../../services/user.service';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../shared/components/ui/input/input.component';
 import { LabelComponent } from '../../shared/components/ui/label/label.component';
@@ -34,11 +35,17 @@ export class EditPositionDialogComponent implements OnInit {
   costCenters: any[] = [];
   isSubmitting = false;
   hasFeeLockedInvoices = false;
+  hasExtraFeeLockedInvoices = false;
 
-  private feeLockedFields = [
+  // Locked only if a placement/admin_fee invoice for the position fee has been approved
+  private placementFeeLockedFields = [
     'feeTypesId', 'feeAmount', 'feeCurrencyID', 'feePercentage',
     'feeMultiplier', 'feeSalaryType', 'expectedSalary',
-    'expectedSalaryType', 'currencyID',
+    'expectedSalaryType', 'currencyID'
+  ];
+
+  // Locked only if an admin_fee or cancel_fee invoice for this position has been approved
+  private extraFeeLockedFields = [
     'extraFeeTypeID', 'extraFeeType', 'extraFeeAmount',
     'extraFeeCurrencyID', 'extraFeePercentage', 'extraFeeMultiplier'
   ];
@@ -48,7 +55,8 @@ export class EditPositionDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { position: any, invoices: any[], existingPositions?: any[] },
     private fb: FormBuilder,
     private rest: RestService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    public userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -59,8 +67,16 @@ export class EditPositionDialogComponent implements OnInit {
 
   checkFeeLockedInvoices(): void {
     const invoices = this.data.invoices || [];
-    this.hasFeeLockedInvoices = invoices.some(
+    const positionInvoices = invoices.filter(
       (inv: any) => inv.position_id === this.data.position.ID && inv.status === 'approved' && !inv.deleted
+    );
+    // Placement fee fields lock if there's an approved placement invoice
+    this.hasFeeLockedInvoices = positionInvoices.some(
+      (inv: any) => inv.invoice_type === 'placement'
+    );
+    // Extra fee fields lock if there's an approved admin_fee or cancel_fee invoice
+    this.hasExtraFeeLockedInvoices = positionInvoices.some(
+      (inv: any) => inv.invoice_type === 'admin_fee' || inv.invoice_type === 'cancel_fee'
     );
   }
 
@@ -134,16 +150,21 @@ export class EditPositionDialogComponent implements OnInit {
       extraFeeAmount: [extraFeeType === 'fixed' ? pos.extra_fee_amount : null],
       extraFeeCurrencyID: [pos.extra_fee_currency_id || null],
       extraFeePercentage: [extraFeeType === 'percentage' ? pos.extra_fee_amount : null],
-      extraFeeMultiplier: [extraFeeType === 'multiplier' ? pos.extra_fee_amount : null],
-      notes: [pos.notes || '']
+      extraFeeMultiplier: [extraFeeType === 'multiplier' ? pos.extra_fee_amount : null]
     });
 
     // Apply fee type validators
     this.onFeeTypeChange();
 
-    // Disable fee/salary fields if locked
+    // Disable placement fee/salary fields only if an approved placement invoice exists
     if (this.hasFeeLockedInvoices) {
-      this.feeLockedFields.forEach(field => {
+      this.placementFeeLockedFields.forEach(field => {
+        this.positionForm.get(field)?.disable();
+      });
+    }
+    // Disable extra fee fields only if an approved admin/cancel fee invoice exists
+    if (this.hasExtraFeeLockedInvoices) {
+      this.extraFeeLockedFields.forEach(field => {
         this.positionForm.get(field)?.disable();
       });
     }
@@ -239,21 +260,25 @@ export class EditPositionDialogComponent implements OnInit {
   }
 
   /**
-   * Filter extra fee types: ADMIN and CANCEL are mutually exclusive.
-   * If other positions in the order use ADMIN, hide CANCEL (and vice versa).
+   * Filter extra fee types: ADMIN and CANCEL are mutually exclusive per order.
+   * If another position in the order already uses one, the other is hidden.
+   * Admins see all types unfiltered.
    */
   getFilteredExtraFeeTypes(): any[] {
     if (!this.extraFeeTypes || this.extraFeeTypes.length === 0) return this.extraFeeTypes;
 
+    // Admin override: show everything
+    if (this.userService.can('admin_access')) return this.extraFeeTypes;
+
     const existingPositions = this.data.existingPositions || [];
-    const currentPositionID = this.data.position.ID;
+    const currentPositionID = Number(this.data.position.ID);
     let lockedType: string | null = null;
 
     for (const pos of existingPositions) {
-      // Skip the current position being edited
-      if (pos.ID === currentPositionID) continue;
+      // Skip the current position being edited (compare as numbers to avoid string/int mismatch)
+      if (Number(pos.ID) === currentPositionID) continue;
       if (pos.extra_fee_type_id) {
-        const efType = this.extraFeeTypes.find(t => t.ID === pos.extra_fee_type_id);
+        const efType = this.extraFeeTypes.find(t => Number(t.ID) === Number(pos.extra_fee_type_id));
         if (efType && (efType.name === 'ADMIN' || efType.name === 'CANCEL')) {
           lockedType = efType.name;
           break;
@@ -276,54 +301,61 @@ export class EditPositionDialogComponent implements OnInit {
 
     this.isSubmitting = true;
     const formValue = this.positionForm.getRawValue();
+    const toInt = (v: any) => v === '' || v === null || v === undefined ? null : parseInt(v, 10);
+    const toNum = (v: any) => v === '' || v === null || v === undefined ? null : parseFloat(v);
 
+    // Always-editable identity fields (headcount, name, location, cost center)
     const positionData: any = {
       positionID: this.data.position.ID,
-      cost_center_id: formValue.costCenterID || null,
+      cost_center_id: toInt(formValue.costCenterID),
       position_name: formValue.jobTitle,
       location: formValue.location,
-      number_of_people: formValue.numberOfPeople || 1,
-      expected_salary: formValue.expectedSalary,
-      expected_salary_type_id: formValue.expectedSalaryType,
-      expected_salary_currency_id: formValue.currencyID,
-      fee_types_id: formValue.feeTypesId,
-      notes: formValue.notes || null
+      number_of_people: toInt(formValue.numberOfPeople) || 1
     };
 
-    // Add fee-related fields based on fee type
-    const feeTypeName = this.getFeeTypeName(formValue.feeTypesId)?.toLowerCase();
-    if (feeTypeName?.includes('fixed')) {
-      positionData.fee_amount = formValue.feeAmount;
-      positionData.fee_currency_id = formValue.feeCurrencyID;
-    } else if (feeTypeName === 'percentage') {
-      positionData.fee_percentage = formValue.feePercentage;
-      positionData.salary_type_id = formValue.feeSalaryType;
-    } else if (feeTypeName === 'multiplier') {
-      positionData.fee_multiplier = formValue.feeMultiplier;
-      positionData.salary_type_id = formValue.feeSalaryType;
+    // Send placement/salary fee fields only if NOT locked (no approved placement invoice)
+    if (!this.hasFeeLockedInvoices) {
+      positionData.expected_salary = toNum(formValue.expectedSalary);
+      positionData.expected_salary_type_id = toInt(formValue.expectedSalaryType);
+      positionData.expected_salary_currency_id = toInt(formValue.currencyID);
+      positionData.fee_types_id = toInt(formValue.feeTypesId);
+
+      const feeTypeName = this.getFeeTypeName(formValue.feeTypesId)?.toLowerCase();
+      if (feeTypeName?.includes('fixed')) {
+        positionData.fee_amount = toNum(formValue.feeAmount);
+        positionData.fee_currency_id = toInt(formValue.feeCurrencyID);
+      } else if (feeTypeName === 'percentage') {
+        positionData.fee_percentage = toNum(formValue.feePercentage);
+        positionData.salary_type_id = toInt(formValue.feeSalaryType);
+      } else if (feeTypeName === 'multiplier') {
+        positionData.fee_multiplier = toNum(formValue.feeMultiplier);
+        positionData.salary_type_id = toInt(formValue.feeSalaryType);
+      }
     }
 
-    // Add extra fee if selected
-    if (formValue.extraFeeTypeID && this.getExtraFeeTypeName(formValue.extraFeeTypeID) !== 'NONE') {
-      positionData.extra_fee_type_id = formValue.extraFeeTypeID;
+    // Send extra fee fields only if NOT locked (no approved admin/cancel invoice)
+    if (!this.hasExtraFeeLockedInvoices) {
+      if (formValue.extraFeeTypeID && this.getExtraFeeTypeName(formValue.extraFeeTypeID) !== 'NONE') {
+        positionData.extra_fee_type_id = toInt(formValue.extraFeeTypeID);
 
-      const extraFeeType = formValue.extraFeeType;
-      if (extraFeeType === 'fixed') {
-        positionData.extra_fee_amount = formValue.extraFeeAmount;
-        positionData.extra_fee_currency_id = formValue.extraFeeCurrencyID;
-        positionData.extra_fee_calculation_type = 3;
-      } else if (extraFeeType === 'percentage') {
-        positionData.extra_fee_amount = formValue.extraFeePercentage;
-        positionData.extra_fee_calculation_type = 1;
-      } else if (extraFeeType === 'multiplier') {
-        positionData.extra_fee_amount = formValue.extraFeeMultiplier;
-        positionData.extra_fee_calculation_type = 2;
+        const extraFeeType = formValue.extraFeeType;
+        if (extraFeeType === 'fixed') {
+          positionData.extra_fee_amount = toNum(formValue.extraFeeAmount);
+          positionData.extra_fee_currency_id = toInt(formValue.extraFeeCurrencyID);
+          positionData.extra_fee_calculation_type = 3;
+        } else if (extraFeeType === 'percentage') {
+          positionData.extra_fee_amount = toNum(formValue.extraFeePercentage);
+          positionData.extra_fee_calculation_type = 1;
+        } else if (extraFeeType === 'multiplier') {
+          positionData.extra_fee_amount = toNum(formValue.extraFeeMultiplier);
+          positionData.extra_fee_calculation_type = 2;
+        }
+      } else {
+        positionData.extra_fee_type_id = null;
+        positionData.extra_fee_amount = null;
+        positionData.extra_fee_currency_id = null;
+        positionData.extra_fee_calculation_type = null;
       }
-    } else {
-      positionData.extra_fee_type_id = null;
-      positionData.extra_fee_amount = null;
-      positionData.extra_fee_currency_id = null;
-      positionData.extra_fee_calculation_type = null;
     }
 
     this.rest.updatePosition(positionData).subscribe({

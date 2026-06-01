@@ -53,6 +53,7 @@ export class CompleteNoteDialogComponent {
       paymentDueDays: [data.note.paymentDueDays ?? 30, [Validators.required, Validators.min(0)]],
       refInvoiceNo: [data.note.refInvoiceNo || ''],
       noteComment: [data.note.noteComment || ''],
+      poNo: [data.note.poNo || ''],
       lines: this.fb.array(sourceLinesArr),
     });
 
@@ -93,6 +94,7 @@ export class CompleteNoteDialogComponent {
       paymentDueDays: val.paymentDueDays,
       refInvoiceNo: val.refInvoiceNo || undefined,
       noteComment: val.noteComment || undefined,
+      poNo: val.poNo || null,
       lines: val.lines,
     }).subscribe({
       next: (res: any) => {

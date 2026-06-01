@@ -1,0 +1,66 @@
+<div class="flex flex-col" style="min-width: 560px; max-width: 90vw;">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+    <div>
+      <h2 class="text-base font-semibold text-foreground">Position Comments</h2>
+      <p class="text-xs text-muted-foreground mt-0.5">
+        {{ data.positionNumber || '#' + data.positionID }}
+        @if (data.positionName) { · {{ data.positionName }} }
+      </p>
+    </div>
+    <button (click)="dialogRef.close()" class="text-muted-foreground hover:text-foreground transition-colors">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Composer -->
+  @if (userService.can('create_all_comments')) {
+    <div class="px-6 py-4 border-b border-border">
+      <textarea
+        [formControl]="newComment"
+        rows="2"
+        placeholder="Add a comment..."
+        (keydown.enter)="$event.preventDefault(); send()"
+        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"></textarea>
+      <div class="flex justify-end mt-2">
+        <button
+          type="button"
+          (click)="send()"
+          [disabled]="!newComment.value?.trim()"
+          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12zm0 0h7.5"/>
+          </svg>
+          Send
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Thread -->
+  <div class="px-6 py-4 overflow-y-auto" style="max-height: 60vh;">
+    @if (loading) {
+      <div class="text-center text-sm text-muted-foreground py-6">Loading...</div>
+    } @else if (comments.length === 0) {
+      <div class="text-center text-sm text-muted-foreground py-6 italic">No comments yet</div>
+    } @else {
+      <ul class="space-y-3">
+        @for (c of comments; track c.id) {
+          <li class="rounded-md border border-border bg-muted/20 px-3 py-2">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-xs font-medium text-foreground">
+                {{ c.creator?.firstName }} {{ c.creator?.lastName }}
+              </div>
+              <div class="text-[11px] text-muted-foreground">{{ c.createdDate | date: 'MMM d, y HH:mm' }}</div>
+            </div>
+            <div class="text-sm text-foreground whitespace-pre-wrap break-words">{{ c.comment }}</div>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+</div>

@@ -14,6 +14,7 @@ import { CompleteRecruitingNoteDialogComponent } from './complete-recruiting-not
 import { CreateCreditDebitNoteDialogComponent } from '../sales-invoices/create-credit-debit-note-dialog/create-credit-debit-note-dialog.component';
 import { EditRecruitingInvoiceDialogComponent } from './edit-recruiting-invoice-dialog/edit-recruiting-invoice-dialog.component';
 import { EditSalesInvoiceDialogComponent } from './edit-sales-invoice-dialog/edit-sales-invoice-dialog.component';
+import { MessageToFinanceDialogComponent } from './message-to-finance-dialog/message-to-finance-dialog.component';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -192,6 +193,15 @@ export class InvoicesComponent implements OnInit {
       width: '800px',
       maxWidth: '95vw',
       data: { invoiceID: inv.ID }
+    });
+  }
+
+  openMessageToFinance(inv: any, type: 'recruiting' | 'sales' = 'recruiting'): void {
+    const invoiceNo = type === 'sales' ? inv.invoiceNo : `RI-${inv.ID}`;
+    this.dialog.open(MessageToFinanceDialogComponent, {
+      width: '520px',
+      maxWidth: '92vw',
+      data: { message: inv.messageToFinance, invoiceNo }
     });
   }
 

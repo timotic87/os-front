@@ -61,7 +61,7 @@ export class CreateDealDialogComponent implements OnInit {
       client: new FormControl(null, [Validators.required]),
       service: new FormControl(null, [Validators.required]),
       subservice: new FormControl(null, [Validators.required]),
-      comment: new FormControl(null),
+      initialComment: new FormControl(null),
       bdUser: new FormControl(null, [Validators.required])
     });
 
@@ -146,7 +146,7 @@ export class CreateDealDialogComponent implements OnInit {
         subserviceType: this.createDealForm.value.subservice.typeID,
         creatorID: this.userService.getUser().id,
         BDOwnerID: this.createDealForm.value.bdUser.id,
-        descriptionText: this.createDealForm.value.comment
+        initialComment: this.createDealForm.value.initialComment || null
       };
       this.rest.createDeal(data).subscribe(res => {
         if (res.status == 200) {

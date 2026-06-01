@@ -175,12 +175,15 @@
       </div>
     </div>
 
-    <!-- Comment -->
+    <!-- Initial comment (opens the deal thread; visible to recruiter and everyone with access) -->
     <div class="mt-4 space-y-2">
-      <label class="text-sm font-medium text-foreground">Comment</label>
-      <textarea formControlName="comment" rows="3"
+      <label class="text-sm font-medium text-foreground">
+        Initial comment
+        <span class="text-xs text-muted-foreground font-normal ml-1">(optional, posts to comment thread)</span>
+      </label>
+      <textarea formControlName="initialComment" rows="3"
                 class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-                placeholder="Add a comment (optional)..." autocomplete="new-name"></textarea>
+                placeholder="Message for recruiter / team (visible in deal and recruiting order comments)..." autocomplete="new-name"></textarea>
     </div>
 
     <!-- Actions -->

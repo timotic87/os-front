@@ -13,6 +13,7 @@ import {NgIf} from "@angular/common";
 import {NotificationStoreService} from "../services/notification-store-service.service";
 import {NotificationSocketService} from "../services/notification-socket.service";
 import {ThemeToggleComponent} from '../components/theme-toggle/theme-toggle.component';
+import {APP_VERSION} from '../version';
 
 @Component({
   selector: 'app-navbar',
@@ -32,6 +33,7 @@ import {ThemeToggleComponent} from '../components/theme-toggle/theme-toggle.comp
 })
 export class NavbarComponent implements OnDestroy {
 
+  appVersion = APP_VERSION;
   unreadCount = 0;
   private unreadSub: Subscription;
 

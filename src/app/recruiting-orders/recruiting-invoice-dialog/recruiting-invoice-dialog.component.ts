@@ -229,7 +229,9 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
       this.invoiceForm = this.fb.group({
         candidates: this.fb.array([]),
         fee_currency_id: [feeCurrencyId, Validators.required],
-        notes: [null]
+        notes: [null],
+        poNo: [null],
+        messageToFinance: [null]
       });
 
       // Add first candidate row
@@ -244,7 +246,9 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
         salary_currency_id: [salaryCurrencyId, Validators.required],
         final_fee_amount: [null, Validators.required],
         fee_currency_id: [feeCurrencyId, Validators.required],
-        notes: [null]
+        notes: [null],
+        poNo: [null],
+        messageToFinance: [null]
       });
 
       if (pos.fee_types_id === 3 && this.mode !== 'admin_fee') {
@@ -757,6 +761,8 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
           fee_currency_code: feeCurrencyCode,
           notes: formVal.notes,
           description: this.invoiceDescription || null,
+          poNo: formVal.poNo || null,
+          messageToFinance: formVal.messageToFinance || null,
           invoice_date: this.invoiceDate || null,
           service_date: this.serviceDate || null
         };
@@ -771,6 +777,8 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
           fee_currency_code: feeCurrencyCode,
           notes: formVal.notes,
           description: this.invoiceDescription || null,
+          poNo: formVal.poNo || null,
+          messageToFinance: formVal.messageToFinance || null,
           candidates: candidatePayloads,
           grouping_mode: this.groupingMode,
           invoice_date: this.invoiceDate || null,
@@ -800,6 +808,8 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
         fee_currency_code: feeCurrencyCode,
         notes: formVal.notes,
         description: this.invoiceDescription || null,
+        poNo: formVal.poNo || null,
+        messageToFinance: formVal.messageToFinance || null,
         invoice_date: this.invoiceDate || null,
         service_date: this.serviceDate || null
       };

@@ -42,6 +42,40 @@
     </div>
   </div>
 
+  <!-- Deal Comments Bar (visible to recruiter; messages from deal creator) -->
+  <div class="mt-4" *ngIf="order && !loading && userService.can('view_all_comments')">
+    <div class="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-2.5">
+      <button (click)="openComment()" class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        Deal comments: {{ totalCommentsCount }}
+      </button>
+      <div class="h-4 w-px bg-border shrink-0"></div>
+      @if (recentComments.length > 0) {
+        <div class="flex-1 text-xs text-muted-foreground truncate min-w-0" [title]="recentComments[0].comment">
+          <span class="font-medium text-foreground">{{ recentComments[0].creator?.firstName }} {{ recentComments[0].creator?.lastName }}:</span>
+          {{ recentComments[0].comment }}
+        </div>
+      } @else {
+        <div class="flex-1 text-xs text-muted-foreground italic">No comments yet</div>
+      }
+      @if (userService.can('create_all_comments')) {
+        <input
+          [formControl]="newCommentText"
+          placeholder="Reply..."
+          (keydown.enter)="sendQuickComment()"
+          class="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0 max-w-xs">
+        <button
+          (click)="sendQuickComment()"
+          [disabled]="!newCommentText.value?.trim()"
+          class="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none transition-colors shrink-0">
+          Send
+        </button>
+      }
+    </div>
+  </div>
+
   <!-- Order Information Card -->
   <div class="mt-6"></div>
   <ui-card *ngIf="order && !loading">
@@ -359,9 +393,39 @@
             </span>
           </div>
 
-          <!-- Notes -->
-          <div class="mt-2 text-sm text-muted-foreground italic" *ngIf="position.notes">
-            {{ position.notes }}
+          <!-- Position Comments bar -->
+          <div class="mt-3" *ngIf="userService.can('view_all_comments')">
+            <div class="flex items-center gap-3 rounded-md border border-border bg-muted/20 px-3 py-2">
+              <button (click)="openPositionComments(position)" class="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                Comments: {{ position.comments?.length || 0 }}
+              </button>
+              <div class="h-3.5 w-px bg-border shrink-0"></div>
+              @if (position.comments && position.comments.length > 0) {
+                <div class="flex-1 text-xs text-muted-foreground truncate min-w-0" [title]="position.comments[0].comment">
+                  <span class="font-medium text-foreground">{{ position.comments[0].creator?.firstName }} {{ position.comments[0].creator?.lastName }}:</span>
+                  {{ position.comments[0].comment }}
+                </div>
+              } @else {
+                <div class="flex-1 text-xs text-muted-foreground italic">No comments yet</div>
+              }
+              @if (userService.can('create_all_comments')) {
+                <input
+                  type="text"
+                  [(ngModel)]="positionCommentInputs[position.ID]"
+                  placeholder="Reply..."
+                  (keydown.enter)="sendPositionComment(position)"
+                  class="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0 max-w-xs">
+                <button
+                  (click)="sendPositionComment(position)"
+                  [disabled]="!positionCommentInputs[position.ID]?.trim()"
+                  class="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none transition-colors shrink-0">
+                  Send
+                </button>
+              }
+            </div>
           </div>
 
           <!-- Assigned Recruiters Section -->
@@ -480,7 +544,18 @@
               <tr class="border-b border-border/50 hover:bg-muted/30 transition-colors">
                 <td class="py-3 px-4 font-mono text-muted-foreground">
                   <div>{{ inv.position?.position_number }}</div>
-                  <div class="text-xs font-mono mt-0.5">RI-{{ inv.ID }}</div>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="text-xs font-mono">RI-{{ inv.ID }}</span>
+                    @if (inv.messageToFinance) {
+                      <button type="button" (click)="openMessageToFinance(inv)"
+                              title="Click to view message to finance"
+                              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/40 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors cursor-pointer">
+                        <svg class="h-3 w-3 text-amber-700 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                      </button>
+                    }
+                  </div>
                   <ng-container *ngIf="isCreditMemo(inv) && getSourceInvoice(inv) as src">
                     <button (click)="openInvoicePreview(src)"
                             class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono mt-0.5 block">
@@ -592,11 +667,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4 4-4 4M19 14H5M9 10L5 6l4-4"/>
                       </svg>
                     </button>
-                    <!-- Delete button (only for non-approved) -->
-                    <button *ngIf="inv.status !== 'approved' && canEditOrder()"
+                    <!-- Delete button (admin only, and only if not yet sent to BC) -->
+                    <button *ngIf="!inv.sent_to_bc && userService.can('admin_access')"
                             (click)="deleteInvoice(inv)"
                             class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-destructive/10 transition-colors"
-                            title="Delete invoice">
+                            title="Delete invoice (admin only)">
                       <svg class="h-4 w-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                       </svg>

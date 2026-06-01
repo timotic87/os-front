@@ -301,13 +301,16 @@
           </div>
         </div>
 
-        <!-- Notes -->
+        <!-- Initial comment (opens this position's comment thread) -->
         <div class="mt-4">
-          <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
+          <ui-label for="initialComment" class="block text-sm font-medium mb-2">
+            Initial comment
+            <span class="text-xs text-muted-foreground font-normal ml-1">(optional, posts to position comment thread)</span>
+          </ui-label>
           <ui-textarea
-            id="notes"
-            formControlName="notes"
-            placeholder="Additional notes for this position (optional)"
+            id="initialComment"
+            formControlName="initialComment"
+            placeholder="Message about this position (visible to recruiter and team)..."
             rows="2">
           </ui-textarea>
         </div>

@@ -301,6 +301,13 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/getDealComment/${dealID}`, {},{headers: this.headers()}) as Observable<any>;
   }
 
+  createPositionComment(data: { positionID: number, comment: string }){
+    return this.http.post(`${this.baseUrl}/createPositionComment`, data, {headers: this.headers()}) as Observable<any>;
+  }
+  getPositionComments(positionID: number){
+    return this.http.get(`${this.baseUrl}/getPositionComments/${positionID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
   getCDCMStatics(){
     return this.http.get(`${this.baseUrl}/getCDCMStatics`, {headers: this.headers()}) as Observable<any>;
   }
@@ -687,7 +694,7 @@ export class RestService {
     return this.http.post(`${this.baseUrl}/createCreditDebitNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 
-  completeSalesNote(data: { noteId: number, issueDate?: string, transactionDate?: string, paymentDueDays?: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, lines?: any[] }) {
+  completeSalesNote(data: { noteId: number, issueDate?: string, transactionDate?: string, paymentDueDays?: number, refInvoiceNo?: string, eInvoiceDocSubtype?: string, noteComment?: string, poNo?: string | null, lines?: any[] }) {
     return this.http.post(`${this.baseUrl}/completeNote`, data, { headers: this.headers() }) as Observable<any>;
   }
 

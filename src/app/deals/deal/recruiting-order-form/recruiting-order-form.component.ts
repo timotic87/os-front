@@ -221,9 +221,9 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       // Order details
       clientName: [{value: this.deal?.client?.customerName || '', disabled: true}],
       isUmbrella: [false],
-      description: [''],
       paymentDueDaysPlacement: [null],
       paymentDueDaysAdditional: [null],
+      initialComment: [''],
 
       // Positions array
       positions: this.fb.array([])
@@ -253,7 +253,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
   private updateFormDisabledState(): void {
     if (!this.orderForm) return;
 
-    const controls = ['isUmbrella', 'description', 'paymentDueDaysPlacement', 'paymentDueDaysAdditional'];
+    const controls = ['isUmbrella', 'paymentDueDaysPlacement', 'paymentDueDaysAdditional'];
 
     controls.forEach(controlName => {
       const control = this.orderForm.get(controlName);
@@ -278,7 +278,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       'costCenterID', 'jobTitle', 'location', 'numberOfPeople', 'expectedSalary', 'expectedSalaryType', 'currencyID',
       'feeTypesId', 'feeAmount', 'feeCurrencyID', 'feePercentage', 'feeMultiplier', 'feeSalaryType',
       'extraFeeTypeID', 'extraFeeType', 'extraFeeAmount', 'extraFeeCurrencyID',
-      'extraFeePercentage', 'extraFeeMultiplier', 'notes'
+      'extraFeePercentage', 'extraFeeMultiplier', 'initialComment'
     ];
 
     positionControls.forEach(controlName => {
@@ -405,7 +405,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       extraFeeCurrencyID: [this.defaultCurrencyID],
       extraFeePercentage: [null],
       extraFeeMultiplier: [null],
-      notes: ['']
+      initialComment: ['']
     });
   }
 
@@ -642,9 +642,9 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
       dealID: this.deal.ID,
       isUmbrella: formValue.isUmbrella || false,
       clientName: this.deal?.client?.customerName || '',
-      description: formValue.description,
       payment_due_days_placement: formValue.paymentDueDaysPlacement || null,
       payment_due_days_additional: formValue.paymentDueDaysAdditional || null,
+      initialComment: formValue.initialComment || null,
       positions: formValue.positions.map((pos: any) => {
         const extraFeeTypeName = this.getExtraFeeTypeName(pos.extraFeeTypeID);
         const isExtraFeeNone = extraFeeTypeName === 'NONE';
@@ -691,7 +691,7 @@ export class RecruitingOrderFormComponent implements OnInit, OnChanges {
           extraFeeAmount: extraFeeAmountValue,
           extraFeeCurrencyID: (!isExtraFeeNone && pos.extraFeeType === 'fixed') ? toNumber(pos.extraFeeCurrencyID) : null,
           extraFeeCalculationType: extraFeeCalculationType,
-          notes: pos.notes
+          initialComment: pos.initialComment || null
         };
       })
     };

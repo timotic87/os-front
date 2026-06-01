@@ -104,6 +104,15 @@
                         {{ getNoteTypeBadge(inv) }}
                       </span>
                     }
+                    @if (inv.messageToFinance) {
+                      <button type="button" (click)="openMessageToFinance(inv)"
+                              title="Click to view message to finance"
+                              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/40 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors cursor-pointer">
+                        <svg class="h-3 w-3 text-amber-700 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                      </button>
+                    }
                   </div>
                   @if (inv.sourceInvoice) {
                     <button (click)="openPreview(inv.sourceInvoice)"
@@ -472,7 +481,7 @@
       </div>
 
       <!-- Description + PO No -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div class="md:col-span-2">
           <label class="block text-xs font-medium text-muted-foreground mb-1">Description</label>
           <textarea formControlName="description" rows="2" placeholder="Optional invoice description..."
@@ -483,6 +492,16 @@
           <input type="text" formControlName="poNo" maxlength="35" placeholder="Purchase order number..."
                  class="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"/>
         </div>
+      </div>
+
+      <!-- Message to Finance (internal, NOT sent to BC) -->
+      <div class="mb-8">
+        <label class="block text-xs font-medium text-muted-foreground mb-1">
+          Message to Finance
+          <span class="text-[10px] text-muted-foreground/70 font-normal ml-1">(internal, not sent to BC)</span>
+        </label>
+        <textarea formControlName="messageToFinance" rows="2" placeholder="Instructions or notes for finance team (visible on invoice list)..."
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background resize-none"></textarea>
       </div>
 
       <!-- Lines -->

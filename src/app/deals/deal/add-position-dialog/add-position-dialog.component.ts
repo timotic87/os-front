@@ -33,6 +33,12 @@ export class AddPositionDialogComponent implements OnInit {
   extraFeeTypes: any[] = [];
   costCenters: any[] = [];
   isSubmitting = false;
+
+  // Defaults applied once lookups load (mirrors recruiting-order-form behaviour)
+  private defaultSalaryTypeID = 1;
+  private defaultCurrencyID = 1;
+  private defaultFeeTypeID = 1;
+  private defaultExtraFeeTypeID = 3; // NONE
   
   constructor(
     public dialogRef: MatDialogRef<AddPositionDialogComponent>,
@@ -60,6 +66,10 @@ export class AddPositionDialogComponent implements OnInit {
       next: (res) => {
         if (res.status === 200) {
           this.currencies = res.data;
+          if (this.currencies.length > 0) {
+            this.defaultCurrencyID = this.currencies[0].ID;
+            this.applyDefaults();
+          }
         }
       }
     });
@@ -68,6 +78,10 @@ export class AddPositionDialogComponent implements OnInit {
       next: (res) => {
         if (res.status === 200) {
           this.feeTypes = res.data;
+          if (this.feeTypes.length > 0) {
+            this.defaultFeeTypeID = this.feeTypes[0].ID;
+            this.applyDefaults();
+          }
         }
       }
     });
@@ -76,6 +90,9 @@ export class AddPositionDialogComponent implements OnInit {
       next: (res) => {
         if (res.status === 200) {
           this.extraFeeTypes = res.data;
+          const none = this.extraFeeTypes.find((t: any) => t.name === 'NONE');
+          if (none) this.defaultExtraFeeTypeID = none.ID;
+          this.applyDefaults();
         }
       }
     });
@@ -92,26 +109,54 @@ export class AddPositionDialogComponent implements OnInit {
   initForm(): void {
     this.positionForm = this.fb.group({
       costCenterID: ['', Validators.required],
-      jobTitle: ['', Validators.required],
-      location: ['', Validators.required],
-      numberOfPeople: [1, [Validators.required, Validators.min(1)]],
-      expectedSalary: ['', [Validators.required, Validators.min(0)]],
-      expectedSalaryType: ['', Validators.required],
-      currencyID: ['', Validators.required],
-      feeTypesId: ['', Validators.required],
-      feeAmount: [null],
-      feeCurrencyID: [null],
+      jobTitle: ['', [Validators.required, Validators.minLength(2)]],
+      location: ['', [Validators.required, Validators.minLength(2)]],
+      numberOfPeople: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
+      expectedSalary: [0, [Validators.required, Validators.min(0)]],
+      expectedSalaryType: [this.defaultSalaryTypeID, Validators.required],
+      currencyID: [this.defaultCurrencyID, Validators.required],
+      feeTypesId: [this.defaultFeeTypeID, Validators.required],
+      feeAmount: [0],
+      feeCurrencyID: [this.defaultCurrencyID],
       feePercentage: [null],
       feeMultiplier: [null],
-      feeSalaryType: [null],
-      extraFeeTypeID: [null],
+      feeSalaryType: [this.defaultSalaryTypeID],
+      extraFeeTypeID: [this.defaultExtraFeeTypeID],
       extraFeeType: ['fixed'],
-      extraFeeAmount: [null],
-      extraFeeCurrencyID: [null],
+      extraFeeAmount: [0],
+      extraFeeCurrencyID: [this.defaultCurrencyID],
       extraFeePercentage: [null],
       extraFeeMultiplier: [null],
-      notes: ['']
+      initialComment: ['']
     });
+    // Initialize dynamic validators for the default fee type so the form is valid out of the box
+    this.onFeeTypeChange();
+  }
+
+  /**
+   * Re-apply defaults to the form once lookup data finishes loading.
+   * Only overrides fields if user has not touched them yet (still equal to the previous initial value).
+   */
+  private applyDefaults(): void {
+    if (!this.positionForm) return;
+    const f = this.positionForm;
+    const setIfUntouched = (control: string, value: any) => {
+      const c = f.get(control);
+      if (!c) return;
+      // patch if value is empty/null/0 (initial state) and user hasn't typed anything
+      const cur = c.value;
+      if (cur === '' || cur === null || cur === 0 || cur === this.defaultSalaryTypeID || cur === this.defaultCurrencyID || cur === this.defaultFeeTypeID || cur === this.defaultExtraFeeTypeID) {
+        c.setValue(value, { emitEvent: false });
+      }
+    };
+    setIfUntouched('expectedSalaryType', this.defaultSalaryTypeID);
+    setIfUntouched('currencyID', this.defaultCurrencyID);
+    setIfUntouched('feeTypesId', this.defaultFeeTypeID);
+    setIfUntouched('feeCurrencyID', this.defaultCurrencyID);
+    setIfUntouched('feeSalaryType', this.defaultSalaryTypeID);
+    setIfUntouched('extraFeeTypeID', this.defaultExtraFeeTypeID);
+    setIfUntouched('extraFeeCurrencyID', this.defaultCurrencyID);
+    this.onFeeTypeChange();
   }
 
   onFeeTypeChange(): void {
@@ -261,7 +306,7 @@ export class AddPositionDialogComponent implements OnInit {
       expected_salary_type_id: formValue.expectedSalaryType,
       expected_salary_currency_id: formValue.currencyID,
       fee_types_id: formValue.feeTypesId,
-      notes: formValue.notes || null
+      initialComment: formValue.initialComment || null
     };
 
     // Add fee-related fields based on fee type

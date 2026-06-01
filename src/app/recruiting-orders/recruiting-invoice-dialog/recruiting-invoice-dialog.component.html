@@ -239,6 +239,24 @@
           <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
           <ui-textarea id="notes" formControlName="notes" placeholder="Optional notes..." rows="3"></ui-textarea>
         </div>
+
+        <!-- PO Number -->
+        <div class="mb-4">
+          <ui-label for="poNo" class="block text-sm font-medium mb-2">
+            PO Number <span class="text-xs text-muted-foreground font-normal ml-1">(max 35, sent to BC)</span>
+          </ui-label>
+          <ui-input id="poNo" type="text" formControlName="poNo" maxlength="35" placeholder="Purchase order number..."></ui-input>
+        </div>
+
+        <!-- Message to Finance (internal, NOT sent to BC) -->
+        <div class="mb-4">
+          <ui-label for="messageToFinance" class="block text-sm font-medium mb-2">
+            Message to Finance
+            <span class="text-xs text-muted-foreground font-normal ml-1">(internal, not sent to BC)</span>
+          </ui-label>
+          <ui-textarea id="messageToFinance" formControlName="messageToFinance"
+                       placeholder="Instructions or notes for finance team (visible on invoice list)..." rows="3"></ui-textarea>
+        </div>
       </ng-container>
 
       <!-- ==================== ADMIN FEE / CANCEL FEE MODE (unchanged) ==================== -->
@@ -373,6 +391,24 @@
         <div class="mb-4">
           <ui-label for="notes" class="block text-sm font-medium mb-2">Notes</ui-label>
           <ui-textarea id="notes" formControlName="notes" placeholder="Optional notes..." rows="3"></ui-textarea>
+        </div>
+
+        <!-- PO Number -->
+        <div class="mb-4">
+          <ui-label for="poNo" class="block text-sm font-medium mb-2">
+            PO Number <span class="text-xs text-muted-foreground font-normal ml-1">(max 35, sent to BC)</span>
+          </ui-label>
+          <ui-input id="poNo" type="text" formControlName="poNo" maxlength="35" placeholder="Purchase order number..."></ui-input>
+        </div>
+
+        <!-- Message to Finance (internal, NOT sent to BC) -->
+        <div class="mb-4">
+          <ui-label for="messageToFinance" class="block text-sm font-medium mb-2">
+            Message to Finance
+            <span class="text-xs text-muted-foreground font-normal ml-1">(internal, not sent to BC)</span>
+          </ui-label>
+          <ui-textarea id="messageToFinance" formControlName="messageToFinance"
+                       placeholder="Instructions or notes for finance team (visible on invoice list)..." rows="3"></ui-textarea>
         </div>
       </ng-container>
 

@@ -4,7 +4,10 @@
   <div class="flex items-center gap-6">
     <a href="" class="flex items-center gap-2 shrink-0">
       <img src="assets/onespot_icon.svg" class="h-8 w-8" alt="OneSpot" loading="lazy"/>
-      <span class="text-[10px] text-muted-foreground hidden sm:block">Built for Manpower</span>
+      <div class="hidden sm:flex flex-col leading-tight">
+        <span class="text-[10px] text-muted-foreground">Built for Manpower</span>
+        <span class="text-[9px] text-muted-foreground/70 font-mono" [title]="'OneSpot v' + appVersion">v{{ appVersion }}</span>
+      </div>
     </a>
 
     <div class="flex items-center gap-1">

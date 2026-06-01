@@ -11,6 +11,7 @@ import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 import { SalesInvoicePreviewDialogComponent } from './sales-invoice-preview-dialog/sales-invoice-preview-dialog.component';
 import { CompleteNoteDialogComponent } from './complete-note-dialog/complete-note-dialog.component';
 import { CreateCreditDebitNoteDialogComponent } from './create-credit-debit-note-dialog/create-credit-debit-note-dialog.component';
+import { MessageToFinanceDialogComponent } from '../invoices/message-to-finance-dialog/message-to-finance-dialog.component';
 import { EditSalesInvoiceDialogComponent } from '../invoices/edit-sales-invoice-dialog/edit-sales-invoice-dialog.component';
 
 @Component({
@@ -260,6 +261,7 @@ export class SalesInvoicesComponent implements OnInit {
       currencyCode: formVal.currencyCode || null,
       description: formVal.description || null,
       poNo: formVal.poNo || null,
+      messageToFinance: formVal.messageToFinance || null,
       lines: formVal.lines.map((l: any) => ({
         description: l.description || null,
         quantity: l.quantity,
@@ -388,6 +390,14 @@ export class SalesInvoicesComponent implements OnInit {
     });
   }
 
+  openMessageToFinance(inv: any) {
+    this.dialog.open(MessageToFinanceDialogComponent, {
+      width: '520px',
+      maxWidth: '92vw',
+      data: { message: inv.messageToFinance, invoiceNo: inv.invoiceNo }
+    });
+  }
+
   openPreview(inv: any) {
     const dialogRef = this.dialog.open(SalesInvoicePreviewDialogComponent, {
       width: '800px',
@@ -451,6 +461,7 @@ export class SalesInvoicesComponent implements OnInit {
       paymentDueDays: [30],
       description: [''],
       poNo: [''],
+      messageToFinance: [''],
       lines: this.fb.array([])
     });
 

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RestService } from '../../services/rest.service';
 import { DialogService } from '../../services/dialog.service';
 import { UserService } from '../../services/user.service';
@@ -15,6 +15,9 @@ import { ApprovalCardComponent } from '../../customComponents/approval-card/appr
 import { HistoryDialogComponent } from '../../customComponents/history-dialog/history-dialog.component';
 import { CreateCreditDebitNoteDialogComponent } from '../../sales-invoices/create-credit-debit-note-dialog/create-credit-debit-note-dialog.component';
 import { CompleteRecruitingNoteDialogComponent } from '../../invoices/complete-recruiting-note-dialog/complete-recruiting-note-dialog.component';
+import { DealComentsDialogComponent } from '../../flow-parts/deal-coments-dialog/deal-coments-dialog.component';
+import { PositionCommentsDialogComponent } from '../position-comments-dialog/position-comments-dialog.component';
+import { MessageToFinanceDialogComponent } from '../../invoices/message-to-finance-dialog/message-to-finance-dialog.component';
 import * as XLSX from 'xlsx';
 // ShadCN UI Components
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
@@ -27,6 +30,7 @@ import { BadgeComponent } from '../../shared/components/ui/badge/badge.component
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatMenuModule,
     ButtonComponent,
     CardComponent,
@@ -60,6 +64,14 @@ export class RecruitingOrderComponent implements OnInit {
   editPaymentDueDaysAdditional: number | null = null;
   savingPaymentDays = false;
 
+  // Deal comments (shown so recruiter can see/reply to messages from deal creator)
+  recentComments: any[] = [];
+  totalCommentsCount = 0;
+  newCommentText = new FormControl('');
+
+  // Per-position quick-reply input texts, keyed by position.ID
+  positionCommentInputs: { [positionId: number]: string } = {};
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -84,6 +96,7 @@ export class RecruitingOrderComponent implements OnInit {
       next: (res) => {
         if (res.status === 200 && res.data) {
           this.order = res.data;
+          this.loadRecentComments();
         }
         this.loading = false;
         this.cdr.detectChanges();
@@ -849,11 +862,35 @@ export class RecruitingOrderComponent implements OnInit {
   }
 
   deleteInvoice(inv: any): void {
-    if (inv.status === 'approved') {
-      this.dialogService.showMsgDialog('Cannot delete an approved invoice.');
+    if (inv.sent_to_bc) {
+      this.dialogService.showMsgDialog('This invoice has been sent to Business Central. Issue a credit note (KO) instead.');
       return;
     }
-    this.rest.deleteRecruitingInvoice({ invoiceID: inv.ID }).subscribe({
+
+    // Approved invoices require admin override with a strong warning
+    if (inv.status === 'approved') {
+      if (!this.userService.can('admin_access')) {
+        this.dialogService.showMsgDialog('This invoice is approved. Only administrators can force-delete it. Issue a credit note (KO) instead.');
+        return;
+      }
+      this.dialogService.showChooseDialog(
+        `⚠️ ADMIN OVERRIDE\n\nThis invoice (RI-${inv.ID}) is APPROVED. Force-deleting may cause:\n\n` +
+        `• Audit trail gap (an approved invoice will be marked deleted)\n` +
+        `• If it was a placement invoice, the position's filled count will be decremented\n` +
+        `• If it was a cancel fee invoice, the position status will need to be restored manually\n` +
+        `• Any KO/KZ credit notes referencing it will reference a deleted invoice\n\n` +
+        `Continue?`
+      ).afterClosed().subscribe(confirmed => {
+        if (confirmed) this.doDeleteInvoice(inv, true);
+      });
+      return;
+    }
+
+    this.doDeleteInvoice(inv, false);
+  }
+
+  private doDeleteInvoice(inv: any, force: boolean): void {
+    this.rest.deleteRecruitingInvoice({ invoiceID: inv.ID, force }).subscribe({
       next: (res) => {
         if (res.status === 200) {
           this.dialogService.showSnackBar('Invoice deleted', '', 3000);
@@ -863,6 +900,92 @@ export class RecruitingOrderComponent implements OnInit {
       },
       error: (err) => {
         this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  // ====== Deal comments (visible to recruiter from RO view) ======
+
+  loadRecentComments(): void {
+    const dealId = this.order?.dealID;
+    if (!dealId) return;
+    this.rest.getDealComments(dealId).subscribe(res => {
+      if (res.status === 200) {
+        const all = res.data.dealComments || [];
+        this.totalCommentsCount = all.length;
+        this.recentComments = all.slice(0, 3);
+      }
+    });
+  }
+
+  openComment(): void {
+    const dealId = this.order?.dealID;
+    if (!dealId) return;
+    const dialogRef = this.dialog.open(DealComentsDialogComponent, {
+      width: '70vh',
+      maxHeight: '90vh',
+      data: dealId
+    });
+    dialogRef.afterClosed().subscribe(() => this.loadRecentComments());
+  }
+
+  sendQuickComment(): void {
+    const text = this.newCommentText.value?.trim();
+    if (!text) return;
+    const dealId = this.order?.dealID;
+    if (!dealId) return;
+    if (!this.userService.can('create_all_comments')) {
+      this.dialogService.showMsgDialog("You don't have permission to send comments");
+      return;
+    }
+    this.rest.createDealComment({ dealID: dealId, comment: text }).subscribe({
+      next: () => {
+        this.newCommentText.reset();
+        this.loadRecentComments();
+      },
+      error: err => {
+        this.dialogService.showMsgDialog('Error sending comment: ' + (err.error?.message || err.status));
+      }
+    });
+  }
+
+  // ====== Position comments ======
+
+  openMessageToFinance(inv: any): void {
+    this.dialog.open(MessageToFinanceDialogComponent, {
+      width: '520px',
+      maxWidth: '92vw',
+      data: { message: inv.messageToFinance, invoiceNo: `RI-${inv.ID}` }
+    });
+  }
+
+  openPositionComments(position: any): void {
+    const dialogRef = this.dialog.open(PositionCommentsDialogComponent, {
+      width: '600px',
+      maxHeight: '90vh',
+      data: {
+        positionID: position.ID,
+        positionNumber: position.position_number,
+        positionName: position.position_name
+      }
+    });
+    dialogRef.afterClosed().subscribe(() => this.loadOrder());
+  }
+
+  sendPositionComment(position: any): void {
+    const text = (this.positionCommentInputs[position.ID] || '').trim();
+    if (!text) return;
+    if (!this.userService.can('create_all_comments')) {
+      this.dialogService.showMsgDialog("You don't have permission to send comments");
+      return;
+    }
+    this.rest.createPositionComment({ positionID: position.ID, comment: text }).subscribe({
+      next: () => {
+        this.positionCommentInputs[position.ID] = '';
+        this.loadOrder();
+      },
+      error: err => {
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.status));
       }
     });
   }
