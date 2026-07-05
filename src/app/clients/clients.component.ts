@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Subscription} from "rxjs";
 import {RestService} from "../services/rest.service";
 import {ClientsService} from "../services/clients.service";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -46,10 +47,11 @@ import { TableComponent, TableHeaderComponent, TableBodyComponent, TableRowCompo
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.css'
 })
-export class ClientsComponent implements OnInit{
+export class ClientsComponent implements OnInit, OnDestroy{
 
 
   canViewDocumentation: boolean = false;
+  private listChangeSub: Subscription;
 
 
   searchText: string = null;
@@ -65,7 +67,7 @@ export class ClientsComponent implements OnInit{
     this.checkPermissions()
     clientService.listOfClients = []
     this.reloadClients();
-    clientService.isListChange.subscribe(isTrue=>{
+    this.listChangeSub = clientService.isListChange.subscribe(isTrue=>{
       this.reloadClients()
     })
   }
@@ -73,6 +75,10 @@ export class ClientsComponent implements OnInit{
   ngOnInit(): void {
 
     }
+
+  ngOnDestroy(): void {
+    this.listChangeSub?.unsubscribe();
+  }
 
   onView(client: any){
 

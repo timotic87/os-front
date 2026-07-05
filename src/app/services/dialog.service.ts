@@ -12,6 +12,7 @@ import {MultiOptionDialogComponent} from "../dialogComponents/multi-option-dialo
 export class DialogService {
 
   loaderRef;
+  private loaderCount = 0;
 
   constructor(private matDialog: MatDialog, private snackBar: MatSnackBar) { }
 
@@ -59,19 +60,28 @@ export class DialogService {
   }
 
   showLoader(){
-    this.loaderRef = this.matDialog.open(LoaderComponent, {
-      width: '100vh',
-      height: '100%'
-    });
+    // Brojač dozvoljava preklapanje više paralelnih operacija sa JEDNIM loader dialogom.
+    this.loaderCount++;
+    if (!this.loaderRef){
+      this.loaderRef = this.matDialog.open(LoaderComponent, {
+        width: '100vh',
+        height: '100%'
+      });
+    }
   }
   closeLoader(){
-    if (this.loaderRef){
+    if (this.loaderCount > 0){
+      this.loaderCount--;
+    }
+    // Zatvaramo tek kad su SVE operacije završene.
+    if (this.loaderCount === 0 && this.loaderRef){
       this.loaderRef.close();
       this.loaderRef=null;
     }
   }
-  
+
   forceCloseLoader(){
+    this.loaderCount = 0;
     if (this.loaderRef){
       this.loaderRef.close();
       this.loaderRef=null;
