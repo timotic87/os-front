@@ -30,6 +30,8 @@ import { authGuard } from './guards/auth.guard';
 import {InvoicesComponent} from "./invoices/invoices.component";
 import {SalesInvoicesComponent} from "./sales-invoices/sales-invoices.component";
 import {AuditLogComponent} from "./audit-log/audit-log.component";
+import {ProjectPageComponent} from "./projects/project-page/project-page.component";
+import {ProjectsComponent} from "./projects/projects.component";
 
 export const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -98,10 +100,30 @@ export const routes: Routes = [
       return false;
     }]
   },
-  {path: 'projects', component: DealsComponent, canActivate: [authGuard, async ()=>{
+  {path: 'projects', component: ProjectsComponent, canActivate: [authGuard, ()=>{
       const userService = inject(UserService);
       const dialogService = inject(DialogService);
-      if (userService.can('')) {//todo dodati ime permisije
+      if (userService.can('view_list_deals') || userService.hasAnyEntityAccess('deal') || userService.hasAnyEntityAccess('project')) {
+        return true;
+      }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
+    }]},
+  {path: 'projects/deal/:dealID', component: ProjectPageComponent, canActivate: [authGuard, async (route: ActivatedRouteSnapshot) => {
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+      const dealID = Number(route.paramMap.get('dealID'));
+      if (userService.can('view_list_invoices') || await userService.hasEntityAccess('deal', dealID)) {
+        return true;
+      }
+      dialogService.showMsgDialog('You dont have permission');
+      return false;
+    }]},
+  {path: 'projects/:id', component: ProjectPageComponent, canActivate: [authGuard, async (route: ActivatedRouteSnapshot) => {
+      const userService = inject(UserService);
+      const dialogService = inject(DialogService);
+      const id = Number(route.paramMap.get('id'));
+      if (userService.can('view_list_invoices') || await userService.hasEntityAccess('project', id)) {
         return true;
       }
       dialogService.showMsgDialog('You dont have permission');

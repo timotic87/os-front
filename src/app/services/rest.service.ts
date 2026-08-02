@@ -476,6 +476,26 @@ export class RestService {
   getProjectAnnexes(projectID: number){
     return this.http.get(`${this.baseUrl}/projectAnnexes/${projectID}`, {headers: this.headers()}) as Observable<any>;
   }
+
+  getProjectsList(){
+    return this.http.get(`${this.baseUrl}/getProjectsList`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getProjectById(projectID: number){
+    return this.http.get(`${this.baseUrl}/getProjectById/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  getProjectInvoices(projectID: number){
+    return this.http.get(`${this.baseUrl}/getProjectInvoices/${projectID}`, {headers: this.headers()}) as Observable<any>;
+  }
+
+  changeProjectStatus(projectID: number, status: number){
+    return this.http.post(`${this.baseUrl}/changeProjectStatus/${projectID}`, {status}, {headers: this.headers()}) as Observable<any>;
+  }
+
+  searchProjects(q: string){
+    return this.http.get(`${this.baseUrl}/searchProjects?q=${encodeURIComponent(q || '')}`, {headers: this.headers()}) as Observable<any>;
+  }
   getEntityaccess(data){
     return this.http.get(`${this.baseUrl}/entityaccess/${data.entityType}/${data.entityId}`, {headers: this.headers()}) as Observable<any>;
   }

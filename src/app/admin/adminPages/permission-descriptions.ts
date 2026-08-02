@@ -16,6 +16,9 @@ const PERMISSION_DESCRIPTIONS: Record<string, string> = {
   view_entity_history: 'View the change history for any entity (deals, orders, etc.)',
   view_all_comments: 'View comments on all deals, not just own',
   create_all_comments: 'Post comments on any deal',
+  // Projects
+  create_project_invoice: 'Create or link manual invoices to any project (project members can invoice their own project via entity access)',
+  close_project: 'Manually change a project status between Open and Closed (a Closed project blocks new invoices)',
   // Recruiting Orders
   view_list_recruiting_orders: 'See the Recruiting Orders list page',
   view_recruiting_order: 'Open and view individual recruiting order details',

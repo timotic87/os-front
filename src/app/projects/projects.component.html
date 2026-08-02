@@ -19,21 +19,34 @@
         </svg>
       </ui-card-header>
       <ui-card-content>
-        <div class="text-2xl font-bold">{{ deals?.length || 0 }}</div>
+        <div class="text-2xl font-bold">{{ totalCount }}</div>
+        <p class="text-xs text-muted-foreground">projects</p>
+      </ui-card-content>
+    </ui-card>
+
+    <ui-card>
+      <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <ui-card-title className="text-sm font-medium">Open</ui-card-title>
+        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </ui-card-header>
+      <ui-card-content>
+        <div class="text-2xl font-bold text-green-600">{{ getOpenCount() }}</div>
         <p class="text-xs text-muted-foreground">active projects</p>
       </ui-card-content>
     </ui-card>
 
     <ui-card>
       <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <ui-card-title className="text-sm font-medium">Assigned</ui-card-title>
+        <ui-card-title className="text-sm font-medium">Closed</ui-card-title>
         <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
         </svg>
       </ui-card-header>
       <ui-card-content>
-        <div class="text-2xl font-bold text-green-600">{{ getAssignedProjectsCount() }}</div>
-        <p class="text-xs text-muted-foreground">with assigned administrator</p>
+        <div class="text-2xl font-bold text-gray-500">{{ getClosedCount() }}</div>
+        <p class="text-xs text-muted-foreground">manually closed</p>
       </ui-card-content>
     </ui-card>
 
@@ -45,21 +58,8 @@
         </svg>
       </ui-card-header>
       <ui-card-content>
-        <div class="text-2xl font-bold text-red-600">{{ getExpiredProjectsCount() }}</div>
-        <p class="text-xs text-muted-foreground">projects with expired date</p>
-      </ui-card-content>
-    </ui-card>
-
-    <ui-card>
-      <ui-card-header className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <ui-card-title className="text-sm font-medium">Unassigned</ui-card-title>
-        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      </ui-card-header>
-      <ui-card-content>
-        <div class="text-2xl font-bold text-yellow-600">{{ getUnassignedProjectsCount() }}</div>
-        <p class="text-xs text-muted-foreground">without assigned administrator</p>
+        <div class="text-2xl font-bold text-red-600">{{ getExpiredCount() }}</div>
+        <p class="text-xs text-muted-foreground">past end date</p>
       </ui-card-content>
     </ui-card>
   </div>
@@ -72,24 +72,12 @@
     </ui-card-header>
     <ui-card-content>
       <form [formGroup]="filterForm">
-        <div class="grid gap-4 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
+        <div class="grid gap-4 xl:grid-cols-4 md:grid-cols-2 grid-cols-1">
           <ui-input
             label="Client Name"
             type="text"
             placeholder="Enter client name..."
             formControlName="clientName">
-          </ui-input>
-
-          <ui-input
-            label="Start Date"
-            type="date"
-            formControlName="startDate">
-          </ui-input>
-
-          <ui-input
-            label="End Date"
-            type="date"
-            formControlName="endDate">
           </ui-input>
 
           <ui-input
@@ -99,24 +87,17 @@
             formControlName="bdConsultant">
           </ui-input>
 
-          <ui-input
-            label="Administrator"
-            type="text"
-            placeholder="Enter administrator name..."
-            formControlName="hrAdmin">
-          </ui-input>
+          <ui-select
+            label="Status"
+            formControlName="status">
+            <option value="">All</option>
+            <option [value]="1">Open</option>
+            <option [value]="2">Closed</option>
+          </ui-select>
 
           <ui-select
             label="Expired"
             formControlName="isExpired">
-            <option value="">All</option>
-            <option [value]="true">Yes</option>
-            <option [value]="false">No</option>
-          </ui-select>
-
-          <ui-select
-            label="Assigned"
-            formControlName="isAssigned">
             <option value="">All</option>
             <option [value]="true">Yes</option>
             <option [value]="false">No</option>
@@ -146,82 +127,74 @@
   <ui-card>
     <ui-card-header>
       <ui-card-title>Project List</ui-card-title>
-      <ui-card-description>All active projects with basic information</ui-card-description>
+      <ui-card-description>All projects with basic information</ui-card-description>
     </ui-card-header>
     <ui-card-content className="p-0">
-      <ui-table>
-        <ui-table-header>
-          <ui-table-row>
-            <ui-table-head>ID</ui-table-head>
-            <ui-table-head>Client Name</ui-table-head>
-            <ui-table-head>Start Date</ui-table-head>
-            <ui-table-head>End Date</ui-table-head>
-            <ui-table-head>BD Consultant</ui-table-head>
-            <ui-table-head>Administrator</ui-table-head>
-            <ui-table-head>Status</ui-table-head>
-            <ui-table-head className="text-right">Actions</ui-table-head>
-          </ui-table-row>
-        </ui-table-header>
-        <ui-table-body>
-          @for (deal of filteredData; track deal) {
-            <ui-table-row className="hover:cursor-pointer" (click)="dealClick(deal)">
-              <ui-table-cell className="font-medium text-primary">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                    {{ deal.ID }}
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">ID</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client Name</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Service</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Start Date</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">End Date</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">BD Consultant</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+              <th class="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of filteredData; track p.ID) {
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer" (click)="openProject(p)">
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold font-mono bg-primary/10 text-primary whitespace-nowrap">P-{{ p.ID }}</span>
+                </td>
+                <td class="px-4 py-3 text-foreground">{{ p.clientName || '—' }}</td>
+                <td class="px-4 py-3 text-muted-foreground">{{ p.serviceName || '—' }}</td>
+                <td class="px-4 py-3 text-foreground whitespace-nowrap">{{ p.startDate ? (p.startDate | date: "dd.MM.yyyy") : '—' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (p.endDate) {
+                    <span [class.text-red-500]="p.isExpired">{{ p.endDate | date: "dd.MM.yyyy" }}</span>
+                  } @else {
+                    <span class="text-muted-foreground">no expiry</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-foreground">{{ (p.bdFirstName || p.bdLastName) ? (p.bdFirstName + ' ' + p.bdLastName) : '—' }}</td>
+                <td class="px-4 py-3">
+                  @if (p.status === 2) {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300">Closed</span>
+                  } @else {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Open</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <button (click)="openProject(p); $event.stopPropagation()"
+                          class="inline-flex items-center gap-1 h-8 px-3 rounded-md text-xs font-medium border border-input bg-background text-foreground hover:bg-accent transition-colors">
+                    Open
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr>
+                <td colspan="8" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center justify-center text-muted-foreground">
+                    <svg class="h-12 w-12 mb-4 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <p class="text-lg font-medium">No projects found</p>
+                    <p class="text-sm">Projects appear here once a deal is promoted to a project.</p>
                   </div>
-                </div>
-              </ui-table-cell>
-              <ui-table-cell>{{ deal.clientName }}</ui-table-cell>
-              <ui-table-cell>{{ deal.startDate | date: "dd.MM.yyyy" }}</ui-table-cell>
-              <ui-table-cell>
-                @if (deal.isExpired) {
-                  <span class="text-red-500">{{ deal.endDate | date: "dd.MM.yyyy" }}</span>
-                } @else {
-                  <ui-badge variant="success">Active</ui-badge>
-                }
-              </ui-table-cell>
-              <ui-table-cell>{{ deal.bdFirstName + ' ' + deal.bdLastName }}</ui-table-cell>
-              <ui-table-cell>
-                @if (deal.hraID) {
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-xs font-medium text-green-700">
-                      {{ deal.hraFirstName.charAt(0) }}{{ deal.hraLastName.charAt(0) }}
-                    </div>
-                    {{ deal.hraFirstName + ' ' + deal.hraLastName }}
-                  </div>
-                } @else {
-                  <ui-badge variant="destructive">Unassigned</ui-badge>
-                }
-              </ui-table-cell>
-              <ui-table-cell>
-                <ui-badge variant="success">Active</ui-badge>
-              </ui-table-cell>
-              <ui-table-cell className="text-right">
-                <ui-button variant="ghost" size="sm" (onClick)="addAdmin(deal, $event)">
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                  </svg>
-                  <span class="sr-only">Assign Administrator</span>
-                </ui-button>
-              </ui-table-cell>
-            </ui-table-row>
-          }
-          @empty {
-            <ui-table-row>
-              <ui-table-cell [attr.colspan]="8" className="h-24 text-center">
-                <div class="flex flex-col items-center justify-center text-muted-foreground">
-                  <svg class="h-12 w-12 mb-4 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                  </svg>
-                  <p class="text-lg font-medium">No projects found</p>
-                  <p class="text-sm">Change filters or add a new project</p>
-                </div>
-              </ui-table-cell>
-            </ui-table-row>
-          }
-        </ui-table-body>
-      </ui-table>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </ui-card-content>
   </ui-card>
 </div>

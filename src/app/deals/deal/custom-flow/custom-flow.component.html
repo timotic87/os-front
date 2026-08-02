@@ -236,6 +236,9 @@
             </div>
           </div>
 
+          <!-- Project invoices + status -->
+          <app-project-actions-panel *ngIf="projectInfo?.ID" [projectId]="projectInfo.ID" [showOpenLink]="true" class="block mt-4"></app-project-actions-panel>
+
           <!-- Annex lista -->
           <div *ngIf="annexes.length > 0" class="mt-4 space-y-2">
             <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Annexes</div>

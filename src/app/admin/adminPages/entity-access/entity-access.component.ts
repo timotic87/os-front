@@ -18,7 +18,7 @@ import {NgForOf, NgIf} from '@angular/common';
 })
 export class EntityAccessComponent implements OnInit {
 
-  entityTypes = ['deal', 'recruiting_order', 'client'];
+  entityTypes = ['deal', 'recruiting_order', 'client', 'project'];
   accessLevels = ['view', 'edit'];
 
   // Search

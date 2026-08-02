@@ -1,9 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {DatePipe, NgClass, NgIf} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { RestService } from '../services/rest.service';
-import {MatDialog} from "@angular/material/dialog";
-import {AssignAdminComponent} from "./assign-admin/assign-admin.component";
+import {Router, RouterModule} from "@angular/router";
 
 // shadCN UI Components
 import { ButtonComponent } from '../shared/components/ui/button/button.component';
@@ -20,7 +19,7 @@ import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
     FormsModule,
     DatePipe,
     ReactiveFormsModule,
-    NgIf,
+    RouterModule,
     // shadCN UI Components
     ButtonComponent,
     CardComponent,
@@ -44,93 +43,55 @@ import { BadgeComponent } from '../shared/components/ui/badge/badge.component';
 })
 export class ProjectsComponent implements OnInit {
 
-  deals;
-
+  projects: any[] = [];
+  filteredData: any[] = [];
   filterForm: FormGroup;
 
-  filteredData;
-
-  constructor(private rest: RestService, private matDialog: MatDialog) {
-    this.updateDealsList()
-  }
+  constructor(private rest: RestService, private router: Router) {}
 
   ngOnInit(): void {
     this.filterForm = new FormGroup({
-      isExpired: new FormControl(''),
-      isAssigned: new FormControl(''),
-      startDate: new FormControl(''),
-      endDate: new FormControl(''),
       clientName: new FormControl(''),
       bdConsultant: new FormControl(''),
-      hrAdmin: new FormControl(''),
-      status: new FormControl({value:'', disabled: true}, )
+      status: new FormControl(''),
+      isExpired: new FormControl(''),
     });
+    this.loadProjects();
+  }
 
-    this.filteredData = [...this.deals];
-    }
-
-  updateDealsList(){
-    this.rest.getDeals().subscribe(res=>{
+  loadProjects(): void {
+    this.rest.getProjectsList().subscribe(res => {
       if (res.status === 200) {
-        this.deals=res.data;
-        this.applyFilters()
+        this.projects = res.data || [];
+        this.applyFilters();
       }
     });
   }
 
   applyFilters(): void {
-    const filters = this.filterForm.value;
-    this.filteredData = this.deals.filter(item => {
-      const bdFullName = `${item.bdFirstName} ${item.bdLastName}`.toLowerCase();
-      const hraFullName = `${item.hraFirstName} ${item.hraLastName}`.toLowerCase();
-      const isSameDate = (date1: Date, date2: Date): boolean => {
-        return (
-          date1.getFullYear() === date2.getFullYear() &&
-          date1.getMonth() === date2.getMonth() &&
-          date1.getDate() === date2.getDate()
-        );
-      };
+    const f = this.filterForm.value;
+    this.filteredData = this.projects.filter(p => {
+      const bd = `${p.bdFirstName || ''} ${p.bdLastName || ''}`.toLowerCase();
       return (
-        (filters.isExpired === '' || item.isExpired === JSON.parse(filters.isExpired)) &&
-        (filters.isAssigned === '' || JSON.parse(filters.isAssigned) === (!!item.hraID)) &&
-        (!filters.startDate || isSameDate(new Date(item.startDate), new Date(filters.startDate))) &&
-        (!filters.endDate || isSameDate(new Date(item.endDate), new Date(filters.endDate))) &&
-        (!filters.clientName || item.clientName.toLowerCase().includes(filters.clientName.toLowerCase())) &&
-        (!filters.bdConsultant || bdFullName.includes(filters.bdConsultant.toLowerCase())) &&
-        (!filters.hrAdmin || hraFullName.includes(filters.hrAdmin.toLowerCase()))
+        (!f.clientName || (p.clientName || '').toLowerCase().includes(f.clientName.toLowerCase())) &&
+        (!f.bdConsultant || bd.includes(f.bdConsultant.toLowerCase())) &&
+        (f.status === '' || String(p.status) === String(f.status)) &&
+        (f.isExpired === '' || p.isExpired === JSON.parse(f.isExpired))
       );
     });
   }
-  addAdmin(deal, event: Event){
-    event.stopPropagation()
-    this.matDialog.open(AssignAdminComponent, {
-      width: '60vw',
-      height: '60vh',
-      data: deal
-    })
-  }
 
-  dealClick(deal){
-    console.log("click deal")
-  }
-
-  // Statistics methods for dashboard cards
-  getAssignedProjectsCount(): number {
-    return this.deals?.filter(deal => deal.hraID).length || 0;
-  }
-
-  getExpiredProjectsCount(): number {
-    return this.deals?.filter(deal => deal.isExpired).length || 0;
-  }
-
-  getUnassignedProjectsCount(): number {
-    return this.deals?.filter(deal => !deal.hraID).length || 0;
-  }
-
-  // Clear filters functionality
   clearFilters(): void {
-    this.filterForm.reset();
+    this.filterForm.reset({ clientName: '', bdConsultant: '', status: '', isExpired: '' });
     this.applyFilters();
   }
 
+  openProject(p: any): void {
+    if (p?.ID) this.router.navigate(['/projects', p.ID]);
+  }
+
+  get totalCount(): number { return this.projects.length; }
+  getOpenCount(): number { return this.projects.filter(p => Number(p.status) !== 2).length; }
+  getClosedCount(): number { return this.projects.filter(p => Number(p.status) === 2).length; }
+  getExpiredCount(): number { return this.projects.filter(p => p.isExpired).length; }
 }

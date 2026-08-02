@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DatePipe, CommonModule, DecimalPipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { RestService } from '../services/rest.service';
@@ -21,6 +22,7 @@ import { EditSalesInvoiceDialogComponent } from '../invoices/edit-sales-invoice-
     DatePipe,
     DecimalPipe,
     CommonModule,
+    RouterModule,
     FormsModule,
     ReactiveFormsModule,
     MatAutocompleteModule,

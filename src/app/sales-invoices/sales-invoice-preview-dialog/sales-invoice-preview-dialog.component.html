@@ -103,6 +103,17 @@
             <span class="item-label">Language</span>
             <span class="item-value">{{ invoice.languageCode || '-' }}</span>
           </div>
+          <div class="preview-item" *ngIf="invoice.projectId">
+            <span class="item-label">Project</span>
+            <span class="item-value">
+              #{{ invoice.projectId }}
+              <span *ngIf="invoice.project" class="ml-1 text-xs px-1.5 py-0.5 rounded-full"
+                    [class.bg-green-100]="invoice.project.status !== 2" [class.text-green-700]="invoice.project.status !== 2"
+                    [class.bg-gray-200]="invoice.project.status === 2" [class.text-gray-600]="invoice.project.status === 2">
+                {{ invoice.project.status === 2 ? 'Closed' : 'Open' }}
+              </span>
+            </span>
+          </div>
         </div>
       </div>
 

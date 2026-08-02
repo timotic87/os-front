@@ -3,11 +3,12 @@ import {CurrencyPipe, DatePipe, NgIf, NgFor} from "@angular/common";
 import {RestService} from "../../../../services/rest.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ProjectAnnexDialogComponent} from "../../../../flow-parts/project-annex-dialog/project-annex-dialog.component";
+import {ProjectActionsPanelComponent} from "../../../../flow-parts/project-actions-panel/project-actions-panel.component";
 
 @Component({
   selector: 'app-project-card-pyhra',
   standalone: true,
-  imports: [DatePipe, NgIf, NgFor, CurrencyPipe],
+  imports: [DatePipe, NgIf, NgFor, CurrencyPipe, ProjectActionsPanelComponent],
   templateUrl: './project-card-pyhra.component.html',
   styleUrl: './project-card-pyhra.component.css'
 })

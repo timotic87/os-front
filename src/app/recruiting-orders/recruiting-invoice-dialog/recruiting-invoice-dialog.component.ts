@@ -9,6 +9,7 @@ import { InputComponent } from '../../shared/components/ui/input/input.component
 import { LabelComponent } from '../../shared/components/ui/label/label.component';
 import { TextareaComponent } from '../../shared/components/ui/textarea/textarea.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
+import { firstValueFrom } from 'rxjs';
 import * as XLSX from 'xlsx';
 
 export interface InvoiceDialogData {
@@ -68,6 +69,9 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
   candidateCalculations: any[] = []; // per-candidate fee calc results
   candidateCalculating: boolean[] = []; // per-candidate loading states
   groupingMode: 'individual' | 'grouped' = 'individual';
+
+  // Tracks the last fee currency code so we can NBS-convert amounts when it changes
+  prevFeeCurrencyCode: string | null = null;
 
   // Invoice description
   invoiceDescription: string = '';
@@ -256,6 +260,9 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
         this.invoiceForm.get('final_fee_amount')!.setValue(this.calculatedFee, { emitEvent: false });
       }
     }
+
+    // NBS-convert existing amounts whenever the user changes the fee currency
+    this.invoiceForm.get('fee_currency_id')?.valueChanges.subscribe((id: any) => this.onFeeCurrencyChanged(id));
   }
 
   /** Create a new candidate FormGroup */
@@ -402,24 +409,80 @@ export class RecruitingInvoiceDialogComponent implements OnInit {
 
   // --- Single-candidate methods (admin_fee / cancel_fee) ---
 
-  /** If fee_currency_id wasn't set from client/position, auto-detect from client country */
+  /** Default fee currency by client country: RS → RSD, otherwise → EUR (still editable). */
   autoSetFeeCurrency(): void {
-    const current = this.invoiceForm.get('fee_currency_id')?.value;
-    if (current) return; // already set
-
-    let targetCode: string | null = null;
-    if (this.data.clientCountry === 'RS') {
-      targetCode = 'RSD';
-    }
-    if (!targetCode) return;
-
+    const targetCode = this.data.clientCountry === 'RS' ? 'RSD' : 'EUR';
     const found = this.currencies.find((c: any) => c.code === targetCode);
     if (found) {
-      this.invoiceForm.patchValue({ fee_currency_id: found.ID });
-      if (this.mode === 'admin_fee') {
-        this.invoiceForm.patchValue({ salary_currency_id: found.ID });
+      // emitEvent:false so this default does not trigger an NBS conversion
+      this.invoiceForm.patchValue({ fee_currency_id: found.ID }, { emitEvent: false });
+      this.prevFeeCurrencyCode = targetCode;
+    } else {
+      this.prevFeeCurrencyCode = this.selectedFeeCurrencyCode || null;
+    }
+  }
+
+  /** When the user changes the fee currency, convert existing amounts via NBS middle rate. */
+  onFeeCurrencyChanged(newId: any): void {
+    const newCode = this.currencies.find((c: any) => c.ID === newId)?.code || null;
+    const oldCode = this.prevFeeCurrencyCode;
+    this.prevFeeCurrencyCode = newCode;
+    if (!newCode || !oldCode || oldCode === newCode) return;
+    if (!this.hasAnyFeeAmount()) return; // nothing to convert yet
+    this.convertAllFees(oldCode, newCode);
+  }
+
+  private hasAnyFeeAmount(): boolean {
+    if (this.mode === 'placement') {
+      for (let i = 0; i < this.candidatesArray.length; i++) {
+        if (parseFloat((this.candidatesArray.at(i) as FormGroup).get('final_fee_amount')?.value) > 0) return true;
+      }
+      return false;
+    }
+    return parseFloat(this.invoiceForm.get('final_fee_amount')?.value) > 0;
+  }
+
+  /** NBS middle rate (RSD per 1 unit); RSD → 1. Returns NaN if unavailable. */
+  private rateToRsd(code: string): Promise<number> {
+    if (!code || code === 'RSD') return Promise.resolve(1);
+    return firstValueFrom(this.rest.getNbsMiddleRate(code))
+      .then((res: any) => (res?.status === 200 ? Number(res.data?.middleRate) : NaN))
+      .catch(() => NaN);
+  }
+
+  /** Convert all fee amounts from oldCode to newCode using NBS middle rates. */
+  private async convertAllFees(oldCode: string, newCode: string): Promise<void> {
+    const [rOld, rNew] = await Promise.all([this.rateToRsd(oldCode), this.rateToRsd(newCode)]);
+    if (!rOld || !rNew || isNaN(rOld) || isNaN(rNew)) {
+      this.dialogService.showSnackBar(`NBS rate unavailable — please re-run Calc for ${newCode}`, '', 4000);
+      return;
+    }
+    const factor = rOld / rNew;
+    const conv = (v: any) => Math.round((parseFloat(v) || 0) * factor * 100) / 100;
+
+    if (this.mode === 'placement') {
+      for (let i = 0; i < this.candidatesArray.length; i++) {
+        const g = this.candidatesArray.at(i) as FormGroup;
+        const cur = parseFloat(g.get('final_fee_amount')?.value);
+        if (cur) g.get('final_fee_amount')!.setValue(conv(cur), { emitEvent: false });
+        if (this.candidateCalculations[i]) {
+          this.candidateCalculations[i].calculatedFee = conv(this.candidateCalculations[i].calculatedFee);
+          this.candidateCalculations[i].feeCurrencyCode = newCode;
+        }
+      }
+      if (this.adminFeePerPersonForDeduction) this.adminFeePerPersonForDeduction = conv(this.adminFeePerPersonForDeduction);
+    } else {
+      const cur = parseFloat(this.invoiceForm.get('final_fee_amount')?.value);
+      if (cur) this.invoiceForm.get('final_fee_amount')!.setValue(conv(cur), { emitEvent: false });
+      if (this.calculatedFee) this.calculatedFee = conv(this.calculatedFee);
+      if (this.adminFeePerPerson != null) this.adminFeePerPerson = conv(this.adminFeePerPerson);
+      if (this.projectedFeePerPerson != null) this.projectedFeePerPerson = conv(this.projectedFeePerPerson);
+      if (this.feeBreakdown) {
+        if (this.feeBreakdown.calculatedFee != null) this.feeBreakdown.calculatedFee = conv(this.feeBreakdown.calculatedFee);
+        this.feeBreakdown.feeCurrencyCode = newCode;
       }
     }
+    this.dialogService.showSnackBar(`Converted to ${newCode} (NBS middle rate)`, '', 2500);
   }
 
   calculateAdminFee(): void {

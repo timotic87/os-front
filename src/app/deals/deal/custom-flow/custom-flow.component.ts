@@ -7,6 +7,7 @@ import {ProjectAnnexDialogComponent} from '../../../flow-parts/project-annex-dia
 import {CustomFlowDocumentStepComponent} from './custom-flow-document-step/custom-flow-document-step.component';
 import {ClientDocumentStatusComponent} from '../../../flow-parts/client-document-status/client-document-status.component';
 import {CustomFlowPromoteStepComponent} from './custom-flow-promote-step/custom-flow-promote-step.component';
+import {ProjectActionsPanelComponent} from '../../../flow-parts/project-actions-panel/project-actions-panel.component';
 import {CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent} from '../../../shared/components/ui/card/card.component';
 import {BadgeComponent} from '../../../shared/components/ui/badge/badge.component';
 
@@ -32,6 +33,7 @@ interface FlowStepDef {
     CustomFlowDocumentStepComponent,
     ClientDocumentStatusComponent,
     CustomFlowPromoteStepComponent,
+    ProjectActionsPanelComponent,
     CardComponent,
     CardHeaderComponent,
     CardTitleComponent,

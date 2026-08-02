@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CommonModule, DecimalPipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { RestService } from '../services/rest.service';
 import { UserService } from '../services/user.service';
@@ -24,6 +25,7 @@ import * as XLSX from 'xlsx';
     DatePipe,
     DecimalPipe,
     CommonModule,
+    RouterModule,
     FormsModule,
     CardComponent,
     CardHeaderComponent,

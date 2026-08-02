@@ -6,6 +6,7 @@ import {ProjectAnnexDialogComponent} from "../../../../flow-parts/project-annex-
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { CardComponent, CardHeaderComponent, CardTitleComponent, CardDescriptionComponent, CardContentComponent } from '../../../../shared/components/ui/card/card.component';
 import { BadgeComponent } from '../../../../shared/components/ui/badge/badge.component';
+import { ProjectActionsPanelComponent } from '../../../../flow-parts/project-actions-panel/project-actions-panel.component';
 
 @Component({
   selector: 'app-project-card-stuffing',
@@ -13,7 +14,8 @@ import { BadgeComponent } from '../../../../shared/components/ui/badge/badge.com
   imports: [
     CommonModule, DatePipe, NgIf, NgFor, CurrencyPipe,
     ButtonComponent, CardComponent, CardHeaderComponent,
-    CardTitleComponent, CardDescriptionComponent, CardContentComponent, BadgeComponent
+    CardTitleComponent, CardDescriptionComponent, CardContentComponent, BadgeComponent,
+    ProjectActionsPanelComponent
   ],
   templateUrl: './project-card-stuffing.component.html',
   styleUrl: './project-card-stuffing.component.css'

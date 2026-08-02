@@ -36,6 +36,8 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
   currencies: any[] = [];
   vatPostingGroups: any[] = [];
   clientSuggestions: any[] = [];
+  projectSuggestions: any[] = [];
+  projectMismatch: string | null = null;
   isSubmitting = false;
 
   constructor(
@@ -52,6 +54,8 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       clientSearch: [''],
       clientId: [null],
       serviceId: [null],
+      projectSearch: [''],
+      projectId: [null],
       costCenterSearch: [''],
       costCenterId: [null],
       currencyCode: [''],
@@ -84,6 +88,8 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       clientSearch: inv.customerName || inv.client?.customerName || '',
       clientId: inv.clientId,
       serviceId: inv.serviceId,
+      projectId: inv.projectId || null,
+      projectSearch: inv.projectId ? ('#' + inv.projectId) : '',
       costCenterSearch: inv.costCenter ? `${inv.costCenter.code} - ${inv.costCenter.name}` : '',
       costCenterId: inv.costCenterId,
       currencyCode: inv.currencyCode || '',
@@ -171,6 +177,46 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
     this.clientSuggestions = [];
   }
 
+  onProjectSearch(event: any) {
+    const val = event.target.value;
+    if (!val || val.length < 1) { this.projectSuggestions = []; return; }
+    this.rest.searchProjects(val).subscribe({
+      next: (res: any) => { this.projectSuggestions = res.status === 200 ? res.data : []; }
+    });
+  }
+
+  selectProject(p: any) {
+    this.projectSuggestions = [];
+    if (p.status === 2) {
+      this.projectMismatch = `Project #${p.ID} is closed — invoices cannot be linked to it.`;
+      return;
+    }
+    const inv = this.data.invoice;
+    const clientMismatch = inv.clientId && p.clientId && Number(inv.clientId) !== Number(p.clientId);
+    const serviceMismatch = inv.serviceId && p.serviceId && Number(inv.serviceId) !== Number(p.serviceId);
+    if (clientMismatch) {
+      this.projectMismatch = `Client mismatch: this invoice is billed to a different client than project #${p.ID} (${p.clientName}).`;
+      return;
+    }
+    if (serviceMismatch) {
+      this.projectMismatch = `Service mismatch: this invoice's service does not match project #${p.ID}${p.serviceName ? ' (' + p.serviceName + ')' : ''}.`;
+      return;
+    }
+    this.projectMismatch = null;
+    this.form.patchValue({
+      projectId: p.ID,
+      projectSearch: `#${p.ID} — ${p.clientName || ''}`,
+      clientId: p.clientId,
+      clientSearch: p.clientName || '',
+      serviceId: p.serviceId,
+    });
+  }
+
+  clearProject() {
+    this.projectMismatch = null;
+    this.form.patchValue({ projectId: null, projectSearch: '' });
+  }
+
   onCostCenterSearch(event: any) {
     const val = (event.target.value || '').toLowerCase().trim();
     this.filteredCostCenters = val ? this.costCenters.filter((cc: any) =>
@@ -209,6 +255,7 @@ export class EditSalesInvoiceDialogComponent implements OnInit {
       legalEntityId: val.legalEntityId,
       clientId: val.clientId || null,
       serviceId: val.serviceId || null,
+      projectId: val.projectId || null,
       costCenterId: val.costCenterId || null,
       issueDate: val.issueDate || null,
       transactionDate: val.transactionDate || null,
