@@ -137,6 +137,23 @@ export class DealComponent implements OnInit, OnDestroy {
   }
 
   // Reload deal data without showing additional loader (used after status changes)
+  deleteDeal(): void {
+    const confirmed = window.confirm('Delete this deal and all its recruiting orders and positions?');
+    if (!confirmed) return;
+
+    this.rest.deleteDeal({ dealID: this.deal.ID }).subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Deal deleted', '', 3000);
+          this.router.navigate(['/deals']);
+        }
+      },
+      error: (err: any) => {
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
   reloadDealData(): void {
     this.rest.getDealByID(this.dealID).subscribe({
       next: res =>{

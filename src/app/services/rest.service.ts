@@ -279,6 +279,9 @@ export class RestService {
   changeDealStatus(data: any){
     return this.http.put(`${this.baseUrl}/changeDealStatus`, data, {headers: this.headers()}) as Observable<any>;
   }
+  deleteDeal(data: any){
+    return this.http.post(`${this.baseUrl}/deleteDeal`, data, {headers: this.headers()}) as Observable<any>;
+  }
   clientOfferReject(data: any){
     return this.http.put(`${this.baseUrl}/clientOfferReject`, data, {headers: this.headers()}) as Observable<any>;
   }
@@ -535,6 +538,12 @@ export class RestService {
 
   changeRecruitingOrderStatus(data: any) {
     return this.http.put(`${this.baseUrl}/changeRecruitingOrderStatus`, data, { headers: this.headers() }) as Observable<any>;
+  }
+  deleteRecruitingOrder(data: any) {
+    return this.http.post(`${this.baseUrl}/deleteRecruitingOrder`, data, { headers: this.headers() }) as Observable<any>;
+  }
+  stopRecruitingOrder(data: any) {
+    return this.http.put(`${this.baseUrl}/stopRecruitingOrder`, data, { headers: this.headers() }) as Observable<any>;
   }
 
   getRecruitingOrderStatuses() {

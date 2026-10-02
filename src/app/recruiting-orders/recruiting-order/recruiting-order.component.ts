@@ -144,6 +144,45 @@ export class RecruitingOrderComponent implements OnInit {
     });
   }
 
+  deleteOrder(): void {
+    const hasInvoices = (this.order?.positions || []).some((p: any) => this.hasNonRejectedInvoices(p));
+    if (hasInvoices) {
+      this.dialogService.showMsgDialog('Cannot delete an order that has non-rejected invoices.');
+      return;
+    }
+    const confirmed = window.confirm(`Delete order "${this.order.order_number}" and all its positions?`);
+    if (!confirmed) return;
+
+    this.rest.deleteRecruitingOrder({ orderID: this.order.ID }).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Order deleted', '', 3000);
+          this.router.navigate(['/deal', this.order.dealID || this.order.deal?.ID]);
+        }
+      },
+      error: (err) => {
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  stopOrder(): void {
+    const confirmed = window.confirm(`Stop order "${this.order.order_number}"? Active positions will be stopped too.`);
+    if (!confirmed) return;
+
+    this.rest.stopRecruitingOrder({ orderID: this.order.ID }).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.dialogService.showSnackBar('Order stopped', '', 3000);
+          this.loadOrder();
+        }
+      },
+      error: (err) => {
+        this.dialogService.showMsgDialog('Error: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
   changePositionStatus(positionID: number, statusID: number): void {
     this.rest.changePositionStatus({ positionID, statusID }).subscribe({
       next: (res) => {
